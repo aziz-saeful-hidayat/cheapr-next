@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react'
 import MaterialReactTable, { type MRT_ColumnDef, type MRT_Row, MaterialReactTableProps } from 'material-react-table'
 import { Box, IconButton, Tooltip } from '@mui/material'
+
 //Date Picker Imports
 import { Delete, Edit } from '@mui/icons-material'
 
@@ -102,9 +103,10 @@ const Items = ({ data, reupdate }: { data: InventoryItem[]; reupdate: (order: nu
         header: 'Comment',
         size: 250
       }
+
       //end
     ],
-    [data]
+    []
   )
 
   return (

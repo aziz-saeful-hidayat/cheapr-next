@@ -1,8 +1,6 @@
-import Typography from '@mui/material/Typography'
 import React, { useEffect, useMemo, useState, useCallback } from 'react'
 import MaterialReactTable, {
   type MRT_ColumnDef,
-  type MRT_Cell,
   type MRT_Row,
   type MRT_ColumnFiltersState,
   type MRT_PaginationState,
@@ -21,92 +19,19 @@ import {
   Stack,
   TextField,
   Tooltip,
-  TableRow,
   Autocomplete,
   CircularProgress
 } from '@mui/material'
+
 //Date Picker Imports
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { Delete, Edit, Add } from '@mui/icons-material'
-
-import RefreshIcon from '@mui/icons-material/Refresh'
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
-import { SkateOff } from 'mdi-material-ui'
-import Items from './items'
+import Items from 'src/@core/components/inventory-item'
 
-const exdata = {
-  pk: 279,
-  order_id: 'leilani@wpcomputerparts.com',
-  order_date: null,
-  channel: {
-    pk: 1,
-    name: 'Amazon'
-  },
-  tracking: {
-    pk: 1365,
-    tracking_number: '770916094253',
-    carrier: null,
-    last_updated: null,
-    activity_date: null,
-    status: null,
-    milestone_name: null,
-    location: null,
-    est_delivery: null,
-    address: null,
-    src_address: null
-  },
-  tracking_number: null,
-  seller: {
-    pk: 46,
-    name: 'leilani',
-    platform: null,
-    link: null
-  },
-  seller_name: null,
-  purchase_link: '',
-  total_cost: null,
-  shipping_cost: null,
-  comment: null,
-  inventoryitems: [
-    {
-      pk: 524,
-      buying: 279,
-      product: {
-        pk: 6163,
-        sku: 'Epson-C11CJ63201',
-        mpn: 'C11CJ63201',
-        make: 'Epson',
-        model: 'EcoTank ET-2850',
-        asin: null
-      },
-      status: 'W',
-      serial: 'X8RU038467',
-      comment: '2)Perfect-Sealed',
-      room: 1,
-      total_cost: 100.23,
-      shipping_cost: 100.23
-    },
-    {
-      pk: 525,
-      buying: 279,
-      product: {
-        pk: 6163,
-        sku: 'Epson-C11CJ63201',
-        mpn: 'C11CJ63201',
-        make: 'Epson',
-        model: 'EcoTank ET-2850',
-        asin: null
-      },
-      status: 'W',
-      serial: 'X8RU038686',
-      comment: '2)Perfect-Sealed',
-      room: 1
-    }
-  ]
-}
 type Channel = {
   pk: number
   name: string
@@ -157,10 +82,7 @@ type BuyingOrder = {
   comment: string
   inventoryitems: InventoryItem[]
 }
-type BuyingOrderApiResponse = {
-  results: Array<BuyingOrder>
-  count: number
-}
+
 interface CreateModalProps {
   columns: MRT_ColumnDef<BuyingOrder>[]
   onClose: () => void
@@ -185,6 +107,7 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channe
   const [values, setValues] = useState<any>(() =>
     columns.reduce((acc, column) => {
       acc[column.accessorKey ?? ''] = ''
+
       return acc
     }, {} as any)
   )
@@ -194,6 +117,7 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channe
     onSubmit(values)
     onClose()
   }
+
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Create New Buying Order</DialogTitle>
@@ -260,6 +184,7 @@ export const AddItemModal = ({ open, columns, onClose, onSubmit, rowData }: AddI
   const [values, setValues] = useState<any>(() =>
     columns.reduce((acc, column) => {
       acc[column.accessorKey ?? ''] = ''
+
       return acc
     }, {} as any)
   )
@@ -269,10 +194,10 @@ export const AddItemModal = ({ open, columns, onClose, onSubmit, rowData }: AddI
     onSubmit({ ...values, buying: rowData?.pk })
     onClose()
   }
-  const [skus, setSkus] = useState<CAProduct[]>([])
   const [isopen, setOpen] = useState(false)
   const [options, setOptions] = useState<readonly CAProduct[]>([])
   const loading = open && options.length === 0
+
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Add Buying Item</DialogTitle>
@@ -380,15 +305,6 @@ export const DeleteModal = ({ open, onClose, onSubmit, data }: DeleteModalProps)
     </Dialog>
   )
 }
-const validateRequired = (value: string) => !!value.length
-const validateEmail = (email: string) =>
-  !!email.length &&
-  email
-    .toLowerCase()
-    .match(
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-    )
-const validateAge = (age: number) => age >= 18 && age <= 50
 const Example = () => {
   const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>([])
   const [globalFilter, setGlobalFilter] = useState('')
@@ -397,7 +313,7 @@ const Example = () => {
     pageIndex: 0,
     pageSize: 100
   })
-  const { data, isError, isFetching, isLoading, refetch } = useQuery({
+  const { data, isError, isFetching, isLoading } = useQuery({
     queryKey: [
       'table-data',
       columnFilters, //refetch when columnFilters changes
@@ -411,13 +327,13 @@ const Example = () => {
       fetchURL.searchParams.set('limit', `${pagination.pageSize}`)
       fetchURL.searchParams.set('offset', `${pagination.pageIndex * pagination.pageSize}`)
       for (let f = 0; f < columnFilters.length; f++) {
-        let filter = columnFilters[f]
+        const filter = columnFilters[f]
         fetchURL.searchParams.set(filter.id.split('.')[0], typeof filter.value === 'string' ? filter.value : '')
       }
       fetchURL.searchParams.set('search', globalFilter ?? '')
       let ordering = ''
       for (let s = 0; s < sorting.length; s++) {
-        let sort = sorting[s]
+        const sort = sorting[s]
         if (s !== 0) {
           ordering = ordering + ','
         }
@@ -429,6 +345,7 @@ const Example = () => {
       fetchURL.searchParams.set('ordering', ordering)
       const response = await fetch(fetchURL.href)
       const json = await response.json()
+
       return json
     },
     keepPreviousData: true
@@ -439,14 +356,10 @@ const Example = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [addModalOpen, setAddModalOpen] = useState<BuyingOrder>()
 
-  const [validationErrors, setValidationErrors] = useState<{
-    [cellId: string]: string
-  }>({})
-
   const handleCreateNewRow = (values: BuyingOrder) => {
     console.log(values)
-    let channel = channelData.find(channel => channel.name == values['channel']['name'])
-    let new_obj = { ...values, channel: channel?.pk }
+    const channel = channelData.find(channel => channel.name == values['channel']['name'])
+    const new_obj = { ...values, channel: channel?.pk }
     console.log(new_obj)
     fetch(`https://cheapr.my.id/buying_order/`, {
       // note we are going to /1
@@ -476,7 +389,7 @@ const Example = () => {
       .then(json => {
         if (json.pk) {
           console.log(json)
-          let objIdx = tableData.findIndex(buying => buying.pk == json.pk)
+          const objIdx = tableData.findIndex(buying => buying.pk == json.pk)
           tableData[objIdx] = json
           setTableData([...tableData])
         }
@@ -499,9 +412,6 @@ const Example = () => {
         }
       })
   }
-  const handleCancelRowEdits = () => {
-    setValidationErrors({})
-  }
 
   const handleDeleteRow = useCallback(
     (row: MRT_Row<BuyingOrder>) => {
@@ -522,7 +432,6 @@ const Example = () => {
             setTableData([...tableData])
           }
         })
-      //send api delete request here, then refetch or update local table data for re-render
     },
     [tableData]
   )
@@ -531,9 +440,8 @@ const Example = () => {
     row,
     values
   }) => {
-    //if using flat data and simple accessorKeys/ids, you can just do a simple assignment here.
-    let channel = channelData.find(channel => channel.name == values['channel.name'])
-    for (var key in values) {
+    const channel = channelData.find(channel => channel.name == values['channel.name'])
+    for (const key in values) {
       if (values.hasOwnProperty(key)) {
         if (key == 'channel.name') {
           values['channel'] = channel?.pk
@@ -543,7 +451,6 @@ const Example = () => {
     }
     console.log(values)
     fetch(`https://cheapr.my.id/buying_order/${row.original.pk}/`, {
-      // note we are going to /1
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json'
@@ -554,7 +461,7 @@ const Example = () => {
       .then(json => {
         if (json['pk'] !== values.pk) {
           tableData[row.index] = { ...json, channel: channel, inventoryitems: row.original.inventoryitems }
-          //send/receive api updates here
+
           setTableData([...tableData])
           exitEditingMode() //required to exit editing mode
         }
@@ -569,7 +476,6 @@ const Example = () => {
         size: 200,
         enableEditing: false
       },
-      //column definitions...
       {
         accessorKey: 'order_date',
         header: 'Date',
@@ -617,45 +523,6 @@ const Example = () => {
           type: 'number'
         }
       }
-      //end
-    ],
-    [channelData]
-  )
-  const columnsItem = useMemo<MRT_ColumnDef<InventoryItem>[]>(
-    () => [
-      {
-        accessorKey: 'product.sku',
-        header: 'SKU',
-        size: 150
-      },
-      {
-        accessorKey: 'serial',
-        header: 'Serial',
-        size: 150
-      },
-
-      {
-        accessorKey: 'total_cost',
-        header: 'Total',
-        size: 150,
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        }
-      },
-      {
-        accessorKey: 'shipping_cost',
-        header: 'Shipping',
-        size: 150,
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        }
-      },
-      {
-        accessorKey: 'comment',
-        header: 'Comment',
-        size: 150
-      }
-      //end
     ],
     [channelData]
   )
@@ -693,9 +560,8 @@ const Example = () => {
         header: 'Comment',
         size: 150
       }
-      //end
     ],
-    [channelData]
+    []
   )
   useEffect(() => {
     setPagination({
@@ -716,6 +582,7 @@ const Example = () => {
         setChannelData(json.results)
       })
   }, [])
+
   return (
     <>
       <MaterialReactTable
