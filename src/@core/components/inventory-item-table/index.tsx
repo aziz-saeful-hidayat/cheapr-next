@@ -8,10 +8,18 @@ import MaterialReactTable, {
 import { Box, IconButton, Tooltip } from '@mui/material'
 
 //Date Picker Imports
-import { Delete, ContentCopy } from '@mui/icons-material'
+import { Delete, Edit } from '@mui/icons-material'
 
 type InventoryItem = {
-  [key: string]: any
+  pk: number
+  buying: number
+  product: CAProduct
+  status: string
+  serial: string
+  comment: string
+  room: number
+  total_cost: number
+  shipping_cost: number
 }
 type Payload = {
   pk?: number
@@ -32,28 +40,17 @@ type CAProduct = {
   model: string
   asin: string
 }
-type InventoryPayload = {
-  buying: number
-  product: number
-  status: string
-  serial: string
-  comment: string
-  room: number
-  total_cost: number
-  shipping_cost: number
-}
+
 const Items = ({
   data,
   reupdate,
   idx,
-  update,
-  handleAddItem
+  update
 }: {
   data: InventoryItem[]
   reupdate: (order: number) => void
   idx: number
   update: (idx: number, rowIdx: number, key: string, value: any) => void
-  handleAddItem: (values: InventoryPayload) => void
 }) => {
   const handleSaveRow: MaterialReactTableProps<InventoryItem>['onEditingRowSave'] = async ({
     exitEditingMode,
@@ -101,8 +98,8 @@ const Items = ({
     const key = cell.column.id
     const rowIdx = cell.row.index
     update(idx, rowIdx, key, value)
-    const payload: InventoryItem = {}
-    payload[key] = value
+    const payload: Payload = {}
+    payload[key as keyof InventoryItem] = value
     console.log(cell.row.original.pk, key, value)
     fetch(`https://cheapr.my.id/inventory_items/${cell.row.original.pk}/`, {
       method: 'PATCH',
@@ -166,7 +163,7 @@ const Items = ({
       enableBottomToolbar={false}
       initialState={{ showColumnFilters: false }}
       enableEditing
-      editingMode='cell'
+      editingMode='modal'
       onEditingRowSave={handleSaveRow}
       muiTableBodyCellEditTextFieldProps={({ cell }) => ({
         //onBlur is more efficient, but could use onChange instead
@@ -191,23 +188,9 @@ const Items = ({
       positionActionsColumn='last'
       renderRowActions={({ row, table }) => (
         <Box sx={{ display: 'flex' }}>
-          <Tooltip arrow placement='top' title='Duplicate'>
-            <IconButton
-              color='primary'
-              onClick={() =>
-                handleAddItem({
-                  buying: row.original.buying,
-                  product: row.original.product.pk,
-                  status: row.original.status,
-                  serial: row.original.serial,
-                  comment: row.original.comment,
-                  room: row.original.room,
-                  total_cost: row.original.total_cost,
-                  shipping_cost: row.original.shipping_cost
-                })
-              }
-            >
-              <ContentCopy />
+          <Tooltip arrow placement='top' title='Edit'>
+            <IconButton color='primary' onClick={() => table.setEditingRow(row)}>
+              <Edit />
             </IconButton>
           </Tooltip>
           <Tooltip arrow placement='top' title='Delete'>

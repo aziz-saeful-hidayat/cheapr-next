@@ -49,17 +49,26 @@ const navigation = (): VerticalNavItemsType => {
     {
       sectionTitle: 'MENU'
     },
+    {
+      title: 'Secured',
+      icon: Table,
+      path: '/secured'
+    },
         {
       title: 'SKU',
       icon: Table,
       path: '/sku'
     },
-        {
-      title: 'Buying',
+    {
+      title: 'Channel',
       icon: Table,
-      path: '/buying'
+      path: '/channel'
     },
-    
+    {
+      title: 'Inventory',
+      icon: Table,
+      path: '/inventory'
+    },
     // {
     //   title: 'Typography',
     //   icon: FormatLetterCase,

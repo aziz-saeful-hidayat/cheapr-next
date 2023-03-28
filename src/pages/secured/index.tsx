@@ -5,7 +5,8 @@ import MaterialReactTable, {
   type MRT_ColumnFiltersState,
   type MRT_PaginationState,
   type MRT_SortingState,
-  MaterialReactTableProps
+  MaterialReactTableProps,
+  MRT_Cell
 } from 'material-react-table'
 import {
   Box,
@@ -22,12 +23,13 @@ import {
   Autocomplete,
   CircularProgress
 } from '@mui/material'
+import Typography from '@mui/material/Typography'
 
 //Date Picker Imports
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
-import { Delete, Edit, Add } from '@mui/icons-material'
+import { Delete, Add } from '@mui/icons-material'
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import Items from 'src/@core/components/inventory-item'
@@ -37,7 +39,6 @@ type Channel = {
   name: string
 }
 type InventoryPayload = {
-  pk: number
   buying: number
   product: number
   status: string
@@ -48,15 +49,7 @@ type InventoryPayload = {
   shipping_cost: number
 }
 type InventoryItem = {
-  pk: number
-  buying: number
-  product: CAProduct
-  status: string
-  serial: string
-  comment: string
-  room: number
-  total_cost: number
-  shipping_cost: number
+  [key: string]: any
 }
 type CAProduct = {
   pk: number
@@ -81,6 +74,19 @@ type BuyingOrder = {
   shipping_cost: number
   comment: string
   inventoryitems: InventoryItem[]
+}
+type Payload = {
+  pk?: number
+  order_id?: string
+  order_date?: string
+  channel?: number
+  tracking_number?: string
+  seller_name?: string
+  purchase_link?: string
+  total_cost?: number
+  shipping_cost?: number
+  comment?: string
+  inventoryitems?: InventoryItem[]
 }
 
 interface CreateModalProps {
@@ -200,7 +206,7 @@ export const AddItemModal = ({ open, columns, onClose, onSubmit, rowData }: AddI
 
   return (
     <Dialog open={open}>
-      <DialogTitle textAlign='center'>Add Buying Item</DialogTitle>
+      <DialogTitle textAlign='center'>Add Item</DialogTitle>
       <DialogContent>
         <form onSubmit={e => e.preventDefault()}>
           <Stack
@@ -311,7 +317,7 @@ const Example = () => {
   const [sorting, setSorting] = useState<MRT_SortingState>([])
   const [pagination, setPagination] = useState<MRT_PaginationState>({
     pageIndex: 0,
-    pageSize: 100
+    pageSize: 10
   })
   const { data, isError, isFetching, isLoading } = useQuery({
     queryKey: [
@@ -328,6 +334,9 @@ const Example = () => {
       fetchURL.searchParams.set('offset', `${pagination.pageIndex * pagination.pageSize}`)
       for (let f = 0; f < columnFilters.length; f++) {
         const filter = columnFilters[f]
+        if (filter.id == 'order_date') {
+          console.log(filter)
+        }
         fetchURL.searchParams.set(filter.id.split('.')[0], typeof filter.value === 'string' ? filter.value : '')
       }
       fetchURL.searchParams.set('search', globalFilter ?? '')
@@ -343,6 +352,7 @@ const Example = () => {
         ordering = ordering + sort.id
       }
       fetchURL.searchParams.set('ordering', ordering)
+      console.log(fetchURL.href)
       const response = await fetch(fetchURL.href)
       const json = await response.json()
 
@@ -377,6 +387,21 @@ const Example = () => {
           setTableData([...tableData])
         }
       })
+  }
+
+  const update = (idx: number, rowIdx: number, key: string, value: any) => {
+    const inventoryitems_update = tableData[idx].inventoryitems.map((el, idx) => {
+      if (idx == rowIdx) {
+        const newEl = { ...el }
+        newEl[key] = value
+
+        return newEl
+      } else {
+        return el
+      }
+    })
+    tableData[idx].inventoryitems = inventoryitems_update
+    setTableData([...tableData])
   }
   const reupdate = (order: number) => {
     fetch(`https://cheapr.my.id/buying_order/${order}/`, {
@@ -468,26 +493,59 @@ const Example = () => {
       })
   }
 
+  const handleSaveCell = (cell: MRT_Cell<BuyingOrder>, value: any) => {
+    const key = cell.column.id
+    const channel = channelData.find(channel => channel.name == value)
+    console.log(key, value)
+    const oldData = [...tableData]
+    const newData: any = [...tableData]
+    const payload: Payload = {}
+    if (key === 'channel.name') {
+      payload['channel'] = channel?.pk
+      newData[cell.row.index]['channel'] = channel
+    } else {
+      payload[key as keyof Payload] = value
+      newData[cell.row.index][cell.column.id as keyof BuyingOrder] = value
+    }
+    const pk = newData[cell.row.index]['pk']
+
+    setTableData([...newData])
+    console.log(payload)
+    fetch(`https://cheapr.my.id/buying_order/${pk}/`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    })
+      .then(response => response.json())
+      .then(json => {
+        if (json[key] !== value) {
+          setTableData([...oldData])
+        }
+      })
+  }
+
   const columns = useMemo<MRT_ColumnDef<BuyingOrder>[]>(
     () => [
       {
         accessorKey: 'order_id',
         header: 'Order ID',
-        size: 200,
-        enableEditing: false
+        size: 200
       },
       {
         accessorKey: 'order_date',
         header: 'Date',
-        size: 100,
+        size: 70,
         muiTableBodyCellEditTextFieldProps: {
           type: 'date'
-        }
+        },
+        filterFn: 'between'
       },
       {
         accessorKey: 'tracking_number',
-        header: 'Tracking Number',
-        size: 150
+        header: 'Tracking',
+        size: 100
       },
       {
         accessorKey: 'seller_name',
@@ -497,7 +555,7 @@ const Example = () => {
       {
         accessorKey: 'channel.name',
         header: 'Channel',
-        size: 150,
+        size: 100,
         muiTableBodyCellEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: channelData.map(channel => (
@@ -566,7 +624,7 @@ const Example = () => {
   useEffect(() => {
     setPagination({
       pageIndex: 0,
-      pageSize: 100
+      pageSize: 10
     })
   }, [sorting, globalFilter, columnFilters])
   useEffect(() => {
@@ -588,9 +646,15 @@ const Example = () => {
       <MaterialReactTable
         columns={columns}
         data={tableData} //data is undefined on first render
-        initialState={{ showColumnFilters: false }}
+        initialState={{ showColumnFilters: true }}
         enableEditing
-        editingMode='modal'
+        editingMode='cell'
+        muiTableBodyCellEditTextFieldProps={({ cell }) => ({
+          //onBlur is more efficient, but could use onChange instead
+          onBlur: event => {
+            handleSaveCell(cell, event.target.value)
+          }
+        })}
         onEditingRowSave={handleSaveRow}
         enableStickyHeader
         enableStickyFooter
@@ -609,21 +673,23 @@ const Example = () => {
         onGlobalFilterChange={setGlobalFilter}
         onPaginationChange={setPagination}
         onSortingChange={setSorting}
-        renderRowActions={({ row, table }) => (
+        enableRowActions
+        positionActionsColumn='last'
+        renderRowActions={({ row }) => (
           <Box sx={{ display: 'flex', width: 100 }}>
-            <Tooltip arrow placement='top' title='Edit'>
+            {/* <Tooltip arrow placement='top' title='Edit'>
               <IconButton color='primary' onClick={() => table.setEditingRow(row)}>
                 <Edit />
+              </IconButton>
+            </Tooltip> */}
+            <Tooltip arrow placement='top' title='Add Item'>
+              <IconButton color='primary' onClick={() => setAddModalOpen(row.original)}>
+                <Add />
               </IconButton>
             </Tooltip>
             <Tooltip arrow placement='top' title='Delete'>
               <IconButton color='error' onClick={() => handleDeleteRow(row)}>
                 <Delete />
-              </IconButton>
-            </Tooltip>
-            <Tooltip arrow placement='top' title='Add Item'>
-              <IconButton color='primary' onClick={() => setAddModalOpen(row.original)}>
-                <Add />
               </IconButton>
             </Tooltip>
           </Box>
@@ -636,11 +702,24 @@ const Example = () => {
             </IconButton>
           </Tooltip> */}
             <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
-              Create New Buying Order
+              Add New Secured Order
             </Button>
           </>
         )}
-        renderDetailPanel={({ row }) => <Items data={row.original.inventoryitems} reupdate={reupdate} />}
+        renderBottomToolbarCustomActions={() => (
+          <Typography sx={{ fontStyle: 'italic', p: '0 1rem' }} variant='body2'>
+            Double-Click a Cell to Edit
+          </Typography>
+        )}
+        renderDetailPanel={({ row }) => (
+          <Items
+            data={row.original.inventoryitems}
+            reupdate={reupdate}
+            idx={row.index}
+            update={update}
+            handleAddItem={handleAddItem}
+          />
+        )}
         rowCount={data?.count ?? 0}
         state={{
           columnFilters,
