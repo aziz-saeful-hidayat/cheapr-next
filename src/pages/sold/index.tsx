@@ -814,10 +814,10 @@ const Example = () => {
 
 const queryClient = new QueryClient()
 
-const Buying = () => (
+const Sold = () => (
   <QueryClientProvider client={queryClient}>
     <Example />
   </QueryClientProvider>
 )
 
-export default Buying
+export default Sold

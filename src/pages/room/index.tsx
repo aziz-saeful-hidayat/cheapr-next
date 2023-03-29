@@ -133,7 +133,7 @@ const Example = () => {
       sorting //refetch when sorting changes
     ],
     queryFn: async () => {
-      const fetchURL = new URL('/room/', 'https://cheapr.my.id')
+      const fetchURL = new URL('/room/?ordering=id', 'https://cheapr.my.id')
       fetchURL.searchParams.set('limit', `${pagination.pageSize}`)
       fetchURL.searchParams.set('offset', `${pagination.pageIndex * pagination.pageSize}`)
       for (let f = 0; f < columnFilters.length; f++) {

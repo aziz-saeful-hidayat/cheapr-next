@@ -16,7 +16,7 @@ const Table = (theme: Theme) => {
         root: {
           textTransform: 'uppercase',
           '& .MuiTableCell-head': {
-            fontSize: '0.75rem',
+            fontSize: 11,
             fontWeight: 600,
             letterSpacing: '0.13px'
           }

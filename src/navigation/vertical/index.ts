@@ -47,7 +47,7 @@ const navigation = (): VerticalNavItemsType => {
     //   openInNewTab: true
     // },
     {
-      sectionTitle: 'MENU'
+      sectionTitle: 'ADMINISTRATION'
     },
     {
       title: 'Secured',
@@ -63,6 +63,11 @@ const navigation = (): VerticalNavItemsType => {
       title: 'Channel',
       icon: Table,
       path: '/channel'
+    },
+    {
+      title: 'Room',
+      icon: Table,
+      path: '/room'
     },
     {
       title: 'Inventory',

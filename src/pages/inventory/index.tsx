@@ -15,6 +15,7 @@ import {
   DialogContent,
   DialogTitle,
   IconButton,
+  MenuItem,
   Stack,
   TextField,
   Tooltip
@@ -36,7 +37,11 @@ type Item = {
   status: string
   serial: string
   comment: string
-  room: number
+  room: {
+    pk: number
+    name: string
+    room_id: string
+  }
   total_cost: number
   shipping_cost: number
 }
@@ -58,6 +63,11 @@ type Payload = {
   room?: number
   total_cost?: number
   shipping_cost?: number
+}
+type Room = {
+  pk: number
+  name: string
+  room_id: string
 }
 
 interface CreateModalProps {
@@ -191,6 +201,7 @@ const Example = () => {
     keepPreviousData: true
   })
   const [tableData, setTableData] = useState<Item[]>([])
+  const [roomData, setRoomData] = useState<Room[]>([])
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
@@ -224,14 +235,22 @@ const Example = () => {
 
   const handleSaveCell = (cell: MRT_Cell<Item>, value: any) => {
     const key = cell.column.id
+    const channel = roomData.find(room => room.name == value)
+    console.log(key, value)
     const oldData = [...tableData]
     const newData: any = [...tableData]
-    newData[cell.row.index][cell.column.id as keyof Item] = value
-    const pk = newData[cell.row.index]['pk']
     const payload: Payload = {}
-    payload[key as keyof Payload] = value
-    setTableData([...newData])
+    if (key === 'room.name') {
+      payload['room'] = channel?.pk
+      newData[cell.row.index]['room'] = channel
+    } else {
+      payload[key as keyof Payload] = value
+      newData[cell.row.index][cell.column.id as keyof Item] = value
+    }
+    const pk = newData[cell.row.index]['pk']
 
+    setTableData([...newData])
+    console.log(payload)
     fetch(`https://cheapr.my.id/inventory_items/${pk}/`, {
       method: 'PATCH',
       headers: {
@@ -258,16 +277,27 @@ const Example = () => {
         header: 'Serial'
       },
       {
-        accessorKey: 'room',
-        header: 'Room'
+        accessorKey: 'room.name',
+        header: 'Room',
+        size: 150,
+        muiTableBodyCellEditTextFieldProps: {
+          select: true, //change to select for a dropdown
+          children: roomData.map(room => (
+            <MenuItem key={room.pk} value={room.name}>
+              {room.name}
+            </MenuItem>
+          ))
+        }
       },
       {
         accessorKey: 'total_cost',
-        header: 'Total'
+        header: 'Total',
+        size: 100
       },
       {
         accessorKey: 'shipping_cost',
-        header: 'Shipping'
+        header: 'Shipping',
+        size: 100
       },
       {
         accessorKey: 'comment',
@@ -275,9 +305,18 @@ const Example = () => {
         size: 200
       }
     ],
-    []
+    [roomData]
   )
-
+  useEffect(() => {
+    const fetchURL = new URL('/room/', 'https://cheapr.my.id')
+    fetchURL.searchParams.set('limit', '100')
+    fetchURL.searchParams.set('offset', '0')
+    fetch(fetchURL.href)
+      .then(response => response.json())
+      .then(json => {
+        setRoomData(json.results)
+      })
+  }, [])
   useEffect(() => {
     setPagination({
       pageIndex: 0,
