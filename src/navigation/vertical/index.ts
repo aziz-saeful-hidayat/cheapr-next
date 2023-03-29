@@ -74,6 +74,11 @@ const navigation = (): VerticalNavItemsType => {
       icon: Table,
       path: '/inventory'
     },
+    {
+      title: 'Sold',
+      icon: Table,
+      path: '/sold'
+    },
     // {
     //   title: 'Typography',
     //   icon: FormatLetterCase,

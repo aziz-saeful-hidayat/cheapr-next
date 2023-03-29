@@ -32,7 +32,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import { Delete, Add } from '@mui/icons-material'
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
-import Items from 'src/@core/components/inventory-item'
+import Items from 'src/@core/components/selling-item'
 
 type Channel = {
   pk: number
@@ -45,6 +45,7 @@ type Room = {
 }
 type InventoryPayload = {
   buying: number
+  selling: number
   product: number
   status: string
   serial: string
@@ -56,15 +57,8 @@ type InventoryPayload = {
 type InventoryItem = {
   [key: string]: any
 }
-type CAProduct = {
-  pk: number
-  sku: string
-  mpn: string
-  make: string
-  model: string
-  asin: string
-}
-type BuyingOrder = {
+
+type SellingOrder = {
   pk: number
   order_id: string
   order_date: string
@@ -74,11 +68,11 @@ type BuyingOrder = {
   }
   tracking_number: string
   seller_name: string
-  purchase_link: string
+  sell_link: string
   total_cost: number
   shipping_cost: number
   comment: string
-  inventoryitems: InventoryItem[]
+  sellingitems: InventoryItem[]
 }
 type Payload = {
   pk?: number
@@ -91,13 +85,36 @@ type Payload = {
   total_cost?: number
   shipping_cost?: number
   comment?: string
-  inventoryitems?: InventoryItem[]
+  sellingitems?: InventoryItem[]
 }
 
+type ItemOption = {
+  pk: number
+  buying: number
+  selling: number
+  product: {
+    pk: number
+    sku: string
+    mpn: string
+    make: string
+    model: string
+    asin: string
+  }
+  status: string
+  serial: string
+  comment: string
+  room: {
+    pk: number
+    name: string
+    room_id: string
+  }
+  total_cost: string
+  shipping_cost: string
+}
 interface CreateModalProps {
-  columns: MRT_ColumnDef<BuyingOrder>[]
+  columns: MRT_ColumnDef<SellingOrder>[]
   onClose: () => void
-  onSubmit: (values: BuyingOrder) => void
+  onSubmit: (values: SellingOrder) => void
   open: boolean
   channelData: any[]
 }
@@ -106,7 +123,7 @@ interface AddItemProps {
   onClose: () => void
   onSubmit: (values: InventoryPayload) => void
   open: boolean
-  rowData: BuyingOrder | undefined
+  rowData: SellingOrder | undefined
   roomData: Room[]
 }
 interface DeleteModalProps {
@@ -132,7 +149,7 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channe
 
   return (
     <Dialog open={open}>
-      <DialogTitle textAlign='center'>Create New Buying Order</DialogTitle>
+      <DialogTitle textAlign='center'>Create New Selling Order</DialogTitle>
       <DialogContent>
         <form onSubmit={e => e.preventDefault()}>
           <Stack
@@ -203,11 +220,11 @@ export const AddItemModal = ({ open, columns, onClose, onSubmit, rowData, roomDa
 
   const handleSubmit = () => {
     //put your validation logic here
-    onSubmit({ ...values, buying: rowData?.pk })
+    onSubmit({ ...values, selling: rowData?.pk })
     onClose()
   }
   const [isopen, setOpen] = useState(false)
-  const [options, setOptions] = useState<readonly CAProduct[]>([])
+  const [options, setOptions] = useState<readonly ItemOption[]>([])
   const loading = open && options.length === 0
 
   return (
@@ -242,20 +259,24 @@ export const AddItemModal = ({ open, columns, onClose, onSubmit, rowData, roomDa
                       })
                     }
                   }}
-                  isOptionEqualToValue={(option, value) => option.sku === value.sku}
-                  getOptionLabel={option => option.sku}
+                  filterOptions={x => x}
+                  isOptionEqualToValue={(option, value) => option.product.sku === value.product.sku}
+                  getOptionLabel={option => `SKU: ${option.product.sku}      SERIAL: ${option.serial}`}
                   options={options}
                   loading={loading}
                   renderInput={params => (
                     <TextField
                       {...params}
                       onChange={e =>
-                        fetch(`https://cheapr.my.id/caproduct/?sku=${e.target.value}`, {
-                          // note we are going to /1
-                          headers: {
-                            'Content-Type': 'application/json'
+                        fetch(
+                          `https://cheapr.my.id/inventory_items/?inventory=true&product=${e.target.value}&ordering=serial`,
+                          {
+                            // note we are going to /1
+                            headers: {
+                              'Content-Type': 'application/json'
+                            }
                           }
-                        })
+                        )
                           .then(response => response.json())
                           .then(json => {
                             setOptions(json.results)
@@ -349,7 +370,7 @@ const Example = () => {
       sorting //refetch when sorting changes
     ],
     queryFn: async () => {
-      const fetchURL = new URL('/buying_order/', 'https://cheapr.my.id')
+      const fetchURL = new URL('/selling_order/', 'https://cheapr.my.id')
       fetchURL.searchParams.set('limit', `${pagination.pageSize}`)
       fetchURL.searchParams.set('offset', `${pagination.pageIndex * pagination.pageSize}`)
       for (let f = 0; f < columnFilters.length; f++) {
@@ -383,19 +404,19 @@ const Example = () => {
     },
     keepPreviousData: true
   })
-  const [tableData, setTableData] = useState<BuyingOrder[]>(() => data?.results ?? [])
+  const [tableData, setTableData] = useState<SellingOrder[]>(() => data?.results ?? [])
   const [channelData, setChannelData] = useState<Channel[]>([])
   const [roomData, setRoomData] = useState<Room[]>([])
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
-  const [addModalOpen, setAddModalOpen] = useState<BuyingOrder>()
+  const [addModalOpen, setAddModalOpen] = useState<SellingOrder>()
 
-  const handleCreateNewRow = (values: BuyingOrder) => {
+  const handleCreateNewRow = (values: SellingOrder) => {
     console.log(values)
     const channel = channelData.find(channel => channel.name == values['channel']['name'])
     const new_obj = { ...values, channel: channel?.pk }
     console.log(new_obj)
-    fetch(`https://cheapr.my.id/buying_order/`, {
+    fetch(`https://cheapr.my.id/selling_order/`, {
       // note we are going to /1
       method: 'POST',
       headers: {
@@ -414,7 +435,7 @@ const Example = () => {
   }
 
   const update = (idx: number, rowIdx: number, key: string, value: any) => {
-    const inventoryitems_update = tableData[idx].inventoryitems.map((el, idx) => {
+    const sellingitems_update = tableData[idx].sellingitems.map((el, idx) => {
       if (idx == rowIdx) {
         const newEl = { ...el }
         newEl[key] = value
@@ -424,11 +445,11 @@ const Example = () => {
         return el
       }
     })
-    tableData[idx].inventoryitems = inventoryitems_update
+    tableData[idx].sellingitems = sellingitems_update
     setTableData([...tableData])
   }
   const reupdate = (order: number) => {
-    fetch(`https://cheapr.my.id/buying_order/${order}/`, {
+    fetch(`https://cheapr.my.id/selling_order/${order}/`, {
       // note we are going to /1
       headers: {
         'Content-Type': 'application/json'
@@ -438,19 +459,19 @@ const Example = () => {
       .then(json => {
         if (json.pk) {
           console.log(json)
-          const objIdx = tableData.findIndex(buying => buying.pk == json.pk)
+          const objIdx = tableData.findIndex(Selling => Selling.pk == json.pk)
           tableData[objIdx] = json
           setTableData([...tableData])
         }
       })
   }
   const handleAddItem = (values: InventoryPayload) => {
-    const newValues = { ...values, room: roomData.find(room => room.name == values.room.toString())?.pk }
+    const newValues = { selling: values.selling }
     console.log(newValues)
-
-    fetch(`https://cheapr.my.id/inventory_items/`, {
+    console.log(`https://cheapr.my.id/inventory_items/${values.product}/`)
+    fetch(`https://cheapr.my.id/inventory_items/${values.product}/`, {
       // note we are going to /1
-      method: 'POST',
+      method: 'PATCH',
       headers: {
         'Content-Type': 'application/json'
       },
@@ -458,18 +479,19 @@ const Example = () => {
     })
       .then(response => response.json())
       .then(json => {
+        console.log(json)
         if (json.pk) {
-          reupdate(json.buying)
+          reupdate(json.selling)
         }
       })
   }
 
   const handleDeleteRow = useCallback(
-    (row: MRT_Row<BuyingOrder>) => {
+    (row: MRT_Row<SellingOrder>) => {
       if (!confirm(`Are you sure you want to delete ${row.original.order_id}`)) {
         return
       }
-      fetch(`https://cheapr.my.id/buying_order/${row.original.pk}/`, {
+      fetch(`https://cheapr.my.id/selling_order/${row.original.pk}/`, {
         // note we are going to /1
         method: 'DELETE',
         headers: {
@@ -486,7 +508,7 @@ const Example = () => {
     },
     [tableData]
   )
-  const handleSaveRow: MaterialReactTableProps<BuyingOrder>['onEditingRowSave'] = async ({
+  const handleSaveRow: MaterialReactTableProps<SellingOrder>['onEditingRowSave'] = async ({
     exitEditingMode,
     row,
     values
@@ -501,7 +523,7 @@ const Example = () => {
       }
     }
     console.log(values)
-    fetch(`https://cheapr.my.id/buying_order/${row.original.pk}/`, {
+    fetch(`https://cheapr.my.id/selling_order/${row.original.pk}/`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json'
@@ -511,7 +533,7 @@ const Example = () => {
       .then(response => response.json())
       .then(json => {
         if (json['pk'] !== values.pk) {
-          tableData[row.index] = { ...json, channel: channel, inventoryitems: row.original.inventoryitems }
+          tableData[row.index] = { ...json, channel: channel, sellingitems: row.original.sellingitems }
 
           setTableData([...tableData])
           exitEditingMode() //required to exit editing mode
@@ -519,7 +541,7 @@ const Example = () => {
       })
   }
 
-  const handleSaveCell = (cell: MRT_Cell<BuyingOrder>, value: any) => {
+  const handleSaveCell = (cell: MRT_Cell<SellingOrder>, value: any) => {
     const key = cell.column.id
     const channel = channelData.find(channel => channel.name == value)
     console.log(key, value)
@@ -531,13 +553,13 @@ const Example = () => {
       newData[cell.row.index]['channel'] = channel
     } else {
       payload[key as keyof Payload] = value
-      newData[cell.row.index][cell.column.id as keyof BuyingOrder] = value
+      newData[cell.row.index][cell.column.id as keyof SellingOrder] = value
     }
     const pk = newData[cell.row.index]['pk']
 
     setTableData([...newData])
     console.log(payload)
-    fetch(`https://cheapr.my.id/buying_order/${pk}/`, {
+    fetch(`https://cheapr.my.id/selling_order/${pk}/`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json'
@@ -552,7 +574,7 @@ const Example = () => {
       })
   }
 
-  const columns = useMemo<MRT_ColumnDef<BuyingOrder>[]>(
+  const columns = useMemo<MRT_ColumnDef<SellingOrder>[]>(
     () => [
       {
         accessorKey: 'order_id',
@@ -616,49 +638,9 @@ const Example = () => {
         accessorKey: 'product',
         header: 'SKU',
         size: 150
-      },
-      {
-        accessorKey: 'serial',
-        header: 'Serial',
-        size: 150
-      },
-
-      {
-        accessorKey: 'total_cost',
-        header: 'Total',
-        size: 150,
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        }
-      },
-      {
-        accessorKey: 'shipping_cost',
-        header: 'Shipping',
-        size: 150,
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        }
-      },
-      {
-        accessorKey: 'comment',
-        header: 'Comment',
-        size: 150
-      },
-      {
-        accessorKey: 'room',
-        header: 'Room',
-        size: 150,
-        muiTableBodyCellEditTextFieldProps: {
-          select: true, //change to select for a dropdown
-          children: roomData.map(room => (
-            <MenuItem key={room.pk} value={room.name}>
-              {room.name}
-            </MenuItem>
-          ))
-        }
       }
     ],
-    [roomData]
+    []
   )
   useEffect(() => {
     setPagination({
@@ -745,7 +727,7 @@ const Example = () => {
             </IconButton>
           </Tooltip> */}
             <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
-              Add New Secured Order
+              Add New Selling Order
             </Button>
           </>
         )}
@@ -756,7 +738,7 @@ const Example = () => {
         )}
         renderDetailPanel={({ row }) => (
           <Items
-            data={row.original.inventoryitems}
+            data={row.original.sellingitems}
             reupdate={reupdate}
             idx={row.index}
             update={update}
