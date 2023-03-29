@@ -567,25 +567,6 @@ const Example = () => {
           type: 'date'
         },
         filterFn: 'between'
-        // Filter: ({ column }) => (
-        //   <LocalizationProvider dateAdapter={AdapterDayjs}>
-        //     <DatePicker
-        //       onChange={newValue => {
-        //         let arr = [null, null]
-        //         console.log(column.getFilterIndex)
-        //         arr[column.getFilterIndex()] = newValue
-        //         column.setFilterValue()
-        //       }}
-        //       slotProps={{
-        //         textField: {
-        //           sx: { minWidth: '120px' },
-        //           variant: 'standard'
-        //         }
-        //       }}
-        //       value={column.getFilterValue()}
-        //     />
-        //   </LocalizationProvider>
-        // )
       },
       {
         accessorKey: 'tracking_number',
@@ -677,7 +658,7 @@ const Example = () => {
         }
       }
     ],
-    []
+    [roomData]
   )
   useEffect(() => {
     setPagination({
