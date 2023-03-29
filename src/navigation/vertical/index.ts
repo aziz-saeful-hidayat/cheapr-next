@@ -54,10 +54,15 @@ const navigation = (): VerticalNavItemsType => {
       icon: Table,
       path: '/secured'
     },
-        {
-      title: 'SKU',
+    {
+      title: 'Sold',
       icon: Table,
-      path: '/sku'
+      path: '/sold'
+    },
+    {
+      title: 'Inventory',
+      icon: Table,
+      path: '/inventory'
     },
     {
       title: 'Channel',
@@ -70,15 +75,11 @@ const navigation = (): VerticalNavItemsType => {
       path: '/room'
     },
     {
-      title: 'Inventory',
+      title: 'SKU',
       icon: Table,
-      path: '/inventory'
+      path: '/sku'
     },
-    {
-      title: 'Sold',
-      icon: Table,
-      path: '/sold'
-    },
+   
     // {
     //   title: 'Typography',
     //   icon: FormatLetterCase,
