@@ -68,6 +68,7 @@ type BuyingOrder = {
   pk: number
   order_id: string
   order_date: string
+  delivery_date: string
   channel: {
     pk: number
     name: string
@@ -530,7 +531,7 @@ const Example = () => {
       payload['channel'] = channel?.pk
       newData[cell.row.index]['channel'] = channel
     } else {
-      payload[key as keyof Payload] = value
+      payload[key as keyof Payload] = value === '' ? null : value
       newData[cell.row.index][cell.column.id as keyof BuyingOrder] = value
     }
     const pk = newData[cell.row.index]['pk']
@@ -567,6 +568,14 @@ const Example = () => {
           type: 'date'
         },
         filterFn: 'between'
+      },
+      {
+        accessorKey: 'delivery_date',
+        header: 'Delivered',
+        size: 70,
+        muiTableBodyCellEditTextFieldProps: {
+          type: 'date'
+        }
       },
       {
         accessorKey: 'tracking_number',
@@ -750,9 +759,45 @@ const Example = () => {
           </>
         )}
         renderBottomToolbarCustomActions={() => (
-          <Typography sx={{ fontStyle: 'italic', p: '0 1rem' }} variant='body2'>
-            Double-Click a Cell to Edit
-          </Typography>
+          <Box sx={{ display: 'flex' }}>
+            <Button sx={{ marginRight: 5 }} color='primary' onClick={() => setColumnFilters([])} variant='contained'>
+              All
+            </Button>
+            <Button
+              sx={{ marginRight: 5 }}
+              color='primary'
+              onClick={() => setColumnFilters([{ id: 'wait_tracking', value: 'true' }])}
+              variant='contained'
+            >
+              No Tracking
+            </Button>
+            <Button
+              sx={{ marginRight: 5 }}
+              color='primary'
+              onClick={() =>
+                setColumnFilters([
+                  { id: 'wait_tracking', value: 'false' },
+                  { id: 'incoming', value: 'true' }
+                ])
+              }
+              variant='contained'
+            >
+              Incoming
+            </Button>
+            <Button
+              sx={{ marginRight: 5 }}
+              color='primary'
+              onClick={() =>
+                setColumnFilters([
+                  { id: 'wait_tracking', value: 'false' },
+                  { id: 'incoming', value: 'false' }
+                ])
+              }
+              variant='contained'
+            >
+              Delivered
+            </Button>
+          </Box>
         )}
         renderDetailPanel={({ row }) => (
           <Items

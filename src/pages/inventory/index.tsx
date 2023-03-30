@@ -342,9 +342,34 @@ const Example = () => {
           }
         })}
         renderBottomToolbarCustomActions={() => (
-          <Typography sx={{ fontStyle: 'italic', p: '0 1rem' }} variant='body2'>
-            Double-Click a Cell to Edit
-          </Typography>
+          <Box sx={{ display: 'flex' }}>
+            <Button
+              sx={{ marginRight: 2, padding: 1 }}
+              color='primary'
+              onClick={() => setColumnFilters([])}
+              variant='contained'
+            >
+              All
+            </Button>
+            <Button
+              sx={{ marginRight: 2 }}
+              color='primary'
+              onClick={() => setColumnFilters([{ id: 'no_room', value: 'true' }])}
+              variant='contained'
+            >
+              Assessment
+            </Button>
+            {roomData.map(room => (
+              <Button
+                sx={{ marginRight: 2 }}
+                color='primary'
+                onClick={() => setColumnFilters([{ id: 'room', value: room.name }])}
+                variant='contained'
+              >
+                {room.name}
+              </Button>
+            ))}
+          </Box>
         )}
         enableStickyHeader
         enableStickyFooter
