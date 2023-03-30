@@ -23,7 +23,6 @@ import {
   Autocomplete,
   CircularProgress
 } from '@mui/material'
-import Typography from '@mui/material/Typography'
 
 //Date Picker Imports
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'

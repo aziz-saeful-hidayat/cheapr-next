@@ -1,4 +1,3 @@
-import Typography from '@mui/material/Typography'
 import React, { useEffect, useMemo, useState } from 'react'
 import MaterialReactTable, {
   type MRT_ColumnDef,
@@ -361,6 +360,7 @@ const Example = () => {
             </Button>
             {roomData.map(room => (
               <Button
+                key={room.pk}
                 sx={{ marginRight: 2 }}
                 color='primary'
                 onClick={() => setColumnFilters([{ id: 'room', value: room.name }])}
