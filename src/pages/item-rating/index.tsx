@@ -22,24 +22,21 @@ import {
 import { Delete } from '@mui/icons-material'
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
 import { withAuth } from 'src/constants/HOCs'
-import { getSession } from 'next-auth/react'
 
-type Room = {
+type ItemRating = {
   pk: number
   name: string
-  room_id: string
 }
 
 type Payload = {
   pk?: number
   name?: string
-  room_id?: string
 }
 
 interface CreateModalProps {
-  columns: MRT_ColumnDef<Room>[]
+  columns: MRT_ColumnDef<ItemRating>[]
   onClose: () => void
-  onSubmit: (values: Room) => void
+  onSubmit: (values: ItemRating) => void
   open: boolean
 }
 
@@ -49,7 +46,6 @@ interface DeleteModalProps {
   open: boolean
   data: any
 }
-
 export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit }: CreateModalProps) => {
   const [values, setValues] = useState<any>(() =>
     columns.reduce((acc, column) => {
@@ -67,7 +63,7 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit }: Crea
 
   return (
     <Dialog open={open}>
-      <DialogTitle textAlign='center'>Create New Room</DialogTitle>
+      <DialogTitle textAlign='center'>Create New Item Rating</DialogTitle>
       <DialogContent>
         <form onSubmit={e => e.preventDefault()}>
           <Stack
@@ -136,7 +132,7 @@ const Example = () => {
       sorting //refetch when sorting changes
     ],
     queryFn: async () => {
-      const fetchURL = new URL('/room/?ordering=id', 'https://cheapr.my.id')
+      const fetchURL = new URL('/item_rating/', 'https://cheapr.my.id')
       fetchURL.searchParams.set('limit', `${pagination.pageSize}`)
       fetchURL.searchParams.set('offset', `${pagination.pageIndex * pagination.pageSize}`)
       for (let f = 0; f < columnFilters.length; f++) {
@@ -163,15 +159,15 @@ const Example = () => {
     },
     keepPreviousData: true
   })
-  const [tableData, setTableData] = useState<Room[]>([])
+  const [tableData, setTableData] = useState<ItemRating[]>([])
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [rowDel, setRowDel] = useState<number>()
 
-  const handleCreateNewRow = (values: Room) => {
+  const handleCreateNewRow = (values: ItemRating) => {
     console.log(values)
-    fetch(`https://cheapr.my.id/room/`, {
+    fetch(`https://cheapr.my.id/item_rating/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -195,17 +191,17 @@ const Example = () => {
     setTableData([...newData])
   }
 
-  const handleSaveCell = (cell: MRT_Cell<Room>, value: any) => {
+  const handleSaveCell = (cell: MRT_Cell<ItemRating>, value: any) => {
     const key = cell.column.id
     const oldData = [...tableData]
     const newData: any = [...tableData]
-    newData[cell.row.index][cell.column.id as keyof Room] = value
+    newData[cell.row.index][cell.column.id as keyof ItemRating] = value
     const pk = newData[cell.row.index]['pk']
     const payload: Payload = {}
-    payload[key as keyof Room] = value
+    payload[key as keyof ItemRating] = value
     setTableData([...newData])
 
-    fetch(`https://cheapr.my.id/room/${pk}/`, {
+    fetch(`https://cheapr.my.id/item_rating/${pk}/`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json'
@@ -219,7 +215,7 @@ const Example = () => {
         }
       })
   }
-  const columns = useMemo<MRT_ColumnDef<Room>[]>(
+  const columns = useMemo<MRT_ColumnDef<ItemRating>[]>(
     () => [
       {
         accessorKey: 'name',
@@ -283,7 +279,7 @@ const Example = () => {
               </IconButton>
             </Tooltip> */}
             <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
-              Create New Room
+              Create New Item Rating
             </Button>
           </>
         )}
@@ -338,26 +334,10 @@ const Example = () => {
 
 const queryClient = new QueryClient()
 
-const Room = () => (
+const ItemRating = () => (
   <QueryClientProvider client={queryClient}>
     <Example />
   </QueryClientProvider>
 )
 
-export async function getServerSideProps(context: any) {
-  const session = await getSession(context)
-
-  if (!session) {
-    return {
-      redirect: {
-        destination: '/pages/login',
-        permanent: false
-      }
-    }
-  }
-
-  return {
-    props: { session }
-  }
-}
-export default withAuth(3 * 60)(Room)
+export default withAuth(3 * 60)(ItemRating)

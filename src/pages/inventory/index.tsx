@@ -21,29 +21,7 @@ import {
 } from '@mui/material'
 import { Delete } from '@mui/icons-material'
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
-
-type Item = {
-  pk: number
-  buying: number
-  product: {
-    pk: number
-    sku: string
-    mpn: string
-    make: string
-    model: string
-    asin: string
-  }
-  status: string
-  serial: string
-  comment: string
-  room: {
-    pk: number
-    name: string
-    room_id: string
-  }
-  total_cost: number
-  shipping_cost: number
-}
+import { withAuth } from 'src/constants/HOCs'
 
 type Payload = {
   pk?: number
@@ -60,6 +38,7 @@ type Payload = {
   serial?: string
   comment?: string
   room?: number
+  rating?: number
   total_cost?: number
   shipping_cost?: number
 }
@@ -68,7 +47,29 @@ type Room = {
   name: string
   room_id: string
 }
-
+type Rating = {
+  pk: number
+  name: string
+}
+type Item = {
+  pk: number
+  buying: number
+  product: {
+    pk: number
+    sku: string
+    mpn: string
+    make: string
+    model: string
+    asin: string
+  }
+  status: string
+  serial: string
+  comment: string
+  room: Room
+  rating: Rating
+  total_cost: number
+  shipping_cost: number
+}
 interface CreateModalProps {
   columns: MRT_ColumnDef<Item>[]
   onClose: () => void
@@ -106,7 +107,8 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit }: Crea
             sx={{
               width: '100%',
               minWidth: { xs: '300px', sm: '360px', md: '400px' },
-              gap: '1.5rem'
+              gap: '1.5rem',
+              paddingTop: 3
             }}
           >
             {columns.map(column => (
@@ -201,7 +203,7 @@ const Example = () => {
   })
   const [tableData, setTableData] = useState<Item[]>([])
   const [roomData, setRoomData] = useState<Room[]>([])
-
+  const [ratingData, setRatingData] = useState<Rating[]>([])
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [rowDel, setRowDel] = useState<number>()
@@ -234,7 +236,9 @@ const Example = () => {
 
   const handleSaveCell = (cell: MRT_Cell<Item>, value: any) => {
     const key = cell.column.id
-    const channel = roomData.find(room => room.name == value)
+    const channel = roomData?.find(room => room.name == value)
+    const rating = ratingData?.find(rating => rating.name == value)
+
     console.log(key, value)
     const oldData = [...tableData]
     const newData: any = [...tableData]
@@ -242,6 +246,9 @@ const Example = () => {
     if (key === 'room.name') {
       payload['room'] = channel?.pk
       newData[cell.row.index]['room'] = channel
+    } else if (key === 'rating.name') {
+      payload['rating'] = rating?.pk
+      newData[cell.row.index]['rating'] = rating
     } else {
       payload[key as keyof Payload] = value
       newData[cell.row.index][cell.column.id as keyof Item] = value
@@ -281,12 +288,30 @@ const Example = () => {
         size: 150,
         muiTableBodyCellEditTextFieldProps: {
           select: true, //change to select for a dropdown
-          children: roomData.map(room => (
+          children: roomData?.map(room => (
             <MenuItem key={room.pk} value={room.name}>
               {room.name}
             </MenuItem>
           ))
         }
+      },
+      {
+        accessorKey: 'rating.name',
+        header: 'Rating',
+        size: 150,
+        muiTableBodyCellEditTextFieldProps: {
+          select: true, //change to select for a dropdown
+          children: ratingData?.map(rating => (
+            <MenuItem key={rating.pk} value={rating.name}>
+              {rating.name}
+            </MenuItem>
+          ))
+        }
+      },
+      {
+        accessorKey: 'comment',
+        header: 'Comment',
+        size: 200
       },
       {
         accessorKey: 'total_cost',
@@ -297,23 +322,22 @@ const Example = () => {
         accessorKey: 'shipping_cost',
         header: 'Shipping',
         size: 100
-      },
-      {
-        accessorKey: 'comment',
-        header: 'Comment',
-        size: 200
       }
     ],
-    [roomData]
+    [roomData, ratingData]
   )
   useEffect(() => {
     const fetchURL = new URL('/room/', 'https://cheapr.my.id')
-    fetchURL.searchParams.set('limit', '100')
-    fetchURL.searchParams.set('offset', '0')
     fetch(fetchURL.href)
       .then(response => response.json())
       .then(json => {
         setRoomData(json.results)
+      })
+    const fetchRatingURL = new URL('/item_rating/', 'https://cheapr.my.id')
+    fetch(fetchRatingURL.href)
+      .then(response => response.json())
+      .then(json => {
+        setRatingData(json.results)
       })
   }, [])
   useEffect(() => {
@@ -331,7 +355,7 @@ const Example = () => {
       <MaterialReactTable
         columns={columns}
         data={tableData} //data is undefined on first render
-        initialState={{ showColumnFilters: true, density: 'compact' }}
+        initialState={{ showColumnFilters: false, density: 'compact' }}
         enableEditing
         editingMode='cell'
         muiTableBodyCellEditTextFieldProps={({ cell }) => ({
@@ -358,7 +382,7 @@ const Example = () => {
             >
               Assessment
             </Button>
-            {roomData.map(room => (
+            {roomData?.map(room => (
               <Button
                 key={room.pk}
                 sx={{ marginRight: 2 }}
@@ -457,4 +481,4 @@ const Inventory = () => (
   </QueryClientProvider>
 )
 
-export default Inventory
+export default withAuth(3 * 60)(Inventory)

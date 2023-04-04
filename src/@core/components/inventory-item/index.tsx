@@ -188,6 +188,16 @@ const Items = ({
           border: '1px dashed #e0e0e0'
         }
       }}
+      muiTableHeadCellProps={{
+        sx: {
+          backgroundColor: '#fff'
+        }
+      }}
+      muiTableBodyCellProps={{
+        sx: {
+          backgroundColor: '#fff'
+        }
+      }}
       enableRowActions
       positionActionsColumn='last'
       renderRowActions={({ row, table }) => (

@@ -23,6 +23,8 @@ import TabSecurity from 'src/views/account-settings/TabSecurity'
 // ** Third Party Styles Imports
 import 'react-datepicker/dist/react-datepicker.css'
 
+import { withAuth } from '../../constants/HOCs'
+
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
     minWidth: 100
@@ -41,63 +43,68 @@ const TabName = styled('span')(({ theme }) => ({
   }
 }))
 
-const AccountSettings = () => {
+const AccountSettings = (props: any) => {
+  const { session } = props
+
   // ** State
   const [value, setValue] = useState<string>('account')
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
   }
+  if (session) {
+    return (
+      <Card>
+        <TabContext value={value}>
+          <TabList
+            onChange={handleChange}
+            aria-label='account-settings tabs'
+            sx={{ borderBottom: theme => `1px solid ${theme.palette.divider}` }}
+          >
+            <Tab
+              value='account'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <AccountOutline />
+                  <TabName>Account</TabName>
+                </Box>
+              }
+            />
+            <Tab
+              value='security'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <LockOpenOutline />
+                  <TabName>Security</TabName>
+                </Box>
+              }
+            />
+            <Tab
+              value='info'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <InformationOutline />
+                  <TabName>Info</TabName>
+                </Box>
+              }
+            />
+          </TabList>
 
-  return (
-    <Card>
-      <TabContext value={value}>
-        <TabList
-          onChange={handleChange}
-          aria-label='account-settings tabs'
-          sx={{ borderBottom: theme => `1px solid ${theme.palette.divider}` }}
-        >
-          <Tab
-            value='account'
-            label={
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <AccountOutline />
-                <TabName>Account</TabName>
-              </Box>
-            }
-          />
-          <Tab
-            value='security'
-            label={
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <LockOpenOutline />
-                <TabName>Security</TabName>
-              </Box>
-            }
-          />
-          <Tab
-            value='info'
-            label={
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <InformationOutline />
-                <TabName>Info</TabName>
-              </Box>
-            }
-          />
-        </TabList>
+          <TabPanel sx={{ p: 0 }} value='account'>
+            <TabAccount />
+          </TabPanel>
+          <TabPanel sx={{ p: 0 }} value='security'>
+            <TabSecurity />
+          </TabPanel>
+          <TabPanel sx={{ p: 0 }} value='info'>
+            <TabInfo />
+          </TabPanel>
+        </TabContext>
+      </Card>
+    )
+  }
 
-        <TabPanel sx={{ p: 0 }} value='account'>
-          <TabAccount />
-        </TabPanel>
-        <TabPanel sx={{ p: 0 }} value='security'>
-          <TabSecurity />
-        </TabPanel>
-        <TabPanel sx={{ p: 0 }} value='info'>
-          <TabInfo />
-        </TabPanel>
-      </TabContext>
-    </Card>
-  )
+  return <></>
 }
 
-export default AccountSettings
+export default withAuth(3 * 60)(AccountSettings)

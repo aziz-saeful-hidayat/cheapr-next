@@ -4,6 +4,7 @@ import { ChangeEvent, MouseEvent, ReactNode, useState } from 'react'
 // ** Next Imports
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { getProviders, signIn, getSession, getCsrfToken } from 'next-auth/react'
 
 // ** MUI Components
 import Box from '@mui/material/Box'
@@ -38,6 +39,7 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 
 // ** Demo Imports
 import FooterIllustrationsV1 from 'src/views/pages/auth/FooterIllustration'
+import { Input } from '@mui/material'
 
 interface State {
   password: string
@@ -62,7 +64,7 @@ const FormControlLabel = styled(MuiFormControlLabel)<FormControlLabelProps>(({ t
   }
 }))
 
-const LoginPage = () => {
+const LoginPage = ({ csrfToken }: { csrfToken: string }) => {
   // ** State
   const [values, setValues] = useState<State>({
     password: '',
@@ -168,14 +170,16 @@ const LoginPage = () => {
             </Typography>
             <Typography variant='body2'>Please sign-in to your account and start the adventure</Typography>
           </Box>
-          <form noValidate autoComplete='off' onSubmit={e => e.preventDefault()}>
-            <TextField autoFocus fullWidth id='email' label='Email' sx={{ marginBottom: 4 }} />
+          <form method='post' action='/api/auth/callback/credentials'>
+            <Input name='csrfToken' type='hidden' defaultValue={csrfToken} />
+            <TextField autoFocus fullWidth id='username' name='username' label='Username' sx={{ marginBottom: 4 }} />
             <FormControl fullWidth>
-              <InputLabel htmlFor='auth-login-password'>Password</InputLabel>
+              <InputLabel htmlFor='password'>Password</InputLabel>
               <OutlinedInput
                 label='Password'
                 value={values.password}
-                id='auth-login-password'
+                id='password'
+                name='password'
                 onChange={handleChange('password')}
                 type={values.showPassword ? 'text' : 'password'}
                 endAdornment={
@@ -200,13 +204,7 @@ const LoginPage = () => {
                 <LinkStyled onClick={e => e.preventDefault()}>Forgot Password?</LinkStyled>
               </Link>
             </Box>
-            <Button
-              fullWidth
-              size='large'
-              variant='contained'
-              sx={{ marginBottom: 7 }}
-              onClick={() => router.push('/')}
-            >
+            <Button fullWidth size='large' variant='contained' sx={{ marginBottom: 7 }} type='submit'>
               Login
             </Button>
             <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -238,11 +236,10 @@ const LoginPage = () => {
                   />
                 </IconButton>
               </Link>
-              <Link href='/' passHref>
-                <IconButton component='a' onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}>
-                  <Google sx={{ color: '#db4437' }} />
-                </IconButton>
-              </Link>
+
+              <IconButton component='a' onClick={() => signIn('google')}>
+                <Google sx={{ color: '#db4437' }} />
+              </IconButton>
             </Box>
           </form>
         </CardContent>
@@ -251,7 +248,23 @@ const LoginPage = () => {
     </Box>
   )
 }
+LoginPage.getInitialProps = async (context: any) => {
+  const { req, res } = context
+  const session: any = await getSession({ req })
+  if (session && res && session.accessToken) {
+    res.writeHead(302, {
+      Location: '/'
+    })
+    res.end()
 
+    return
+  }
+
+  return {
+    session: undefined,
+    csrfToken: await getCsrfToken(context)
+  }
+}
 LoginPage.getLayout = (page: ReactNode) => <BlankLayout>{page}</BlankLayout>
 
 export default LoginPage

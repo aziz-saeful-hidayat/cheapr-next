@@ -33,6 +33,7 @@ import { Delete, Add } from '@mui/icons-material'
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import Items from 'src/@core/components/selling-item'
+import { withAuth } from 'src/constants/HOCs'
 
 type Channel = {
   pk: number
@@ -156,7 +157,8 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channe
             sx={{
               width: '100%',
               minWidth: { xs: '300px', sm: '360px', md: '400px' },
-              gap: '1.5rem'
+              gap: '1.5rem',
+              paddingTop: 3
             }}
           >
             {columns.map(column =>
@@ -169,7 +171,7 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channe
                   select
                   onChange={e => setValues({ ...values, channel: { name: e.target.value } })}
                 >
-                  {channelData.map(channel => (
+                  {channelData?.map(channel => (
                     <MenuItem key={channel.pk} value={channel.name}>
                       {channel.name}
                     </MenuItem>
@@ -236,7 +238,8 @@ export const AddItemModal = ({ open, columns, onClose, onSubmit, rowData, roomDa
             sx={{
               width: '100%',
               minWidth: { xs: '300px', sm: '360px', md: '400px' },
-              gap: '1.5rem'
+              gap: '1.5rem',
+              paddingTop: 3
             }}
           >
             {columns.map(column =>
@@ -303,7 +306,7 @@ export const AddItemModal = ({ open, columns, onClose, onSubmit, rowData, roomDa
                   onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
                   select
                 >
-                  {roomData.map(room => (
+                  {roomData?.map(room => (
                     <MenuItem key={room.pk} value={room.name}>
                       {room.name}
                     </MenuItem>
@@ -435,7 +438,7 @@ const Example = () => {
   }
 
   const update = (idx: number, rowIdx: number, key: string, value: any) => {
-    const sellingitems_update = tableData[idx].sellingitems.map((el, idx) => {
+    const sellingitems_update = tableData[idx].sellingitems?.map((el, idx) => {
       if (idx == rowIdx) {
         const newEl = { ...el }
         newEl[key] = value
@@ -606,7 +609,7 @@ const Example = () => {
         size: 100,
         muiTableBodyCellEditTextFieldProps: {
           select: true, //change to select for a dropdown
-          children: channelData.map(channel => (
+          children: channelData?.map(channel => (
             <MenuItem key={channel.pk} value={channel.name}>
               {channel.name}
             </MenuItem>
@@ -783,4 +786,4 @@ const Sold = () => (
   </QueryClientProvider>
 )
 
-export default Sold
+export default withAuth(3 * 60)(Sold)

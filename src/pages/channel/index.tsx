@@ -21,6 +21,7 @@ import {
 } from '@mui/material'
 import { Delete } from '@mui/icons-material'
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
+import { withAuth } from 'src/constants/HOCs'
 
 type Channel = {
   pk: number
@@ -69,7 +70,8 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit }: Crea
             sx={{
               width: '100%',
               minWidth: { xs: '300px', sm: '360px', md: '400px' },
-              gap: '1.5rem'
+              gap: '1.5rem',
+              paddingTop: 3
             }}
           >
             {columns.map(column => (
@@ -338,4 +340,4 @@ const SKU = () => (
   </QueryClientProvider>
 )
 
-export default SKU
+export default withAuth(3 * 60)(SKU)

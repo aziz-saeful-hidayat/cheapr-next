@@ -32,6 +32,7 @@ import { Delete, Add } from '@mui/icons-material'
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import Items from 'src/@core/components/inventory-item'
+import { withAuth } from 'src/constants/HOCs'
 
 type Channel = {
   pk: number
@@ -75,6 +76,7 @@ type BuyingOrder = {
   tracking_number: string
   seller_name: string
   purchase_link: string
+  channel_order_id: string
   total_cost: number
   shipping_cost: number
   comment: string
@@ -139,47 +141,49 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channe
             sx={{
               width: '100%',
               minWidth: { xs: '300px', sm: '360px', md: '400px' },
-              gap: '1.5rem'
+              gap: '1.5rem',
+              paddingTop: 3
             }}
           >
-            {columns.map(column =>
-              column.accessorKey === 'channel.name' ? (
-                <TextField
-                  value={values.channel?.name}
-                  key={column.accessorKey}
-                  name={column.accessorKey}
-                  label='Channel'
-                  select
-                  onChange={e => setValues({ ...values, channel: { name: e.target.value } })}
-                >
-                  {channelData.map(channel => (
-                    <MenuItem key={channel.pk} value={channel.name}>
-                      {channel.name}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              ) : column.accessorKey === 'order_date' ? (
-                <LocalizationProvider dateAdapter={AdapterDayjs} key={column.accessorKey}>
-                  <DatePicker
-                    onChange={value => {
-                      setValues({ ...values, order_date: value ? value.format('YYYY-MM-DD') : '' })
-                    }}
-                    label={column.header}
-                    value={dayjs(values.order_date)}
-                  />
-                </LocalizationProvider>
-              ) : (
-                <TextField
-                  key={column.accessorKey}
-                  label={column.header}
-                  name={column.accessorKey}
-                  onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
-                  type={
-                    column.accessorKey === 'total_cost' || column.accessorKey === 'shipping_cost' ? 'number' : 'text'
-                  }
-                />
-              )
-            )}
+            <LocalizationProvider dateAdapter={AdapterDayjs} key={'order_date'}>
+              <DatePicker
+                onChange={value => setValues({ ...values, order_date: value ? value.format('YYYY-MM-DD') : null })}
+                label={'Order Date'}
+                value={dayjs(values.order_date)}
+              />
+            </LocalizationProvider>
+            <TextField
+              value={values.channel?.name}
+              key={'channel.name'}
+              name={'Channel'}
+              label='Channel'
+              select
+              onChange={e => setValues({ ...values, channel: { name: e.target.value } })}
+            >
+              {channelData?.map(channel => (
+                <MenuItem key={channel.pk} value={channel.name}>
+                  {channel.name}
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              key={'seller_name'}
+              label={'Seller Name'}
+              name={'seller_name'}
+              onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
+            />
+            <TextField
+              key={'channel_order_id'}
+              label={'Channel Order ID'}
+              name={'channel_order_id'}
+              onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
+            />
+            <TextField
+              key={'tracking_number'}
+              label={'Tracking Number'}
+              name={'tracking_number'}
+              onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
+            />
           </Stack>
         </form>
       </DialogContent>
@@ -282,7 +286,7 @@ export const AddItemModal = ({ open, columns, onClose, onSubmit, rowData, roomDa
                   onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
                   select
                 >
-                  {roomData.map(room => (
+                  {roomData?.map(room => (
                     <MenuItem key={room.pk} value={room.name}>
                       {room.name}
                     </MenuItem>
@@ -386,6 +390,7 @@ const Example = () => {
   const [tableData, setTableData] = useState<BuyingOrder[]>(() => data?.results ?? [])
   const [channelData, setChannelData] = useState<Channel[]>([])
   const [roomData, setRoomData] = useState<Room[]>([])
+  const [tabActive, setTabActive] = useState('all')
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [addModalOpen, setAddModalOpen] = useState<BuyingOrder>()
@@ -393,7 +398,12 @@ const Example = () => {
   const handleCreateNewRow = (values: BuyingOrder) => {
     console.log(values)
     const channel = channelData.find(channel => channel.name == values['channel']['name'])
-    const new_obj = { ...values, channel: channel?.pk }
+    const new_obj = {
+      ...values,
+      channel: channel?.pk,
+      order_date: values.order_date ? values.order_date : null,
+      delivery_date: values.delivery_date ? values.delivery_date : null
+    }
     console.log(new_obj)
     fetch(`https://cheapr.my.id/buying_order/`, {
       // note we are going to /1
@@ -407,7 +417,7 @@ const Example = () => {
       .then(json => {
         console.log(json)
         if (json.pk) {
-          tableData.unshift(json)
+          tableData.unshift({ ...json, channel: channel })
           setTableData([...tableData])
         }
       })
@@ -557,21 +567,20 @@ const Example = () => {
       {
         accessorKey: 'order_id',
         header: 'Order ID',
-        size: 200
+        maxSize: 150
       },
       {
         accessorKey: 'order_date',
-        header: 'Date',
-        size: 70,
+        header: 'Order Date',
+        maxSize: 100,
         muiTableBodyCellEditTextFieldProps: {
           type: 'date'
-        },
-        filterFn: 'between'
+        }
       },
       {
         accessorKey: 'delivery_date',
-        header: 'Delivered',
-        size: 70,
+        header: 'Delivery Date',
+        maxSize: 70,
         muiTableBodyCellEditTextFieldProps: {
           type: 'date'
         }
@@ -579,20 +588,20 @@ const Example = () => {
       {
         accessorKey: 'tracking_number',
         header: 'Tracking',
-        size: 100
+        maxSize: 70
       },
       {
         accessorKey: 'seller_name',
         header: 'Seller Name',
-        size: 150
+        maxSize: 150
       },
       {
         accessorKey: 'channel.name',
         header: 'Channel',
-        size: 100,
+        maxSize: 100,
         muiTableBodyCellEditTextFieldProps: {
           select: true, //change to select for a dropdown
-          children: channelData.map(channel => (
+          children: channelData?.map(channel => (
             <MenuItem key={channel.pk} value={channel.name}>
               {channel.name}
             </MenuItem>
@@ -600,9 +609,14 @@ const Example = () => {
         }
       },
       {
+        accessorKey: 'channel_order_id',
+        header: 'Order ID',
+        maxSize: 150
+      },
+      {
         accessorKey: 'total_cost',
         header: 'Total',
-        size: 100,
+        maxSize: 70,
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
         }
@@ -610,7 +624,7 @@ const Example = () => {
       {
         accessorKey: 'shipping_cost',
         header: 'Shipping',
-        size: 100,
+        maxSize: 70,
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
         }
@@ -658,7 +672,7 @@ const Example = () => {
         size: 150,
         muiTableBodyCellEditTextFieldProps: {
           select: true, //change to select for a dropdown
-          children: roomData.map(room => (
+          children: roomData?.map(room => (
             <MenuItem key={room.pk} value={room.name}>
               {room.name}
             </MenuItem>
@@ -697,7 +711,7 @@ const Example = () => {
       <MaterialReactTable
         columns={columns}
         data={tableData} //data is undefined on first render
-        initialState={{ showColumnFilters: true }}
+        initialState={{ showColumnFilters: false }}
         enableEditing
         editingMode='cell'
         muiTableBodyCellEditTextFieldProps={({ cell }) => ({
@@ -759,39 +773,52 @@ const Example = () => {
         )}
         renderBottomToolbarCustomActions={() => (
           <Box sx={{ display: 'flex' }}>
-            <Button sx={{ marginRight: 5 }} color='primary' onClick={() => setColumnFilters([])} variant='contained'>
+            <Button
+              sx={{ marginRight: 5 }}
+              color={tabActive == 'all' ? 'primary' : 'secondary'}
+              onClick={() => {
+                setTabActive('all')
+                setColumnFilters([])
+              }}
+              variant='contained'
+            >
               All
             </Button>
             <Button
               sx={{ marginRight: 5 }}
-              color='primary'
-              onClick={() => setColumnFilters([{ id: 'wait_tracking', value: 'true' }])}
+              color={tabActive == 'notracking' ? 'primary' : 'secondary'}
+              onClick={() => {
+                setTabActive('notracking')
+                setColumnFilters([{ id: 'wait_tracking', value: 'true' }])
+              }}
               variant='contained'
             >
               No Tracking
             </Button>
             <Button
               sx={{ marginRight: 5 }}
-              color='primary'
-              onClick={() =>
+              color={tabActive == 'incoming' ? 'primary' : 'secondary'}
+              onClick={() => {
+                setTabActive('incoming')
                 setColumnFilters([
                   { id: 'wait_tracking', value: 'false' },
                   { id: 'incoming', value: 'true' }
                 ])
-              }
+              }}
               variant='contained'
             >
               Incoming
             </Button>
             <Button
               sx={{ marginRight: 5 }}
-              color='primary'
-              onClick={() =>
+              color={tabActive == 'delivered' ? 'primary' : 'secondary'}
+              onClick={() => {
+                setTabActive('delivered')
                 setColumnFilters([
                   { id: 'wait_tracking', value: 'false' },
                   { id: 'incoming', value: 'false' }
                 ])
-              }
+              }}
               variant='contained'
             >
               Delivered
@@ -845,4 +872,4 @@ const Buying = () => (
   </QueryClientProvider>
 )
 
-export default Buying
+export default withAuth(3 * 60)(Buying)

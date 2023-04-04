@@ -16,7 +16,7 @@ const Table = (theme: Theme) => {
         root: {
           textTransform: 'uppercase',
           '& .MuiTableCell-head': {
-            fontSize: 11,
+            fontSize: 9,
             fontWeight: 600,
             letterSpacing: '0.13px'
           }
@@ -55,8 +55,10 @@ const Table = (theme: Theme) => {
           borderBottom: `1px solid ${theme.palette.divider}`,
           '& .MuiButton-root': {
             textTransform: 'uppercase',
-            color: theme.palette.text.secondary
-          }
+            color: theme.palette.text.secondary,
+            paddingLeft: theme.spacing(0),
+            paddingRight: theme.spacing(0)
+          },
         },
         stickyHeader: {
           backgroundColor: theme.palette.customColors.tableHeaderBg

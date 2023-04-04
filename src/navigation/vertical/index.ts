@@ -12,17 +12,18 @@ import GoogleCirclesExtended from 'mdi-material-ui/GoogleCirclesExtended'
 
 // ** Type import
 import { VerticalNavItemsType } from 'src/@core/layouts/types'
+import { ReactNode } from 'react'
 
 const navigation = (): VerticalNavItemsType => {
   return [
     {
       title: 'Dashboard',
-      icon: HomeOutline,
+      icon: HomeOutline as unknown as ReactNode,
       path: '/'
     },
     {
       title: 'Account Settings',
-      icon: AccountCogOutline,
+      icon: AccountCogOutline as unknown as ReactNode,
       path: '/account-settings'
     },
     // {
@@ -51,32 +52,37 @@ const navigation = (): VerticalNavItemsType => {
     },
     {
       title: 'Secured',
-      icon: Table,
+      icon: Table as unknown as ReactNode,
       path: '/secured'
     },
     {
       title: 'Sold',
-      icon: Table,
+      icon: Table as unknown as ReactNode,
       path: '/sold'
     },
     {
       title: 'Inventory',
-      icon: Table,
+      icon: Table as unknown as ReactNode,
       path: '/inventory'
     },
     {
       title: 'Channel',
-      icon: Table,
+      icon: Table as unknown as ReactNode,
       path: '/channel'
     },
     {
       title: 'Room',
-      icon: Table,
+      icon: Table as unknown as ReactNode,
       path: '/room'
     },
     {
+      title: 'Item Rating',
+      icon: Table as unknown as ReactNode,
+      path: '/item-rating'
+    },
+    {
       title: 'SKU',
-      icon: Table,
+      icon: Table as unknown as ReactNode,
       path: '/sku'
     },
    
