@@ -42,6 +42,7 @@ import FooterIllustrationsV1 from 'src/views/pages/auth/FooterIllustration'
 import { Input } from '@mui/material'
 
 interface State {
+  username: string
   password: string
   showPassword: boolean
 }
@@ -67,6 +68,7 @@ const FormControlLabel = styled(MuiFormControlLabel)<FormControlLabelProps>(({ t
 const LoginPage = ({ csrfToken }: { csrfToken: string }) => {
   // ** State
   const [values, setValues] = useState<State>({
+    username: '',
     password: '',
     showPassword: false
   })
@@ -172,7 +174,15 @@ const LoginPage = ({ csrfToken }: { csrfToken: string }) => {
           </Box>
           <form method='post' action='/api/auth/callback/credentials'>
             <Input name='csrfToken' type='hidden' defaultValue={csrfToken} />
-            <TextField autoFocus fullWidth id='username' name='username' label='Username' sx={{ marginBottom: 4 }} />
+            <TextField
+              autoFocus
+              fullWidth
+              id='username'
+              name='username'
+              label='Username'
+              sx={{ marginBottom: 4 }}
+              onChange={handleChange('username')}
+            />
             <FormControl fullWidth>
               <InputLabel htmlFor='password'>Password</InputLabel>
               <OutlinedInput
@@ -204,7 +214,14 @@ const LoginPage = ({ csrfToken }: { csrfToken: string }) => {
                 <LinkStyled onClick={e => e.preventDefault()}>Forgot Password?</LinkStyled>
               </Link>
             </Box>
-            <Button fullWidth size='large' variant='contained' sx={{ marginBottom: 7 }} type='submit'>
+            <Button
+              fullWidth
+              size='large'
+              variant='contained'
+              sx={{ marginBottom: 7 }}
+              type='submit'
+              onClick={() => signIn('credentials', { username: values.username, password: values.password })}
+            >
               Login
             </Button>
             <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -218,27 +235,34 @@ const LoginPage = ({ csrfToken }: { csrfToken: string }) => {
               </Typography>
             </Box>
             <Divider sx={{ my: 5 }}>or</Divider>
+            <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <Typography variant='body1'>Login using social media account.</Typography>
+            </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Link href='/' passHref>
+              {/* <Link href='/' passHref>
                 <IconButton component='a' onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}>
-                  <Facebook sx={{ color: '#497ce2' }} />
+                  <Facebook sx={{ color: '#497ce2', width: 30, height: 30 }} />
                 </IconButton>
               </Link>
               <Link href='/' passHref>
                 <IconButton component='a' onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}>
-                  <Twitter sx={{ color: '#1da1f2' }} />
+                  <Twitter sx={{ color: '#1da1f2', width: 30, height: 30 }} />
                 </IconButton>
               </Link>
               <Link href='/' passHref>
                 <IconButton component='a' onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}>
                   <Github
-                    sx={{ color: theme => (theme.palette.mode === 'light' ? '#272727' : theme.palette.grey[300]) }}
+                    sx={{
+                      color: theme => (theme.palette.mode === 'light' ? '#272727' : theme.palette.grey[300]),
+                      width: 30,
+                      height: 30
+                    }}
                   />
                 </IconButton>
-              </Link>
+              </Link> */}
 
               <IconButton component='a' onClick={() => signIn('google')}>
-                <Google sx={{ color: '#db4437' }} />
+                <Google sx={{ color: '#db4437', width: 30, height: 30 }} />
               </IconButton>
             </Box>
           </form>

@@ -151,7 +151,8 @@ export const DeleteModal = ({ open, onClose, onSubmit, data }: DeleteModalProps)
     </Dialog>
   )
 }
-const Example = () => {
+const Example = (props: any) => {
+  const { session } = props
   const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>([])
   const [globalFilter, setGlobalFilter] = useState('')
   const [sorting, setSorting] = useState<MRT_SortingState>([])
@@ -193,7 +194,13 @@ const Example = () => {
         ordering = ordering + sort.id
       }
       fetchURL.searchParams.set('ordering', ordering)
-      console.log(fetchURL.href)
+      console.log(fetchURL.href, {
+        method: 'get',
+        headers: new Headers({
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        })
+      })
       const response = await fetch(fetchURL.href)
       const json = await response.json()
 
@@ -212,9 +219,10 @@ const Example = () => {
     console.log(values)
     fetch(`https://cheapr.my.id/inventory_items/`, {
       method: 'POST',
-      headers: {
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json'
-      },
+      }),
       body: JSON.stringify(values)
     })
       .then(response => response.json())
@@ -259,9 +267,10 @@ const Example = () => {
     console.log(payload)
     fetch(`https://cheapr.my.id/inventory_items/${pk}/`, {
       method: 'PATCH',
-      headers: {
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json'
-      },
+      }),
       body: JSON.stringify(payload)
     })
       .then(response => response.json())
@@ -328,18 +337,30 @@ const Example = () => {
   )
   useEffect(() => {
     const fetchURL = new URL('/room/', 'https://cheapr.my.id')
-    fetch(fetchURL.href)
+    fetch(fetchURL.href, {
+      method: 'get',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      })
+    })
       .then(response => response.json())
       .then(json => {
         setRoomData(json.results)
       })
     const fetchRatingURL = new URL('/item_rating/', 'https://cheapr.my.id')
-    fetch(fetchRatingURL.href)
+    fetch(fetchRatingURL.href, {
+      method: 'get',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      })
+    })
       .then(response => response.json())
       .then(json => {
         setRatingData(json.results)
       })
-  }, [])
+  }, [session])
   useEffect(() => {
     setPagination({
       pageIndex: 0,
@@ -475,9 +496,9 @@ const Example = () => {
 
 const queryClient = new QueryClient()
 
-const Inventory = () => (
+const Inventory = (props: any) => (
   <QueryClientProvider client={queryClient}>
-    <Example />
+    <Example {...props} />
   </QueryClientProvider>
 )
 

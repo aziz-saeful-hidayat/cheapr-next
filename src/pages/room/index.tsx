@@ -118,7 +118,8 @@ export const DeleteModal = ({ open, onClose, onSubmit, data }: DeleteModalProps)
     </Dialog>
   )
 }
-const Example = () => {
+const Example = (props: any) => {
+  const { session } = props
   const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>([])
   const [globalFilter, setGlobalFilter] = useState('')
   const [sorting, setSorting] = useState<MRT_SortingState>([])
@@ -156,7 +157,13 @@ const Example = () => {
         ordering = ordering + sort.id
       }
       fetchURL.searchParams.set('ordering', ordering)
-      const response = await fetch(fetchURL.href)
+      const response = await fetch(fetchURL.href, {
+        method: 'get',
+        headers: new Headers({
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        })
+      })
       const json = await response.json()
 
       return json
@@ -173,9 +180,10 @@ const Example = () => {
     console.log(values)
     fetch(`https://cheapr.my.id/room/`, {
       method: 'POST',
-      headers: {
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json'
-      },
+      }),
       body: JSON.stringify(values)
     })
       .then(response => response.json())
@@ -207,9 +215,10 @@ const Example = () => {
 
     fetch(`https://cheapr.my.id/room/${pk}/`, {
       method: 'PATCH',
-      headers: {
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json'
-      },
+      }),
       body: JSON.stringify(payload)
     })
       .then(response => response.json())
@@ -338,9 +347,9 @@ const Example = () => {
 
 const queryClient = new QueryClient()
 
-const Room = () => (
+const Room = (props: any) => (
   <QueryClientProvider client={queryClient}>
-    <Example />
+    <Example {...props} />
   </QueryClientProvider>
 )
 

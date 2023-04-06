@@ -14,6 +14,11 @@ export interface ExtendedSession extends Session {
     refreshToken?: string,
   }
   
+export interface ExtendedUser extends User {
+    username?: string,
+    password?: string,
+  }
+
 namespace NextAuthUtils {
   export const refreshToken = async function (refreshToken : string) {
     try {
@@ -65,7 +70,7 @@ const settings: NextAuthOptions = {
       },
       async authorize(credentials, req) {
         console.log(req)
-        const user: User = { id: '', email: '' }
+        const user: ExtendedUser = { id: '', email: '' }
         try {
           const response = await axios.post(
             UrlUtils.makeUrl(
@@ -145,6 +150,7 @@ const settings: NextAuthOptions = {
             accessToken: user.id,
             refreshToken: user.email,
           };
+          console.log(token)
           Promise.resolve(token);
         }
       }

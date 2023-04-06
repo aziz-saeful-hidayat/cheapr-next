@@ -37,10 +37,18 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 
 // ** Demo Imports
 import FooterIllustrationsV1 from 'src/views/pages/auth/FooterIllustration'
+import { signIn } from 'next-auth/react'
+import axios from 'axios'
+import { UrlUtils } from 'src/constants/Utils'
 
 interface State {
-  password: string
-  showPassword: boolean
+  username: string
+  email: string
+  password1: string
+  password2: string
+  showPassword1: boolean
+  showPassword2: boolean
+  error: unknown | null
 }
 
 // ** Styled Components
@@ -66,8 +74,13 @@ const FormControlLabel = styled(MuiFormControlLabel)<FormControlLabelProps>(({ t
 const RegisterPage = () => {
   // ** States
   const [values, setValues] = useState<State>({
-    password: '',
-    showPassword: false
+    username: '',
+    email: '',
+    password1: '',
+    password2: '',
+    showPassword1: false,
+    showPassword2: false,
+    error: null
   })
 
   // ** Hook
@@ -76,11 +89,38 @@ const RegisterPage = () => {
   const handleChange = (prop: keyof State) => (event: ChangeEvent<HTMLInputElement>) => {
     setValues({ ...values, [prop]: event.target.value })
   }
-  const handleClickShowPassword = () => {
-    setValues({ ...values, showPassword: !values.showPassword })
+  const handleClickShowPassword1 = () => {
+    setValues({ ...values, showPassword1: !values.showPassword1 })
+  }
+  const handleClickShowPassword2 = () => {
+    setValues({ ...values, showPassword2: !values.showPassword2 })
   }
   const handleMouseDownPassword = (event: MouseEvent<HTMLButtonElement>) => {
     event.preventDefault()
+  }
+  const handleRegister = async () => {
+    try {
+      const response = await axios.post(UrlUtils.makeUrl('https://cheapr.my.id/', 'rest-auth', 'registration'), {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        username: values.username,
+        email: values.email,
+        password1: values.password1,
+        password2: values.password2
+      })
+
+      // extract the returned token from the DRF backend and add it to the `user` object
+      const { access_token } = response.data
+      console.log(response.data)
+      if (access_token) {
+        signIn('credentials', { username: values.username, password: values.password1 })
+      } else {
+        setValues({ ...values, error: response.data })
+      }
+    } catch (error) {
+      return null
+    }
   }
 
   return (
@@ -166,26 +206,67 @@ const RegisterPage = () => {
             </Typography>
             <Typography variant='body2'>Make your app management easy and fun!</Typography>
           </Box>
-          <form noValidate autoComplete='off' onSubmit={e => e.preventDefault()}>
-            <TextField autoFocus fullWidth id='username' label='Username' sx={{ marginBottom: 4 }} />
-            <TextField fullWidth type='email' label='Email' sx={{ marginBottom: 4 }} />
-            <FormControl fullWidth>
+          {values.error && (
+            <Typography variant='h5' sx={{ fontWeight: 600, marginBottom: 1.5 }}>
+              {JSON.stringify(values.error)}
+            </Typography>
+          )}
+          <form
+            noValidate
+            autoComplete='off'
+            onSubmit={async e => {
+              e.preventDefault()
+              await handleRegister()
+            }}
+          >
+            <TextField
+              autoFocus
+              fullWidth
+              id='username'
+              label='Username'
+              sx={{ marginBottom: 4 }}
+              onChange={handleChange('username')}
+            />
+            <TextField fullWidth type='email' label='Email' sx={{ marginBottom: 4 }} onChange={handleChange('email')} />
+            <FormControl fullWidth sx={{ marginBottom: 4 }}>
               <InputLabel htmlFor='auth-register-password'>Password</InputLabel>
               <OutlinedInput
                 label='Password'
-                value={values.password}
+                value={values.password1}
                 id='auth-register-password'
-                onChange={handleChange('password')}
-                type={values.showPassword ? 'text' : 'password'}
+                onChange={handleChange('password1')}
+                type={values.showPassword1 ? 'text' : 'password'}
                 endAdornment={
                   <InputAdornment position='end'>
                     <IconButton
                       edge='end'
-                      onClick={handleClickShowPassword}
+                      onClick={handleClickShowPassword1}
                       onMouseDown={handleMouseDownPassword}
                       aria-label='toggle password visibility'
                     >
-                      {values.showPassword ? <EyeOutline fontSize='small' /> : <EyeOffOutline fontSize='small' />}
+                      {values.showPassword1 ? <EyeOutline fontSize='small' /> : <EyeOffOutline fontSize='small' />}
+                    </IconButton>
+                  </InputAdornment>
+                }
+              />
+            </FormControl>
+            <FormControl fullWidth sx={{ marginBottom: 4 }}>
+              <InputLabel htmlFor='auth-register-password'>Repeat Password</InputLabel>
+              <OutlinedInput
+                label='Password'
+                value={values.password2}
+                id='auth-register-password'
+                onChange={handleChange('password2')}
+                type={values.showPassword2 ? 'text' : 'password'}
+                endAdornment={
+                  <InputAdornment position='end'>
+                    <IconButton
+                      edge='end'
+                      onClick={handleClickShowPassword2}
+                      onMouseDown={handleMouseDownPassword}
+                      aria-label='toggle password visibility'
+                    >
+                      {values.showPassword2 ? <EyeOutline fontSize='small' /> : <EyeOffOutline fontSize='small' />}
                     </IconButton>
                   </InputAdornment>
                 }
@@ -218,29 +299,35 @@ const RegisterPage = () => {
               </Typography>
             </Box>
             <Divider sx={{ my: 5 }}>or</Divider>
+            <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <Typography variant='body1'>Register using social media account.</Typography>
+            </Box>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Link href='/' passHref>
+              {/* <Link href='/' passHref>
                 <IconButton component='a' onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}>
-                  <Facebook sx={{ color: '#497ce2' }} />
+                  <Facebook sx={{ color: '#497ce2', width: 30, height: 30 }} />
                 </IconButton>
               </Link>
               <Link href='/' passHref>
                 <IconButton component='a' onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}>
-                  <Twitter sx={{ color: '#1da1f2' }} />
+                  <Twitter sx={{ color: '#1da1f2', width: 30, height: 30 }} />
                 </IconButton>
               </Link>
               <Link href='/' passHref>
                 <IconButton component='a' onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}>
                   <Github
-                    sx={{ color: theme => (theme.palette.mode === 'light' ? '#272727' : theme.palette.grey[300]) }}
+                    sx={{
+                      color: theme => (theme.palette.mode === 'light' ? '#272727' : theme.palette.grey[300]),
+                      width: 30,
+                      height: 30
+                    }}
                   />
                 </IconButton>
-              </Link>
-              <Link href='/' passHref>
-                <IconButton component='a' onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}>
-                  <Google sx={{ color: '#db4437' }} />
-                </IconButton>
-              </Link>
+              </Link> */}
+
+              <IconButton component='a' onClick={() => signIn('google')}>
+                <Google sx={{ color: '#db4437', width: 30, height: 30 }} />
+              </IconButton>
             </Box>
           </form>
         </CardContent>

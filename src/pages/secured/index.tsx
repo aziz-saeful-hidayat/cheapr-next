@@ -335,7 +335,8 @@ export const DeleteModal = ({ open, onClose, onSubmit, data }: DeleteModalProps)
     </Dialog>
   )
 }
-const Example = () => {
+const Example = (props: any) => {
+  const { session } = props
   const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>([])
   const [globalFilter, setGlobalFilter] = useState('')
   const [sorting, setSorting] = useState<MRT_SortingState>([])
@@ -380,7 +381,13 @@ const Example = () => {
       }
       fetchURL.searchParams.set('ordering', ordering)
       console.log(fetchURL.href)
-      const response = await fetch(fetchURL.href)
+      const response = await fetch(fetchURL.href, {
+        method: 'get',
+        headers: new Headers({
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        })
+      })
       const json = await response.json()
 
       return json
@@ -408,9 +415,10 @@ const Example = () => {
     fetch(`https://cheapr.my.id/buying_order/`, {
       // note we are going to /1
       method: 'POST',
-      headers: {
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json'
-      },
+      }),
       body: JSON.stringify(new_obj)
     })
       .then(response => response.json())
@@ -440,9 +448,10 @@ const Example = () => {
   const reupdate = (order: number) => {
     fetch(`https://cheapr.my.id/buying_order/${order}/`, {
       // note we are going to /1
-      headers: {
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json'
-      }
+      })
     })
       .then(response => response.json())
       .then(json => {
@@ -461,9 +470,10 @@ const Example = () => {
     fetch(`https://cheapr.my.id/inventory_items/`, {
       // note we are going to /1
       method: 'POST',
-      headers: {
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json'
-      },
+      }),
       body: JSON.stringify(newValues)
     })
       .then(response => response.json())
@@ -482,9 +492,10 @@ const Example = () => {
       fetch(`https://cheapr.my.id/buying_order/${row.original.pk}/`, {
         // note we are going to /1
         method: 'DELETE',
-        headers: {
+        headers: new Headers({
+          Authorization: `Bearer ${session?.accessToken}`,
           'Content-Type': 'application/json'
-        }
+        })
       })
         .then(response => response.status)
         .then(status => {
@@ -494,7 +505,7 @@ const Example = () => {
           }
         })
     },
-    [tableData]
+    [tableData, session]
   )
   const handleSaveRow: MaterialReactTableProps<BuyingOrder>['onEditingRowSave'] = async ({
     exitEditingMode,
@@ -513,9 +524,10 @@ const Example = () => {
     console.log(values)
     fetch(`https://cheapr.my.id/buying_order/${row.original.pk}/`, {
       method: 'PATCH',
-      headers: {
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json'
-      },
+      }),
       body: JSON.stringify(values)
     })
       .then(response => response.json())
@@ -549,9 +561,10 @@ const Example = () => {
     console.log(payload)
     fetch(`https://cheapr.my.id/buying_order/${pk}/`, {
       method: 'PATCH',
-      headers: {
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json'
-      },
+      }),
       body: JSON.stringify(payload)
     })
       .then(response => response.json())
@@ -693,18 +706,30 @@ const Example = () => {
   }, [data])
   useEffect(() => {
     const fetchURL = new URL('/channel/', 'https://cheapr.my.id')
-    fetch(fetchURL.href)
+    fetch(fetchURL.href, {
+      method: 'get',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      })
+    })
       .then(response => response.json())
       .then(json => {
         setChannelData(json.results)
       })
     const fetchURLRoom = new URL('/room/', 'https://cheapr.my.id')
-    fetch(fetchURLRoom.href)
+    fetch(fetchURLRoom.href, {
+      method: 'get',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      })
+    })
       .then(response => response.json())
       .then(json => {
         setRoomData(json.results)
       })
-  }, [])
+  }, [session])
 
   return (
     <>
@@ -866,9 +891,9 @@ const Example = () => {
 
 const queryClient = new QueryClient()
 
-const Buying = () => (
+const Buying = (props: any) => (
   <QueryClientProvider client={queryClient}>
-    <Example />
+    <Example {...props} />
   </QueryClientProvider>
 )
 
