@@ -194,14 +194,14 @@ const Example = (props: any) => {
         ordering = ordering + sort.id
       }
       fetchURL.searchParams.set('ordering', ordering)
-      console.log(fetchURL.href, {
+      console.log(fetchURL.href)
+      const response = await fetch(fetchURL.href, {
         method: 'get',
         headers: new Headers({
           Authorization: `Bearer ${session?.accessToken}`,
           'Content-Type': 'application/json'
         })
       })
-      const response = await fetch(fetchURL.href)
       const json = await response.json()
 
       return json

@@ -352,9 +352,9 @@ const Example = (props: any) => {
 
 const queryClient = new QueryClient()
 
-const SKU = () => (
+const SKU = (props: any) => (
   <QueryClientProvider client={queryClient}>
-    <Example />
+    <Example {...props} />
   </QueryClientProvider>
 )
 
