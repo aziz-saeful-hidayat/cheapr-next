@@ -117,13 +117,7 @@ const TabAccount = () => {
           </Grid>
 
           <Grid item xs={12} sm={6}>
-            <TextField
-              fullWidth
-              type='email'
-              label='Email'
-              value={session?.user?.email}
-              InputLabelProps={{ shrink: true }}
-            />
+            <TextField fullWidth type='email' label='Email' value={session?.email} InputLabelProps={{ shrink: true }} />
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField

@@ -211,14 +211,7 @@ const RegisterPage = () => {
               {JSON.stringify(values.error)}
             </Typography>
           )}
-          <form
-            noValidate
-            autoComplete='off'
-            onSubmit={async e => {
-              e.preventDefault()
-              await handleRegister()
-            }}
-          >
+          <form>
             <TextField
               autoFocus
               fullWidth
@@ -285,7 +278,13 @@ const RegisterPage = () => {
                 </Fragment>
               }
             />
-            <Button fullWidth size='large' type='submit' variant='contained' sx={{ marginBottom: 7 }}>
+            <Button
+              fullWidth
+              size='large'
+              variant='contained'
+              sx={{ marginBottom: 7 }}
+              onClick={() => handleRegister()}
+            >
               Sign up
             </Button>
             <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>

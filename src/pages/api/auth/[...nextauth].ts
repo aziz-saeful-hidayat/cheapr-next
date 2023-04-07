@@ -11,8 +11,9 @@ import { JWT } from "next-auth/jwt/types";
 
 export interface ExtendedSession extends Session {
     pk?: string
-    accessToken?: string,
-    refreshToken?: string,
+    accessToken?: string
+    refreshToken?: string
+    email?: string
     username?: string
     firstName?: string
     lastName?: string
@@ -139,13 +140,13 @@ export const authOptions: NextAuthOptions = {
               },
             );
 
-            const { access_token, refresh_token } = response.data;
+            const { access, refresh } = response.data;
             console.log(response.data)
 
             token = {
               ...token,
-              accessToken: access_token,
-              refreshToken: refresh_token,
+              accessToken: access,
+              refreshToken: refresh,
             };
             Promise.resolve(token);
           } catch (error) {
@@ -214,6 +215,7 @@ export const authOptions: NextAuthOptions = {
 
         const { pk, username, email, first_name, last_name, profile } = response.data;
         console.log(response.data)
+        session.email = email as string;
         session.firstName = first_name as string;
         session.lastName = last_name as string;
         session.username = username as string;
