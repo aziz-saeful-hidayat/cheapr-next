@@ -10,6 +10,7 @@ import MaterialReactTable, {
 import {
   Box,
   Button,
+  Card,
   Dialog,
   DialogActions,
   DialogContent,
@@ -247,7 +248,7 @@ const Example = (props: any) => {
   }, [data])
 
   return (
-    <>
+    <Card>
       <MaterialReactTable
         columns={columns}
         data={tableData} //data is undefined on first render
@@ -339,7 +340,7 @@ const Example = (props: any) => {
         onSubmit={() => typeof rowDel == 'number' && handleDeleteRow(rowDel)}
         data={typeof rowDel == 'number' ? tableData[rowDel]['name'] : ''}
       />
-    </>
+    </Card>
   )
 }
 

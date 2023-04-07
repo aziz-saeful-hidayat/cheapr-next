@@ -20,6 +20,8 @@ import Button, { ButtonProps } from '@mui/material/Button'
 
 // ** Icons Imports
 import Close from 'mdi-material-ui/Close'
+import { useSession } from 'next-auth/react'
+import { ExtendedSession } from 'src/pages/api/auth/[...nextauth]'
 
 const ImgStyled = styled('img')(({ theme }) => ({
   width: 120,
@@ -46,6 +48,7 @@ const ResetButtonStyled = styled(Button)<ButtonProps>(({ theme }) => ({
 }))
 
 const TabAccount = () => {
+  const { data: session }: { data: ExtendedSession | null } = useSession()
   // ** State
   const [openAlert, setOpenAlert] = useState<boolean>(true)
   const [imgSrc, setImgSrc] = useState<string>('/images/avatars/1.png')
@@ -64,9 +67,30 @@ const TabAccount = () => {
     <CardContent>
       <form>
         <Grid container spacing={7}>
+          {openAlert ? (
+            <Grid item xs={12} sx={{ mb: 3 }}>
+              <Alert
+                severity='warning'
+                sx={{ '& a': { fontWeight: 400 } }}
+                action={
+                  <IconButton size='small' color='inherit' aria-label='close' onClick={() => setOpenAlert(false)}>
+                    <Close fontSize='inherit' />
+                  </IconButton>
+                }
+              >
+                <AlertTitle>Your email is not confirmed. Please check your inbox.</AlertTitle>
+                <Link href='/' onClick={(e: SyntheticEvent) => e.preventDefault()}>
+                  Resend Confirmation
+                </Link>
+              </Alert>
+            </Grid>
+          ) : null}
           <Grid item xs={12} sx={{ marginTop: 4.8, marginBottom: 3 }}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <ImgStyled src={imgSrc} alt='Profile Pic' />
+              <ImgStyled
+                src={session?.image ? session?.image : session?.imageFromUrl ? session?.imageFromUrl : imgSrc}
+                alt='Profile Pic'
+              />
               <Box>
                 <ButtonStyled component='label' variant='contained' htmlFor='account-settings-upload-image'>
                   Upload New Photo
@@ -89,19 +113,28 @@ const TabAccount = () => {
           </Grid>
 
           <Grid item xs={12} sm={6}>
-            <TextField fullWidth label='Username' placeholder='johnDoe' defaultValue='johnDoe' />
+            <TextField fullWidth label='Username' value={session?.username} InputLabelProps={{ shrink: true }} />
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField fullWidth label='Name' placeholder='John Doe' defaultValue='John Doe' />
-          </Grid>
+
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
               type='email'
               label='Email'
-              placeholder='johnDoe@example.com'
-              defaultValue='johnDoe@example.com'
+              value={session?.user?.email}
+              InputLabelProps={{ shrink: true }}
             />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label='First Name'
+              value={`${session?.firstName}`}
+              InputLabelProps={{ shrink: true }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField fullWidth label='Last Name' value={`${session?.lastName}`} InputLabelProps={{ shrink: true }} />
           </Grid>
           <Grid item xs={12} sm={6}>
             <FormControl fullWidth>
@@ -125,28 +158,6 @@ const TabAccount = () => {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField fullWidth label='Company' placeholder='ABC Pvt. Ltd.' defaultValue='ABC Pvt. Ltd.' />
-          </Grid>
-
-          {openAlert ? (
-            <Grid item xs={12} sx={{ mb: 3 }}>
-              <Alert
-                severity='warning'
-                sx={{ '& a': { fontWeight: 400 } }}
-                action={
-                  <IconButton size='small' color='inherit' aria-label='close' onClick={() => setOpenAlert(false)}>
-                    <Close fontSize='inherit' />
-                  </IconButton>
-                }
-              >
-                <AlertTitle>Your email is not confirmed. Please check your inbox.</AlertTitle>
-                <Link href='/' onClick={(e: SyntheticEvent) => e.preventDefault()}>
-                  Resend Confirmation
-                </Link>
-              </Alert>
-            </Grid>
-          ) : null}
 
           <Grid item xs={12}>
             <Button variant='contained' sx={{ marginRight: 3.5 }}>

@@ -29,6 +29,8 @@ import 'react-perfect-scrollbar/dist/css/styles.css'
 
 // ** Global css styles
 import '../../styles/globals.css'
+import { UserDataConsumer, UserDataProvider } from 'src/@core/context/userContext'
+import { SessionProvider } from 'next-auth/react'
 
 // ** Extend App Props with Emotion
 type ExtendedAppProps = AppProps & {
@@ -53,28 +55,34 @@ if (themeConfig.routingLoader) {
 
 // ** Configure JSS & ClassName
 const App = (props: ExtendedAppProps) => {
-  const { Component, emotionCache = clientSideEmotionCache, pageProps } = props
+  const {
+    Component,
+    emotionCache = clientSideEmotionCache,
+    pageProps: { session, ...pageProps }
+  } = props
 
   // Variables
   const getLayout = Component.getLayout ?? (page => <UserLayout>{page}</UserLayout>)
 
   return (
-    <CacheProvider value={emotionCache}>
-      <Head>
-        <title>{`${themeConfig.templateName} - Inventory Management`}</title>
-        <meta name='description' content={`${themeConfig.templateName} – Inventory Management`} />
-        <meta name='keywords' content='Inventory Management' />
-        <meta name='viewport' content='initial-scale=1, width=device-width' />
-      </Head>
+    <SessionProvider session={session}>
+      <CacheProvider value={emotionCache}>
+        <Head>
+          <title>{`${themeConfig.templateName} - Inventory Management`}</title>
+          <meta name='description' content={`${themeConfig.templateName} – Inventory Management`} />
+          <meta name='keywords' content='Inventory Management' />
+          <meta name='viewport' content='initial-scale=1, width=device-width' />
+        </Head>
 
-      <SettingsProvider>
-        <SettingsConsumer>
-          {({ settings }) => {
-            return <ThemeComponent settings={settings}>{getLayout(<Component {...pageProps} />)}</ThemeComponent>
-          }}
-        </SettingsConsumer>
-      </SettingsProvider>
-    </CacheProvider>
+        <SettingsProvider>
+          <SettingsConsumer>
+            {({ settings }) => {
+              return <ThemeComponent settings={settings}>{getLayout(<Component {...pageProps} />)}</ThemeComponent>
+            }}
+          </SettingsConsumer>
+        </SettingsProvider>
+      </CacheProvider>
+    </SessionProvider>
   )
 }
 

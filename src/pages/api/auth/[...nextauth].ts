@@ -10,8 +10,16 @@ import { JWT } from "next-auth/jwt/types";
 
 
 export interface ExtendedSession extends Session {
+    pk?: string
     accessToken?: string,
     refreshToken?: string,
+    username?: string
+    firstName?: string
+    lastName?: string
+    image?: string
+    imageFromUrl?: string
+    bio?: string
+    birthDate?: string
   }
   
 export interface ExtendedUser extends User {
@@ -43,7 +51,7 @@ namespace NextAuthUtils {
   };
 }
 
-const settings: NextAuthOptions = {
+export const authOptions: NextAuthOptions = {
   secret: process.env.SESSION_SECRET,
   session: {
     strategy: "jwt",
@@ -192,11 +200,35 @@ const settings: NextAuthOptions = {
         token: JWT;
     }) {
       session.accessToken = token.accessToken as string;
+      session.refreshToken = token.refreshToken as string;
+      try {
+        const response = await axios.get(
+          "https://cheapr.my.id/rest-auth/user/",
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token.accessToken}`
+          }
+        }
+        );
 
+        const { pk, username, email, first_name, last_name, profile } = response.data;
+        console.log(response.data)
+        session.firstName = first_name as string;
+        session.lastName = last_name as string;
+        session.username = username as string;
+        session.bio = profile.bio as string;
+        session.image = profile.image as string;
+        session.imageFromUrl = profile.image_from_url as string;
+        session.pk = pk as string;
+      } catch (error) {
+        console.log("error get user")
+      }
+      
       return session;
     },
   },
 };
 
 export default (req: NextApiRequest, res: NextApiResponse) =>
-  NextAuth(req, res, settings);
+  NextAuth(req, res, authOptions);

@@ -100,7 +100,7 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit }: Crea
 
   return (
     <Dialog open={open}>
-      <DialogTitle textAlign='center'>Create New Channel</DialogTitle>
+      <DialogTitle textAlign='center'>Create New Item</DialogTitle>
       <DialogContent>
         <form onSubmit={e => e.preventDefault()}>
           <Stack
@@ -441,7 +441,7 @@ const Example = (props: any) => {
               </IconButton>
             </Tooltip> */}
             <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
-              Create New Channel
+              Create New Item
             </Button>
           </>
         )}
