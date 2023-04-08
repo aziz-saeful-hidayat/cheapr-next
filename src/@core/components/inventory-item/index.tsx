@@ -9,6 +9,8 @@ import { Box, IconButton, Tooltip } from '@mui/material'
 
 //Date Picker Imports
 import { Delete, ContentCopy } from '@mui/icons-material'
+import { useSession } from 'next-auth/react'
+import { ExtendedSession } from 'src/pages/api/auth/[...nextauth]'
 
 type InventoryItem = {
   [key: string]: any
@@ -56,6 +58,7 @@ const Items = ({
   update: (idx: number, rowIdx: number, key: string, value: any) => void
   handleAddItem: (values: InventoryPayload) => void
 }) => {
+  const { data: session }: { data: ExtendedSession | null } = useSession()
   const handleSaveRow: MaterialReactTableProps<InventoryItem>['onEditingRowSave'] = async ({
     exitEditingMode,
     row,
@@ -67,6 +70,7 @@ const Items = ({
       // note we are going to /1
       method: 'PATCH',
       headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(values)
@@ -88,6 +92,7 @@ const Items = ({
       // note we are going to /1
       method: 'DELETE',
       headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json'
       }
     })
@@ -108,6 +113,7 @@ const Items = ({
     fetch(`https://cheapr.my.id/inventory_items/${cell.row.original.pk}/`, {
       method: 'PATCH',
       headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(payload)

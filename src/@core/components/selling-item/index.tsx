@@ -9,6 +9,8 @@ import { Box, IconButton, Tooltip } from '@mui/material'
 
 //Date Picker Imports
 import { Delete, ContentCopy } from '@mui/icons-material'
+import { useSession } from 'next-auth/react'
+import { ExtendedSession } from 'src/pages/api/auth/[...nextauth]'
 
 type InventoryItem = {
   [key: string]: any
@@ -56,6 +58,8 @@ const Items = ({
   update: (idx: number, rowIdx: number, key: string, value: any) => void
   handleAddItem: (values: InventoryPayload) => void
 }) => {
+  const { data: session }: { data: ExtendedSession | null } = useSession()
+
   const handleDeleteRow = (row: MRT_Row<InventoryItem>) => {
     if (!confirm(`Are you sure you want to delete Item #${row.index + 1} ${row.original.product.sku}`)) {
       return
@@ -64,6 +68,7 @@ const Items = ({
       // note we are going to /1
       method: 'PATCH',
       headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ selling: null })
