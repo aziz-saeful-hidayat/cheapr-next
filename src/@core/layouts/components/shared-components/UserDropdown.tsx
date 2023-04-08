@@ -23,6 +23,7 @@ import AccountOutline from 'mdi-material-ui/AccountOutline'
 import MessageOutline from 'mdi-material-ui/MessageOutline'
 import HelpCircleOutline from 'mdi-material-ui/HelpCircleOutline'
 import { getSession, signOut, useSession } from 'next-auth/react'
+import { ExtendedSession } from 'src/pages/api/auth/[...nextauth]'
 
 // ** Styled Components
 const BadgeContentSpan = styled('span')(({ theme }) => ({
@@ -34,7 +35,7 @@ const BadgeContentSpan = styled('span')(({ theme }) => ({
 }))
 
 const UserDropdown = () => {
-  const { data: session } = useSession()
+  const { data: session }: { data: ExtendedSession | null } = useSession()
   // ** States
   const [anchorEl, setAnchorEl] = useState<Element | null>(null)
 
@@ -98,13 +99,15 @@ const UserDropdown = () => {
               anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
             >
               <Avatar
-                alt={session?.user?.name ?? ''}
-                src={session?.user?.image ?? '/images/avatars/1.png'}
+                alt={session?.username ?? ''}
+                src={session?.image ?? session?.imageFromUrl ?? '/images/avatars/1.png'}
                 sx={{ width: '2.5rem', height: '2.5rem' }}
               />
             </Badge>
             <Box sx={{ display: 'flex', marginLeft: 3, alignItems: 'flex-start', flexDirection: 'column' }}>
-              <Typography sx={{ fontWeight: 600 }}>{session?.user?.name}</Typography>
+              <Typography sx={{ fontWeight: 600 }}>
+                {session?.firstName} {session?.lastName}
+              </Typography>
               <Typography variant='body2' sx={{ fontSize: '0.8rem', color: 'text.disabled' }}>
                 Admin
               </Typography>

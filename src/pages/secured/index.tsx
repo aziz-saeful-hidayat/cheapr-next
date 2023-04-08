@@ -707,7 +707,6 @@ const Example = (props: any) => {
   useEffect(() => {
     const fetchURL = new URL('/channel/', 'https://cheapr.my.id')
     fetch(fetchURL.href, {
-      method: 'get',
       headers: new Headers({
         Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json'
@@ -719,7 +718,6 @@ const Example = (props: any) => {
       })
     const fetchURLRoom = new URL('/room/', 'https://cheapr.my.id')
     fetch(fetchURLRoom.href, {
-      method: 'get',
       headers: new Headers({
         Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json'

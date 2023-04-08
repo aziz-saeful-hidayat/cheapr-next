@@ -140,13 +140,13 @@ export const authOptions: NextAuthOptions = {
               },
             );
 
-            const { access, refresh } = response.data;
+            const { access_token, refresh_token } = response.data;
             console.log(response.data)
 
             token = {
               ...token,
-              accessToken: access,
-              refreshToken: refresh,
+              accessToken: access_token,
+              refreshToken: refresh_token,
             };
             Promise.resolve(token);
           } catch (error) {
