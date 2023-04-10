@@ -23,6 +23,7 @@ import { Delete } from '@mui/icons-material'
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
 import { withAuth } from 'src/constants/HOCs'
 import { getSession } from 'next-auth/react'
+import Card from '@mui/material/Card'
 
 type Room = {
   pk: number
@@ -249,7 +250,7 @@ const Example = (props: any) => {
   }, [data])
 
   return (
-    <>
+    <Card sx={{ padding: 3 }}>
       <MaterialReactTable
         columns={columns}
         data={tableData} //data is undefined on first render
@@ -341,7 +342,7 @@ const Example = (props: any) => {
         onSubmit={() => typeof rowDel == 'number' && handleDeleteRow(rowDel)}
         data={typeof rowDel == 'number' ? tableData[rowDel]['name'] : ''}
       />
-    </>
+    </Card>
   )
 }
 

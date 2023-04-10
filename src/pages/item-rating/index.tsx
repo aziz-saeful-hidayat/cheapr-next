@@ -22,15 +22,18 @@ import {
 import { Delete } from '@mui/icons-material'
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
 import { withAuth } from 'src/constants/HOCs'
+import Card from '@mui/material/Card'
 
 type ItemRating = {
   pk: number
   name: string
+  color: string
 }
 
 type Payload = {
   pk?: number
   name?: string
+  color?: string
 }
 
 interface CreateModalProps {
@@ -229,6 +232,10 @@ const Example = (props: any) => {
       {
         accessorKey: 'name',
         header: 'Name'
+      },
+      {
+        accessorKey: 'color',
+        header: 'Color'
       }
     ],
     []
@@ -245,7 +252,7 @@ const Example = (props: any) => {
   }, [data])
 
   return (
-    <>
+    <Card sx={{ padding: 3 }}>
       <MaterialReactTable
         columns={columns}
         data={tableData} //data is undefined on first render
@@ -337,7 +344,7 @@ const Example = (props: any) => {
         onSubmit={() => typeof rowDel == 'number' && handleDeleteRow(rowDel)}
         data={typeof rowDel == 'number' ? tableData[rowDel]['name'] : ''}
       />
-    </>
+    </Card>
   )
 }
 

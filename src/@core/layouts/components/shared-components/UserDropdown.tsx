@@ -77,8 +77,8 @@ const UserDropdown = () => {
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
         <Avatar
-          alt={session?.user?.name ?? ''}
-          src={session?.user?.image ?? '/images/avatars/1.png'}
+          alt={session?.username ?? ''}
+          src={session?.image ?? session?.imageFromUrl ?? '/images/avatars/1.png'}
           onClick={handleDropdownOpen}
           sx={{ width: 40, height: 40 }}
         />

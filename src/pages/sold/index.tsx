@@ -24,6 +24,7 @@ import {
   CircularProgress
 } from '@mui/material'
 import Typography from '@mui/material/Typography'
+import Card from '@mui/material/Card'
 
 //Date Picker Imports
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
@@ -695,7 +696,7 @@ const Example = (props: any) => {
   }, [session])
 
   return (
-    <>
+    <Card sx={{ padding: 3 }}>
       <MaterialReactTable
         columns={columns}
         data={tableData} //data is undefined on first render
@@ -799,7 +800,7 @@ const Example = (props: any) => {
         rowData={addModalOpen}
         roomData={roomData}
       />
-    </>
+    </Card>
   )
 }
 

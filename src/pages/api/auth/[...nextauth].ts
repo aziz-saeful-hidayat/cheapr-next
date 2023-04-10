@@ -214,7 +214,6 @@ export const authOptions: NextAuthOptions = {
         );
 
         const { pk, username, email, first_name, last_name, profile } = response.data;
-        console.log(response.data)
         session.email = email as string;
         session.firstName = first_name as string;
         session.lastName = last_name as string;

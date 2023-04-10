@@ -3,6 +3,9 @@ export default {
     styleOverrides: {
       root: {
         backgroundImage: 'none'
+      },
+      elevation: {
+        boxShadow: 'none'
       }
     }
   }

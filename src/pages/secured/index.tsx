@@ -33,10 +33,17 @@ import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-quer
 import dayjs from 'dayjs'
 import Items from 'src/@core/components/inventory-item'
 import { withAuth } from 'src/constants/HOCs'
+import Link from '@mui/material/Link'
+import Card from '@mui/material/Card'
+import { ExtendedSession } from '../api/auth/[...nextauth]'
+import moment from 'moment'
+import { useRouter } from 'next/router'
+import { formatterUSD } from 'src/constants/Utils'
 
 type Channel = {
   pk: number
   name: string
+  image: string
 }
 type Room = {
   pk: number
@@ -72,6 +79,7 @@ type BuyingOrder = {
   channel: {
     pk: number
     name: string
+    image: string
   }
   tracking_number: string
   seller_name: string
@@ -110,6 +118,7 @@ interface AddItemProps {
   open: boolean
   rowData: BuyingOrder | undefined
   roomData: Room[]
+  session: ExtendedSession
 }
 interface DeleteModalProps {
   onClose: () => void
@@ -161,8 +170,26 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channe
               onChange={e => setValues({ ...values, channel: { name: e.target.value } })}
             >
               {channelData?.map(channel => (
-                <MenuItem key={channel.pk} value={channel.name}>
-                  {channel.name}
+                <MenuItem
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '1rem'
+                  }}
+                  key={channel.pk}
+                  value={channel.name}
+                >
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem'
+                    }}
+                  >
+                    <img alt='avatar' height={25} src={channel.image} loading='lazy' style={{ borderRadius: '50%' }} />
+                    {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
+                    <span>{channel.name}</span>
+                  </Box>
                 </MenuItem>
               ))}
             </TextField>
@@ -196,7 +223,7 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channe
     </Dialog>
   )
 }
-export const AddItemModal = ({ open, columns, onClose, onSubmit, rowData, roomData }: AddItemProps) => {
+export const AddItemModal = ({ open, columns, onClose, onSubmit, rowData, roomData, session }: AddItemProps) => {
   const [values, setValues] = useState<any>(() =>
     columns.reduce((acc, column) => {
       acc[column.accessorKey ?? ''] = ''
@@ -257,6 +284,7 @@ export const AddItemModal = ({ open, columns, onClose, onSubmit, rowData, roomDa
                         fetch(`https://cheapr.my.id/caproduct/?sku=${e.target.value}`, {
                           // note we are going to /1
                           headers: {
+                            Authorization: `Bearer ${session?.accessToken}`,
                             'Content-Type': 'application/json'
                           }
                         })
@@ -337,12 +365,14 @@ export const DeleteModal = ({ open, onClose, onSubmit, data }: DeleteModalProps)
 }
 const Example = (props: any) => {
   const { session } = props
+  const router = useRouter()
+
   const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>([])
   const [globalFilter, setGlobalFilter] = useState('')
-  const [sorting, setSorting] = useState<MRT_SortingState>([])
+  const [sorting, setSorting] = useState<MRT_SortingState>([{ id: 'order_date', desc: true }])
   const [pagination, setPagination] = useState<MRT_PaginationState>({
     pageIndex: 0,
-    pageSize: 10
+    pageSize: 100
   })
   const { data, isError, isFetching, isLoading } = useQuery({
     queryKey: [
@@ -377,7 +407,7 @@ const Example = (props: any) => {
         if (sort.desc) {
           ordering = ordering + '-'
         }
-        ordering = ordering + sort.id
+        ordering = ordering + sort.id.split('.')[0]
       }
       fetchURL.searchParams.set('ordering', ordering)
       console.log(fetchURL.href)
@@ -397,6 +427,7 @@ const Example = (props: any) => {
   const [tableData, setTableData] = useState<BuyingOrder[]>(() => data?.results ?? [])
   const [channelData, setChannelData] = useState<Channel[]>([])
   const [roomData, setRoomData] = useState<Room[]>([])
+  const [ratingData, setRatingData] = useState<Room[]>([])
   const [tabActive, setTabActive] = useState('all')
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
@@ -579,8 +610,22 @@ const Example = (props: any) => {
     () => [
       {
         accessorKey: 'order_id',
-        header: 'Order ID',
-        maxSize: 150
+        header: 'Internal ID',
+        maxSize: 120,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            <Link href={`/secured/${row.original.pk}`} target='_blank'>
+              {renderedCellValue}
+            </Link>
+          </Box>
+        )
       },
       {
         accessorKey: 'order_date',
@@ -588,25 +633,69 @@ const Example = (props: any) => {
         maxSize: 100,
         muiTableBodyCellEditTextFieldProps: {
           type: 'date'
-        }
+        },
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            <span>{renderedCellValue ? moment(renderedCellValue?.toString()).format('MMM D YYYY') : ''}</span>
+          </Box>
+        )
       },
       {
         accessorKey: 'delivery_date',
-        header: 'Delivery Date',
-        maxSize: 70,
+        header: 'Received',
+        maxSize: 100,
         muiTableBodyCellEditTextFieldProps: {
           type: 'date'
-        }
+        },
+        Cell: ({ renderedCellValue, row }) =>
+          renderedCellValue ? (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center'
+              }}
+            >
+              <Box
+                sx={theme => ({
+                  backgroundColor: theme.palette.success.dark,
+                  borderRadius: '0.5rem',
+                  color: '#fff',
+                  width: 12,
+                  height: 12,
+                  marginLeft: 5
+                })}
+              ></Box>
+            </Box>
+          ) : (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center'
+              }}
+            >
+              <Box
+                sx={theme => ({
+                  backgroundColor: theme.palette.error.dark,
+                  borderRadius: '0.5rem',
+                  color: '#fff',
+                  width: 12,
+                  height: 12,
+                  marginLeft: 5
+                })}
+              ></Box>
+            </Box>
+          )
       },
       {
         accessorKey: 'tracking_number',
         header: 'Tracking',
         maxSize: 70
-      },
-      {
-        accessorKey: 'seller_name',
-        header: 'Seller Name',
-        maxSize: 150
       },
       {
         accessorKey: 'channel.name',
@@ -616,31 +705,81 @@ const Example = (props: any) => {
           select: true, //change to select for a dropdown
           children: channelData?.map(channel => (
             <MenuItem key={channel.pk} value={channel.name}>
-              {channel.name}
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
+              >
+                <img alt='avatar' height={25} src={channel.image} loading='lazy' style={{ borderRadius: '50%' }} />
+                {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
+                <span>{channel.name}</span>
+              </Box>
             </MenuItem>
           ))
-        }
+        },
+        Cell: ({ renderedCellValue, row }) =>
+          row.original.channel ? (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
+            >
+              <img
+                alt='avatar'
+                height={25}
+                src={row.original.channel.image}
+                loading='lazy'
+                style={{ borderRadius: '50%' }}
+              />
+              {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
+              <span>{renderedCellValue}</span>
+            </Box>
+          ) : (
+            <></>
+          )
       },
+      {
+        accessorKey: 'seller_name',
+        header: 'Seller Name',
+        maxSize: 150
+      },
+
       {
         accessorKey: 'channel_order_id',
         header: 'Order ID',
-        maxSize: 150
+        maxSize: 100
       },
       {
-        accessorKey: 'total_cost',
+        accessorFn: row =>
+          formatterUSD.format(
+            row.inventoryitems
+              ? row.inventoryitems.reduce((accumulator, object) => {
+                  return accumulator + parseFloat(object.total_cost)
+                }, 0)
+              : 0
+          ), //accessorFn used to join multiple data into a single cell
+        id: 'total', //id is still required when using accessorFn instead of accessorKey
         header: 'Total',
-        maxSize: 70,
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        }
+        maxSize: 100,
+        enableEditing: false
       },
       {
-        accessorKey: 'shipping_cost',
+        accessorFn: row =>
+          formatterUSD.format(
+            row.inventoryitems
+              ? row.inventoryitems.reduce((accumulator, object) => {
+                  return accumulator + parseFloat(object.shipping_cost)
+                }, 0)
+              : 0
+          ), //accessorFn used to join multiple data into a single cell
+        id: 'shipping_cost', //id is still required when using accessorFn instead of accessorKey
         header: 'Shipping',
-        maxSize: 70,
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        }
+        maxSize: 100,
+        enableEditing: false
       }
     ],
     [channelData]
@@ -698,7 +837,7 @@ const Example = (props: any) => {
   useEffect(() => {
     setPagination({
       pageIndex: 0,
-      pageSize: 10
+      pageSize: 100
     })
   }, [sorting, globalFilter, columnFilters])
   useEffect(() => {
@@ -727,14 +866,25 @@ const Example = (props: any) => {
       .then(json => {
         setRoomData(json.results)
       })
+    const fetchURLRating = new URL('/item_rating/', 'https://cheapr.my.id')
+    fetch(fetchURLRating.href, {
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      })
+    })
+      .then(response => response.json())
+      .then(json => {
+        setRatingData(json.results)
+      })
   }, [session])
 
   return (
-    <>
+    <Card sx={{ padding: 3 }}>
       <MaterialReactTable
         columns={columns}
         data={tableData} //data is undefined on first render
-        initialState={{ showColumnFilters: false }}
+        initialState={{ columnVisibility: { tracking_number: false }, showColumnFilters: false }}
         enableEditing
         editingMode='cell'
         muiTableBodyCellEditTextFieldProps={({ cell }) => ({
@@ -743,7 +893,14 @@ const Example = (props: any) => {
             handleSaveCell(cell, event.target.value)
           }
         })}
+        muiTableProps={{
+          sx: {
+            tableLayout: 'fixed'
+          }
+        }}
         onEditingRowSave={handleSaveRow}
+        enableColumnActions={false}
+        enableRowNumbers
         enableStickyHeader
         enableStickyFooter
         manualFiltering
@@ -770,11 +927,11 @@ const Example = (props: any) => {
                 <Edit />
               </IconButton>
             </Tooltip> */}
-            <Tooltip arrow placement='top' title='Add Item'>
+            {/* <Tooltip arrow placement='top' title='Add Item'>
               <IconButton color='primary' onClick={() => setAddModalOpen(row.original)}>
                 <Add />
               </IconButton>
-            </Tooltip>
+            </Tooltip> */}
             <Tooltip arrow placement='top' title='Delete'>
               <IconButton color='error' onClick={() => handleDeleteRow(row)}>
                 <Delete />
@@ -848,15 +1005,6 @@ const Example = (props: any) => {
             </Button>
           </Box>
         )}
-        renderDetailPanel={({ row }) => (
-          <Items
-            data={row.original.inventoryitems}
-            reupdate={reupdate}
-            idx={row.index}
-            update={update}
-            handleAddItem={handleAddItem}
-          />
-        )}
         rowCount={data?.count ?? 0}
         state={{
           columnFilters,
@@ -882,8 +1030,9 @@ const Example = (props: any) => {
         onSubmit={handleAddItem}
         rowData={addModalOpen}
         roomData={roomData}
+        session={session}
       />
-    </>
+    </Card>
   )
 }
 

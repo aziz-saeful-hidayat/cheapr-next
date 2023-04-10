@@ -248,7 +248,7 @@ const Example = (props: any) => {
   }, [data])
 
   return (
-    <Card>
+    <Card sx={{ padding: 3 }}>
       <MaterialReactTable
         columns={columns}
         data={tableData} //data is undefined on first render
