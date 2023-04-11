@@ -78,30 +78,6 @@ const TabAccount = () => {
     },
     validationSchema: validationSchema,
     onSubmit: values => {
-      if (imgSrc != defaultImg) {
-        const data = new FormData()
-        data.append('image', {
-          uri: values?.image?.path, // your file path string
-          name: values?.image?.name,
-          type: values?.image?.type
-        })
-        console.log(values.image)
-        const params = {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${session?.accessToken}`
-          },
-          body: data
-        }
-        fetch(`https://cheapr.my.id/profile/${session?.profilePk}/`, params)
-          .then(response => response.json())
-          .then(json => {
-            console.log(json)
-            reloadSession()
-          })
-      }
-
       saveGlobalData({ ...globalData, isLoading: true, textLoading: 'Saving user data ...' })
       fetch(`https://cheapr.my.id/user/${session?.pk}/`, {
         // note we are going to /1
