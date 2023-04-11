@@ -482,20 +482,24 @@ const Example = (props: any) => {
             </MenuItem>
           ))
         },
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            component='span'
-            sx={theme => ({
-              backgroundColor: row.original.rating.color ?? theme.palette.success.dark,
-              borderRadius: '0.25rem',
-              color: '#fff',
-              maxWidth: '9ch',
-              p: '0.25rem'
-            })}
-          >
-            {renderedCellValue}
-          </Box>
-        )
+        Cell: ({ renderedCellValue, row }) => {
+          row.original.rating ? (
+            <Box
+              component='span'
+              sx={theme => ({
+                backgroundColor: row.original.rating ? row.original.rating.color : 'none',
+                borderRadius: '0.25rem',
+                color: '#fff',
+                maxWidth: '9ch',
+                p: '0.25rem'
+              })}
+            >
+              {renderedCellValue}
+            </Box>
+          ) : (
+            <></>
+          )
+        }
       },
       {
         accessorKey: 'comment',

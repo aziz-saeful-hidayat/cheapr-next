@@ -1,10 +1,10 @@
 // ** React Imports
-import { ChangeEvent, MouseEvent, ReactNode, useState } from 'react'
+import { ChangeEvent, MouseEvent, ReactNode, useContext, useState } from 'react'
 
 // ** Next Imports
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { getProviders, signIn, getSession, getCsrfToken } from 'next-auth/react'
+import { getProviders, signIn, getSession, getCsrfToken, useSession } from 'next-auth/react'
 
 // ** MUI Components
 import Box from '@mui/material/Box'
@@ -41,6 +41,16 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 import FooterIllustrationsV1 from 'src/views/pages/auth/FooterIllustration'
 import { Input } from '@mui/material'
 
+import { useFormik } from 'formik'
+import * as yup from 'yup'
+import { GlobalDataContext } from 'src/@core/context/globalContext'
+import { ExtendedSession } from 'src/pages/api/auth/[...nextauth]'
+
+const validationSchema = yup.object({
+  username: yup.string().required('Username is required'),
+  password: yup.string().required('Password is required')
+})
+
 interface State {
   username: string
   password: string
@@ -72,7 +82,21 @@ const LoginPage = ({ csrfToken }: { csrfToken: string }) => {
     password: '',
     showPassword: false
   })
-
+  const { data: session }: { data: ExtendedSession | null } = useSession()
+  const { globalData, saveGlobalData } = useContext(GlobalDataContext)
+  const formik = useFormik({
+    initialValues: {
+      username: '',
+      password: ''
+    },
+    validationSchema: validationSchema,
+    onSubmit: values => {
+      saveGlobalData({ ...globalData, isLoading: true, textLoading: 'Logging in ...' })
+      signIn('credentials', { username: values.username, password: values.password }).finally(() =>
+        saveGlobalData({ ...globalData, isLoading: false, textLoading: '' })
+      )
+    }
+  })
   // ** Hook
   const theme = useTheme()
   const router = useRouter()
@@ -172,7 +196,7 @@ const LoginPage = ({ csrfToken }: { csrfToken: string }) => {
             </Typography>
             <Typography variant='body2'>Please sign-in to your account and start the adventure</Typography>
           </Box>
-          <form method='post' action='/api/auth/callback/credentials'>
+          <form onSubmit={formik.handleSubmit}>
             <Input name='csrfToken' type='hidden' defaultValue={csrfToken} />
             <TextField
               autoFocus
@@ -180,17 +204,22 @@ const LoginPage = ({ csrfToken }: { csrfToken: string }) => {
               id='username'
               name='username'
               label='Username'
+              InputLabelProps={{ shrink: true }}
+              value={formik.values.username}
+              onChange={formik.handleChange}
+              error={formik.touched.username && Boolean(formik.errors.username)}
+              helperText={formik.touched.username && formik.errors.username}
               sx={{ marginBottom: 4 }}
-              onChange={handleChange('username')}
             />
             <FormControl fullWidth>
               <InputLabel htmlFor='password'>Password</InputLabel>
               <OutlinedInput
-                label='Password'
-                value={values.password}
                 id='password'
                 name='password'
-                onChange={handleChange('password')}
+                label='Password'
+                value={formik.values.password}
+                onChange={formik.handleChange}
+                error={formik.touched.password && Boolean(formik.errors.password)}
                 type={values.showPassword ? 'text' : 'password'}
                 endAdornment={
                   <InputAdornment position='end'>
@@ -214,14 +243,7 @@ const LoginPage = ({ csrfToken }: { csrfToken: string }) => {
                 <LinkStyled onClick={e => e.preventDefault()}>Forgot Password?</LinkStyled>
               </Link>
             </Box>
-            <Button
-              fullWidth
-              size='large'
-              variant='contained'
-              sx={{ marginBottom: 7 }}
-              type='submit'
-              onClick={() => signIn('credentials', { username: values.username, password: values.password })}
-            >
+            <Button fullWidth size='large' variant='contained' sx={{ marginBottom: 7 }} type='submit'>
               Login
             </Button>
             <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -261,7 +283,12 @@ const LoginPage = ({ csrfToken }: { csrfToken: string }) => {
                 </IconButton>
               </Link> */}
 
-              <IconButton component='a' onClick={() => signIn('google')}>
+              <IconButton
+                component='a'
+                onClick={() => {
+                  signIn('google')
+                }}
+              >
                 <Google sx={{ color: '#db4437', width: 30, height: 30 }} />
               </IconButton>
             </Box>

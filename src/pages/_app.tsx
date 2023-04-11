@@ -29,8 +29,11 @@ import 'react-perfect-scrollbar/dist/css/styles.css'
 
 // ** Global css styles
 import '../../styles/globals.css'
-import { UserDataConsumer, UserDataProvider } from 'src/@core/context/userContext'
 import { SessionProvider } from 'next-auth/react'
+import { GlobalDataContextConsumer, GlobalDataProvider } from 'src/@core/context/globalContext'
+import Backdrop from '@mui/material/Backdrop'
+import CircularProgress from '@mui/material/CircularProgress'
+import Typography from '@mui/material/Typography'
 
 // ** Extend App Props with Emotion
 type ExtendedAppProps = AppProps & {
@@ -73,14 +76,38 @@ const App = (props: ExtendedAppProps) => {
           <meta name='keywords' content='Inventory Management' />
           <meta name='viewport' content='initial-scale=1, width=device-width' />
         </Head>
-
-        <SettingsProvider>
-          <SettingsConsumer>
-            {({ settings }) => {
-              return <ThemeComponent settings={settings}>{getLayout(<Component {...pageProps} />)}</ThemeComponent>
-            }}
-          </SettingsConsumer>
-        </SettingsProvider>
+        <GlobalDataProvider>
+          <SettingsProvider>
+            <SettingsConsumer>
+              {({ settings }) => {
+                return (
+                  <ThemeComponent settings={settings}>
+                    <GlobalDataContextConsumer>
+                      {({ globalData, saveGlobalData }) => (
+                        <Backdrop
+                          sx={{
+                            color: '#fff',
+                            zIndex: theme => theme.zIndex.drawer + 1,
+                            display: 'flex',
+                            flexDirection: 'column'
+                          }}
+                          open={globalData.isLoading}
+                          // onClick={() => saveGlobalData({ ...globalData, isLoading: false })}
+                        >
+                          <CircularProgress color='inherit' />
+                          <Typography variant='body2' sx={{ fontSize: '0.8rem', color: 'inherit', marginTop: 5 }}>
+                            {globalData.textLoading}
+                          </Typography>
+                        </Backdrop>
+                      )}
+                    </GlobalDataContextConsumer>
+                    {getLayout(<Component {...pageProps} />)}
+                  </ThemeComponent>
+                )
+              }}
+            </SettingsConsumer>
+          </SettingsProvider>
+        </GlobalDataProvider>
       </CacheProvider>
     </SessionProvider>
   )

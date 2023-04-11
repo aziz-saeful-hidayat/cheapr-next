@@ -106,7 +106,7 @@ const UserDropdown = () => {
             </Badge>
             <Box sx={{ display: 'flex', marginLeft: 3, alignItems: 'flex-start', flexDirection: 'column' }}>
               <Typography sx={{ fontWeight: 600 }}>
-                {session?.firstName} {session?.lastName}
+                {session?.firstName ? `${session?.firstName} ${session?.lastName}` : session?.username}
               </Typography>
               <Typography variant='body2' sx={{ fontSize: '0.8rem', color: 'text.disabled' }}>
                 Admin

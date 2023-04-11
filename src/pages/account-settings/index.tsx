@@ -24,6 +24,7 @@ import TabSecurity from 'src/views/account-settings/TabSecurity'
 import 'react-datepicker/dist/react-datepicker.css'
 
 import { withAuth } from '../../constants/HOCs'
+import { getSession } from 'next-auth/react'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -79,7 +80,7 @@ const AccountSettings = (props: any) => {
                 </Box>
               }
             />
-            <Tab
+            {/* <Tab
               value='info'
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -87,7 +88,7 @@ const AccountSettings = (props: any) => {
                   <TabName>Info</TabName>
                 </Box>
               }
-            />
+            /> */}
           </TabList>
 
           <TabPanel sx={{ p: 0 }} value='account'>
@@ -105,6 +106,23 @@ const AccountSettings = (props: any) => {
   }
 
   return <></>
+}
+
+export async function getServerSideProps(context: any) {
+  const session = await getSession(context)
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/pages/login',
+        permanent: false
+      }
+    }
+  }
+
+  return {
+    props: { session }
+  }
 }
 
 export default withAuth(3 * 60)(AccountSettings)

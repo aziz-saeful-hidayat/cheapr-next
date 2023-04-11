@@ -35,6 +35,7 @@ import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-quer
 import dayjs from 'dayjs'
 import Items from 'src/@core/components/selling-item'
 import { withAuth } from 'src/constants/HOCs'
+import { useSession, signIn, signOut, getSession } from 'next-auth/react'
 
 type Channel = {
   pk: number
@@ -811,5 +812,22 @@ const Sold = (props: any) => (
     <Example {...props} />
   </QueryClientProvider>
 )
+
+export async function getServerSideProps(context: any) {
+  const session = await getSession(context)
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/pages/login',
+        permanent: false
+      }
+    }
+  }
+
+  return {
+    props: { session }
+  }
+}
 
 export default withAuth(3 * 60)(Sold)

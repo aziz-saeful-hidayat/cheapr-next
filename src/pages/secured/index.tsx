@@ -39,6 +39,7 @@ import { ExtendedSession } from '../api/auth/[...nextauth]'
 import moment from 'moment'
 import { useRouter } from 'next/router'
 import { formatterUSD } from 'src/constants/Utils'
+import { getSession } from 'next-auth/react'
 
 type Channel = {
   pk: number
@@ -426,12 +427,9 @@ const Example = (props: any) => {
   })
   const [tableData, setTableData] = useState<BuyingOrder[]>(() => data?.results ?? [])
   const [channelData, setChannelData] = useState<Channel[]>([])
-  const [roomData, setRoomData] = useState<Room[]>([])
-  const [ratingData, setRatingData] = useState<Room[]>([])
   const [tabActive, setTabActive] = useState('all')
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
-  const [addModalOpen, setAddModalOpen] = useState<BuyingOrder>()
 
   const handleCreateNewRow = (values: BuyingOrder) => {
     console.log(values)
@@ -462,59 +460,6 @@ const Example = (props: any) => {
       })
   }
 
-  const update = (idx: number, rowIdx: number, key: string, value: any) => {
-    const inventoryitems_update = tableData[idx].inventoryitems.map((el, idx) => {
-      if (idx == rowIdx) {
-        const newEl = { ...el }
-        newEl[key] = value
-
-        return newEl
-      } else {
-        return el
-      }
-    })
-    tableData[idx].inventoryitems = inventoryitems_update
-    setTableData([...tableData])
-  }
-  const reupdate = (order: number) => {
-    fetch(`https://cheapr.my.id/buying_order/${order}/`, {
-      // note we are going to /1
-      headers: new Headers({
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json'
-      })
-    })
-      .then(response => response.json())
-      .then(json => {
-        if (json.pk) {
-          console.log(json)
-          const objIdx = tableData.findIndex(buying => buying.pk == json.pk)
-          tableData[objIdx] = json
-          setTableData([...tableData])
-        }
-      })
-  }
-  const handleAddItem = (values: InventoryPayload) => {
-    const newValues = { ...values, room: roomData.find(room => room.name == values.room.toString())?.pk }
-    console.log(newValues)
-
-    fetch(`https://cheapr.my.id/inventory_items/`, {
-      // note we are going to /1
-      method: 'POST',
-      headers: new Headers({
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json'
-      }),
-      body: JSON.stringify(newValues)
-    })
-      .then(response => response.json())
-      .then(json => {
-        if (json.pk) {
-          reupdate(json.buying)
-        }
-      })
-  }
-
   const handleDeleteRow = useCallback(
     (row: MRT_Row<BuyingOrder>) => {
       if (!confirm(`Are you sure you want to delete ${row.original.order_id}`)) {
@@ -538,6 +483,7 @@ const Example = (props: any) => {
     },
     [tableData, session]
   )
+
   const handleSaveRow: MaterialReactTableProps<BuyingOrder>['onEditingRowSave'] = async ({
     exitEditingMode,
     row,
@@ -784,56 +730,7 @@ const Example = (props: any) => {
     ],
     [channelData]
   )
-  const columnsAddItem = useMemo<MRT_ColumnDef<InventoryPayload>[]>(
-    () => [
-      {
-        accessorKey: 'product',
-        header: 'SKU',
-        size: 150
-      },
-      {
-        accessorKey: 'serial',
-        header: 'Serial',
-        size: 150
-      },
 
-      {
-        accessorKey: 'total_cost',
-        header: 'Total',
-        size: 150,
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        }
-      },
-      {
-        accessorKey: 'shipping_cost',
-        header: 'Shipping',
-        size: 150,
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        }
-      },
-      {
-        accessorKey: 'comment',
-        header: 'Comment',
-        size: 150
-      },
-      {
-        accessorKey: 'room',
-        header: 'Room',
-        size: 150,
-        muiTableBodyCellEditTextFieldProps: {
-          select: true, //change to select for a dropdown
-          children: roomData?.map(room => (
-            <MenuItem key={room.pk} value={room.name}>
-              {room.name}
-            </MenuItem>
-          ))
-        }
-      }
-    ],
-    [roomData]
-  )
   useEffect(() => {
     setPagination({
       pageIndex: 0,
@@ -854,28 +751,6 @@ const Example = (props: any) => {
       .then(response => response.json())
       .then(json => {
         setChannelData(json.results)
-      })
-    const fetchURLRoom = new URL('/room/', 'https://cheapr.my.id')
-    fetch(fetchURLRoom.href, {
-      headers: new Headers({
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json'
-      })
-    })
-      .then(response => response.json())
-      .then(json => {
-        setRoomData(json.results)
-      })
-    const fetchURLRating = new URL('/item_rating/', 'https://cheapr.my.id')
-    fetch(fetchURLRating.href, {
-      headers: new Headers({
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json'
-      })
-    })
-      .then(response => response.json())
-      .then(json => {
-        setRatingData(json.results)
       })
   }, [session])
 
@@ -1023,15 +898,6 @@ const Example = (props: any) => {
         onSubmit={handleCreateNewRow}
         channelData={channelData}
       />
-      <AddItemModal
-        columns={columnsAddItem}
-        open={addModalOpen !== undefined}
-        onClose={() => setAddModalOpen(undefined)}
-        onSubmit={handleAddItem}
-        rowData={addModalOpen}
-        roomData={roomData}
-        session={session}
-      />
     </Card>
   )
 }
@@ -1043,5 +909,22 @@ const Buying = (props: any) => (
     <Example {...props} />
   </QueryClientProvider>
 )
+
+export async function getServerSideProps(context: any) {
+  const session = await getSession(context)
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: '/pages/login',
+        permanent: false
+      }
+    }
+  }
+
+  return {
+    props: { session }
+  }
+}
 
 export default withAuth(3 * 60)(Buying)

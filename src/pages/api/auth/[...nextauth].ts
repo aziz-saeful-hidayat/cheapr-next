@@ -17,6 +17,7 @@ export interface ExtendedSession extends Session {
     username?: string
     firstName?: string
     lastName?: string
+    profilePk?: string
     image?: string
     imageFromUrl?: string
     bio?: string
@@ -218,6 +219,7 @@ export const authOptions: NextAuthOptions = {
         session.firstName = first_name as string;
         session.lastName = last_name as string;
         session.username = username as string;
+        session.profilePk = profile.id as string;
         session.bio = profile.bio as string;
         session.image = profile.image as string;
         session.imageFromUrl = profile.image_from_url as string;
