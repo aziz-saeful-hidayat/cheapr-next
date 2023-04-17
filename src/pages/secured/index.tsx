@@ -40,6 +40,7 @@ import moment from 'moment'
 import { useRouter } from 'next/router'
 import { formatterUSD } from 'src/constants/Utils'
 import { getSession } from 'next-auth/react'
+import Select, { SelectChangeEvent } from '@mui/material/Select'
 
 type Channel = {
   pk: number
@@ -428,7 +429,24 @@ const Example = (props: any) => {
   const [tableData, setTableData] = useState<BuyingOrder[]>(() => data?.results ?? [])
   const [channelData, setChannelData] = useState<Channel[]>([])
   const [tabActive, setTabActive] = useState('all')
-
+  const handleChange = (event: SelectChangeEvent) => {
+    setTabActive(event.target.value as string)
+    if (event.target.value == 'all') {
+      setColumnFilters([])
+    } else if (event.target.value == 'notracking') {
+      setColumnFilters([{ id: 'wait_tracking', value: 'true' }])
+    } else if (event.target.value == 'incoming') {
+      setColumnFilters([
+        { id: 'wait_tracking', value: 'false' },
+        { id: 'incoming', value: 'true' }
+      ])
+    } else if (event.target.value == 'delivered') {
+      setColumnFilters([
+        { id: 'wait_tracking', value: 'false' },
+        { id: 'incoming', value: 'false' }
+      ])
+    }
+  }
   const [createModalOpen, setCreateModalOpen] = useState(false)
 
   const handleCreateNewRow = (values: BuyingOrder) => {
@@ -546,8 +564,9 @@ const Example = (props: any) => {
     })
       .then(response => response.json())
       .then(json => {
-        if (json[key] !== value) {
-          setTableData([...oldData])
+        if (json.pk) {
+          newData[cell.row.index] = json
+          setTableData([...newData])
         }
       })
   }
@@ -558,7 +577,6 @@ const Example = (props: any) => {
         accessorKey: 'order_id',
         header: 'Internal ID',
         maxSize: 120,
-        enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
           <Box
             sx={{
@@ -641,7 +659,7 @@ const Example = (props: any) => {
       {
         accessorKey: 'tracking_number',
         header: 'Tracking',
-        maxSize: 70
+        maxSize: 150
       },
       {
         accessorKey: 'channel.name',
@@ -759,7 +777,7 @@ const Example = (props: any) => {
       <MaterialReactTable
         columns={columns}
         data={tableData} //data is undefined on first render
-        initialState={{ columnVisibility: { tracking_number: false }, showColumnFilters: false }}
+        initialState={{ showColumnFilters: false }}
         enableEditing
         editingMode='cell'
         muiTableBodyCellEditTextFieldProps={({ cell }) => ({
@@ -824,62 +842,73 @@ const Example = (props: any) => {
             <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
               Add New Secured Order
             </Button>
+            <Select
+              labelId='demo-simple-select-label'
+              id='demo-simple-select'
+              value={tabActive}
+              onChange={handleChange}
+            >
+              <MenuItem value={'all'}>All</MenuItem>
+              <MenuItem value={'notracking'}>No Tracking</MenuItem>
+              <MenuItem value={'incoming'}>Incoming</MenuItem>
+              <MenuItem value={'delivered'}>Received</MenuItem>
+            </Select>
           </>
         )}
-        renderBottomToolbarCustomActions={() => (
-          <Box sx={{ display: 'flex' }}>
-            <Button
-              sx={{ marginRight: 5 }}
-              color={tabActive == 'all' ? 'primary' : 'secondary'}
-              onClick={() => {
-                setTabActive('all')
-                setColumnFilters([])
-              }}
-              variant='contained'
-            >
-              All
-            </Button>
-            <Button
-              sx={{ marginRight: 5 }}
-              color={tabActive == 'notracking' ? 'primary' : 'secondary'}
-              onClick={() => {
-                setTabActive('notracking')
-                setColumnFilters([{ id: 'wait_tracking', value: 'true' }])
-              }}
-              variant='contained'
-            >
-              No Tracking
-            </Button>
-            <Button
-              sx={{ marginRight: 5 }}
-              color={tabActive == 'incoming' ? 'primary' : 'secondary'}
-              onClick={() => {
-                setTabActive('incoming')
-                setColumnFilters([
-                  { id: 'wait_tracking', value: 'false' },
-                  { id: 'incoming', value: 'true' }
-                ])
-              }}
-              variant='contained'
-            >
-              Incoming
-            </Button>
-            <Button
-              sx={{ marginRight: 5 }}
-              color={tabActive == 'delivered' ? 'primary' : 'secondary'}
-              onClick={() => {
-                setTabActive('delivered')
-                setColumnFilters([
-                  { id: 'wait_tracking', value: 'false' },
-                  { id: 'incoming', value: 'false' }
-                ])
-              }}
-              variant='contained'
-            >
-              Delivered
-            </Button>
-          </Box>
-        )}
+        // renderBottomToolbarCustomActions={() => (
+        //   <Box sx={{ display: 'flex' }}>
+        //     <Button
+        //       sx={{ marginRight: 5 }}
+        //       color={tabActive == 'all' ? 'primary' : 'secondary'}
+        //       onClick={() => {
+        //         setTabActive('all')
+        //         setColumnFilters([])
+        //       }}
+        //       variant='contained'
+        //     >
+        //       All
+        //     </Button>
+        //     <Button
+        //       sx={{ marginRight: 5 }}
+        //       color={tabActive == 'notracking' ? 'primary' : 'secondary'}
+        //       onClick={() => {
+        //         setTabActive('notracking')
+        //         setColumnFilters([{ id: 'wait_tracking', value: 'true' }])
+        //       }}
+        //       variant='contained'
+        //     >
+        //       No Tracking
+        //     </Button>
+        //     <Button
+        //       sx={{ marginRight: 5 }}
+        //       color={tabActive == 'incoming' ? 'primary' : 'secondary'}
+        //       onClick={() => {
+        //         setTabActive('incoming')
+        //         setColumnFilters([
+        //           { id: 'wait_tracking', value: 'false' },
+        //           { id: 'incoming', value: 'true' }
+        //         ])
+        //       }}
+        //       variant='contained'
+        //     >
+        //       Incoming
+        //     </Button>
+        //     <Button
+        //       sx={{ marginRight: 5 }}
+        //       color={tabActive == 'delivered' ? 'primary' : 'secondary'}
+        //       onClick={() => {
+        //         setTabActive('delivered')
+        //         setColumnFilters([
+        //           { id: 'wait_tracking', value: 'false' },
+        //           { id: 'incoming', value: 'false' }
+        //         ])
+        //       }}
+        //       variant='contained'
+        //     >
+        //       Received
+        //     </Button>
+        //   </Box>
+        // )}
         rowCount={data?.count ?? 0}
         state={{
           columnFilters,

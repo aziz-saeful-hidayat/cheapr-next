@@ -43,7 +43,7 @@ type InventoryItem = {
 }
 type Payload = {
   pk?: number
-  buying?: number
+  selling?: number
   product?: CAProduct
   status?: string
   serial?: string
@@ -83,7 +83,7 @@ type Rating = {
 }
 type Item = {
   pk: number
-  buying: number
+  selling: number
   product: {
     pk: number
     sku: string
@@ -100,8 +100,31 @@ type Item = {
   total_cost: number
   shipping_cost: number
 }
+type ItemOption = {
+  pk: number
+  buying: number
+  selling: number
+  product: {
+    pk: number
+    sku: string
+    mpn: string
+    make: string
+    model: string
+    asin: string
+  }
+  status: string
+  serial: string
+  comment: string
+  room: {
+    pk: number
+    name: string
+    room_id: string
+  }
+  total_cost: string
+  shipping_cost: string
+}
 
-export type BuyingOrder = {
+export type SellingOrder = {
   pk: number
   order_id: string
   order_date: string
@@ -122,9 +145,10 @@ export type BuyingOrder = {
 }
 
 interface CreateModalProps {
-  columns: MRT_ColumnDef<InventoryItem>[]
+  columns: MRT_ColumnDef<InventoryPayload>[]
   onClose: () => void
-  onSubmit: (values: Item) => void
+  onSubmit: (values: InventoryPayload) => void
+  purchaseId: string
   open: boolean
   roomData: Room[]
   ratingData: Rating[]
@@ -137,15 +161,7 @@ interface DeleteModalProps {
   open: boolean
   data: any
 }
-export const CreateNewAccountModal = ({
-  open,
-  columns,
-  onClose,
-  onSubmit,
-  roomData,
-  ratingData,
-  session
-}: CreateModalProps) => {
+export const AddItemModal = ({ open, columns, onClose, onSubmit, purchaseId, roomData, session }: CreateModalProps) => {
   const [values, setValues] = useState<any>(() =>
     columns.reduce((acc, column) => {
       acc[column.accessorKey ?? ''] = ''
@@ -153,18 +169,19 @@ export const CreateNewAccountModal = ({
       return acc
     }, {} as any)
   )
-  const [isopen, setOpen] = useState(false)
-  const [options, setOptions] = useState<readonly CAProduct[]>([])
-  const loading = open && options.length === 0
+
   const handleSubmit = () => {
     //put your validation logic here
-    onSubmit(values)
+    onSubmit({ ...values, selling: purchaseId })
     onClose()
   }
+  const [isopen, setOpen] = useState(false)
+  const [options, setOptions] = useState<readonly ItemOption[]>([])
+  const loading = open && options.length === 0
 
   return (
     <Dialog open={open}>
-      <DialogTitle textAlign='center'>Create New Item</DialogTitle>
+      <DialogTitle textAlign='center'>Add Item</DialogTitle>
       <DialogContent>
         <form onSubmit={e => e.preventDefault()}>
           <Stack
@@ -176,7 +193,7 @@ export const CreateNewAccountModal = ({
             }}
           >
             {columns.map(column =>
-              column.accessorKey === 'product.sku' ? (
+              column.accessorKey === 'product' ? (
                 <Autocomplete
                   key={column.accessorKey}
                   id='asynchronous-demo'
@@ -191,25 +208,29 @@ export const CreateNewAccountModal = ({
                     if (newValue) {
                       setValues({
                         ...values,
-                        product: newValue
+                        product: newValue?.pk
                       })
                     }
                   }}
-                  isOptionEqualToValue={(option, value) => option.sku === value.sku}
-                  getOptionLabel={option => option.sku}
+                  filterOptions={x => x}
+                  isOptionEqualToValue={(option, value) => option.product.sku === value.product.sku}
+                  getOptionLabel={option => `SKU: ${option.product.sku}      SERIAL: ${option.serial}`}
                   options={options}
                   loading={loading}
                   renderInput={params => (
                     <TextField
                       {...params}
                       onChange={e =>
-                        fetch(`https://cheapr.my.id/caproduct/?sku=${e.target.value}`, {
-                          // note we are going to /1
-                          headers: {
-                            Authorization: `Bearer ${session?.accessToken}`,
-                            'Content-Type': 'application/json'
+                        fetch(
+                          `https://cheapr.my.id/inventory_items/?inventory=true&product=${e.target.value}&ordering=serial`,
+                          {
+                            // note we are going to /1
+                            headers: {
+                              Authorization: `Bearer ${session?.accessToken}`,
+                              'Content-Type': 'application/json'
+                            }
                           }
-                        })
+                        )
                           .then(response => response.json())
                           .then(json => {
                             setOptions(json.results)
@@ -228,31 +249,17 @@ export const CreateNewAccountModal = ({
                     />
                   )}
                 />
-              ) : column.accessorKey === 'room.name' ? (
+              ) : column.accessorKey === 'room' ? (
                 <TextField
                   key={column.accessorKey}
                   label={column.header}
                   name={column.accessorKey}
-                  onChange={e => setValues({ ...values, room: e.target.value })}
+                  onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
                   select
                 >
                   {roomData?.map(room => (
                     <MenuItem key={room.pk} value={room.name}>
                       {room.name}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              ) : column.accessorKey === 'rating.name' ? (
-                <TextField
-                  key={column.accessorKey}
-                  label={column.header}
-                  name={column.accessorKey}
-                  onChange={e => setValues({ ...values, rating: e.target.value })}
-                  select
-                >
-                  {ratingData?.map(rating => (
-                    <MenuItem key={rating.pk} value={rating.name}>
-                      {rating.name}
                     </MenuItem>
                   ))}
                 </TextField>
@@ -325,7 +332,7 @@ const Example = (props: any) => {
       const fetchURL = new URL('/inventory_items/', 'https://cheapr.my.id')
       fetchURL.searchParams.set('limit', `${pagination.pageSize}`)
       fetchURL.searchParams.set('offset', `${pagination.pageIndex * pagination.pageSize}`)
-      fetchURL.searchParams.set('buying_pk', typeof purchaseId == 'string' ? purchaseId : '')
+      fetchURL.searchParams.set('selling_pk', typeof purchaseId == 'string' ? purchaseId : '')
       for (let f = 0; f < columnFilters.length; f++) {
         const filter = columnFilters[f]
         if (filter.id == 'product.sku') {
@@ -361,7 +368,7 @@ const Example = (props: any) => {
     },
     keepPreviousData: true
   })
-  const [orderData, setOrderData] = useState<BuyingOrder>()
+  const [orderData, setOrderData] = useState<SellingOrder>()
 
   const [tableData, setTableData] = useState<Item[]>([])
   const [roomData, setRoomData] = useState<Room[]>([])
@@ -385,7 +392,7 @@ const Example = (props: any) => {
     const rating = ratingData.find(rating => rating.name == values.rating.toString())
     const newValues = {
       ...values,
-      buying: purchaseId,
+      selling: purchaseId,
       product: values.product.pk,
       room: room?.pk,
       rating: rating?.pk
@@ -554,7 +561,7 @@ const Example = (props: any) => {
       })
   }, [session])
   useEffect(() => {
-    fetch(`https://cheapr.my.id/buying_order/${purchaseId}/`, {
+    fetch(`https://cheapr.my.id/selling_order/${purchaseId}/`, {
       method: 'get',
       headers: new Headers({
         Authorization: `Bearer ${session?.accessToken}`,
@@ -659,12 +666,12 @@ const Example = (props: any) => {
       })
   }
   const handleAddItem = (values: InventoryPayload) => {
-    const newValues = { ...values, room: roomData.find(room => room.name == values.room.toString())?.pk }
+    const newValues = { selling: values.selling }
     console.log(newValues)
-
-    fetch(`https://cheapr.my.id/inventory_items/`, {
+    console.log(`https://cheapr.my.id/inventory_items/${values.product}/`)
+    fetch(`https://cheapr.my.id/inventory_items/${values.product}/`, {
       // note we are going to /1
-      method: 'POST',
+      method: 'PATCH',
       headers: new Headers({
         Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json'
@@ -673,7 +680,10 @@ const Example = (props: any) => {
     })
       .then(response => response.json())
       .then(json => {
+        console.log(json)
         if (json.pk) {
+          tableData.unshift({ ...json })
+          setTableData([...tableData])
         }
       })
   }
@@ -717,7 +727,16 @@ const Example = (props: any) => {
     ],
     []
   )
-
+  const columnsAddItem = useMemo<MRT_ColumnDef<InventoryPayload>[]>(
+    () => [
+      {
+        accessorKey: 'product',
+        header: 'SKU',
+        size: 150
+      }
+    ],
+    []
+  )
   return (
     <>
       {/* <Grid item xs={12}>
@@ -763,26 +782,6 @@ const Example = (props: any) => {
           )}
           renderRowActions={({ row, table }) => (
             <Box sx={{ display: 'flex' }}>
-              <Tooltip arrow placement='top' title='Duplicate'>
-                <IconButton
-                  color='primary'
-                  onClick={() =>
-                    handleAddItem({
-                      buying: row.original.buying,
-                      selling: row.original.selling,
-                      product: row.original.product.pk,
-                      status: row.original.status,
-                      serial: row.original.serial,
-                      comment: row.original.comment,
-                      room: row.original.room,
-                      total_cost: row.original.total_cost,
-                      shipping_cost: row.original.shipping_cost
-                    })
-                  }
-                >
-                  <ContentCopy />
-                </IconButton>
-              </Tooltip>
               <Tooltip arrow placement='top' title='Delete'>
                 <IconButton color='error' onClick={() => handleDeleteRow(row)}>
                   <Delete />
@@ -801,11 +800,12 @@ const Example = (props: any) => {
           }}
         />
       </Card>
-      <CreateNewAccountModal
-        columns={columns}
+      <AddItemModal
+        columns={columnsAddItem}
         open={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
-        onSubmit={handleCreateNewRow}
+        onSubmit={handleAddItem}
+        purchaseId={typeof purchaseId == 'string' ? purchaseId : ''}
         roomData={roomData}
         ratingData={ratingData}
         session={session}
@@ -836,10 +836,10 @@ const Example = (props: any) => {
 
 const queryClient = new QueryClient()
 
-const Inventory = (props: any) => (
+const Selling = (props: any) => (
   <QueryClientProvider client={queryClient}>
     <Example {...props} />
   </QueryClientProvider>
 )
 
-export default withAuth(3 * 60)(Inventory)
+export default withAuth(3 * 60)(Selling)

@@ -25,6 +25,7 @@ import {
 } from '@mui/material'
 import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
+import Link from '@mui/material/Link'
 
 //Date Picker Imports
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
@@ -163,44 +164,63 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channe
               paddingTop: 3
             }}
           >
-            {columns.map(column =>
-              column.accessorKey === 'channel.name' ? (
-                <TextField
-                  value={values.channel?.name}
-                  key={column.accessorKey}
-                  name={column.accessorKey}
-                  label='Channel'
-                  select
-                  onChange={e => setValues({ ...values, channel: { name: e.target.value } })}
+            <LocalizationProvider dateAdapter={AdapterDayjs} key={'order_date'}>
+              <DatePicker
+                onChange={value => setValues({ ...values, order_date: value ? value.format('YYYY-MM-DD') : null })}
+                label={'Order Date'}
+                value={dayjs(values.order_date)}
+              />
+            </LocalizationProvider>
+            <TextField
+              value={values.channel?.name}
+              key={'channel.name'}
+              name={'Channel'}
+              label='Channel'
+              select
+              onChange={e => setValues({ ...values, channel: { name: e.target.value } })}
+            >
+              {channelData?.map(channel => (
+                <MenuItem
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '1rem'
+                  }}
+                  key={channel.pk}
+                  value={channel.name}
                 >
-                  {channelData?.map(channel => (
-                    <MenuItem key={channel.pk} value={channel.name}>
-                      {channel.name}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              ) : column.accessorKey === 'order_date' ? (
-                <LocalizationProvider dateAdapter={AdapterDayjs} key={column.accessorKey}>
-                  <DatePicker
-                    onChange={value => {
-                      setValues({ ...values, order_date: value ? value.format('YYYY-MM-DD') : '' })
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem'
                     }}
-                    label={column.header}
-                    value={dayjs(values.order_date)}
-                  />
-                </LocalizationProvider>
-              ) : (
-                <TextField
-                  key={column.accessorKey}
-                  label={column.header}
-                  name={column.accessorKey}
-                  onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
-                  type={
-                    column.accessorKey === 'total_cost' || column.accessorKey === 'shipping_cost' ? 'number' : 'text'
-                  }
-                />
-              )
-            )}
+                  >
+                    <img alt='avatar' height={25} src={channel.image} loading='lazy' style={{ borderRadius: '50%' }} />
+                    {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
+                    <span>{channel.name}</span>
+                  </Box>
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              key={'seller_name'}
+              label={'Seller Name'}
+              name={'seller_name'}
+              onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
+            />
+            <TextField
+              key={'channel_order_id'}
+              label={'Channel Order ID'}
+              name={'channel_order_id'}
+              onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
+            />
+            <TextField
+              key={'tracking_number'}
+              label={'Tracking Number'}
+              name={'tracking_number'}
+              onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
+            />
           </Stack>
         </form>
       </DialogContent>
@@ -597,7 +617,20 @@ const Example = (props: any) => {
       {
         accessorKey: 'order_id',
         header: 'Order ID',
-        size: 200
+        size: 200,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            <Link href={`/sold/${row.original.pk}`} target='_blank'>
+              {renderedCellValue}
+            </Link>
+          </Box>
+        )
       },
       {
         accessorKey: 'order_date',
@@ -701,7 +734,7 @@ const Example = (props: any) => {
       <MaterialReactTable
         columns={columns}
         data={tableData} //data is undefined on first render
-        initialState={{ showColumnFilters: true }}
+        initialState={{ showColumnFilters: false }}
         enableEditing
         editingMode='cell'
         muiTableBodyCellEditTextFieldProps={({ cell }) => ({
@@ -729,6 +762,7 @@ const Example = (props: any) => {
         onPaginationChange={setPagination}
         onSortingChange={setSorting}
         enableRowActions
+        enableRowNumbers
         positionActionsColumn='last'
         renderRowActions={({ row }) => (
           <Box sx={{ display: 'flex', width: 100 }}>
@@ -737,11 +771,11 @@ const Example = (props: any) => {
                 <Edit />
               </IconButton>
             </Tooltip> */}
-            <Tooltip arrow placement='top' title='Add Item'>
+            {/* <Tooltip arrow placement='top' title='Add Item'>
               <IconButton color='primary' onClick={() => setAddModalOpen(row.original)}>
                 <Add />
               </IconButton>
-            </Tooltip>
+            </Tooltip> */}
             <Tooltip arrow placement='top' title='Delete'>
               <IconButton color='error' onClick={() => handleDeleteRow(row)}>
                 <Delete />
@@ -766,15 +800,15 @@ const Example = (props: any) => {
             Double-Click a Cell to Edit
           </Typography>
         )}
-        renderDetailPanel={({ row }) => (
-          <Items
-            data={row.original.sellingitems}
-            reupdate={reupdate}
-            idx={row.index}
-            update={update}
-            handleAddItem={handleAddItem}
-          />
-        )}
+        // renderDetailPanel={({ row }) => (
+        //   <Items
+        //     data={row.original.sellingitems}
+        //     reupdate={reupdate}
+        //     idx={row.index}
+        //     update={update}
+        //     handleAddItem={handleAddItem}
+        //   />
+        // )}
         rowCount={data?.count ?? 0}
         state={{
           columnFilters,
