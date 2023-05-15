@@ -97,6 +97,7 @@ const LoginPage = ({ csrfToken }: { csrfToken: string }) => {
       )
     }
   })
+
   // ** Hook
   const theme = useTheme()
   const router = useRouter()

@@ -92,6 +92,7 @@ const App = (props: ExtendedAppProps) => {
                             flexDirection: 'column'
                           }}
                           open={globalData.isLoading}
+
                           // onClick={() => saveGlobalData({ ...globalData, isLoading: false })}
                         >
                           <CircularProgress color='inherit' />

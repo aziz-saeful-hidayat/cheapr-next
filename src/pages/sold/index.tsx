@@ -800,15 +800,6 @@ const Example = (props: any) => {
             Double-Click a Cell to Edit
           </Typography>
         )}
-        // renderDetailPanel={({ row }) => (
-        //   <Items
-        //     data={row.original.sellingitems}
-        //     reupdate={reupdate}
-        //     idx={row.index}
-        //     update={update}
-        //     handleAddItem={handleAddItem}
-        //   />
-        // )}
         rowCount={data?.count ?? 0}
         state={{
           columnFilters,

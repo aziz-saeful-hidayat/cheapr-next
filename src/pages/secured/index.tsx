@@ -855,60 +855,6 @@ const Example = (props: any) => {
             </Select>
           </>
         )}
-        // renderBottomToolbarCustomActions={() => (
-        //   <Box sx={{ display: 'flex' }}>
-        //     <Button
-        //       sx={{ marginRight: 5 }}
-        //       color={tabActive == 'all' ? 'primary' : 'secondary'}
-        //       onClick={() => {
-        //         setTabActive('all')
-        //         setColumnFilters([])
-        //       }}
-        //       variant='contained'
-        //     >
-        //       All
-        //     </Button>
-        //     <Button
-        //       sx={{ marginRight: 5 }}
-        //       color={tabActive == 'notracking' ? 'primary' : 'secondary'}
-        //       onClick={() => {
-        //         setTabActive('notracking')
-        //         setColumnFilters([{ id: 'wait_tracking', value: 'true' }])
-        //       }}
-        //       variant='contained'
-        //     >
-        //       No Tracking
-        //     </Button>
-        //     <Button
-        //       sx={{ marginRight: 5 }}
-        //       color={tabActive == 'incoming' ? 'primary' : 'secondary'}
-        //       onClick={() => {
-        //         setTabActive('incoming')
-        //         setColumnFilters([
-        //           { id: 'wait_tracking', value: 'false' },
-        //           { id: 'incoming', value: 'true' }
-        //         ])
-        //       }}
-        //       variant='contained'
-        //     >
-        //       Incoming
-        //     </Button>
-        //     <Button
-        //       sx={{ marginRight: 5 }}
-        //       color={tabActive == 'delivered' ? 'primary' : 'secondary'}
-        //       onClick={() => {
-        //         setTabActive('delivered')
-        //         setColumnFilters([
-        //           { id: 'wait_tracking', value: 'false' },
-        //           { id: 'incoming', value: 'false' }
-        //         ])
-        //       }}
-        //       variant='contained'
-        //     >
-        //       Received
-        //     </Button>
-        //   </Box>
-        // )}
         rowCount={data?.count ?? 0}
         state={{
           columnFilters,

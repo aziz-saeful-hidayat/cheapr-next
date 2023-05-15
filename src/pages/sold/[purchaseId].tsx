@@ -737,16 +737,9 @@ const Example = (props: any) => {
     ],
     []
   )
+
   return (
     <>
-      {/* <Grid item xs={12}>
-        <Typography variant='h5'>
-          <Link href='https://materialdesignicons.com/' target='_blank'>
-            Material Design Icons
-          </Link>
-        </Typography>
-        <Typography variant='body2'>Material Design Icons from the Community</Typography>
-      </Grid> */}
       <CardOrder orderData={orderData} />
       <Card sx={{ padding: 3 }}>
         <MaterialReactTable
