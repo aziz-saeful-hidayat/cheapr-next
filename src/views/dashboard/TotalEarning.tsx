@@ -29,7 +29,7 @@ const data: DataType[] = [
   {
     progress: 75,
     imgHeight: 20,
-    title: 'Zipcar',
+    title: 'Zebra',
     color: 'primary',
     amount: '$24,895.65',
     subtitle: 'Vuejs, React & HTML',
@@ -39,7 +39,7 @@ const data: DataType[] = [
     progress: 50,
     color: 'info',
     imgHeight: 27,
-    title: 'Bitbank',
+    title: 'Epson',
     amount: '$8,650.20',
     subtitle: 'Sketch, Figma & XD',
     imgSrc: '/images/cards/logo-bitbank.png'
@@ -47,7 +47,7 @@ const data: DataType[] = [
   {
     progress: 20,
     imgHeight: 20,
-    title: 'Aviato',
+    title: 'Canon',
     color: 'secondary',
     amount: '$1,245.80',
     subtitle: 'HTML & Angular',
@@ -81,7 +81,7 @@ const TotalEarning = () => {
         </Box>
 
         <Typography component='p' variant='caption' sx={{ mb: 10 }}>
-          Compared to $84,325 last year
+          Compared to $84,325 last week
         </Typography>
 
         {data.map((item: DataType, index: number) => {

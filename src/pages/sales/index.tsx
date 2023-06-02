@@ -791,7 +791,7 @@ const Example = (props: any) => {
             </IconButton>
           </Tooltip> */}
             <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
-              Add New Selling Order
+              Add New Sales
             </Button>
           </>
         )}

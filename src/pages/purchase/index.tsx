@@ -472,6 +472,10 @@ const Example = (props: any) => {
       .then(json => {
         console.log(json)
         if (json.pk) {
+          router.push({
+            pathname: `/purchase/${json.pk}/`,
+            query: {}
+          })
           tableData.unshift({ ...json, channel: channel })
           setTableData([...tableData])
         }
@@ -585,7 +589,7 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            <Link href={`/secured/${row.original.pk}`} target='_blank'>
+            <Link href={`/purchase/${row.original.pk}`} target='_blank'>
               {renderedCellValue}
             </Link>
           </Box>
@@ -594,7 +598,7 @@ const Example = (props: any) => {
       {
         accessorKey: 'order_date',
         header: 'Order Date',
-        maxSize: 100,
+        maxSize: 120,
         muiTableBodyCellEditTextFieldProps: {
           type: 'date'
         },
@@ -796,9 +800,6 @@ const Example = (props: any) => {
         enableRowNumbers
         enableStickyHeader
         enableStickyFooter
-        manualFiltering
-        manualPagination
-        manualSorting
         muiToolbarAlertBannerProps={
           isError
             ? {
@@ -840,7 +841,7 @@ const Example = (props: any) => {
             </IconButton>
           </Tooltip> */}
             <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
-              Add New Secured Order
+              Add New Purchase
             </Button>
             <Select
               labelId='demo-simple-select-label'

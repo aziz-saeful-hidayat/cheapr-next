@@ -13,7 +13,7 @@ import TrendingUp from 'mdi-material-ui/TrendingUp'
 import StarOutline from 'mdi-material-ui/StarOutline'
 import AccountOutline from 'mdi-material-ui/AccountOutline'
 import LockOpenOutline from 'mdi-material-ui/LockOpenOutline'
-import { BuyingOrder } from 'src/pages/secured/[purchaseId]'
+import { BuyingOrder } from 'src/pages/purchase/[purchaseId]'
 import { formatterUSD } from 'src/constants/Utils'
 
 // Styled Box component
