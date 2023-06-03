@@ -595,7 +595,6 @@ const Example = (props: any) => {
                 fontSize: 10
               }}
               label={renderedCellValue?.toString()}
-              color='info'
               onClick={() => {
                 setDetail(row.original.pk)
                 setDetailModalOpen(true)
