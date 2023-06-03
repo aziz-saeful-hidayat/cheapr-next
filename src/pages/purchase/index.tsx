@@ -23,6 +23,7 @@ import {
   Autocomplete,
   CircularProgress
 } from '@mui/material'
+import Chip from '@mui/material/Chip'
 
 //Date Picker Imports
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
@@ -41,6 +42,7 @@ import { useRouter } from 'next/router'
 import { formatterUSD } from 'src/constants/Utils'
 import { getSession } from 'next-auth/react'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
+import PurchaseDetail from 'src/@core/components/purchase-detail'
 
 type Channel = {
   pk: number
@@ -429,6 +431,9 @@ const Example = (props: any) => {
   const [tableData, setTableData] = useState<BuyingOrder[]>(() => data?.results ?? [])
   const [channelData, setChannelData] = useState<Channel[]>([])
   const [tabActive, setTabActive] = useState('all')
+  const [detail, setDetail] = useState<number | undefined>()
+  const [detailModalOpen, setDetailModalOpen] = useState(false)
+
   const handleChange = (event: SelectChangeEvent) => {
     setTabActive(event.target.value as string)
     if (event.target.value == 'all') {
@@ -576,7 +581,7 @@ const Example = (props: any) => {
       {
         accessorKey: 'order_id',
         header: 'Internal ID',
-        maxSize: 120,
+        maxSize: 150,
         Cell: ({ renderedCellValue, row }) => (
           <Box
             sx={{
@@ -585,9 +590,17 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            <Link href={`/purchase/${row.original.pk}`}>
-              {renderedCellValue}
-            </Link>
+            <Chip
+              sx={{
+                fontSize: 10
+              }}
+              label={renderedCellValue?.toString()}
+              color='primary'
+              onClick={() => {
+                setDetail(row.original.pk)
+                setDetailModalOpen(true)
+              }}
+            />
           </Box>
         )
       },
@@ -872,6 +885,12 @@ const Example = (props: any) => {
         onClose={() => setCreateModalOpen(false)}
         onSubmit={handleCreateNewRow}
         channelData={channelData}
+      />
+      <PurchaseDetail
+        session={session}
+        pk={detail}
+        modalOpen={detailModalOpen}
+        onClose={() => setDetailModalOpen(false)}
       />
     </Card>
   )
