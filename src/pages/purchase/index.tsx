@@ -371,7 +371,7 @@ const Example = (props: any) => {
 
   const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>([])
   const [globalFilter, setGlobalFilter] = useState('')
-  const [sorting, setSorting] = useState<MRT_SortingState>([{ id: 'order_date', desc: true }])
+  const [sorting, setSorting] = useState<MRT_SortingState>([])
   const [pagination, setPagination] = useState<MRT_PaginationState>({
     pageIndex: 0,
     pageSize: 100
@@ -472,10 +472,6 @@ const Example = (props: any) => {
       .then(json => {
         console.log(json)
         if (json.pk) {
-          router.push({
-            pathname: `/purchase/${json.pk}/`,
-            query: {}
-          })
           tableData.unshift({ ...json, channel: channel })
           setTableData([...tableData])
         }
@@ -589,7 +585,7 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            <Link href={`/purchase/${row.original.pk}`} target='_blank'>
+            <Link href={`/purchase/${row.original.pk}`}>
               {renderedCellValue}
             </Link>
           </Box>
@@ -663,7 +659,7 @@ const Example = (props: any) => {
       {
         accessorKey: 'tracking_number',
         header: 'Tracking',
-        maxSize: 150
+        maxSize: 175
       },
       {
         accessorKey: 'channel.name',
@@ -808,6 +804,9 @@ const Example = (props: any) => {
               }
             : undefined
         }
+        manualFiltering
+        manualPagination
+        manualSorting
         onColumnFiltersChange={setColumnFilters}
         onGlobalFilterChange={setGlobalFilter}
         onPaginationChange={setPagination}

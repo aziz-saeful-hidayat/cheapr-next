@@ -195,6 +195,7 @@ const Example = (props: any) => {
         }
         ordering = ordering + sort.id
       }
+      console.log(sorting)
       fetchURL.searchParams.set('ordering', ordering)
       console.log(fetchURL.href)
       const response = await fetch(fetchURL.href, {
