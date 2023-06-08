@@ -38,7 +38,7 @@ const Trophy = (props: any) => {
         </Typography>
         <Typography variant='h5' sx={{ my: 4, color: 'primary.main' }}>
           {formatterUSD.format(
-            data.reduce((total, obj) => {
+            data.reduce((total: number, obj: any) => {
               if (obj.yesterday_sum) {
                 return parseFloat(obj.yesterday_sum) + total
               } else {

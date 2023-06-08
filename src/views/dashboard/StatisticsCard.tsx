@@ -29,7 +29,7 @@ interface DataType {
   icon: ReactElement
 }
 
-const renderStats = salesData => {
+const renderStats = (salesData: DataType[]) => {
   return salesData.map((item: DataType, index: number) => (
     <Grid item xs={12} sm={3} key={index}>
       <Box key={index} sx={{ display: 'flex', alignItems: 'center' }}>
@@ -60,7 +60,7 @@ const StatisticsCard = (props: any) => {
   const salesData: DataType[] = [
     {
       stats: formatterUSD.format(
-        data.reduce((total, obj) => {
+        data.reduce((total: number, obj: any) => {
           if (obj.last30_sum) {
             return parseFloat(obj.last30_sum) + total
           } else {
@@ -73,7 +73,7 @@ const StatisticsCard = (props: any) => {
       icon: <TrendingUp sx={{ fontSize: '1.75rem' }} />
     },
     {
-      stats: data.reduce((total, obj) => {
+      stats: data.reduce((total: number, obj: any) => {
         if (obj.last30_order_sum) {
           return obj.last30_order_sum + total
         } else {
@@ -85,7 +85,7 @@ const StatisticsCard = (props: any) => {
       icon: <AccountOutline sx={{ fontSize: '1.75rem' }} />
     },
     {
-      stats: data.reduce((total, obj) => {
+      stats: data.reduce((total: number, obj: any) => {
         if (obj.last30_item_sum) {
           return obj.last30_item_sum + total
         } else {
