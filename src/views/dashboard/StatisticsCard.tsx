@@ -20,6 +20,7 @@ import AccountOutline from 'mdi-material-ui/AccountOutline'
 
 // ** Types
 import { ThemeColor } from 'src/@core/layouts/types'
+import { formatterUSD } from 'src/constants/Utils'
 
 interface DataType {
   stats: string
@@ -28,34 +29,7 @@ interface DataType {
   icon: ReactElement
 }
 
-const salesData: DataType[] = [
-  {
-    stats: '245k',
-    title: 'Secured',
-    color: 'primary',
-    icon: <TrendingUp sx={{ fontSize: '1.75rem' }} />
-  },
-  {
-    stats: '12.5k',
-    title: 'Item',
-    color: 'success',
-    icon: <AccountOutline sx={{ fontSize: '1.75rem' }} />
-  },
-  {
-    stats: '1.54k',
-    color: 'warning',
-    title: 'Sold',
-    icon: <CellphoneLink sx={{ fontSize: '1.75rem' }} />
-  },
-  {
-    stats: '$88k',
-    color: 'info',
-    title: 'Revenue',
-    icon: <CurrencyUsd sx={{ fontSize: '1.75rem' }} />
-  }
-]
-
-const renderStats = () => {
+const renderStats = salesData => {
   return salesData.map((item: DataType, index: number) => (
     <Grid item xs={12} sm={3} key={index}>
       <Box key={index} sx={{ display: 'flex', alignItems: 'center' }}>
@@ -81,7 +55,55 @@ const renderStats = () => {
   ))
 }
 
-const StatisticsCard = () => {
+const StatisticsCard = (props: any) => {
+  const { data } = props
+  const salesData: DataType[] = [
+    {
+      stats: formatterUSD.format(
+        data.reduce((total, obj) => {
+          if (obj.last30_sum) {
+            return parseFloat(obj.last30_sum) + total
+          } else {
+            return total
+          }
+        }, 0)
+      ),
+      title: 'Purchased',
+      color: 'primary',
+      icon: <TrendingUp sx={{ fontSize: '1.75rem' }} />
+    },
+    {
+      stats: data.reduce((total, obj) => {
+        if (obj.last30_order_sum) {
+          return obj.last30_order_sum + total
+        } else {
+          return total
+        }
+      }, 0),
+      title: 'Order',
+      color: 'success',
+      icon: <AccountOutline sx={{ fontSize: '1.75rem' }} />
+    },
+    {
+      stats: data.reduce((total, obj) => {
+        if (obj.last30_item_sum) {
+          return obj.last30_item_sum + total
+        } else {
+          return total
+        }
+      }, 0),
+      color: 'warning',
+      title: 'Item',
+      icon: <CellphoneLink sx={{ fontSize: '1.75rem' }} />
+    },
+    {
+      stats: '$88k',
+      color: 'info',
+      title: 'Revenue',
+      icon: <CurrencyUsd sx={{ fontSize: '1.75rem' }} />
+    }
+  ]
+
   return (
     <Card>
       <CardHeader
@@ -96,7 +118,7 @@ const StatisticsCard = () => {
             <Box component='span' sx={{ fontWeight: 600, color: 'text.primary' }}>
               Total 48.5% growth
             </Box>{' '}
-            😎 this month
+            😎 last 30 days
           </Typography>
         }
         titleTypographyProps={{
@@ -109,7 +131,7 @@ const StatisticsCard = () => {
       />
       <CardContent sx={{ pt: theme => `${theme.spacing(3)} !important` }}>
         <Grid container spacing={[5, 0]}>
-          {renderStats()}
+          {renderStats(salesData)}
         </Grid>
       </CardContent>
     </Card>

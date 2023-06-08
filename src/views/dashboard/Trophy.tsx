@@ -4,6 +4,7 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
 import { styled, useTheme } from '@mui/material/styles'
+import { formatterUSD } from 'src/constants/Utils'
 
 // Styled component for the triangle shaped background image
 const TriangleImg = styled('img')({
@@ -21,7 +22,8 @@ const TrophyImg = styled('img')({
   position: 'absolute'
 })
 
-const Trophy = () => {
+const Trophy = (props: any) => {
+  const { data } = props
   // ** Hook
   const theme = useTheme()
 
@@ -30,12 +32,20 @@ const Trophy = () => {
   return (
     <Card sx={{ position: 'relative' }}>
       <CardContent>
-        <Typography variant='h6'>Congratulations! 🥳</Typography>
+        <Typography variant='h6'>Good Job! 🥳</Typography>
         <Typography variant='body2' sx={{ letterSpacing: '0.25px' }}>
-          Total secured items
+          Total purchased items yesterday
         </Typography>
         <Typography variant='h5' sx={{ my: 4, color: 'primary.main' }}>
-          $42.8k
+          {formatterUSD.format(
+            data.reduce((total, obj) => {
+              if (obj.yesterday_sum) {
+                return parseFloat(obj.yesterday_sum) + total
+              } else {
+                return total
+              }
+            }, 0)
+          )}
         </Typography>
         <Button size='small' variant='contained'>
           View Orders

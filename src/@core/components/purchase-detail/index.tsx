@@ -745,7 +745,8 @@ const PurchaseDetail = (props: any) => {
         <Card sx={{ padding: 3 }}>
           <MaterialReactTable
             columns={columns}
-            initialState={{ showColumnFilters: false }}
+            enableDensityToggle={false}
+            initialState={{ showColumnFilters: false, density: 'compact' }}
             enableEditing
             enableRowNumbers
             editingMode='cell'

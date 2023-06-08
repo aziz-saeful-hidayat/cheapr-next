@@ -1,3 +1,5 @@
+import React, { useEffect, useState } from 'react'
+
 // ** MUI Imports
 import Grid from '@mui/material/Grid'
 
@@ -27,16 +29,30 @@ import { useSession, signIn, signOut, getSession } from 'next-auth/react'
 
 const Dashboard = (props: any) => {
   const { session } = props
-  console.log(session)
+  const [dashboardData, setDashboardData] = useState([])
+  useEffect(() => {
+    const fetchURL = new URL('/get_dashboard_data', 'https://cheapr.my.id')
+    fetch(fetchURL.href, {
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      })
+    })
+      .then(response => response.json())
+      .then(json => {
+        setDashboardData(json.data)
+        console.log(json)
+      })
+  }, [session])
   if (session) {
     return (
       <ApexChartWrapper>
         <Grid container spacing={6}>
           <Grid item xs={12} md={4}>
-            <Trophy />
+            <Trophy data={dashboardData} />
           </Grid>
           <Grid item xs={12} md={8}>
-            <StatisticsCard />
+            <StatisticsCard data={dashboardData} />
           </Grid>
           <Grid item xs={12} md={6} lg={4}>
             <WeeklyOverview />

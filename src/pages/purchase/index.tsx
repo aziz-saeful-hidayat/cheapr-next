@@ -376,7 +376,7 @@ const Example = (props: any) => {
   const [sorting, setSorting] = useState<MRT_SortingState>([])
   const [pagination, setPagination] = useState<MRT_PaginationState>({
     pageIndex: 0,
-    pageSize: 100
+    pageSize: 25
   })
   const { data, isError, isFetching, isLoading } = useQuery({
     queryKey: [
@@ -580,7 +580,7 @@ const Example = (props: any) => {
     () => [
       {
         accessorKey: 'order_id',
-        header: 'Internal ID',
+        header: 'Purchase ID',
         maxSize: 150,
         Cell: ({ renderedCellValue, row }) => (
           <Box
@@ -739,7 +739,7 @@ const Example = (props: any) => {
               : 0
           ), //accessorFn used to join multiple data into a single cell
         id: 'total', //id is still required when using accessorFn instead of accessorKey
-        header: 'Total',
+        header: 'Price',
         maxSize: 100,
         enableEditing: false
       },
@@ -764,7 +764,7 @@ const Example = (props: any) => {
   useEffect(() => {
     setPagination({
       pageIndex: 0,
-      pageSize: 100
+      pageSize: 25
     })
   }, [sorting, globalFilter, columnFilters])
   useEffect(() => {
@@ -789,7 +789,8 @@ const Example = (props: any) => {
       <MaterialReactTable
         columns={columns}
         data={tableData} //data is undefined on first render
-        initialState={{ showColumnFilters: false }}
+        enableDensityToggle={false}
+        initialState={{ showColumnFilters: false, density: 'compact' }}
         enableEditing
         editingMode='cell'
         muiTableBodyCellEditTextFieldProps={({ cell }) => ({
@@ -854,12 +855,7 @@ const Example = (props: any) => {
             <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
               Add New Purchase
             </Button>
-            <Select
-              labelId='demo-simple-select-label'
-              id='demo-simple-select'
-              value={tabActive}
-              onChange={handleChange}
-            >
+            <Select labelId='demo-select-small-label' id='demo-select-small' value={tabActive} onChange={handleChange}>
               <MenuItem value={'all'}>All</MenuItem>
               <MenuItem value={'notracking'}>No Tracking</MenuItem>
               <MenuItem value={'incoming'}>Incoming</MenuItem>

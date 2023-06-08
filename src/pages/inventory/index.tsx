@@ -160,7 +160,7 @@ const Example = (props: any) => {
   const [sorting, setSorting] = useState<MRT_SortingState>([])
   const [pagination, setPagination] = useState<MRT_PaginationState>({
     pageIndex: 0,
-    pageSize: 100
+    pageSize: 25
   })
   const { data, isError, isFetching, isLoading } = useQuery({
     queryKey: [
@@ -367,7 +367,7 @@ const Example = (props: any) => {
   useEffect(() => {
     setPagination({
       pageIndex: 0,
-      pageSize: 100
+      pageSize: 25
     })
   }, [sorting, globalFilter, columnFilters])
   useEffect(() => {
