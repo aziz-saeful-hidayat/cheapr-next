@@ -23,6 +23,7 @@ import {
   Autocomplete,
   CircularProgress
 } from '@mui/material'
+import Chip from '@mui/material/Chip'
 import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
 import Link from '@mui/material/Link'
@@ -37,6 +38,7 @@ import dayjs from 'dayjs'
 import Items from 'src/@core/components/selling-item'
 import { withAuth } from 'src/constants/HOCs'
 import { useSession, signIn, signOut, getSession } from 'next-auth/react'
+import SalesDetail from 'src/@core/components/sales-detail'
 
 type Channel = {
   pk: number
@@ -442,6 +444,8 @@ const Example = (props: any) => {
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [addModalOpen, setAddModalOpen] = useState<SellingOrder>()
+  const [detail, setDetail] = useState<number | undefined>()
+  const [detailModalOpen, setDetailModalOpen] = useState(false)
 
   const handleCreateNewRow = (values: SellingOrder) => {
     console.log(values)
@@ -626,9 +630,19 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            <Link href={`/sold/${row.original.pk}`} target='_blank'>
+            <Chip
+              sx={{
+                fontSize: 10
+              }}
+              label={renderedCellValue?.toString()}
+              onClick={() => {
+                setDetail(row.original.pk)
+                setDetailModalOpen(true)
+              }}
+            />
+            {/* <Link href={`/sales/${row.original.pk}`} target='_blank'>
               {renderedCellValue}
-            </Link>
+            </Link> */}
           </Box>
         )
       },
@@ -825,6 +839,12 @@ const Example = (props: any) => {
         onSubmit={handleAddItem}
         rowData={addModalOpen}
         roomData={roomData}
+      />
+      <SalesDetail
+        session={session}
+        pk={detail}
+        modalOpen={detailModalOpen}
+        onClose={() => setDetailModalOpen(false)}
       />
     </Card>
   )
