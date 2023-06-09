@@ -39,6 +39,7 @@ import Items from 'src/@core/components/selling-item'
 import { withAuth } from 'src/constants/HOCs'
 import { useSession, signIn, signOut, getSession } from 'next-auth/react'
 import SalesDetail from 'src/@core/components/sales-detail'
+import { formatterUSD } from 'src/constants/Utils'
 
 type Channel = {
   pk: number
@@ -79,6 +80,7 @@ type SellingOrder = {
   shipping_cost: number
   comment: string
   sellingitems: InventoryItem[]
+  salesitems: InventoryItem[]
 }
 type Payload = {
   pk?: number
@@ -679,15 +681,31 @@ const Example = (props: any) => {
         }
       },
       {
-        accessorKey: 'total_cost',
-        header: 'Total',
+        accessorFn: row =>
+          formatterUSD.format(
+            row.salesitems
+              ? row.salesitems.reduce((accumulator, object) => {
+                  return accumulator + parseFloat(object.item.total_cost)
+                }, 0)
+              : 0
+          ), //accessorFn used to join multiple data into a single cell
+        id: 'total', //id is still required when using accessorFn instead of accessorKey        header: 'Total',
+        header: 'Price',
         size: 100,
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
         }
       },
       {
-        accessorKey: 'shipping_cost',
+        accessorFn: row =>
+          formatterUSD.format(
+            row.salesitems
+              ? row.salesitems.reduce((accumulator, object) => {
+                  return accumulator + parseFloat(object.item.shipping_cost)
+                }, 0)
+              : 0
+          ), //accessorFn used to join multiple data into a single cell
+        id: 'shipping_cost', //id is still required when using accessorFn instead of accessorKey
         header: 'Shipping',
         size: 100,
         muiTableBodyCellEditTextFieldProps: {

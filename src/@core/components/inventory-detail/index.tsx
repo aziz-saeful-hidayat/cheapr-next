@@ -303,7 +303,7 @@ export const DeleteModal = ({ open, onClose, onSubmit, data }: DeleteModalProps)
     </Dialog>
   )
 }
-const PurchaseDetail = (props: any) => {
+const InventoryDetail = (props: any) => {
   const { session, pk, modalOpen, onClose } = props
   const router = useRouter()
 
@@ -805,4 +805,4 @@ const PurchaseDetail = (props: any) => {
   )
 }
 
-export default PurchaseDetail
+export default InventoryDetail

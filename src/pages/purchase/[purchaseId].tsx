@@ -119,6 +119,28 @@ export type BuyingOrder = {
   shipping_cost: number
   comment: string
   inventoryitems: InventoryItem[]
+  salesitems: InventoryItem[]
+}
+
+export type SalesOrder = {
+  pk: number
+  order_id: string
+  order_date: string
+  delivery_date: string
+  channel: {
+    pk: number
+    name: string
+    image: string
+  }
+  tracking_number: string
+  seller_name: string
+  purchase_link: string
+  channel_order_id: string
+  total_cost: number
+  shipping_cost: number
+  comment: string
+  inventoryitems: InventoryItem[]
+  salesitems: InventoryItem[]
 }
 
 interface CreateModalProps {
@@ -728,7 +750,7 @@ const Example = (props: any) => {
         </Typography>
         <Typography variant='body2'>Material Design Icons from the Community</Typography>
       </Grid> */}
-      <CardOrder orderData={orderData} />
+      <CardOrder orderData={orderData} type={'buying'} />
       <Card sx={{ padding: 3 }}>
         <MaterialReactTable
           columns={columns}

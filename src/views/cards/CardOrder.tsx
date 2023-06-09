@@ -13,7 +13,7 @@ import TrendingUp from 'mdi-material-ui/TrendingUp'
 import StarOutline from 'mdi-material-ui/StarOutline'
 import AccountOutline from 'mdi-material-ui/AccountOutline'
 import LockOpenOutline from 'mdi-material-ui/LockOpenOutline'
-import { BuyingOrder } from 'src/pages/purchase/[purchaseId]'
+import { BuyingOrder, SalesOrder } from 'src/pages/purchase/[purchaseId]'
 import { formatterUSD } from 'src/constants/Utils'
 
 // Styled Box component
@@ -23,7 +23,13 @@ const StyledBox = styled(Box)<BoxProps>(({ theme }) => ({
   }
 }))
 
-const CardOrder = ({ orderData }: { orderData: BuyingOrder | undefined }) => {
+const CardOrder = ({
+  orderData,
+  type
+}: {
+  orderData: BuyingOrder | SalesOrder | undefined
+  type: 'buying' | 'sales'
+}) => {
   return (
     <Card sx={{ marginBottom: 5 }}>
       <CardContent sx={{ padding: theme => `${theme.spacing(3.25, 5.75, 6.25)} !important` }}>
@@ -43,14 +49,18 @@ const CardOrder = ({ orderData }: { orderData: BuyingOrder | undefined }) => {
               <AccountOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />{' '}
               <Typography variant='body1'>Channel: </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', marginLeft: 'auto' }}>
-                <img
-                  alt='avatar'
-                  height={20}
-                  src={orderData?.channel?.image}
-                  loading='lazy'
-                  style={{ borderRadius: '50%', marginRight: 2.75 }}
-                />
-                <Typography variant='body1'>{orderData?.channel?.name}</Typography>
+                {orderData?.channel?.image && (
+                  <>
+                    <img
+                      alt='avatar'
+                      height={20}
+                      src={orderData?.channel?.image}
+                      loading='lazy'
+                      style={{ borderRadius: '50%', marginRight: 2.75 }}
+                    />
+                    <Typography variant='body1'>{orderData?.channel?.name}</Typography>
+                  </>
+                )}
               </Box>
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
@@ -96,7 +106,7 @@ const CardOrder = ({ orderData }: { orderData: BuyingOrder | undefined }) => {
               <StarOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
               <Typography variant='body1'>Num of Item: </Typography>
               <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
-                {orderData?.inventoryitems?.length} Item
+                {type == 'buying' ? orderData?.inventoryitems?.length : orderData?.salesitems?.length} Item
               </Typography>
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
@@ -104,13 +114,21 @@ const CardOrder = ({ orderData }: { orderData: BuyingOrder | undefined }) => {
               <Typography variant='body1'>Total: </Typography>
 
               <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
-                {formatterUSD.format(
-                  orderData?.inventoryitems
-                    ? orderData?.inventoryitems.reduce((accumulator, object) => {
-                        return accumulator + parseFloat(object.total_cost)
-                      }, 0)
-                    : 0
-                )}
+                {type == 'buying'
+                  ? formatterUSD.format(
+                      orderData?.inventoryitems
+                        ? orderData?.inventoryitems.reduce((accumulator, object) => {
+                            return accumulator + parseFloat(object.total_cost)
+                          }, 0)
+                        : 0
+                    )
+                  : formatterUSD.format(
+                      orderData?.salesitems
+                        ? orderData?.salesitems.reduce((accumulator, object) => {
+                            return accumulator + parseFloat(object.item.total_cost)
+                          }, 0)
+                        : 0
+                    )}
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -118,13 +136,21 @@ const CardOrder = ({ orderData }: { orderData: BuyingOrder | undefined }) => {
               <Typography variant='body1'>Shipping: </Typography>
 
               <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
-                {formatterUSD.format(
-                  orderData?.inventoryitems
-                    ? orderData?.inventoryitems.reduce((accumulator, object) => {
-                        return accumulator + parseFloat(object.shipping_cost)
-                      }, 0)
-                    : 0
-                )}
+                {type == 'buying'
+                  ? formatterUSD.format(
+                      orderData?.inventoryitems
+                        ? orderData?.inventoryitems.reduce((accumulator, object) => {
+                            return accumulator + parseFloat(object.shipping_cost)
+                          }, 0)
+                        : 0
+                    )
+                  : formatterUSD.format(
+                      orderData?.salesitems
+                        ? orderData?.salesitems.reduce((accumulator, object) => {
+                            return accumulator + parseFloat(object.item.shipping_cost)
+                          }, 0)
+                        : 0
+                    )}
               </Typography>
             </Box>
           </Grid>

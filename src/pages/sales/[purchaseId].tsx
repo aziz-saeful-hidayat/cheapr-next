@@ -37,6 +37,7 @@ import { useRouter } from 'next/router'
 import { ExtendedSession } from '../api/auth/[...nextauth]'
 import { formatterUSD } from 'src/constants/Utils'
 import CardOrder from 'src/views/cards/CardOrder'
+import { SalesOrder } from '../purchase/[purchaseId]'
 
 type InventoryItem = {
   [key: string]: any
@@ -368,7 +369,7 @@ const Example = (props: any) => {
     },
     keepPreviousData: true
   })
-  const [orderData, setOrderData] = useState<SellingOrder>()
+  const [orderData, setOrderData] = useState<SalesOrder>()
 
   const [tableData, setTableData] = useState<Item[]>([])
   const [roomData, setRoomData] = useState<Room[]>([])
@@ -740,7 +741,7 @@ const Example = (props: any) => {
 
   return (
     <>
-      <CardOrder orderData={orderData} />
+      <CardOrder orderData={orderData} type={'sales'} />
       <Card sx={{ padding: 3 }}>
         <MaterialReactTable
           columns={columns}

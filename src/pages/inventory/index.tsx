@@ -24,6 +24,7 @@ import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-quer
 import { withAuth } from 'src/constants/HOCs'
 import Card from '@mui/material/Card'
 import { useSession, signIn, signOut, getSession } from 'next-auth/react'
+import Select, { SelectChangeEvent } from '@mui/material/Select'
 
 type Payload = {
   pk?: number
@@ -217,7 +218,16 @@ const Example = (props: any) => {
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [rowDel, setRowDel] = useState<number>()
+  const [tabActive, setTabActive] = useState('all')
 
+  const handleChange = (event: SelectChangeEvent) => {
+    setTabActive(event.target.value as string)
+    if (event.target.value == 'all') {
+      setColumnFilters([])
+    } else {
+      setColumnFilters([{ id: 'room', value: event.target.value }])
+    }
+  }
   const handleCreateNewRow = (values: Item) => {
     console.log(values)
     fetch(`https://cheapr.my.id/inventory_items/`, {
@@ -388,36 +398,25 @@ const Example = (props: any) => {
             handleSaveCell(cell, event.target.value)
           }
         })}
-        renderBottomToolbarCustomActions={() => (
-          <Box sx={{ display: 'flex' }}>
-            <Button
-              sx={{ marginRight: 2, padding: 1 }}
-              color='primary'
-              onClick={() => setColumnFilters([])}
-              variant='contained'
-            >
-              All
+        renderTopToolbarCustomActions={() => (
+          <>
+            {/* <Tooltip arrow title='Refresh Data'>
+              <IconButton onClick={() => refetch()}>
+                <RefreshIcon />
+              </IconButton>
+            </Tooltip> */}
+            <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
+              Create New Item
             </Button>
-            <Button
-              sx={{ marginRight: 2 }}
-              color='primary'
-              onClick={() => setColumnFilters([{ id: 'no_room', value: 'true' }])}
-              variant='contained'
-            >
-              Assessment
-            </Button>
-            {roomData?.map(room => (
-              <Button
-                key={room.pk}
-                sx={{ marginRight: 2 }}
-                color='primary'
-                onClick={() => setColumnFilters([{ id: 'room', value: room.name }])}
-                variant='contained'
-              >
-                {room.name}
-              </Button>
-            ))}
-          </Box>
+            <Select labelId='demo-select-small-label' id='demo-select-small' value={tabActive} onChange={handleChange}>
+              <MenuItem value={'all'}>All</MenuItem>
+              {roomData?.map(room => (
+                <MenuItem value={room.name} key={`menu-${room.pk}`}>
+                  {room.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </>
         )}
         enableStickyHeader
         enableStickyFooter
@@ -436,18 +435,6 @@ const Example = (props: any) => {
         onGlobalFilterChange={setGlobalFilter}
         onPaginationChange={setPagination}
         onSortingChange={setSorting}
-        renderTopToolbarCustomActions={() => (
-          <>
-            {/* <Tooltip arrow title='Refresh Data'>
-              <IconButton onClick={() => refetch()}>
-                <RefreshIcon />
-              </IconButton>
-            </Tooltip> */}
-            <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
-              Create New Item
-            </Button>
-          </>
-        )}
         enableRowActions
         positionActionsColumn='last'
         renderRowActions={({ row }) => (

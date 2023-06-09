@@ -430,9 +430,9 @@ const Example = (props: any) => {
   })
   const [tableData, setTableData] = useState<BuyingOrder[]>(() => data?.results ?? [])
   const [channelData, setChannelData] = useState<Channel[]>([])
-  const [tabActive, setTabActive] = useState('all')
   const [detail, setDetail] = useState<number | undefined>()
   const [detailModalOpen, setDetailModalOpen] = useState(false)
+  const [tabActive, setTabActive] = useState('all')
 
   const handleChange = (event: SelectChangeEvent) => {
     setTabActive(event.target.value as string)

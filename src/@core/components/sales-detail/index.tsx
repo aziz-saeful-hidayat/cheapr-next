@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState, useCallback } from 'react'
 import MaterialReactTable, {
   type MRT_ColumnDef,
   type MRT_Cell,
@@ -24,16 +24,9 @@ import {
   TextField,
   Tooltip
 } from '@mui/material'
-import Grid from '@mui/material/Grid'
-import Typography from '@mui/material/Typography'
-import Link from '@mui/material/Link'
 import Card from '@mui/material/Card'
-import CardHeader from '@mui/material/CardHeader'
-import CardContent from '@mui/material/CardContent'
 import Popover from '@mui/material/Popover'
 import { Delete, ContentCopy } from '@mui/icons-material'
-import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
-import { withAuth } from 'src/constants/HOCs'
 import { useRouter } from 'next/router'
 import { ExtendedSession } from 'src/pages/api/auth/[...nextauth]'
 import { formatterUSD } from 'src/constants/Utils'
@@ -143,6 +136,7 @@ export type SellingOrder = {
   shipping_cost: number
   comment: string
   inventoryitems: InventoryItem[]
+  salesitems: InventoryItem[]
 }
 
 interface CreateModalProps {
@@ -282,7 +276,7 @@ export const AddItemModal = ({ open, columns, onClose, onSubmit, purchaseId, roo
       <DialogActions sx={{ p: '1.25rem' }}>
         <Button onClick={onClose}>Cancel</Button>
         <Button color='primary' onClick={handleSubmit} variant='contained'>
-          Create
+          Add
         </Button>
       </DialogActions>
     </Dialog>
@@ -310,65 +304,55 @@ export const DeleteModal = ({ open, onClose, onSubmit, data }: DeleteModalProps)
 }
 const SalesDetail = (props: any) => {
   const { session, pk, modalOpen, onClose } = props
-  const router = useRouter()
-  const { purchaseId } = router.query
+  // const { data, isError, isFetching, isLoading } = useQuery({
+  //   queryKey: [
+  //     'table-data',
+  //     columnFilters, //refetch when columnFilters changes
+  //     globalFilter, //refetch when globalFilter changes
+  //     pagination.pageIndex, //refetch when pagination.pageIndex changes
+  //     pagination.pageSize, //refetch when pagination.pageSize changes
+  //     sorting //refetch when sorting changes
+  //   ],
+  //   queryFn: async () => {
+  //     const fetchURL = new URL('/inventory_items/', 'https://cheapr.my.id')
+  //     fetchURL.searchParams.set('limit', `${pagination.pageSize}`)
+  //     fetchURL.searchParams.set('offset', `${pagination.pageIndex * pagination.pageSize}`)
+  //     fetchURL.searchParams.set('selling_pk', typeof purchaseId == 'string' ? purchaseId : '')
+  //     for (let f = 0; f < columnFilters.length; f++) {
+  //       const filter = columnFilters[f]
+  //       if (filter.id == 'product.sku') {
+  //         fetchURL.searchParams.set('product', typeof filter.value === 'string' ? filter.value : '')
+  //       } else {
+  //         fetchURL.searchParams.set(filter.id, typeof filter.value === 'string' ? filter.value : '')
+  //       }
+  //     }
+  //     fetchURL.searchParams.set('search', globalFilter ?? '')
+  //     let ordering = ''
+  //     for (let s = 0; s < sorting.length; s++) {
+  //       const sort = sorting[s]
+  //       if (s !== 0) {
+  //         ordering = ordering + ','
+  //       }
+  //       if (sort.desc) {
+  //         ordering = ordering + '-'
+  //       }
+  //       ordering = ordering + sort.id
+  //     }
+  //     fetchURL.searchParams.set('ordering', ordering)
+  //     console.log(fetchURL.href)
+  //     const response = await fetch(fetchURL.href, {
+  //       method: 'get',
+  //       headers: new Headers({
+  //         Authorization: `Bearer ${session?.accessToken}`,
+  //         'Content-Type': 'application/json'
+  //       })
+  //     })
+  //     const json = await response.json()
 
-  const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>([])
-  const [globalFilter, setGlobalFilter] = useState('')
-  const [sorting, setSorting] = useState<MRT_SortingState>([])
-  const [pagination, setPagination] = useState<MRT_PaginationState>({
-    pageIndex: 0,
-    pageSize: 100
-  })
-  const { data, isError, isFetching, isLoading } = useQuery({
-    queryKey: [
-      'table-data',
-      columnFilters, //refetch when columnFilters changes
-      globalFilter, //refetch when globalFilter changes
-      pagination.pageIndex, //refetch when pagination.pageIndex changes
-      pagination.pageSize, //refetch when pagination.pageSize changes
-      sorting //refetch when sorting changes
-    ],
-    queryFn: async () => {
-      const fetchURL = new URL('/inventory_items/', 'https://cheapr.my.id')
-      fetchURL.searchParams.set('limit', `${pagination.pageSize}`)
-      fetchURL.searchParams.set('offset', `${pagination.pageIndex * pagination.pageSize}`)
-      fetchURL.searchParams.set('selling_pk', typeof purchaseId == 'string' ? purchaseId : '')
-      for (let f = 0; f < columnFilters.length; f++) {
-        const filter = columnFilters[f]
-        if (filter.id == 'product.sku') {
-          fetchURL.searchParams.set('product', typeof filter.value === 'string' ? filter.value : '')
-        } else {
-          fetchURL.searchParams.set(filter.id, typeof filter.value === 'string' ? filter.value : '')
-        }
-      }
-      fetchURL.searchParams.set('search', globalFilter ?? '')
-      let ordering = ''
-      for (let s = 0; s < sorting.length; s++) {
-        const sort = sorting[s]
-        if (s !== 0) {
-          ordering = ordering + ','
-        }
-        if (sort.desc) {
-          ordering = ordering + '-'
-        }
-        ordering = ordering + sort.id
-      }
-      fetchURL.searchParams.set('ordering', ordering)
-      console.log(fetchURL.href)
-      const response = await fetch(fetchURL.href, {
-        method: 'get',
-        headers: new Headers({
-          Authorization: `Bearer ${session?.accessToken}`,
-          'Content-Type': 'application/json'
-        })
-      })
-      const json = await response.json()
-
-      return json
-    },
-    keepPreviousData: true
-  })
+  //     return json
+  //   },
+  //   keepPreviousData: true
+  // })
   const [orderData, setOrderData] = useState<SellingOrder>()
 
   const [tableData, setTableData] = useState<Item[]>([])
@@ -387,35 +371,6 @@ const SalesDetail = (props: any) => {
 
   const open = Boolean(anchorEl)
 
-  const handleCreateNewRow = (values: Item) => {
-    console.log(values)
-    const room = roomData.find(room => room.name == values.room.toString())
-    const rating = ratingData.find(rating => rating.name == values.rating.toString())
-    const newValues = {
-      ...values,
-      selling: purchaseId,
-      product: values.product.pk,
-      room: room?.pk,
-      rating: rating?.pk
-    }
-    console.log(newValues)
-    fetch(`https://cheapr.my.id/inventory_items/`, {
-      method: 'POST',
-      headers: new Headers({
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json'
-      }),
-      body: JSON.stringify(newValues)
-    })
-      .then(response => response.json())
-      .then(json => {
-        console.log(json)
-        if (json.pk) {
-          tableData.unshift({ ...json.item, product: values.product, room: room, rating: rating })
-          setTableData([...tableData])
-        }
-      })
-  }
   const columns = useMemo<MRT_ColumnDef<InventoryItem>[]>(
     () => [
       {
@@ -562,6 +517,9 @@ const SalesDetail = (props: any) => {
       })
   }, [session])
   useEffect(() => {
+    if (!modalOpen) {
+      return
+    }
     fetch(`https://cheapr.my.id/selling_order/${pk}/`, {
       method: 'get',
       headers: new Headers({
@@ -571,34 +529,27 @@ const SalesDetail = (props: any) => {
     })
       .then(response => response.json())
       .then(json => {
-        console.log(json)
         setOrderData(json)
         json?.salesitems &&
           setTableData(
             json?.salesitems.map((item: any) => {
-              return item.item
+              return { ...item.item, salesitem_pk: item.pk }
             })
           )
+        console.log(tableData)
       })
-  }, [session, pk])
-  useEffect(() => {
-    setPagination({
-      pageIndex: 0,
-      pageSize: 100
-    })
-  }, [sorting, globalFilter, columnFilters])
-  useEffect(() => {
-    if (modalOpen == false) {
-      setTableData([])
-    }
-  }, [modalOpen])
+  }, [session, pk, modalOpen])
+  // useEffect(() => {
+  //   if (modalOpen == false) {
+  //     setTableData([])
+  //   }
+  // }, [modalOpen])
   const handleSaveRow: MaterialReactTableProps<InventoryItem>['onEditingRowSave'] = async ({
     exitEditingMode,
     row,
     values
   }) => {
     delete values['product.sku']
-    console.log(values)
     fetch(`https://cheapr.my.id/inventory_items/${row.original.pk}/`, {
       // note we are going to /1
       method: 'PATCH',
@@ -610,33 +561,37 @@ const SalesDetail = (props: any) => {
     })
       .then(response => response.json())
       .then(json => {
-        console.log(json)
         if (json.pk) {
           exitEditingMode() //required to exit editing mode
         }
       })
   }
-  const handleDeleteRow = (row: MRT_Row<InventoryItem>) => {
-    if (!confirm(`Are you sure you want to delete Item #${row.index + 1} ${row.original.product.sku}`)) {
-      return
-    }
-    fetch(`https://cheapr.my.id/inventory_items/${row.original.pk}/`, {
-      // note we are going to /1
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json'
-      }
-    })
-      .then(response => response.status)
-      .then(status => {
-        if (status == 204) {
-          const newData: any = [...tableData]
-          newData.splice(row, 1)
-          setTableData([...newData])
+  const handleDeleteRow = useCallback(
+    (row: MRT_Row<InventoryItem>) => {
+      // if (!confirm(`Are you sure you want to delete Item #${row.index + 1} ${row.original.product.sku}`)) {
+      //   return
+      // }
+      console.log(tableData)
+      fetch(`https://cheapr.my.id/sales_items/${row.original.salesitem_pk}/`, {
+        // note we are going to /1
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
         }
       })
-  }
+        .then(response => response.status)
+        .then(status => {
+          if (status == 204) {
+            console.log(tableData)
+            tableData.splice(row.index, 1)
+            console.log(tableData)
+            setTableData([...tableData])
+          }
+        })
+    },
+    [tableData]
+  )
   const handleSaveCell = (cell: MRT_Cell<InventoryItem>, value: any) => {
     const key = cell.column.id
     const rowIdx = cell.row.index
@@ -644,7 +599,6 @@ const SalesDetail = (props: any) => {
     const oldData = [...tableData]
     const newData: any = [...tableData]
     payload[key] = value
-    console.log(key, value)
     if (key === 'room.name') {
       const room = roomData.find(room => room.name == value)
       payload['room'] = room?.pk
@@ -660,7 +614,6 @@ const SalesDetail = (props: any) => {
 
     newData[cell.row.index][cell.column.id as keyof Item] = value
     setTableData([...newData])
-    console.log(cell.row.original.pk, key, value)
     fetch(`https://cheapr.my.id/inventory_items/${cell.row.original.pk}/`, {
       method: 'PATCH',
       headers: {
@@ -677,8 +630,6 @@ const SalesDetail = (props: any) => {
   }
   const handleAddItem = (values: InventoryPayload) => {
     const newValues = { selling: values.selling, item: values.product }
-    console.log(`https://cheapr.my.id/create_sales_item`)
-    console.log(newValues)
     fetch(`https://cheapr.my.id/create_sales_item`, {
       // note we are going to /1
       method: 'POST',
@@ -690,10 +641,16 @@ const SalesDetail = (props: any) => {
     })
       .then(response => response.json())
       .then(json => {
-        console.log(json)
         if (json.pk) {
-          tableData.unshift({ ...json.item })
+          tableData.unshift({ ...json.item, salesitem_pk: json.pk })
+          if (orderData) {
+            setOrderData({
+              ...orderData,
+              salesitems: [json, ...orderData?.salesitems]
+            } as SellingOrder)
+          }
           setTableData([...tableData])
+          console.log(tableData)
         }
       })
   }
@@ -757,7 +714,7 @@ const SalesDetail = (props: any) => {
       sx={{ padding: 10, overflow: 'scroll' }}
     >
       <>
-        <CardOrder orderData={orderData} />
+        <CardOrder orderData={orderData} type={'sales'} />
         <Card sx={{ padding: 3 }}>
           <MaterialReactTable
             columns={columns}
@@ -799,15 +756,6 @@ const SalesDetail = (props: any) => {
                 </Tooltip>
               </Box>
             )}
-            state={{
-              columnFilters,
-              globalFilter,
-              isLoading,
-              pagination,
-              showAlertBanner: isError,
-              showProgressBars: isFetching,
-              sorting
-            }}
           />
         </Card>
         <AddItemModal
