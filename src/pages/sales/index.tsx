@@ -685,7 +685,11 @@ const Example = (props: any) => {
           formatterUSD.format(
             row.salesitems
               ? row.salesitems.reduce((accumulator, object) => {
-                  return accumulator + parseFloat(object.item.total_cost)
+                  if (object.item) {
+                    return accumulator + parseFloat(object.item.total_cost)
+                  } else {
+                    return accumulator
+                  }
                 }, 0)
               : 0
           ), //accessorFn used to join multiple data into a single cell
@@ -701,7 +705,11 @@ const Example = (props: any) => {
           formatterUSD.format(
             row.salesitems
               ? row.salesitems.reduce((accumulator, object) => {
-                  return accumulator + parseFloat(object.item.shipping_cost)
+                  if (object.item) {
+                    return accumulator + parseFloat(object.item.shipping_cost)
+                  } else {
+                    return accumulator
+                  }
                 }, 0)
               : 0
           ), //accessorFn used to join multiple data into a single cell
