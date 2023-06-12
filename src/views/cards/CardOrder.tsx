@@ -118,14 +118,22 @@ const CardOrder = ({
                   ? formatterUSD.format(
                       orderData?.inventoryitems
                         ? orderData?.inventoryitems.reduce((accumulator, object) => {
-                            return accumulator + parseFloat(object.total_cost)
+                            if (object.total_cost) {
+                              return accumulator + parseFloat(object.total_cost)
+                            } else {
+                              return accumulator
+                            }
                           }, 0)
                         : 0
                     )
                   : formatterUSD.format(
                       orderData?.salesitems
                         ? orderData?.salesitems.reduce((accumulator, object) => {
-                            return accumulator + parseFloat(object.item.total_cost)
+                            if (object.item) {
+                              return accumulator + parseFloat(object.item.total_cost)
+                            } else {
+                              return accumulator
+                            }
                           }, 0)
                         : 0
                     )}
@@ -140,14 +148,22 @@ const CardOrder = ({
                   ? formatterUSD.format(
                       orderData?.inventoryitems
                         ? orderData?.inventoryitems.reduce((accumulator, object) => {
-                            return accumulator + parseFloat(object.shipping_cost)
+                            if (object.shipping_cost) {
+                              return accumulator + parseFloat(object.shipping_cost)
+                            } else {
+                              return accumulator
+                            }
                           }, 0)
                         : 0
                     )
                   : formatterUSD.format(
                       orderData?.salesitems
                         ? orderData?.salesitems.reduce((accumulator, object) => {
-                            return accumulator + parseFloat(object.item.shipping_cost)
+                            if (object.item) {
+                              return accumulator + parseFloat(object.item.shipping_cost)
+                            } else {
+                              return accumulator
+                            }
                           }, 0)
                         : 0
                     )}
