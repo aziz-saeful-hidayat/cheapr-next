@@ -40,6 +40,7 @@ import { withAuth } from 'src/constants/HOCs'
 import { useSession, signIn, signOut, getSession } from 'next-auth/react'
 import SalesDetail from 'src/@core/components/sales-detail'
 import { formatterUSD } from 'src/constants/Utils'
+import Select, { SelectChangeEvent } from '@mui/material/Select'
 
 type Channel = {
   pk: number
@@ -79,6 +80,7 @@ type SellingOrder = {
   total_cost: number
   shipping_cost: number
   comment: string
+  status: string
   sellingitems: InventoryItem[]
   salesitems: InventoryItem[]
 }
@@ -448,7 +450,12 @@ const Example = (props: any) => {
   const [addModalOpen, setAddModalOpen] = useState<SellingOrder>()
   const [detail, setDetail] = useState<number | undefined>()
   const [detailModalOpen, setDetailModalOpen] = useState(false)
+  const [tabActive, setTabActive] = useState('all')
 
+  const handleChange = (event: SelectChangeEvent) => {
+    setTabActive(event.target.value as string)
+    setColumnFilters([{ id: 'status', value: event.target.value != 'all' ? event.target.value : '' }])
+  }
   const handleCreateNewRow = (values: SellingOrder) => {
     console.log(values)
     const channel = channelData.find(channel => channel.name == values['channel']['name'])
@@ -623,7 +630,7 @@ const Example = (props: any) => {
       {
         accessorKey: 'order_id',
         header: 'Order ID',
-        size: 200,
+        maxSize: 100,
         Cell: ({ renderedCellValue, row }) => (
           <Box
             sx={{
@@ -649,9 +656,15 @@ const Example = (props: any) => {
         )
       },
       {
+        accessorKey: 'status',
+        header: 'Status',
+        maxSize: 100
+      },
+      {
         accessorKey: 'order_date',
+        accessorFn: row => row.order_date.substr(0, 10),
         header: 'Date',
-        size: 70,
+        maxSize: 100,
         muiTableBodyCellEditTextFieldProps: {
           type: 'date'
         },
@@ -660,17 +673,17 @@ const Example = (props: any) => {
       {
         accessorKey: 'tracking_number',
         header: 'Tracking',
-        size: 100
+        maxSize: 100
       },
       {
         accessorKey: 'seller_name',
         header: 'Seller Name',
-        size: 150
+        maxSize: 150
       },
       {
         accessorKey: 'channel.name',
         header: 'Channel',
-        size: 100,
+        maxSize: 100,
         muiTableBodyCellEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: channelData?.map(channel => (
@@ -681,19 +694,9 @@ const Example = (props: any) => {
         }
       },
       {
-        accessorFn: row =>
-          formatterUSD.format(
-            row.salesitems
-              ? row.salesitems.reduce((accumulator, object) => {
-                  if (object.item) {
-                    return accumulator + parseFloat(object.item.total_cost)
-                  } else {
-                    return accumulator
-                  }
-                }, 0)
-              : 0
-          ), //accessorFn used to join multiple data into a single cell
-        id: 'total', //id is still required when using accessorFn instead of accessorKey        header: 'Total',
+        accessorKey: 'total_cost',
+        accessorFn: row => formatterUSD.format(row.total_cost),
+        id: 'total',
         header: 'Price',
         size: 100,
         muiTableBodyCellEditTextFieldProps: {
@@ -701,19 +704,8 @@ const Example = (props: any) => {
         }
       },
       {
-        accessorFn: row =>
-          formatterUSD.format(
-            row.salesitems
-              ? row.salesitems.reduce((accumulator, object) => {
-                  if (object.item) {
-                    return accumulator + parseFloat(object.item.shipping_cost)
-                  } else {
-                    return accumulator
-                  }
-                }, 0)
-              : 0
-          ), //accessorFn used to join multiple data into a single cell
-        id: 'shipping_cost', //id is still required when using accessorFn instead of accessorKey
+        accessorFn: row => formatterUSD.format(row.shipping_cost),
+        id: 'shipping_cost',
         header: 'Shipping',
         size: 100,
         muiTableBodyCellEditTextFieldProps: {
@@ -801,38 +793,19 @@ const Example = (props: any) => {
         onGlobalFilterChange={setGlobalFilter}
         onPaginationChange={setPagination}
         onSortingChange={setSorting}
-        enableRowActions
         enableRowNumbers
         positionActionsColumn='last'
-        renderRowActions={({ row }) => (
-          <Box sx={{ display: 'flex', width: 100 }}>
-            {/* <Tooltip arrow placement='top' title='Edit'>
-              <IconButton color='primary' onClick={() => table.setEditingRow(row)}>
-                <Edit />
-              </IconButton>
-            </Tooltip> */}
-            {/* <Tooltip arrow placement='top' title='Add Item'>
-              <IconButton color='primary' onClick={() => setAddModalOpen(row.original)}>
-                <Add />
-              </IconButton>
-            </Tooltip> */}
-            <Tooltip arrow placement='top' title='Delete'>
-              <IconButton color='error' onClick={() => handleDeleteRow(row)}>
-                <Delete />
-              </IconButton>
-            </Tooltip>
-          </Box>
-        )}
         renderTopToolbarCustomActions={() => (
           <>
-            {/* <Tooltip arrow title='Refresh Data'>
-            <IconButton onClick={() => refetch()}>
-              <RefreshIcon />
-            </IconButton>
-          </Tooltip> */}
             <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
               Add New Sales
             </Button>
+            <Select labelId='demo-select-small-label' id='demo-select-small' value={tabActive} onChange={handleChange}>
+              <MenuItem value={'all'}>All</MenuItem>
+              <MenuItem value={'open'}>Open</MenuItem>
+              <MenuItem value={'completed'}>Completed</MenuItem>
+              <MenuItem value={'canceled'}>Canceled</MenuItem>
+            </Select>
           </>
         )}
         renderBottomToolbarCustomActions={() => (

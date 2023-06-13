@@ -8,6 +8,7 @@ import MaterialReactTable, {
   MaterialReactTableProps,
   MRT_Row
 } from 'material-react-table'
+import Chip from '@mui/material/Chip'
 import {
   Autocomplete,
   Box,
@@ -31,6 +32,7 @@ import { useRouter } from 'next/router'
 import { ExtendedSession } from 'src/pages/api/auth/[...nextauth]'
 import { formatterUSD } from 'src/constants/Utils'
 import CardOrder from 'src/views/cards/CardOrder'
+import Select, { SelectChangeEvent } from '@mui/material/Select'
 
 type InventoryItem = {
   [key: string]: any
@@ -55,15 +57,8 @@ type CAProduct = {
   asin: string
 }
 type InventoryPayload = {
-  buying: number
+  item: number
   selling: number
-  product: number
-  status: string
-  serial: string
-  comment: string
-  room: number
-  total_cost: number
-  shipping_cost: number
 }
 type Room = {
   pk: number
@@ -148,6 +143,7 @@ interface CreateModalProps {
   roomData: Room[]
   ratingData: Rating[]
   session: ExtendedSession
+  mpnToAdd: string
 }
 
 interface DeleteModalProps {
@@ -156,24 +152,45 @@ interface DeleteModalProps {
   open: boolean
   data: any
 }
-export const AddItemModal = ({ open, columns, onClose, onSubmit, purchaseId, roomData, session }: CreateModalProps) => {
-  const [values, setValues] = useState<any>(() =>
-    columns.reduce((acc, column) => {
-      acc[column.accessorKey ?? ''] = ''
-
-      return acc
-    }, {} as any)
-  )
-
+export const AddItemModal = ({
+  open,
+  columns,
+  onClose,
+  onSubmit,
+  purchaseId,
+  roomData,
+  session,
+  mpnToAdd
+}: CreateModalProps) => {
+  const [values, setValues] = useState<any>()
+  const handleChange = (event: SelectChangeEvent) => {
+    setValues(event.target.value as string)
+  }
   const handleSubmit = () => {
     //put your validation logic here
-    onSubmit({ ...values, selling: purchaseId })
+    onSubmit({ item: values, selling: parseInt(purchaseId) })
+
     onClose()
   }
   const [isopen, setOpen] = useState(false)
   const [options, setOptions] = useState<readonly ItemOption[]>([])
   const loading = open && options.length === 0
-
+  useEffect(() => {
+    fetch(
+      `https://cheapr.my.id/inventory_items/?inventory=true&incoming=false&product_mpn=${mpnToAdd}&ordering=serial`,
+      {
+        // note we are going to /1
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+      .then(response => response.json())
+      .then(json => {
+        setOptions(json.results)
+      })
+  }, [mpnToAdd, session])
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Add Item</DialogTitle>
@@ -187,89 +204,17 @@ export const AddItemModal = ({ open, columns, onClose, onSubmit, purchaseId, roo
               paddingTop: 3
             }}
           >
-            {columns.map(column =>
-              column.accessorKey === 'product' ? (
-                <Autocomplete
-                  key={column.accessorKey}
-                  id='asynchronous-demo'
-                  open={isopen}
-                  onOpen={() => {
-                    setOpen(true)
-                  }}
-                  onClose={() => {
-                    setOpen(false)
-                  }}
-                  onChange={(event, newValue) => {
-                    if (newValue) {
-                      setValues({
-                        ...values,
-                        product: newValue?.pk
-                      })
-                    }
-                  }}
-                  filterOptions={x => x}
-                  isOptionEqualToValue={(option, value) => option.product.sku === value.product.sku}
-                  getOptionLabel={option => `SKU: ${option.product.sku}      SERIAL: ${option.serial}`}
-                  options={options}
-                  loading={loading}
-                  renderInput={params => (
-                    <TextField
-                      {...params}
-                      onChange={e =>
-                        fetch(
-                          `https://cheapr.my.id/inventory_items/?inventory=true&product=${e.target.value}&ordering=serial`,
-                          {
-                            // note we are going to /1
-                            headers: {
-                              Authorization: `Bearer ${session?.accessToken}`,
-                              'Content-Type': 'application/json'
-                            }
-                          }
-                        )
-                          .then(response => response.json())
-                          .then(json => {
-                            setOptions(json.results)
-                          })
-                      }
-                      label='SKU'
-                      InputProps={{
-                        ...params.InputProps,
-                        endAdornment: (
-                          <React.Fragment>
-                            {loading ? <CircularProgress color='inherit' size={20} /> : null}
-                            {params.InputProps.endAdornment}
-                          </React.Fragment>
-                        )
-                      }}
-                    />
-                  )}
-                />
-              ) : column.accessorKey === 'room' ? (
-                <TextField
-                  key={column.accessorKey}
-                  label={column.header}
-                  name={column.accessorKey}
-                  onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
-                  select
-                >
-                  {roomData?.map(room => (
-                    <MenuItem key={room.pk} value={room.name}>
-                      {room.name}
-                    </MenuItem>
-                  ))}
-                </TextField>
+            <Select labelId='demo-select-small-label' id='demo-select-small' value={values} onChange={handleChange}>
+              {options.length > 0 ? (
+                options.map(item => (
+                  <MenuItem value={item.pk}>
+                    {item.product.sku} {item.serial}
+                  </MenuItem>
+                ))
               ) : (
-                <TextField
-                  key={column.accessorKey}
-                  label={column.header}
-                  name={column.accessorKey}
-                  onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
-                  type={
-                    column.accessorKey === 'total_cost' || column.accessorKey === 'shipping_cost' ? 'number' : 'text'
-                  }
-                />
-              )
-            )}
+                <MenuItem value={''}>No Macthing MPN in Inventory</MenuItem>
+              )}
+            </Select>
           </Stack>
         </form>
       </DialogContent>
@@ -357,6 +302,9 @@ const SalesDetail = (props: any) => {
 
   const [tableData, setTableData] = useState<Item[]>([])
   const [roomData, setRoomData] = useState<Room[]>([])
+  const [itemToEdit, setItemToEdit] = useState('')
+  const [mpnToAdd, setMpnToAdd] = useState('')
+
   const [ratingData, setRatingData] = useState<Rating[]>([])
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null)
@@ -374,11 +322,11 @@ const SalesDetail = (props: any) => {
   const columns = useMemo<MRT_ColumnDef<InventoryItem>[]>(
     () => [
       {
-        accessorKey: 'product.sku',
+        accessorKey: 'sku.sku',
         header: 'SKU',
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) =>
-          row.original.product ? (
+          row.original.sku ? (
             <div>
               <Box
                 sx={{
@@ -387,15 +335,15 @@ const SalesDetail = (props: any) => {
                   gap: '1rem'
                 }}
               >
-                <img
+                {/* <img
                   aria-owns={open ? 'mouse-over-popover' : undefined}
                   onMouseEnter={handlePopoverOpen}
                   onMouseLeave={handlePopoverClose}
                   alt='avatar'
                   height={30}
-                  src={row.original.product.image ?? '/images/no_image.png'}
+                  src={'/images/no_image.png'}
                   loading='lazy'
-                />
+                /> */}
                 {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
                 <span>{renderedCellValue}</span>
               </Box>
@@ -407,7 +355,50 @@ const SalesDetail = (props: any) => {
       {
         accessorKey: 'serial',
         header: 'Serial',
-        maxSize: 100
+        maxSize: 100,
+        Cell: ({ renderedCellValue, row }) =>
+          row.original.serial ? (
+            <div>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem'
+                }}
+                onClick={() => {
+                  setItemToEdit(row.original.salesitem_pk)
+                  setMpnToAdd(row.original.sku.mpn)
+                  console.log(row.original.sku.mpn)
+                  setCreateModalOpen(true)
+                }}
+              >
+                {/* <img
+                aria-owns={open ? 'mouse-over-popover' : undefined}
+                onMouseEnter={handlePopoverOpen}
+                onMouseLeave={handlePopoverClose}
+                alt='avatar'
+                height={30}
+                src={'/images/no_image.png'}
+                loading='lazy'
+              /> */}
+                {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
+                <span>{renderedCellValue}</span>
+              </Box>
+            </div>
+          ) : (
+            <Chip
+              sx={{
+                fontSize: 10
+              }}
+              label='Pick Item'
+              onClick={() => {
+                setItemToEdit(row.original.salesitem_pk)
+                setMpnToAdd(row.original.sku.mpn)
+                console.log(row.original.sku.mpn)
+                setCreateModalOpen(true)
+              }}
+            />
+          )
       },
       {
         accessorKey: 'room.name',
@@ -533,7 +524,7 @@ const SalesDetail = (props: any) => {
         json?.salesitems &&
           setTableData(
             json?.salesitems.map((item: any) => {
-              return { ...item.item, salesitem_pk: item.pk }
+              return { ...item.item, salesitem_pk: item.pk, sku: item.sku }
             })
           )
         console.log(tableData)
@@ -629,10 +620,11 @@ const SalesDetail = (props: any) => {
       })
   }
   const handleAddItem = (values: InventoryPayload) => {
-    const newValues = { selling: values.selling, item: values.product }
-    fetch(`https://cheapr.my.id/create_sales_item`, {
+    const newValues = { item: values.item }
+    console.log(newValues)
+    fetch(`https://cheapr.my.id/sales_items/${itemToEdit}`, {
       // note we are going to /1
-      method: 'POST',
+      method: 'PATCH',
       headers: new Headers({
         Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json'
@@ -641,16 +633,17 @@ const SalesDetail = (props: any) => {
     })
       .then(response => response.json())
       .then(json => {
+        console.log(json)
         if (json.pk) {
-          tableData.unshift({ ...json.item, salesitem_pk: json.pk })
-          if (orderData) {
-            setOrderData({
-              ...orderData,
-              salesitems: [json, ...orderData?.salesitems]
-            } as SellingOrder)
-          }
-          setTableData([...tableData])
-          console.log(tableData)
+          let newTable = tableData.map(item => (item.selling.toString() === itemToEdit ? { ...json } : item))
+          // if (orderData) {
+          //   setOrderData({
+          //     ...orderData,
+          //     salesitems: [json, ...orderData?.salesitems]
+          //   } as SellingOrder)
+          // }
+          setTableData(newTable)
+          console.log(newTable)
         }
       })
   }
@@ -697,7 +690,7 @@ const SalesDetail = (props: any) => {
   const columnsAddItem = useMemo<MRT_ColumnDef<InventoryPayload>[]>(
     () => [
       {
-        accessorKey: 'product',
+        accessorKey: 'item',
         header: 'SKU',
         size: 150
       }
@@ -767,6 +760,7 @@ const SalesDetail = (props: any) => {
           roomData={roomData}
           ratingData={ratingData}
           session={session}
+          mpnToAdd={mpnToAdd}
         />
         <Popover
           id='mouse-over-popover'
