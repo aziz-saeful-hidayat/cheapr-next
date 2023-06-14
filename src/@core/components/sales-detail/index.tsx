@@ -385,7 +385,7 @@ const SalesDetail = (props: any) => {
                 <span>{renderedCellValue}</span>
               </Box>
             </div>
-          ) : (
+          ) : row.original.inventory ? (
             <Chip
               sx={{
                 fontSize: 10
@@ -397,6 +397,13 @@ const SalesDetail = (props: any) => {
                 console.log(row.original.sku.mpn)
                 setCreateModalOpen(true)
               }}
+            />
+          ) : (
+            <Chip
+              sx={{
+                fontSize: 10
+              }}
+              label='Not in Inventory'
             />
           )
       },
@@ -524,7 +531,7 @@ const SalesDetail = (props: any) => {
         json?.salesitems &&
           setTableData(
             json?.salesitems.map((item: any) => {
-              return { ...item.item, salesitem_pk: item.pk, sku: item.sku }
+              return { ...item.item, salesitem_pk: item.pk, sku: item.sku, inventory: item.inventory }
             })
           )
         console.log(tableData)
@@ -559,17 +566,19 @@ const SalesDetail = (props: any) => {
   }
   const handleDeleteRow = useCallback(
     (row: MRT_Row<InventoryItem>) => {
-      // if (!confirm(`Are you sure you want to delete Item #${row.index + 1} ${row.original.product.sku}`)) {
-      //   return
-      // }
+      if (!confirm(`Are you sure you want to delete Item #${row.index + 1} ${row.original.product.sku}`)) {
+        return
+      }
+      const newValues = { item: null }
       console.log(tableData)
       fetch(`https://cheapr.my.id/sales_items/${row.original.salesitem_pk}/`, {
         // note we are going to /1
-        method: 'DELETE',
+        method: 'PATCH',
         headers: {
           Authorization: `Bearer ${session?.accessToken}`,
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify(newValues)
       })
         .then(response => response.status)
         .then(status => {
@@ -712,7 +721,7 @@ const SalesDetail = (props: any) => {
           <MaterialReactTable
             columns={columns}
             initialState={{ showColumnFilters: false }}
-            enableEditing
+            enableEditing={false}
             enableRowNumbers
             editingMode='cell'
             onEditingRowSave={handleSaveRow}

@@ -79,6 +79,7 @@ type SellingOrder = {
   sell_link: string
   total_cost: number
   shipping_cost: number
+  fulfillment: string
   comment: string
   status: string
   sellingitems: InventoryItem[]
@@ -630,7 +631,7 @@ const Example = (props: any) => {
       {
         accessorKey: 'order_id',
         header: 'Order ID',
-        maxSize: 100,
+        maxSize: 75,
         Cell: ({ renderedCellValue, row }) => (
           <Box
             sx={{
@@ -653,32 +654,43 @@ const Example = (props: any) => {
               {renderedCellValue}
             </Link> */}
           </Box>
-        )
+        ),
+        enableEditing: false
       },
       {
         accessorKey: 'status',
         header: 'Status',
-        maxSize: 100
+        maxSize: 75,
+        enableEditing: false
+      },
+      {
+        accessorKey: 'fulfillment',
+        header: 'Fulfillment',
+        maxSize: 75,
+        enableEditing: false
       },
       {
         accessorKey: 'order_date',
         accessorFn: row => row.order_date.substr(0, 10),
         header: 'Date',
-        maxSize: 100,
+        maxSize: 120,
         muiTableBodyCellEditTextFieldProps: {
           type: 'date'
         },
-        filterFn: 'between'
+        filterFn: 'between',
+        enableEditing: false
       },
       {
         accessorKey: 'tracking_number',
         header: 'Tracking',
-        maxSize: 100
+        maxSize: 100,
+        enableEditing: false
       },
       {
         accessorKey: 'seller_name',
         header: 'Seller Name',
-        maxSize: 150
+        maxSize: 150,
+        enableEditing: false
       },
       {
         accessorKey: 'channel.name',
@@ -691,7 +703,8 @@ const Example = (props: any) => {
               {channel.name}
             </MenuItem>
           ))
-        }
+        },
+        enableEditing: false
       },
       {
         accessorKey: 'total_cost',
@@ -701,7 +714,8 @@ const Example = (props: any) => {
         size: 100,
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
-        }
+        },
+        enableEditing: false
       },
       {
         accessorFn: row => formatterUSD.format(row.shipping_cost),
@@ -710,7 +724,8 @@ const Example = (props: any) => {
         size: 100,
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
-        }
+        },
+        enableEditing: false
       }
     ],
     [channelData]
