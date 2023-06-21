@@ -208,7 +208,7 @@ export const AddItemModal = ({
               {options.length > 0 ? (
                 options.map(item => (
                   <MenuItem value={item.pk}>
-                    {item.product.sku} {item.serial}
+                    {item.product ? item.product.sku : ''} {item.serial}
                   </MenuItem>
                 ))
               ) : (
@@ -737,18 +737,18 @@ const SalesDetail = (props: any) => {
             data={tableData}
             enableRowActions
             positionActionsColumn='last'
-            renderTopToolbarCustomActions={() => (
-              <>
-                {/* <Tooltip arrow title='Refresh Data'>
-            <IconButton onClick={() => refetch()}>
-              <RefreshIcon />
-            </IconButton>
-          </Tooltip> */}
-                <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
-                  Add Item
-                </Button>
-              </>
-            )}
+            //   renderTopToolbarCustomActions={() => (
+            //     <>
+            //       {/* <Tooltip arrow title='Refresh Data'>
+            //   <IconButton onClick={() => refetch()}>
+            //     <RefreshIcon />
+            //   </IconButton>
+            // </Tooltip> */}
+            //       <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
+            //         Add Item
+            //       </Button>
+            //     </>
+            //   )}
             renderRowActions={({ row, table }) => (
               <Box sx={{ display: 'flex' }}>
                 <Tooltip arrow placement='top' title='Delete'>
