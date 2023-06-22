@@ -66,24 +66,15 @@ type InventoryItem = {
   [key: string]: any
 }
 
-type SellingOrder = {
+type ReturnBuyer = {
   pk: number
-  order_id: string
-  order_date: string
-  channel: {
-    pk: number
-    name: string
-  }
+  return_date: string
+  delivery_date: string
   tracking_number: string
   seller_name: string
-  sell_link: string
-  total_cost: number
   shipping_cost: number
-  fulfillment: string
   comment: string
   status: string
-  sellingitems: InventoryItem[]
-  salesitems: InventoryItem[]
 }
 type Payload = {
   pk?: number
@@ -123,9 +114,9 @@ type ItemOption = {
   shipping_cost: string
 }
 interface CreateModalProps {
-  columns: MRT_ColumnDef<SellingOrder>[]
+  columns: MRT_ColumnDef<ReturnBuyer>[]
   onClose: () => void
-  onSubmit: (values: SellingOrder) => void
+  onSubmit: (values: ReturnBuyer) => void
   open: boolean
   channelData: any[]
 }
@@ -134,7 +125,7 @@ interface AddItemProps {
   onClose: () => void
   onSubmit: (values: InventoryPayload) => void
   open: boolean
-  rowData: SellingOrder | undefined
+  rowData: ReturnBuyer | undefined
   roomData: Room[]
 }
 interface DeleteModalProps {
@@ -403,15 +394,15 @@ const Example = (props: any) => {
       sorting //refetch when sorting changes
     ],
     queryFn: async () => {
-      const fetchURL = new URL('/selling_order/', 'https://cheapr.my.id')
+      const fetchURL = new URL('/return_to_seller/', 'https://cheapr.my.id')
       fetchURL.searchParams.set('limit', `${pagination.pageSize}`)
       fetchURL.searchParams.set('offset', `${pagination.pageIndex * pagination.pageSize}`)
       for (let f = 0; f < columnFilters.length; f++) {
         const filter = columnFilters[f]
-        if (filter.id == 'order_date') {
+        if (filter.id == 'return_date') {
           console.log(filter)
-          fetchURL.searchParams.set('order_date_after', Array.isArray(filter.value) ? filter.value[0] : '')
-          fetchURL.searchParams.set('order_date_before', Array.isArray(filter.value) ? filter.value[1] : '')
+          fetchURL.searchParams.set('return_date_after', Array.isArray(filter.value) ? filter.value[0] : '')
+          fetchURL.searchParams.set('return_date_before', Array.isArray(filter.value) ? filter.value[1] : '')
         } else {
           fetchURL.searchParams.set(filter.id.split('.')[0], typeof filter.value === 'string' ? filter.value : '')
         }
@@ -443,12 +434,12 @@ const Example = (props: any) => {
     },
     keepPreviousData: true
   })
-  const [tableData, setTableData] = useState<SellingOrder[]>(() => data?.results ?? [])
+  const [tableData, setTableData] = useState<ReturnBuyer[]>(() => data?.results ?? [])
   const [channelData, setChannelData] = useState<Channel[]>([])
   const [roomData, setRoomData] = useState<Room[]>([])
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
-  const [addModalOpen, setAddModalOpen] = useState<SellingOrder>()
+  const [addModalOpen, setAddModalOpen] = useState<ReturnBuyer>()
   const [detail, setDetail] = useState<number | undefined>()
   const [detailModalOpen, setDetailModalOpen] = useState(false)
   const [tabActive, setTabActive] = useState('all')
@@ -457,10 +448,9 @@ const Example = (props: any) => {
     setTabActive(event.target.value as string)
     setColumnFilters([{ id: 'status', value: event.target.value != 'all' ? event.target.value : '' }])
   }
-  const handleCreateNewRow = (values: SellingOrder) => {
+  const handleCreateNewRow = (values: ReturnBuyer) => {
     console.log(values)
-    const channel = channelData.find(channel => channel.name == values['channel']['name'])
-    const new_obj = { ...values, channel: channel?.pk }
+    const new_obj = { ...values }
     console.log(new_obj)
     fetch(`https://cheapr.my.id/selling_order/`, {
       // note we are going to /1
@@ -481,20 +471,6 @@ const Example = (props: any) => {
       })
   }
 
-  const update = (idx: number, rowIdx: number, key: string, value: any) => {
-    const sellingitems_update = tableData[idx].sellingitems?.map((el, idx) => {
-      if (idx == rowIdx) {
-        const newEl = { ...el }
-        newEl[key] = value
-
-        return newEl
-      } else {
-        return el
-      }
-    })
-    tableData[idx].sellingitems = sellingitems_update
-    setTableData([...tableData])
-  }
   const reupdate = (order: number) => {
     fetch(`https://cheapr.my.id/selling_order/${order}/`, {
       // note we are going to /1
@@ -536,8 +512,8 @@ const Example = (props: any) => {
   }
 
   const handleDeleteRow = useCallback(
-    (row: MRT_Row<SellingOrder>) => {
-      if (!confirm(`Are you sure you want to delete ${row.original.order_id}`)) {
+    (row: MRT_Row<ReturnBuyer>) => {
+      if (!confirm(`Are you sure you want to delete this}`)) {
         return
       }
       fetch(`https://cheapr.my.id/selling_order/${row.original.pk}/`, {
@@ -558,7 +534,7 @@ const Example = (props: any) => {
     },
     [tableData, session]
   )
-  const handleSaveRow: MaterialReactTableProps<SellingOrder>['onEditingRowSave'] = async ({
+  const handleSaveRow: MaterialReactTableProps<ReturnBuyer>['onEditingRowSave'] = async ({
     exitEditingMode,
     row,
     values
@@ -584,7 +560,7 @@ const Example = (props: any) => {
       .then(response => response.json())
       .then(json => {
         if (json['pk'] !== values.pk) {
-          tableData[row.index] = { ...json, channel: channel, sellingitems: row.original.sellingitems }
+          tableData[row.index] = { ...json }
 
           setTableData([...tableData])
           exitEditingMode() //required to exit editing mode
@@ -592,7 +568,7 @@ const Example = (props: any) => {
       })
   }
 
-  const handleSaveCell = (cell: MRT_Cell<SellingOrder>, value: any) => {
+  const handleSaveCell = (cell: MRT_Cell<ReturnBuyer>, value: any) => {
     const key = cell.column.id
     const channel = channelData.find(channel => channel.name == value)
     console.log(key, value)
@@ -604,7 +580,7 @@ const Example = (props: any) => {
       newData[cell.row.index]['channel'] = channel
     } else {
       payload[key as keyof Payload] = value
-      newData[cell.row.index][cell.column.id as keyof SellingOrder] = value
+      newData[cell.row.index][cell.column.id as keyof ReturnBuyer] = value
     }
     const pk = newData[cell.row.index]['pk']
 
@@ -626,53 +602,20 @@ const Example = (props: any) => {
       })
   }
 
-  const columns = useMemo<MRT_ColumnDef<SellingOrder>[]>(
+  const columns = useMemo<MRT_ColumnDef<ReturnBuyer>[]>(
     () => [
       {
-        accessorKey: 'order_id',
-        header: 'Order ID',
+        accessorKey: 'return_date',
+        header: 'Return Date',
         maxSize: 75,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            <Chip
-              sx={{
-                fontSize: 10
-              }}
-              label={renderedCellValue?.toString()}
-              onClick={() => {
-                setDetail(row.original.pk)
-                setDetailModalOpen(true)
-              }}
-            />
-            {/* <Link href={`/sales/${row.original.pk}`} target='_blank'>
-              {renderedCellValue}
-            </Link> */}
-          </Box>
-        ),
+        muiTableBodyCellEditTextFieldProps: {
+          type: 'date'
+        },
         enableEditing: false
       },
       {
-        accessorKey: 'status',
-        header: 'Status',
-        maxSize: 75,
-        enableEditing: false
-      },
-      {
-        accessorKey: 'fulfillment',
-        header: 'Fulfillment',
-        maxSize: 75,
-        enableEditing: false
-      },
-      {
-        accessorKey: 'order_date',
-        accessorFn: row => row.order_date.substr(0, 10),
-        header: 'Date',
+        accessorKey: 'delivery_date',
+        header: 'Delivery Date',
         maxSize: 120,
         muiTableBodyCellEditTextFieldProps: {
           type: 'date'
@@ -693,31 +636,6 @@ const Example = (props: any) => {
         enableEditing: false
       },
       {
-        accessorKey: 'channel.name',
-        header: 'Channel',
-        maxSize: 100,
-        muiTableBodyCellEditTextFieldProps: {
-          select: true, //change to select for a dropdown
-          children: channelData?.map(channel => (
-            <MenuItem key={channel.pk} value={channel.name}>
-              {channel.name}
-            </MenuItem>
-          ))
-        },
-        enableEditing: false
-      },
-      {
-        accessorKey: 'total_cost',
-        accessorFn: row => formatterUSD.format(row.total_cost),
-        id: 'total',
-        header: 'Price',
-        size: 100,
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        },
-        enableEditing: false
-      },
-      {
         accessorFn: row => formatterUSD.format(row.shipping_cost),
         id: 'shipping_cost',
         header: 'Shipping',
@@ -725,6 +643,18 @@ const Example = (props: any) => {
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
         },
+        enableEditing: false
+      },
+      {
+        accessorKey: 'status',
+        header: 'Status',
+        maxSize: 150,
+        enableEditing: false
+      },
+      {
+        accessorKey: 'comment',
+        header: 'Comment',
+        maxSize: 150,
         enableEditing: false
       }
     ],
@@ -813,7 +743,7 @@ const Example = (props: any) => {
         renderTopToolbarCustomActions={() => (
           <>
             <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
-              Add New Sales
+              Add New Return To Seller
             </Button>
             <Select labelId='demo-select-small-label' id='demo-select-small' value={tabActive} onChange={handleChange}>
               <MenuItem value={'all'}>All</MenuItem>
