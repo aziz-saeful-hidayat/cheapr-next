@@ -79,6 +79,7 @@ type SellingOrder = {
   sell_link: string
   total_cost: number
   shipping_cost: number
+  ss_shipping_cost: number
   fulfillment: string
   comment: string
   status: string
@@ -644,7 +645,7 @@ const Example = (props: any) => {
               sx={{
                 fontSize: 10
               }}
-              label={renderedCellValue?.toString()}
+              label={renderedCellValue}
               onClick={() => {
                 setDetail(row.original.pk)
                 setDetailModalOpen(true)
@@ -660,12 +661,6 @@ const Example = (props: any) => {
       {
         accessorKey: 'status',
         header: 'Status',
-        maxSize: 75,
-        enableEditing: false
-      },
-      {
-        accessorKey: 'fulfillment',
-        header: 'Fulfillment',
         maxSize: 75,
         enableEditing: false
       },
@@ -718,10 +713,10 @@ const Example = (props: any) => {
         enableEditing: false
       },
       {
-        accessorFn: row => formatterUSD.format(row.shipping_cost),
+        accessorFn: row => `${formatterUSD.format(row.ss_shipping_cost)} + ${formatterUSD.format(row.shipping_cost)}`,
         id: 'shipping_cost',
         header: 'Shipping',
-        size: 100,
+        size: 150,
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
         },

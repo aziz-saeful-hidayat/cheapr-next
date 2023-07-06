@@ -126,17 +126,7 @@ const CardOrder = ({
                           }, 0)
                         : 0
                     )
-                  : formatterUSD.format(
-                      orderData?.salesitems
-                        ? orderData?.salesitems.reduce((accumulator, object) => {
-                            if (object.item) {
-                              return accumulator + parseFloat(object.item.total_cost)
-                            } else {
-                              return accumulator
-                            }
-                          }, 0)
-                        : 0
-                    )}
+                  : formatterUSD.format(orderData?.total_cost ? orderData?.total_cost : 0)}
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -156,17 +146,7 @@ const CardOrder = ({
                           }, 0)
                         : 0
                     )
-                  : formatterUSD.format(
-                      orderData?.salesitems
-                        ? orderData?.salesitems.reduce((accumulator, object) => {
-                            if (object.item) {
-                              return accumulator + parseFloat(object.item.shipping_cost)
-                            } else {
-                              return accumulator
-                            }
-                          }, 0)
-                        : 0
-                    )}
+                  : formatterUSD.format(orderData?.shipping_cost ? orderData?.shipping_cost : 0)}
               </Typography>
             </Box>
           </Grid>
