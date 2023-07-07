@@ -33,6 +33,7 @@ import { ExtendedSession } from 'src/pages/api/auth/[...nextauth]'
 import { formatterUSD } from 'src/constants/Utils'
 import CardOrder from 'src/views/cards/CardOrder'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
+import CardSales from 'src/views/cards/CardSales'
 
 type InventoryItem = {
   [key: string]: any
@@ -125,10 +126,12 @@ export type SellingOrder = {
   }
   tracking_number: string
   seller_name: string
+  status: string
   purchase_link: string
   channel_order_id: string
   total_cost: number
   shipping_cost: number
+  ss_shipping_cost: number
   comment: string
   inventoryitems: InventoryItem[]
   salesitems: InventoryItem[]
@@ -176,6 +179,9 @@ export const AddItemModal = ({
   const [options, setOptions] = useState<readonly ItemOption[]>([])
   const loading = open && options.length === 0
   useEffect(() => {
+    console.log(
+      `https://cheapr.my.id/inventory_items/?inventory=true&incoming=false&product_mpn=${mpnToAdd}&ordering=serial`
+    )
     fetch(
       `https://cheapr.my.id/inventory_items/?inventory=true&incoming=false&product_mpn=${mpnToAdd}&ordering=serial`,
       {
@@ -644,7 +650,9 @@ const SalesDetail = (props: any) => {
       .then(json => {
         console.log(json)
         if (json.pk) {
-          let newTable = tableData.map(item => (item.selling.toString() === itemToEdit ? { ...json } : item))
+          let newTable = tableData.map(item =>
+            item.selling && item.selling.toString() === itemToEdit ? { ...json } : item
+          )
           // if (orderData) {
           //   setOrderData({
           //     ...orderData,
@@ -716,7 +724,7 @@ const SalesDetail = (props: any) => {
       sx={{ padding: 10, overflow: 'scroll' }}
     >
       <>
-        <CardOrder orderData={orderData} type={'sales'} />
+        <CardSales orderData={orderData} type={'sales'} tableData={tableData} />
         <Card sx={{ padding: 3 }}>
           <MaterialReactTable
             columns={columns}

@@ -132,12 +132,14 @@ export type SalesOrder = {
     name: string
     image: string
   }
+  status: string
   tracking_number: string
   seller_name: string
   purchase_link: string
   channel_order_id: string
   total_cost: number
   shipping_cost: number
+  ss_shipping_cost: number
   comment: string
   inventoryitems: InventoryItem[]
   salesitems: InventoryItem[]

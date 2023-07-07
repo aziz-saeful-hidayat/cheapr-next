@@ -713,7 +713,7 @@ const Example = (props: any) => {
         enableEditing: false
       },
       {
-        accessorFn: row => `${formatterUSD.format(row.ss_shipping_cost)} + ${formatterUSD.format(row.shipping_cost)}`,
+        accessorFn: row => formatterUSD.format(row.shipping_cost),
         id: 'shipping_cost',
         header: 'Shipping',
         size: 150,
