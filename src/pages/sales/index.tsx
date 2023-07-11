@@ -456,7 +456,11 @@ const Example = (props: any) => {
 
   const handleChange = (event: SelectChangeEvent) => {
     setTabActive(event.target.value as string)
-    setColumnFilters([{ id: 'status', value: event.target.value != 'all' ? event.target.value : '' }])
+    if (event.target.value == 'to_pick') {
+      setColumnFilters([{ id: 'to_pick', value: 'yes' }])
+    } else {
+      setColumnFilters([{ id: 'status', value: event.target.value != 'all' ? event.target.value : '' }])
+    }
   }
   const handleCreateNewRow = (values: SellingOrder) => {
     console.log(values)
@@ -665,6 +669,12 @@ const Example = (props: any) => {
         enableEditing: false
       },
       {
+        accessorKey: 'fulfillment',
+        header: 'Fulfillment',
+        maxSize: 75,
+        enableEditing: false
+      },
+      {
         accessorKey: 'order_date',
         accessorFn: row => row.order_date.substr(0, 10),
         header: 'Date',
@@ -815,6 +825,7 @@ const Example = (props: any) => {
               <MenuItem value={'open'}>Open</MenuItem>
               <MenuItem value={'completed'}>Completed</MenuItem>
               <MenuItem value={'canceled'}>Canceled</MenuItem>
+              <MenuItem value={'to_pick'}>To Pick</MenuItem>
             </Select>
           </>
         )}

@@ -63,7 +63,7 @@ const CardSales = ({
   type: 'sales'
   tableData: Item[]
 }) => {
-  const [salesData, setSalesData] = useState({
+  const [salesData, setSalesData] = useState<any>({
     sales_items: 0,
     sales_item_revenue: 0,
     sales_shipping: 0,
@@ -76,7 +76,7 @@ const CardSales = ({
     setSalesData({
       sales_items: orderData ? orderData?.salesitems?.length : 0,
       sales_item_revenue: orderData?.total_cost ? orderData?.total_cost : 0,
-      sales_shipping: orderData && isNaN(orderData?.shipping_cost) ? orderData?.shipping_cost : 0,
+      sales_shipping: orderData && !isNaN(orderData?.shipping_cost) ? orderData?.shipping_cost : 0,
       outbound_shipping: orderData?.ss_shipping_cost ? orderData?.ss_shipping_cost : 0,
       purchase_items: tableData?.reduce((prev, next) => {
         if (next.pk) {
@@ -213,7 +213,9 @@ const CardSales = ({
 
               <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
                 {formatterUSD.format(
-                  salesData.sales_item_revenue + salesData.sales_shipping - salesData.outbound_shipping
+                  parseFloat(salesData.sales_item_revenue) +
+                    parseFloat(salesData.sales_shipping) -
+                    parseFloat(salesData.outbound_shipping)
                 )}
               </Typography>
             </Box>
@@ -235,7 +237,7 @@ const CardSales = ({
               <Typography variant='body1'>Item: </Typography>
 
               <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
-                {formatterUSD.format(salesData.purchase_items_cost)}
+                {formatterUSD.format(parseFloat(salesData.purchase_items_cost))}
               </Typography>
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
@@ -243,7 +245,7 @@ const CardSales = ({
               <Typography variant='body1'>Inbound Shipping: </Typography>
 
               <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
-                {formatterUSD.format(salesData.inbound_shipping)}
+                {formatterUSD.format(parseFloat(salesData.inbound_shipping))}
               </Typography>
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
@@ -251,7 +253,9 @@ const CardSales = ({
               <Typography variant='body1'>Total: </Typography>
 
               <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
-                {formatterUSD.format(salesData.purchase_items_cost + salesData.inbound_shipping)}
+                {formatterUSD.format(
+                  parseFloat(salesData.purchase_items_cost) + parseFloat(salesData.inbound_shipping)
+                )}
               </Typography>
             </Box>
           </Grid>
@@ -264,7 +268,9 @@ const CardSales = ({
               <Typography variant='body1'>Revenue: </Typography>
               <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
                 {formatterUSD.format(
-                  salesData.sales_item_revenue + salesData.sales_shipping - salesData.outbound_shipping
+                  parseFloat(salesData.sales_item_revenue) +
+                    parseFloat(salesData.sales_shipping) -
+                    parseFloat(salesData.outbound_shipping)
                 )}
               </Typography>
             </Box>
@@ -273,7 +279,9 @@ const CardSales = ({
               <Typography variant='body1'>Cost: </Typography>
 
               <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
-                {formatterUSD.format(salesData.purchase_items_cost + salesData.inbound_shipping)}
+                {formatterUSD.format(
+                  parseFloat(salesData.purchase_items_cost) + parseFloat(salesData.inbound_shipping)
+                )}
               </Typography>
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
@@ -282,11 +290,11 @@ const CardSales = ({
 
               <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
                 {formatterUSD.format(
-                  salesData.sales_item_revenue +
-                    salesData.sales_shipping -
-                    salesData.outbound_shipping -
-                    salesData.purchase_items_cost -
-                    salesData.inbound_shipping
+                  parseFloat(salesData.sales_item_revenue) +
+                    parseFloat(salesData.sales_shipping) -
+                    parseFloat(salesData.outbound_shipping) -
+                    parseFloat(salesData.purchase_items_cost) -
+                    parseFloat(salesData.inbound_shipping)
                 )}
               </Typography>
             </Box>

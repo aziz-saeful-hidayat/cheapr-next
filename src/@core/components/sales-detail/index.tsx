@@ -310,6 +310,8 @@ const SalesDetail = (props: any) => {
   const [roomData, setRoomData] = useState<Room[]>([])
   const [itemToEdit, setItemToEdit] = useState('')
   const [mpnToAdd, setMpnToAdd] = useState('')
+  const [refresh, setRefresh] = useState(0)
+  const [isFetching, setIsFetching] = useState(false)
 
   const [ratingData, setRatingData] = useState<Rating[]>([])
   const [createModalOpen, setCreateModalOpen] = useState(false)
@@ -477,7 +479,7 @@ const SalesDetail = (props: any) => {
       },
       {
         accessorKey: 'total_cost',
-        header: 'Total',
+        header: 'Item Cost',
         size: 100,
         Cell: ({ renderedCellValue, row }) => (
           <Box component='span'>{renderedCellValue && formatterUSD.format(row.original.total_cost)}</Box>
@@ -488,7 +490,9 @@ const SalesDetail = (props: any) => {
         header: 'Shipping',
         size: 100,
         Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSD.format(row.original.shipping_cost)}</Box>
+          <Box component='span'>
+            {!isNaN(row.original.shipping_cost) && formatterUSD.format(row.original.shipping_cost)}
+          </Box>
         )
       }
     ],
@@ -524,6 +528,7 @@ const SalesDetail = (props: any) => {
     if (!modalOpen) {
       return
     }
+    setIsFetching(true)
     fetch(`https://cheapr.my.id/selling_order/${pk}/`, {
       method: 'get',
       headers: new Headers({
@@ -542,7 +547,8 @@ const SalesDetail = (props: any) => {
           )
         console.log(tableData)
       })
-  }, [session, pk, modalOpen])
+      .finally(() => setIsFetching(false))
+  }, [session, pk, modalOpen, refresh])
   // useEffect(() => {
   //   if (modalOpen == false) {
   //     setTableData([])
@@ -570,34 +576,29 @@ const SalesDetail = (props: any) => {
         }
       })
   }
-  const handleDeleteRow = useCallback(
-    (row: MRT_Row<InventoryItem>) => {
-      if (!confirm(`Are you sure you want to delete Item #${row.index + 1} ${row.original.product.sku}`)) {
-        return
-      }
-      const newValues = { item: null }
-      console.log(tableData)
-      fetch(`https://cheapr.my.id/sales_items/${row.original.salesitem_pk}/`, {
-        // note we are going to /1
-        method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${session?.accessToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(newValues)
+  const handleDeleteRow = (row: MRT_Row<InventoryItem>) => {
+    if (!confirm(`Are you sure you want to delete Item #${row.index + 1} ${row.original.product.sku}`)) {
+      return
+    }
+    setIsFetching(true)
+    const newValues = { item: null }
+    console.log(tableData)
+    fetch(`https://cheapr.my.id/sales_items/${row.original.salesitem_pk}/`, {
+      // note we are going to /1
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(newValues)
+    })
+      .then(response => response.status)
+      .then(status => {
+        if (status == 204) {
+          setRefresh(refresh + 1)
+        }
       })
-        .then(response => response.status)
-        .then(status => {
-          if (status == 204) {
-            console.log(tableData)
-            tableData.splice(row.index, 1)
-            console.log(tableData)
-            setTableData([...tableData])
-          }
-        })
-    },
-    [tableData]
-  )
+  }
   const handleSaveCell = (cell: MRT_Cell<InventoryItem>, value: any) => {
     const key = cell.column.id
     const rowIdx = cell.row.index
@@ -637,6 +638,7 @@ const SalesDetail = (props: any) => {
   const handleAddItem = (values: InventoryPayload) => {
     const newValues = { item: values.item }
     console.log(newValues)
+    console.log(`https://cheapr.my.id/sales_items/${itemToEdit}`)
     fetch(`https://cheapr.my.id/sales_items/${itemToEdit}`, {
       // note we are going to /1
       method: 'PATCH',
@@ -650,17 +652,7 @@ const SalesDetail = (props: any) => {
       .then(json => {
         console.log(json)
         if (json.pk) {
-          let newTable = tableData.map(item =>
-            item.selling && item.selling.toString() === itemToEdit ? { ...json } : item
-          )
-          // if (orderData) {
-          //   setOrderData({
-          //     ...orderData,
-          //     salesitems: [json, ...orderData?.salesitems]
-          //   } as SellingOrder)
-          // }
-          setTableData(newTable)
-          console.log(newTable)
+          setRefresh(refresh + 1)
         }
       })
   }
@@ -766,6 +758,9 @@ const SalesDetail = (props: any) => {
                 </Tooltip>
               </Box>
             )}
+            state={{
+              showProgressBars: isFetching
+            }}
           />
         </Card>
         <AddItemModal
