@@ -669,12 +669,6 @@ const Example = (props: any) => {
         enableEditing: false
       },
       {
-        accessorKey: 'fulfillment',
-        header: 'Fulfillment',
-        maxSize: 75,
-        enableEditing: false
-      },
-      {
         accessorKey: 'order_date',
         accessorFn: row => row.order_date.substr(0, 10),
         header: 'Date',

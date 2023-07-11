@@ -214,7 +214,8 @@ export const AddItemModal = ({
               {options.length > 0 ? (
                 options.map(item => (
                   <MenuItem value={item.pk}>
-                    {item.product ? item.product.sku : ''} {item.serial}
+                    {item.product ? item.product.sku : ''} {item.serial}{' '}
+                    {formatterUSD.format(parseFloat(item.total_cost))}
                   </MenuItem>
                 ))
               ) : (
