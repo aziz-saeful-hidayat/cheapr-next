@@ -682,8 +682,7 @@ const Example = (props: any) => {
       {
         accessorKey: 'tracking_number',
         header: 'Tracking',
-        maxSize: 100,
-        enableEditing: false
+        maxSize: 100
       },
       {
         accessorKey: 'seller_name',
