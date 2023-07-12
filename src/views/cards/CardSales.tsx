@@ -43,8 +43,8 @@ type Item = {
   comment: string
   room: Room
   rating: Rating
-  total_cost: number
-  shipping_cost: number
+  total_cost: string
+  shipping_cost: string
 }
 
 // Styled Box component
@@ -73,32 +73,19 @@ const CardSales = ({
     inbound_shipping: 0
   })
   useEffect(() => {
+    console.log(tableData)
     setSalesData({
       sales_items: orderData ? orderData?.salesitems?.length : 0,
       sales_item_revenue: orderData?.total_cost ? orderData?.total_cost : 0,
       sales_shipping: orderData && !isNaN(orderData?.shipping_cost) ? orderData?.shipping_cost : 0,
       outbound_shipping: orderData?.ss_shipping_cost ? orderData?.ss_shipping_cost : 0,
-      purchase_items: tableData?.reduce((prev, next) => {
-        if (next.pk) {
-          return prev + 1
-        } else {
-          return prev
-        }
-      }, 0),
-      purchase_items_cost: tableData?.reduce((prev, next) => {
-        if (next.total_cost) {
-          return prev + next.total_cost
-        } else {
-          return prev
-        }
-      }, 0),
-      inbound_shipping: tableData?.reduce((prev, next) => {
-        if (next.shipping_cost) {
-          return prev + next.shipping_cost
-        } else {
-          return prev
-        }
-      }, 0)
+      purchase_items: tableData?.filter(item => !!item.pk).reduce((prev, next) => prev + 1, 0),
+      purchase_items_cost: tableData
+        ?.filter(item => !!item.pk)
+        .reduce((prev, next) => prev + parseFloat(next.total_cost), 0),
+      inbound_shipping: tableData
+        ?.filter(item => !!item.pk)
+        .reduce((prev, next) => prev + parseFloat(next.shipping_cost), 0)
     })
     console.log(salesData)
   }, [orderData, tableData])

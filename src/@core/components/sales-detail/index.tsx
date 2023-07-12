@@ -87,8 +87,8 @@ type Item = {
   comment: string
   room: Room
   rating: Rating
-  total_cost: number
-  shipping_cost: number
+  total_cost: string
+  shipping_cost: string
 }
 type ItemOption = {
   pk: number
