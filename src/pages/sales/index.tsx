@@ -722,8 +722,7 @@ const Example = (props: any) => {
         size: 150,
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
-        },
-        enableEditing: false
+        }
       }
     ],
     [channelData]
