@@ -86,7 +86,7 @@ const SalesByCountries = () => {
   return (
     <Card>
       <CardHeader
-        title='Sales by Countries'
+        title='Top 10 Brands by Revenue'
         titleTypographyProps={{ sx: { lineHeight: '1.2 !important', letterSpacing: '0.31px !important' } }}
         action={
           <IconButton size='small' aria-label='settings' className='card-more-options' sx={{ color: 'text.secondary' }}>

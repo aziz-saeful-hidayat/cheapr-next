@@ -68,7 +68,7 @@ const StatisticsCard = (props: any) => {
           }
         }, 0)
       ),
-      title: 'Purchased',
+      title: 'Total Order',
       color: 'primary',
       icon: <TrendingUp sx={{ fontSize: '1.75rem' }} />
     },
@@ -80,7 +80,7 @@ const StatisticsCard = (props: any) => {
           return total
         }
       }, 0),
-      title: 'Order',
+      title: 'Total Revenue',
       color: 'success',
       icon: <AccountOutline sx={{ fontSize: '1.75rem' }} />
     },
@@ -93,13 +93,13 @@ const StatisticsCard = (props: any) => {
         }
       }, 0),
       color: 'warning',
-      title: 'Item',
+      title: 'Total Profit',
       icon: <CellphoneLink sx={{ fontSize: '1.75rem' }} />
     },
     {
       stats: '$88k',
       color: 'info',
-      title: 'Revenue',
+      title: 'Profit Margin',
       icon: <CurrencyUsd sx={{ fontSize: '1.75rem' }} />
     }
   ]

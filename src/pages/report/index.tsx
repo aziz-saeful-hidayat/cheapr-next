@@ -24,11 +24,12 @@ import WeeklyOverview from 'src/views/dashboard/WeeklyOverview'
 import DepositWithdraw from 'src/views/dashboard/DepositWithdraw'
 import SalesByCountries from 'src/views/dashboard/SalesByCountries'
 
-import { withAuth } from '../constants/HOCs'
+import { withAuth } from '../../constants/HOCs'
 import { useSession, signIn, signOut, getSession } from 'next-auth/react'
 import TableBrand from 'src/views/dashboard/TableBrand'
+import IncomeStatement from 'src/views/dashboard/IncomeStatement'
 
-const Dashboard = (props: any) => {
+const Report = (props: any) => {
   const { session } = props
   const [dashboardData, setDashboardData] = useState([])
   useEffect(() => {
@@ -50,6 +51,9 @@ const Dashboard = (props: any) => {
       <ApexChartWrapper>
         <Grid container spacing={6}>
           <Grid item xs={12} md={8}>
+            <IncomeStatement />
+          </Grid>
+          {/* <Grid item xs={12} md={8}>
             <Grid container spacing={6}>
               <Grid item xs={3}>
                 <CardStatisticsVerticalComponent
@@ -97,28 +101,27 @@ const Dashboard = (props: any) => {
           </Grid>
           <Grid item xs={12} md={4}>
             <Trophy data={dashboardData} />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            {/* <SalesByCountries /> */}
+          </Grid> */}
+          {/* <Grid item xs={12} md={6}>
             <TableBrand />
-          </Grid>
-          <Grid item xs={12} md={6}>
+          </Grid> */}
+          {/* <Grid item xs={12} md={6}>
             <WeeklyOverview />
-          </Grid>
+          </Grid> */}
 
-          <Grid item xs={12} md={12} lg={8}>
+          {/* <Grid item xs={12} md={12} lg={8}>
             <DepositWithdraw />
           </Grid>
           <Grid item xs={12} md={6} lg={4}>
             <TotalEarning />
-          </Grid>
+          </Grid> */}
 
-          <Grid item xs={12} md={8}>
+          {/* <Grid item xs={12} md={8}>
             <StatisticsCard data={dashboardData} />
           </Grid>
           <Grid item xs={12}>
             <Table />
-          </Grid>
+          </Grid> */}
         </Grid>
       </ApexChartWrapper>
     )
@@ -149,4 +152,4 @@ export async function getServerSideProps(context: any) {
   }
 }
 
-export default withAuth(3 * 60)(Dashboard)
+export default withAuth(3 * 60)(Report)

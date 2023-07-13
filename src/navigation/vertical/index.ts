@@ -26,6 +26,11 @@ const navigation = (): VerticalNavItemsType => {
       icon: AccountCogOutline as unknown as ReactNode,
       path: '/account-settings'
     },
+    {
+      title: 'Report',
+      icon: AccountCogOutline as unknown as ReactNode,
+      path: '/report'
+    },
     // {
     //   sectionTitle: 'Pages'
     // },

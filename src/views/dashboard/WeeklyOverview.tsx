@@ -28,7 +28,7 @@ const WeeklyOverview = () => {
     },
     plotOptions: {
       bar: {
-        borderRadius: 9,
+        borderRadius: 4,
         distributed: true,
         columnWidth: '40%',
         endingShape: 'rounded',
@@ -39,25 +39,17 @@ const WeeklyOverview = () => {
       width: 2,
       colors: [theme.palette.background.paper]
     },
-    legend: { show: false },
-    grid: {
-      strokeDashArray: 7,
-      padding: {
-        top: -1,
-        right: 0,
-        left: -12,
-        bottom: 5
-      }
-    },
+    // legend: { show: false },
+    // grid: {
+    //   strokeDashArray: 7,
+    //   padding: {
+    //     top: -1,
+    //     right: 0,
+    //     left: -12,
+    //     bottom: 5
+    //   }
+    // },
     dataLabels: { enabled: false },
-    colors: [
-      theme.palette.background.default,
-      theme.palette.background.default,
-      theme.palette.background.default,
-      theme.palette.primary.main,
-      theme.palette.background.default,
-      theme.palette.background.default
-    ],
     states: {
       hover: {
         filter: { type: 'none' }
@@ -68,10 +60,10 @@ const WeeklyOverview = () => {
     },
     xaxis: {
       categories: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-      tickPlacement: 'on',
-      labels: { show: false },
-      axisTicks: { show: false },
-      axisBorder: { show: false }
+      tickPlacement: 'on'
+      // labels: { show: false },
+      // axisTicks: { show: false },
+      // axisBorder: { show: false }
     },
     yaxis: {
       show: true,
@@ -86,7 +78,7 @@ const WeeklyOverview = () => {
   return (
     <Card>
       <CardHeader
-        title='Weekly Overview'
+        title='Daily Overview'
         titleTypographyProps={{
           sx: { lineHeight: '2rem !important', letterSpacing: '0.15px !important' }
         }}
@@ -97,8 +89,16 @@ const WeeklyOverview = () => {
         }
       />
       <CardContent sx={{ '& .apexcharts-xcrosshairs.apexcharts-active': { opacity: 0 } }}>
-        <ReactApexcharts type='bar' height={205} options={options} series={[{ data: [37, 57, 45, 75, 57, 40, 65] }]} />
-        <Box sx={{ mb: 7, display: 'flex', alignItems: 'center' }}>
+        <ReactApexcharts
+          type='area'
+          height={375}
+          options={options}
+          series={[
+            { name: 'sales', data: [37, 57, 45, 75, 57, 40, 65], color: theme.palette.primary.main },
+            { name: 'profit', data: [26, 45, 37, 60, 48, 36, 55], color: theme.palette.success.main }
+          ]}
+        />
+        {/* <Box sx={{ mb: 7, display: 'flex', alignItems: 'center' }}>
           <Typography variant='h5' sx={{ mr: 4 }}>
             45%
           </Typography>
@@ -106,7 +106,7 @@ const WeeklyOverview = () => {
         </Box>
         <Button fullWidth variant='contained'>
           Details
-        </Button>
+        </Button> */}
       </CardContent>
     </Card>
   )
