@@ -190,7 +190,7 @@ const IncomeStatement = () => {
               justifyContent: 'space-between'
             }}
           >
-            <Typography variant='body1'>913,051</Typography>
+            <Typography variant='body1'>446,901</Typography>
           </Box>
         </Box>
         <Box sx={{ mb: 3, pl: 4, display: 'flex', alignItems: 'center' }}>
@@ -213,7 +213,7 @@ const IncomeStatement = () => {
               justifyContent: 'space-between'
             }}
           >
-            <Typography variant='body1'>913,051</Typography>
+            <Typography variant='body1'>225,951</Typography>
           </Box>
         </Box>
         <Box sx={{ mb: 3, pl: 4, display: 'flex', alignItems: 'center' }}>
@@ -236,7 +236,7 @@ const IncomeStatement = () => {
               justifyContent: 'space-between'
             }}
           >
-            <Typography variant='body1'>913,051</Typography>
+            <Typography variant='body1'>240,117</Typography>
           </Box>
         </Box>
         <Box sx={{ mb: 3, pl: 4, display: 'flex', alignItems: 'center' }}>
@@ -259,9 +259,10 @@ const IncomeStatement = () => {
               justifyContent: 'space-between'
             }}
           >
-            <Typography variant='body1'>913,051</Typography>
+            <Typography variant='body1'>18,804</Typography>
           </Box>
         </Box>
+
         <Divider />
         <Box sx={{ mb: 1.5, display: 'flex', alignItems: 'center' }}>
           <Box
@@ -284,7 +285,7 @@ const IncomeStatement = () => {
             }}
           >
             <Typography variant='body1' sx={{ fontWeight: 600 }}>
-              913,051
+              137,329
             </Typography>
           </Box>
         </Box>
@@ -308,7 +309,7 @@ const IncomeStatement = () => {
               justifyContent: 'space-between'
             }}
           >
-            <Typography variant='body1'>913,051</Typography>
+            <Typography variant='body1'>58,943</Typography>
           </Box>
         </Box>
         <Divider />
@@ -333,7 +334,7 @@ const IncomeStatement = () => {
             }}
           >
             <Typography variant='body1' sx={{ fontWeight: 600 }}>
-              913,051
+              78,386
             </Typography>
           </Box>
         </Box>
