@@ -138,6 +138,18 @@ export type SellingOrder = {
 }
 
 interface CreateModalProps {
+  columns: MRT_ColumnDef<InventoryItem>[]
+  onClose: () => void
+  onSubmit: (values: InventoryItem) => void
+  purchaseId: string
+  open: boolean
+  roomData: Room[]
+  ratingData: Rating[]
+  session: ExtendedSession
+  mpnToAdd: string
+}
+
+interface AddModalProps {
   columns: MRT_ColumnDef<InventoryPayload>[]
   onClose: () => void
   onSubmit: (values: InventoryPayload) => void
@@ -155,6 +167,56 @@ interface DeleteModalProps {
   open: boolean
   data: any
 }
+
+export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit }: CreateModalProps) => {
+  const [values, setValues] = useState<any>(() =>
+    columns.reduce((acc, column) => {
+      acc[column.accessorKey ?? ''] = ''
+
+      return acc
+    }, {} as any)
+  )
+
+  const handleSubmit = () => {
+    //put your validation logic here
+    onSubmit(values)
+    onClose()
+  }
+
+  return (
+    <Dialog open={open}>
+      <DialogTitle textAlign='center'>Add Droship Item</DialogTitle>
+      <DialogContent>
+        <form onSubmit={e => e.preventDefault()}>
+          <Stack
+            sx={{
+              width: '100%',
+              minWidth: { xs: '300px', sm: '360px', md: '400px' },
+              gap: '1.5rem',
+              paddingTop: 3
+            }}
+          >
+            {columns.map(column => (
+              <TextField
+                key={column.accessorKey}
+                label={column.header}
+                name={column.accessorKey}
+                onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
+              />
+            ))}
+          </Stack>
+        </form>
+      </DialogContent>
+      <DialogActions sx={{ p: '1.25rem' }}>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button color='primary' onClick={handleSubmit} variant='contained'>
+          Create
+        </Button>
+      </DialogActions>
+    </Dialog>
+  )
+}
+
 export const AddItemModal = ({
   open,
   columns,
@@ -164,7 +226,7 @@ export const AddItemModal = ({
   roomData,
   session,
   mpnToAdd
-}: CreateModalProps) => {
+}: AddModalProps) => {
   const [values, setValues] = useState<any>()
   const handleChange = (event: SelectChangeEvent) => {
     setValues(event.target.value as string)
@@ -315,6 +377,7 @@ const SalesDetail = (props: any) => {
   const [isFetching, setIsFetching] = useState(false)
 
   const [ratingData, setRatingData] = useState<Rating[]>([])
+  const [addModalOpen, setAddModalOpen] = useState(false)
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null)
 
@@ -404,7 +467,7 @@ const SalesDetail = (props: any) => {
                 setItemToEdit(row.original.salesitem_pk)
                 setMpnToAdd(row.original.sku.mpn)
                 console.log(row.original.sku.mpn)
-                setCreateModalOpen(true)
+                setAddModalOpen(true)
               }}
             />
           ) : (
@@ -413,6 +476,12 @@ const SalesDetail = (props: any) => {
                 fontSize: 10
               }}
               label='Not in Inventory'
+              onClick={() => {
+                setItemToEdit(row.original.salesitem_pk)
+                setMpnToAdd('')
+                console.log(row.original.sku.mpn)
+                setCreateModalOpen(true)
+              }}
             />
           )
       },
@@ -657,6 +726,21 @@ const SalesDetail = (props: any) => {
         }
       })
   }
+  const handleCreateNewRow = (values: InventoryItem) => {
+    console.log(values)
+    fetch(`https://cheapr.my.id/inventory_items/`, {
+      method: 'POST',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify(values)
+    })
+      .then(response => response.json())
+      .then(json => {
+        console.log(json)
+      })
+  }
   const columnsItem = useMemo<MRT_ColumnDef<InventoryItem>[]>(
     () => [
       {
@@ -706,6 +790,34 @@ const SalesDetail = (props: any) => {
       }
     ],
     []
+  )
+  const columnsDropshipItem = useMemo<MRT_ColumnDef<InventoryItem>[]>(
+    () => [
+      {
+        accessorKey: 'seller',
+        header: 'Seller'
+      },
+      {
+        accessorKey: 'serial',
+        header: 'Serial'
+      },
+      {
+        accessorKey: 'total_cost',
+        header: 'Price',
+        size: 100
+      },
+      {
+        accessorKey: 'shipping_cost',
+        header: 'Shipping',
+        size: 100
+      },
+      {
+        accessorKey: 'comment',
+        header: 'Comment',
+        size: 200
+      }
+    ],
+    [roomData, ratingData]
   )
 
   return (
@@ -766,9 +878,20 @@ const SalesDetail = (props: any) => {
         </Card>
         <AddItemModal
           columns={columnsAddItem}
+          open={addModalOpen}
+          onClose={() => setAddModalOpen(false)}
+          onSubmit={handleAddItem}
+          purchaseId={pk}
+          roomData={roomData}
+          ratingData={ratingData}
+          session={session}
+          mpnToAdd={mpnToAdd}
+        />
+        <CreateNewAccountModal
+          columns={columnsDropshipItem}
           open={createModalOpen}
           onClose={() => setCreateModalOpen(false)}
-          onSubmit={handleAddItem}
+          onSubmit={handleCreateNewRow}
           purchaseId={pk}
           roomData={roomData}
           ratingData={ratingData}

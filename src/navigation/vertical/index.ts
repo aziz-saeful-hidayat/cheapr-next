@@ -66,6 +66,11 @@ const navigation = (): VerticalNavItemsType => {
       path: '/sales'
     },
     {
+      title: 'Dropship Seller',
+      icon: Table as unknown as ReactNode,
+      path: '/dropship-seller'
+    },
+    {
       title: 'Return',
       icon: Table as unknown as ReactNode,
       path: '/return'
