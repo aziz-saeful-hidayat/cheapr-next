@@ -113,7 +113,10 @@ type ItemOption = {
   total_cost: string
   shipping_cost: string
 }
-
+type DropshipItemOption = {
+  pk: number
+  name: string
+}
 export type SellingOrder = {
   pk: number
   order_id: string
@@ -176,7 +179,9 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit }: Crea
       return acc
     }, {} as any)
   )
-
+  const [isopen, setOpen] = useState(false)
+  const [options, setOptions] = useState<readonly DropshipItemOption[]>([])
+  const loading = open && options.length === 0
   const handleSubmit = () => {
     //put your validation logic here
     onSubmit(values)
@@ -196,14 +201,68 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit }: Crea
               paddingTop: 3
             }}
           >
-            {columns.map(column => (
-              <TextField
-                key={column.accessorKey}
-                label={column.header}
-                name={column.accessorKey}
-                onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
-              />
-            ))}
+            {columns.map(column =>
+              column.accessorKey === 'seller' ? (
+                <Autocomplete
+                  key={column.accessorKey}
+                  id='asynchronous-demo'
+                  open={isopen}
+                  onOpen={() => {
+                    setOpen(true)
+                  }}
+                  onClose={() => {
+                    setOpen(false)
+                  }}
+                  onChange={(event, newValue) => {
+                    if (newValue) {
+                      setValues({
+                        ...values,
+                        seller: newValue?.pk
+                      })
+                    }
+                  }}
+                  filterOptions={x => x}
+                  isOptionEqualToValue={(option, value) => option.name === value.name}
+                  getOptionLabel={option => `${option.name}`}
+                  options={options}
+                  loading={loading}
+                  renderInput={params => (
+                    <TextField
+                      {...params}
+                      onChange={e =>
+                        fetch(`https://cheapr.my.id/dropship_seller/?name=${e.target.value}`, {
+                          // note we are going to /1
+                          headers: {
+                            'Content-Type': 'application/json'
+                          }
+                        })
+                          .then(response => response.json())
+                          .then(json => {
+                            setOptions(json.results)
+                          })
+                      }
+                      label='Seller'
+                      InputProps={{
+                        ...params.InputProps,
+                        endAdornment: (
+                          <React.Fragment>
+                            {loading ? <CircularProgress color='inherit' size={20} /> : null}
+                            {params.InputProps.endAdornment}
+                          </React.Fragment>
+                        )
+                      }}
+                    />
+                  )}
+                />
+              ) : (
+                <TextField
+                  key={column.accessorKey}
+                  label={column.header}
+                  name={column.accessorKey}
+                  onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
+                />
+              )
+            )}
           </Stack>
         </form>
       </DialogContent>
@@ -429,7 +488,11 @@ const SalesDetail = (props: any) => {
         header: 'Serial',
         maxSize: 100,
         Cell: ({ renderedCellValue, row }) =>
-          row.original.serial ? (
+          row.original.dropship ? (
+            'Dropship'
+          ) : !row.original.item_null ? (
+            ''
+          ) : row.original.serial ? (
             <div>
               <Box
                 sx={{
@@ -475,7 +538,7 @@ const SalesDetail = (props: any) => {
               sx={{
                 fontSize: 10
               }}
-              label='Not in Inventory'
+              label='Use Dropship'
               onClick={() => {
                 setItemToEdit(row.original.salesitem_pk)
                 setMpnToAdd('')
@@ -612,7 +675,13 @@ const SalesDetail = (props: any) => {
         json?.salesitems &&
           setTableData(
             json?.salesitems.map((item: any) => {
-              return { ...item.item, salesitem_pk: item.pk, sku: item.sku, inventory: item.inventory }
+              return {
+                ...item.item,
+                salesitem_pk: item.pk,
+                sku: item.sku,
+                inventory: item.inventory,
+                item_null: item.item == null
+              }
             })
           )
         console.log(tableData)
@@ -647,7 +716,7 @@ const SalesDetail = (props: any) => {
       })
   }
   const handleDeleteRow = (row: MRT_Row<InventoryItem>) => {
-    if (!confirm(`Are you sure you want to delete Item #${row.index + 1} ${row.original.product.sku}`)) {
+    if (!confirm(`Are you sure you want to delete Item #${row.index + 1} ${row.original.product?.sku}`)) {
       return
     }
     setIsFetching(true)
@@ -739,6 +808,25 @@ const SalesDetail = (props: any) => {
       .then(response => response.json())
       .then(json => {
         console.log(json)
+      })
+  }
+  const handleUseDropship = (values: InventoryItem) => {
+    const newValues = { ...values, sales: itemToEdit }
+    console.log(newValues)
+    fetch(`https://cheapr.my.id/use_dropship`, {
+      method: 'POST',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify(newValues)
+    })
+      .then(response => response.json())
+      .then(json => {
+        console.log(json)
+        if (json.pk) {
+          setRefresh(refresh + 1)
+        }
       })
   }
   const columnsItem = useMemo<MRT_ColumnDef<InventoryItem>[]>(
@@ -891,7 +979,7 @@ const SalesDetail = (props: any) => {
           columns={columnsDropshipItem}
           open={createModalOpen}
           onClose={() => setCreateModalOpen(false)}
-          onSubmit={handleCreateNewRow}
+          onSubmit={handleUseDropship}
           purchaseId={pk}
           roomData={roomData}
           ratingData={ratingData}
