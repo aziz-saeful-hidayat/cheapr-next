@@ -34,6 +34,10 @@ import { formatterUSD } from 'src/constants/Utils'
 import CardOrder from 'src/views/cards/CardOrder'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import CardSales from 'src/views/cards/CardSales'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+import dayjs from 'dayjs'
 
 type InventoryItem = {
   [key: string]: any
@@ -65,6 +69,11 @@ type Room = {
   pk: number
   name: string
   room_id: string
+}
+type Channel = {
+  pk: number
+  name: string
+  image: string
 }
 type Rating = {
   pk: number
@@ -146,8 +155,7 @@ interface CreateModalProps {
   onSubmit: (values: InventoryItem) => void
   purchaseId: string
   open: boolean
-  roomData: Room[]
-  ratingData: Rating[]
+  channelData: Channel[]
   session: ExtendedSession
   mpnToAdd: string
 }
@@ -171,7 +179,7 @@ interface DeleteModalProps {
   data: any
 }
 
-export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit }: CreateModalProps) => {
+export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channelData }: CreateModalProps) => {
   const [values, setValues] = useState<any>(() =>
     columns.reduce((acc, column) => {
       acc[column.accessorKey ?? ''] = ''
@@ -202,7 +210,25 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit }: Crea
             }}
           >
             {columns.map(column =>
-              column.accessorKey === 'seller' ? (
+              column.accessorKey === 'order_date' ? (
+                <LocalizationProvider dateAdapter={AdapterDayjs} key={'order_date'}>
+                  <DatePicker
+                    onChange={value => setValues({ ...values, order_date: value ? value.format('YYYY-MM-DD') : null })}
+                    label={column.header}
+                    value={dayjs(values.order_date)}
+                  />
+                </LocalizationProvider>
+              ) : column.accessorKey === 'return_up_to_date' ? (
+                <LocalizationProvider dateAdapter={AdapterDayjs} key={'return_up_to_date'}>
+                  <DatePicker
+                    onChange={value =>
+                      setValues({ ...values, return_up_to_date: value ? value.format('YYYY-MM-DD') : null })
+                    }
+                    label={column.header}
+                    value={dayjs(values.return_up_to_date)}
+                  />
+                </LocalizationProvider>
+              ) : column.accessorKey === 'seller' ? (
                 <Autocomplete
                   key={column.accessorKey}
                   id='asynchronous-demo'
@@ -254,12 +280,54 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit }: Crea
                     />
                   )}
                 />
+              ) : column.accessorKey === 'channel' ? (
+                <TextField
+                  value={values.channel}
+                  key={'channel.name'}
+                  name={'Channel'}
+                  label='Channel'
+                  select
+                  onChange={e => setValues({ ...values, channel: e.target.value })}
+                >
+                  {channelData?.map(channel => (
+                    <MenuItem
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '1rem'
+                      }}
+                      key={channel.pk}
+                      value={channel.pk}
+                    >
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.5rem'
+                        }}
+                      >
+                        <img
+                          alt='avatar'
+                          height={25}
+                          src={channel.image}
+                          loading='lazy'
+                          style={{ borderRadius: '50%' }}
+                        />
+                        {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
+                        <span>{channel.name}</span>
+                      </Box>
+                    </MenuItem>
+                  ))}
+                </TextField>
               ) : (
                 <TextField
                   key={column.accessorKey}
                   label={column.header}
                   name={column.accessorKey}
                   onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
+                  type={
+                    column.accessorKey === 'total_cost' || column.accessorKey === 'shipping_cost' ? 'number' : 'text'
+                  }
                 />
               )
             )}
@@ -436,6 +504,7 @@ const SalesDetail = (props: any) => {
   const [isFetching, setIsFetching] = useState(false)
 
   const [ratingData, setRatingData] = useState<Rating[]>([])
+  const [channelData, setChannelData] = useState<Channel[]>([])
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null)
@@ -503,7 +572,6 @@ const SalesDetail = (props: any) => {
                 onClick={() => {
                   setItemToEdit(row.original.salesitem_pk)
                   setMpnToAdd(row.original.sku.mpn)
-                  console.log(row.original.sku.mpn)
                   setCreateModalOpen(true)
                 }}
               >
@@ -529,7 +597,6 @@ const SalesDetail = (props: any) => {
               onClick={() => {
                 setItemToEdit(row.original.salesitem_pk)
                 setMpnToAdd(row.original.sku.mpn)
-                console.log(row.original.sku.mpn)
                 setAddModalOpen(true)
               }}
             />
@@ -656,6 +723,18 @@ const SalesDetail = (props: any) => {
       .then(json => {
         setRatingData(json.results)
       })
+    const fetchChannelURL = new URL('/channel/', 'https://cheapr.my.id')
+    fetch(fetchChannelURL.href, {
+      method: 'get',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      })
+    })
+      .then(response => response.json())
+      .then(json => {
+        setChannelData(json.results)
+      })
   }, [session])
   useEffect(() => {
     if (!modalOpen) {
@@ -778,6 +857,7 @@ const SalesDetail = (props: any) => {
     const newValues = { item: values.item }
     console.log(newValues)
     console.log(`https://cheapr.my.id/sales_items/${itemToEdit}`)
+    setIsFetching(true)
     fetch(`https://cheapr.my.id/sales_items/${itemToEdit}`, {
       // note we are going to /1
       method: 'PATCH',
@@ -791,8 +871,10 @@ const SalesDetail = (props: any) => {
       .then(json => {
         console.log(json)
         if (json.pk) {
-          setRefresh(refresh + 1)
         }
+      })
+      .finally(() => {
+        setRefresh(refresh + 1)
       })
   }
   const handleCreateNewRow = (values: InventoryItem) => {
@@ -811,8 +893,9 @@ const SalesDetail = (props: any) => {
       })
   }
   const handleUseDropship = (values: InventoryItem) => {
-    const newValues = { ...values, sales: itemToEdit }
+    const newValues = { ...values, sales: itemToEdit, mpn: mpnToAdd }
     console.log(newValues)
+    setIsFetching(true)
     fetch(`https://cheapr.my.id/use_dropship`, {
       method: 'POST',
       headers: new Headers({
@@ -825,8 +908,10 @@ const SalesDetail = (props: any) => {
       .then(json => {
         console.log(json)
         if (json.pk) {
-          setRefresh(refresh + 1)
         }
+      })
+      .finally(() => {
+        setRefresh(refresh + 1)
       })
   }
   const columnsItem = useMemo<MRT_ColumnDef<InventoryItem>[]>(
@@ -884,6 +969,22 @@ const SalesDetail = (props: any) => {
       {
         accessorKey: 'seller',
         header: 'Seller'
+      },
+      {
+        accessorKey: 'channel',
+        header: 'Channel'
+      },
+      {
+        accessorKey: 'order_date',
+        header: 'Order Date'
+      },
+      {
+        accessorKey: 'return_up_to_date',
+        header: 'Return Up To Date'
+      },
+      {
+        accessorKey: 'tracking_number',
+        header: 'Tracking Number'
       },
       {
         accessorKey: 'serial',
@@ -981,8 +1082,7 @@ const SalesDetail = (props: any) => {
           onClose={() => setCreateModalOpen(false)}
           onSubmit={handleUseDropship}
           purchaseId={pk}
-          roomData={roomData}
-          ratingData={ratingData}
+          channelData={channelData}
           session={session}
           mpnToAdd={mpnToAdd}
         />
