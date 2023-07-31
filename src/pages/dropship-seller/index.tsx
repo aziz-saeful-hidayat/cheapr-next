@@ -92,71 +92,14 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit }: Crea
               paddingTop: 3
             }}
           >
-            {columns.map(column =>
-              column.accessorKey === 'name' ? (
-                <Autocomplete
-                  key={column.accessorKey}
-                  id='asynchronous-demo'
-                  open={isopen}
-                  onOpen={() => {
-                    setOpen(true)
-                  }}
-                  onClose={() => {
-                    setOpen(false)
-                  }}
-                  onChange={(event, newValue) => {
-                    if (newValue) {
-                      setValues({
-                        ...values,
-                        name: newValue?.pk
-                      })
-                    }
-                  }}
-                  filterOptions={x => x}
-                  isOptionEqualToValue={(option, value) => option.seller === value.seller}
-                  getOptionLabel={option => `SKU: ${option.seller}`}
-                  options={options}
-                  loading={loading}
-                  renderInput={params => (
-                    <TextField
-                      {...params}
-                      onChange={e =>
-                        fetch(
-                          `https://cheapr.my.id/inventory_items/?inventory=true&product=${e.target.value}&ordering=serial`,
-                          {
-                            // note we are going to /1
-                            headers: {
-                              'Content-Type': 'application/json'
-                            }
-                          }
-                        )
-                          .then(response => response.json())
-                          .then(json => {
-                            setOptions(json.results)
-                          })
-                      }
-                      label='SKU'
-                      InputProps={{
-                        ...params.InputProps,
-                        endAdornment: (
-                          <React.Fragment>
-                            {loading ? <CircularProgress color='inherit' size={20} /> : null}
-                            {params.InputProps.endAdornment}
-                          </React.Fragment>
-                        )
-                      }}
-                    />
-                  )}
-                />
-              ) : (
-                <TextField
-                  key={column.accessorKey}
-                  label={column.header}
-                  name={column.accessorKey}
-                  onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
-                />
-              )
-            )}
+            {columns.map(column => (
+              <TextField
+                key={column.accessorKey}
+                label={column.header}
+                name={column.accessorKey}
+                onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
+              />
+            ))}
           </Stack>
         </form>
       </DialogContent>
@@ -285,7 +228,9 @@ const Example = (props: any) => {
           if (status == 204) {
             const newData = [...tableData]
             newData.splice(row.index, 1)
-            setTableData([...newData])
+            console.log(newData)
+
+            // setTableData([...newData])
           }
         })
     },

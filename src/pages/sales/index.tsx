@@ -176,7 +176,7 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channe
               <DatePicker
                 onChange={value => setValues({ ...values, order_date: value ? value.format('YYYY-MM-DD') : null })}
                 label={'Order Date'}
-                value={dayjs(values.order_date)}
+                value={values.order_date != '' ? dayjs(values.order_date) : null}
               />
             </LocalizationProvider>
             <TextField

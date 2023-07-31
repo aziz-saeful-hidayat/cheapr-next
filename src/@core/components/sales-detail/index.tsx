@@ -27,7 +27,7 @@ import {
 } from '@mui/material'
 import Card from '@mui/material/Card'
 import Popover from '@mui/material/Popover'
-import { Delete, ContentCopy } from '@mui/icons-material'
+import { Delete, ContentCopy, Add } from '@mui/icons-material'
 import { useRouter } from 'next/router'
 import { ExtendedSession } from 'src/pages/api/auth/[...nextauth]'
 import { formatterUSD } from 'src/constants/Utils'
@@ -189,7 +189,7 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channe
   )
   const [isopen, setOpen] = useState(false)
   const [options, setOptions] = useState<readonly DropshipItemOption[]>([])
-  const loading = open && options.length === 0
+  const [loading, setLoading] = useState(false)
   const handleSubmit = () => {
     //put your validation logic here
     onSubmit(values)
@@ -215,7 +215,7 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channe
                   <DatePicker
                     onChange={value => setValues({ ...values, order_date: value ? value.format('YYYY-MM-DD') : null })}
                     label={column.header}
-                    value={dayjs(values.order_date)}
+                    value={values.order_date != '' ? dayjs(values.order_date) : null}
                   />
                 </LocalizationProvider>
               ) : column.accessorKey === 'return_up_to_date' ? (
@@ -225,7 +225,7 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channe
                       setValues({ ...values, return_up_to_date: value ? value.format('YYYY-MM-DD') : null })
                     }
                     label={column.header}
-                    value={dayjs(values.return_up_to_date)}
+                    value={values.return_up_to_date != '' ? dayjs(values.return_up_to_date) : null}
                   />
                 </LocalizationProvider>
               ) : column.accessorKey === 'seller' ? (
@@ -255,7 +255,8 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channe
                   renderInput={params => (
                     <TextField
                       {...params}
-                      onChange={e =>
+                      onChange={e => {
+                        setLoading(true)
                         fetch(`https://cheapr.my.id/dropship_seller/?name=${e.target.value}`, {
                           // note we are going to /1
                           headers: {
@@ -266,15 +267,18 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channe
                           .then(json => {
                             setOptions(json.results)
                           })
-                      }
+                          .finally(() => {
+                            setLoading(false)
+                          })
+                      }}
                       label='Seller'
                       InputProps={{
                         ...params.InputProps,
                         endAdornment: (
-                          <React.Fragment>
-                            {loading ? <CircularProgress color='inherit' size={20} /> : null}
+                          <>
                             {params.InputProps.endAdornment}
-                          </React.Fragment>
+                            {loading ? <CircularProgress color='inherit' size={20} /> : <Add />}
+                          </>
                         )
                       }}
                     />
@@ -985,10 +989,6 @@ const SalesDetail = (props: any) => {
       {
         accessorKey: 'tracking_number',
         header: 'Tracking Number'
-      },
-      {
-        accessorKey: 'serial',
-        header: 'Serial'
       },
       {
         accessorKey: 'total_cost',
