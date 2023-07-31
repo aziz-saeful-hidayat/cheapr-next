@@ -158,6 +158,7 @@ interface CreateModalProps {
   channelData: Channel[]
   session: ExtendedSession
   mpnToAdd: string
+  setCreateSellerModalOpen: (arg0: boolean) => void
 }
 
 interface AddModalProps {
@@ -178,8 +179,76 @@ interface DeleteModalProps {
   open: boolean
   data: any
 }
+type Seller = {
+  pk: number
+  name: string
+}
+interface CreateSellerProps {
+  columns: MRT_ColumnDef<Seller>[]
+  onClose: () => void
+  onSubmit: (values: Seller) => void
+  open: boolean
+}
 
-export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channelData }: CreateModalProps) => {
+export const CreateNewSellerModal = ({ open, columns, onClose, onSubmit }: CreateSellerProps) => {
+  const [values, setValues] = useState<any>(() =>
+    columns.reduce((acc, column) => {
+      acc[column.accessorKey ?? ''] = ''
+
+      return acc
+    }, {} as any)
+  )
+  const [isopen, setOpen] = useState(false)
+  const [options, setOptions] = useState<readonly ItemOption[]>([])
+  const loading = open && options.length === 0
+  const handleSubmit = () => {
+    //put your validation logic here
+    onSubmit(values)
+    onClose()
+  }
+
+  return (
+    <Dialog open={open}>
+      <DialogTitle textAlign='center'>Create New Seller</DialogTitle>
+      <DialogContent>
+        <form onSubmit={e => e.preventDefault()}>
+          <Stack
+            sx={{
+              width: '100%',
+              minWidth: { xs: '300px', sm: '360px', md: '400px' },
+              gap: '1.5rem',
+              paddingTop: 3
+            }}
+          >
+            {columns.map(column => (
+              <TextField
+                key={column.accessorKey}
+                label={column.header}
+                name={column.accessorKey}
+                onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
+              />
+            ))}
+          </Stack>
+        </form>
+      </DialogContent>
+      <DialogActions sx={{ p: '1.25rem' }}>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button color='primary' onClick={handleSubmit} variant='contained'>
+          Create
+        </Button>
+      </DialogActions>
+    </Dialog>
+  )
+}
+
+export const CreateNewAccountModal = ({
+  open,
+  columns,
+  onClose,
+  onSubmit,
+  channelData,
+  setCreateSellerModalOpen
+}: CreateModalProps) => {
   const [values, setValues] = useState<any>(() =>
     columns.reduce((acc, column) => {
       acc[column.accessorKey ?? ''] = ''
@@ -277,7 +346,11 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channe
                         endAdornment: (
                           <>
                             {params.InputProps.endAdornment}
-                            {loading ? <CircularProgress color='inherit' size={20} /> : <Add />}
+                            {loading ? (
+                              <CircularProgress color='inherit' size={20} />
+                            ) : (
+                              <Add onClick={() => setCreateSellerModalOpen(true)} />
+                            )}
                           </>
                         )
                       }}
@@ -511,6 +584,8 @@ const SalesDetail = (props: any) => {
   const [channelData, setChannelData] = useState<Channel[]>([])
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [createModalOpen, setCreateModalOpen] = useState(false)
+  const [createSellerModalOpen, setCreateSellerModalOpen] = useState(false)
+
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null)
 
   const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -896,6 +971,23 @@ const SalesDetail = (props: any) => {
         console.log(json)
       })
   }
+  const handleCreateSeller = (values: Seller) => {
+    console.log(values)
+    fetch(`https://cheapr.my.id/dropship_seller/`, {
+      method: 'POST',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify(values)
+    })
+      .then(response => response.json())
+      .then(json => {
+        console.log(json)
+        if (json.pk) {
+        }
+      })
+  }
   const handleUseDropship = (values: InventoryItem) => {
     const newValues = { ...values, sales: itemToEdit, mpn: mpnToAdd }
     console.log(newValues)
@@ -1008,7 +1100,15 @@ const SalesDetail = (props: any) => {
     ],
     [roomData, ratingData]
   )
-
+  const columnsNewSeller = useMemo<MRT_ColumnDef<Seller>[]>(
+    () => [
+      {
+        accessorKey: 'name',
+        header: 'Name'
+      }
+    ],
+    []
+  )
   return (
     <Modal
       open={modalOpen}
@@ -1085,6 +1185,13 @@ const SalesDetail = (props: any) => {
           channelData={channelData}
           session={session}
           mpnToAdd={mpnToAdd}
+          setCreateSellerModalOpen={setCreateSellerModalOpen}
+        />
+        <CreateNewSellerModal
+          columns={columnsNewSeller}
+          open={createSellerModalOpen}
+          onClose={() => setCreateSellerModalOpen(false)}
+          onSubmit={handleCreateSeller}
         />
         <Popover
           id='mouse-over-popover'
