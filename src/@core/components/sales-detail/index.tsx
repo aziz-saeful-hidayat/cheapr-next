@@ -27,7 +27,7 @@ import {
 } from '@mui/material'
 import Card from '@mui/material/Card'
 import Popover from '@mui/material/Popover'
-import { Delete, ContentCopy, Add } from '@mui/icons-material'
+import { Delete, ContentCopy, Add, DisabledByDefault } from '@mui/icons-material'
 import { useRouter } from 'next/router'
 import { ExtendedSession } from 'src/pages/api/auth/[...nextauth]'
 import { formatterUSD } from 'src/constants/Utils'
@@ -38,6 +38,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import dayjs from 'dayjs'
+import { Cross } from 'mdi-material-ui'
 
 type InventoryItem = {
   [key: string]: any
@@ -158,6 +159,18 @@ interface CreateModalProps {
   channelData: Channel[]
   session: ExtendedSession
   mpnToAdd: string
+  setCreateSKUModalOpen: (arg0: boolean) => void
+}
+
+interface DropshipModalProps {
+  columns: MRT_ColumnDef<InventoryItem>[]
+  onClose: () => void
+  onSubmit: (values: InventoryItem) => void
+  purchaseId: string
+  open: boolean
+  channelData: Channel[]
+  session: ExtendedSession
+  mpnToAdd: string
   setCreateSellerModalOpen: (arg0: boolean) => void
 }
 
@@ -187,6 +200,13 @@ interface CreateSellerProps {
   columns: MRT_ColumnDef<Seller>[]
   onClose: () => void
   onSubmit: (values: Seller) => void
+  open: boolean
+}
+
+interface CreateSKUProps {
+  columns: MRT_ColumnDef<CAProduct>[]
+  onClose: () => void
+  onSubmit: (values: CAProduct) => void
   open: boolean
 }
 
@@ -241,14 +261,185 @@ export const CreateNewSellerModal = ({ open, columns, onClose, onSubmit }: Creat
   )
 }
 
-export const CreateNewAccountModal = ({
+export const CreateNewSKUModal = ({ open, columns, onClose, onSubmit }: CreateSKUProps) => {
+  const [values, setValues] = useState<any>(() =>
+    columns.reduce((acc, column) => {
+      acc[column.accessorKey ?? ''] = ''
+
+      return acc
+    }, {} as any)
+  )
+  const handleSubmit = () => {
+    //put your validation logic here
+    onSubmit(values)
+    onClose()
+  }
+
+  return (
+    <Dialog open={open}>
+      <DialogTitle textAlign='center'>Create New SKU</DialogTitle>
+      <DialogContent>
+        <form onSubmit={e => e.preventDefault()}>
+          <Stack
+            sx={{
+              width: '100%',
+              minWidth: { xs: '300px', sm: '360px', md: '400px' },
+              gap: '1.5rem',
+              paddingTop: 3
+            }}
+          >
+            {columns.map(column => (
+              <TextField
+                key={column.accessorKey}
+                label={column.header}
+                name={column.accessorKey}
+                onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
+              />
+            ))}
+          </Stack>
+        </form>
+      </DialogContent>
+      <DialogActions sx={{ p: '1.25rem' }}>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button color='primary' onClick={handleSubmit} variant='contained'>
+          Create
+        </Button>
+      </DialogActions>
+    </Dialog>
+  )
+}
+
+export const CreateItemModal = ({
+  open,
+  columns,
+  onClose,
+  onSubmit,
+  channelData,
+  setCreateSKUModalOpen
+}: CreateModalProps) => {
+  const [values, setValues] = useState<any>(() =>
+    columns.reduce((acc, column) => {
+      acc[column.accessorKey ?? ''] = ''
+
+      return acc
+    }, {} as any)
+  )
+  const [isopen, setOpen] = useState(false)
+  const [options, setOptions] = useState<readonly CAProduct[]>([])
+  const [loading, setLoading] = useState(false)
+  const handleSubmit = () => {
+    //put your validation logic here
+    onSubmit(values)
+    onClose()
+  }
+
+  return (
+    <Dialog open={open}>
+      <DialogTitle textAlign='center'>Pick SKU</DialogTitle>
+      <DialogContent>
+        <form onSubmit={e => e.preventDefault()}>
+          <Stack
+            sx={{
+              width: '100%',
+              minWidth: { xs: '300px', sm: '360px', md: '400px' },
+              gap: '1.5rem',
+              paddingTop: 3
+            }}
+          >
+            {columns.map(column =>
+              column.accessorKey === 'product' ? (
+                <Autocomplete
+                  key={column.accessorKey}
+                  id='asynchronous-demo'
+                  open={isopen}
+                  onOpen={() => {
+                    setOpen(true)
+                  }}
+                  onClose={() => {
+                    setOpen(false)
+                  }}
+                  onChange={(event, newValue) => {
+                    if (newValue) {
+                      setValues({
+                        ...values,
+                        sku: newValue?.pk
+                      })
+                    }
+                  }}
+                  filterOptions={x => x}
+                  isOptionEqualToValue={(option, value) => option.sku === value.sku}
+                  getOptionLabel={option => `${option.sku}`}
+                  options={options}
+                  loading={loading}
+                  renderInput={params => (
+                    <TextField
+                      {...params}
+                      onChange={e => {
+                        setLoading(true)
+                        fetch(`https://cheapr.my.id/caproduct/?sku=${e.target.value}`, {
+                          // note we are going to /1
+                          headers: {
+                            'Content-Type': 'application/json'
+                          }
+                        })
+                          .then(response => response.json())
+                          .then(json => {
+                            setOptions(json.results)
+                          })
+                          .finally(() => {
+                            setLoading(false)
+                          })
+                      }}
+                      label='SKU'
+                      InputProps={{
+                        ...params.InputProps,
+                        endAdornment: (
+                          <>
+                            {params.InputProps.endAdornment}
+                            {loading ? (
+                              <CircularProgress color='inherit' size={20} />
+                            ) : (
+                              <Add onClick={() => setCreateSKUModalOpen(true)} />
+                            )}
+                          </>
+                        )
+                      }}
+                    />
+                  )}
+                />
+              ) : (
+                <TextField
+                  key={column.accessorKey}
+                  label={column.header}
+                  name={column.accessorKey}
+                  onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
+                  type={
+                    column.accessorKey === 'total_cost' || column.accessorKey === 'shipping_cost' ? 'number' : 'text'
+                  }
+                />
+              )
+            )}
+          </Stack>
+        </form>
+      </DialogContent>
+      <DialogActions sx={{ p: '1.25rem' }}>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button color='primary' onClick={handleSubmit} variant='contained'>
+          Create
+        </Button>
+      </DialogActions>
+    </Dialog>
+  )
+}
+
+export const CreateDropshipModal = ({
   open,
   columns,
   onClose,
   onSubmit,
   channelData,
   setCreateSellerModalOpen
-}: CreateModalProps) => {
+}: DropshipModalProps) => {
   const [values, setValues] = useState<any>(() =>
     columns.reduce((acc, column) => {
       acc[column.accessorKey ?? ''] = ''
@@ -584,7 +775,9 @@ const SalesDetail = (props: any) => {
   const [channelData, setChannelData] = useState<Channel[]>([])
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [createModalOpen, setCreateModalOpen] = useState(false)
+  const [dropshipModalOpen, setDropshipModalOpen] = useState(false)
   const [createSellerModalOpen, setCreateSellerModalOpen] = useState(false)
+  const [createSKUModalOpen, setCreateSKUModalOpen] = useState(false)
 
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null)
 
@@ -689,7 +882,7 @@ const SalesDetail = (props: any) => {
                 setItemToEdit(row.original.salesitem_pk)
                 setMpnToAdd('')
                 console.log(row.original.sku.mpn)
-                setCreateModalOpen(true)
+                setDropshipModalOpen(true)
               }}
             />
           )
@@ -874,7 +1067,30 @@ const SalesDetail = (props: any) => {
       })
   }
   const handleDeleteRow = (row: MRT_Row<InventoryItem>) => {
-    if (!confirm(`Are you sure you want to delete Item #${row.index + 1} ${row.original.product?.sku}`)) {
+    if (!confirm(`Are you sure you want to delete Item #${row.index + 1}`)) {
+      return
+    }
+    setIsFetching(true)
+    const newValues = { item: null }
+    console.log(tableData)
+    fetch(`https://cheapr.my.id/sales_items/${row.original.salesitem_pk}/`, {
+      // note we are going to /1
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(response => response.status)
+      .then(status => {
+        if (status == 204) {
+          setRefresh(refresh + 1)
+        }
+      })
+  }
+
+  const handleUnassignRow = (row: MRT_Row<InventoryItem>) => {
+    if (!confirm(`Are you sure you want to unassign Item #${row.index + 1}`)) {
       return
     }
     setIsFetching(true)
@@ -896,6 +1112,7 @@ const SalesDetail = (props: any) => {
         }
       })
   }
+
   const handleSaveCell = (cell: MRT_Cell<InventoryItem>, value: any) => {
     const key = cell.column.id
     const rowIdx = cell.row.index
@@ -958,17 +1175,19 @@ const SalesDetail = (props: any) => {
   }
   const handleCreateNewRow = (values: InventoryItem) => {
     console.log(values)
-    fetch(`https://cheapr.my.id/inventory_items/`, {
+    let new_values = { ...values, selling: pk }
+    fetch(`https://cheapr.my.id/sales_items/`, {
       method: 'POST',
       headers: new Headers({
         Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json'
       }),
-      body: JSON.stringify(values)
+      body: JSON.stringify(new_values)
     })
       .then(response => response.json())
       .then(json => {
         console.log(json)
+        setRefresh(refresh + 1)
       })
   }
   const handleCreateSeller = (values: Seller) => {
@@ -988,6 +1207,25 @@ const SalesDetail = (props: any) => {
         }
       })
   }
+
+  const handleCreateSKU = (values: CAProduct) => {
+    console.log(values)
+    fetch(`https://cheapr.my.id/caproduct/`, {
+      method: 'POST',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify(values)
+    })
+      .then(response => response.json())
+      .then(json => {
+        console.log(json)
+        if (json.pk) {
+        }
+      })
+  }
+
   const handleUseDropship = (values: InventoryItem) => {
     const newValues = { ...values, sales: itemToEdit, mpn: mpnToAdd }
     console.log(newValues)
@@ -1013,39 +1251,11 @@ const SalesDetail = (props: any) => {
   const columnsItem = useMemo<MRT_ColumnDef<InventoryItem>[]>(
     () => [
       {
-        accessorKey: 'product.sku',
+        accessorKey: 'product',
         header: 'SKU',
         size: 150,
         enableEditing: false
-      },
-      {
-        accessorKey: 'serial',
-        header: 'Serial',
-        size: 70
-      },
-
-      {
-        accessorKey: 'total_cost',
-        header: 'Total',
-        size: 70,
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        }
-      },
-      {
-        accessorKey: 'shipping_cost',
-        header: 'Shipping',
-        size: 70,
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        }
-      },
-      {
-        accessorKey: 'comment',
-        header: 'Comment',
-        size: 250
       }
-
       //end
     ],
     []
@@ -1109,6 +1319,31 @@ const SalesDetail = (props: any) => {
     ],
     []
   )
+  const columnsNewSKU = useMemo<MRT_ColumnDef<CAProduct>[]>(
+    () => [
+      {
+        accessorKey: 'sku',
+        header: 'SKU'
+      },
+      {
+        accessorKey: 'make',
+        header: 'Make'
+      },
+      {
+        accessorKey: 'model',
+        header: 'Model'
+      },
+      {
+        accessorKey: 'mpn',
+        header: 'MPN'
+      },
+      {
+        accessorKey: 'asin',
+        header: 'ASIN'
+      }
+    ],
+    []
+  )
   return (
     <Modal
       open={modalOpen}
@@ -1139,25 +1374,33 @@ const SalesDetail = (props: any) => {
             data={tableData}
             enableRowActions
             positionActionsColumn='last'
-            //   renderTopToolbarCustomActions={() => (
-            //     <>
-            //       {/* <Tooltip arrow title='Refresh Data'>
-            //   <IconButton onClick={() => refetch()}>
-            //     <RefreshIcon />
-            //   </IconButton>
-            // </Tooltip> */}
-            //       <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
-            //         Add Item
-            //       </Button>
-            //     </>
-            //   )}
+            renderTopToolbarCustomActions={() => (
+              <>
+                {/* <Tooltip arrow title='Refresh Data'>
+              <IconButton onClick={() => refetch()}>
+                <RefreshIcon />
+              </IconButton>
+            </Tooltip> */}
+                <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
+                  Add Item
+                </Button>
+              </>
+            )}
             renderRowActions={({ row, table }) => (
               <Box sx={{ display: 'flex' }}>
-                <Tooltip arrow placement='top' title='Delete'>
-                  <IconButton color='error' onClick={() => handleDeleteRow(row)}>
-                    <Delete />
-                  </IconButton>
-                </Tooltip>
+                {row.original.item_null ? (
+                  <Tooltip arrow placement='top' title='Delete'>
+                    <IconButton color='error' onClick={() => handleDeleteRow(row)}>
+                      <Delete />
+                    </IconButton>
+                  </Tooltip>
+                ) : (
+                  <Tooltip arrow placement='top' title='Unassign'>
+                    <IconButton color='secondary' onClick={() => handleUnassignRow(row)}>
+                      <DisabledByDefault />
+                    </IconButton>
+                  </Tooltip>
+                )}
               </Box>
             )}
             state={{
@@ -1176,10 +1419,21 @@ const SalesDetail = (props: any) => {
           session={session}
           mpnToAdd={mpnToAdd}
         />
-        <CreateNewAccountModal
-          columns={columnsDropshipItem}
+        <CreateItemModal
+          columns={columnsItem}
           open={createModalOpen}
           onClose={() => setCreateModalOpen(false)}
+          onSubmit={handleCreateNewRow}
+          purchaseId={pk}
+          channelData={channelData}
+          session={session}
+          mpnToAdd={mpnToAdd}
+          setCreateSKUModalOpen={setCreateSKUModalOpen}
+        />
+        <CreateDropshipModal
+          columns={columnsDropshipItem}
+          open={dropshipModalOpen}
+          onClose={() => setDropshipModalOpen(false)}
           onSubmit={handleUseDropship}
           purchaseId={pk}
           channelData={channelData}
@@ -1192,6 +1446,12 @@ const SalesDetail = (props: any) => {
           open={createSellerModalOpen}
           onClose={() => setCreateSellerModalOpen(false)}
           onSubmit={handleCreateSeller}
+        />
+        <CreateNewSKUModal
+          columns={columnsNewSKU}
+          open={createSKUModalOpen}
+          onClose={() => setCreateSKUModalOpen(false)}
+          onSubmit={handleCreateSKU}
         />
         <Popover
           id='mouse-over-popover'
