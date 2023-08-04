@@ -80,6 +80,9 @@ type SellingOrder = {
   total_cost: number
   shipping_cost: number
   ss_shipping_cost: number
+  purchase_cost: number
+  gross_sales: number
+  profit: number
   fulfillment: string
   comment: string
   status: string
@@ -716,10 +719,37 @@ const Example = (props: any) => {
         enableEditing: false
       },
       {
-        accessorFn: row => formatterUSD.format(row.shipping_cost),
+        accessorFn: row => formatterUSD.format(row.shipping_cost - row.ss_shipping_cost),
         id: 'shipping_cost',
         header: 'Shipping',
-        size: 150,
+        size: 100,
+        muiTableBodyCellEditTextFieldProps: {
+          type: 'number'
+        }
+      },
+      {
+        accessorFn: row => formatterUSD.format(row.gross_sales),
+        id: 'gross_sales',
+        header: 'Gross',
+        size: 100,
+        muiTableBodyCellEditTextFieldProps: {
+          type: 'number'
+        }
+      },
+      {
+        accessorFn: row => formatterUSD.format(row.purchase_cost),
+        id: 'purchase_cost',
+        header: 'Cost',
+        size: 100,
+        muiTableBodyCellEditTextFieldProps: {
+          type: 'number'
+        }
+      },
+      {
+        accessorFn: row => formatterUSD.format(row.profit),
+        id: 'profit',
+        header: 'Profit',
+        size: 100,
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
         }

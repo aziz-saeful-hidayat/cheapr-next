@@ -19,11 +19,12 @@ import {
   DialogContent,
   DialogTitle,
   IconButton,
+  Link,
   MenuItem,
   Modal,
   Stack,
   TextField,
-  Tooltip
+  Typography
 } from '@mui/material'
 import Card from '@mui/material/Card'
 import Popover from '@mui/material/Popover'
@@ -39,6 +40,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import dayjs from 'dayjs'
 import { Cross } from 'mdi-material-ui'
+import { styled } from '@mui/material/styles'
+import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip'
 
 type InventoryItem = {
   [key: string]: any
@@ -76,6 +79,16 @@ type Channel = {
   name: string
   image: string
 }
+
+type Carrier = {
+  pk: number
+  name: string
+  image: string
+  prefix: string
+  suffix: string
+  suffix2: string
+}
+
 type Rating = {
   pk: number
   name: string
@@ -169,6 +182,7 @@ interface DropshipModalProps {
   purchaseId: string
   open: boolean
   channelData: Channel[]
+  carrierData: Carrier[]
   session: ExtendedSession
   mpnToAdd: string
   setCreateSellerModalOpen: (arg0: boolean) => void
@@ -209,6 +223,17 @@ interface CreateSKUProps {
   onSubmit: (values: CAProduct) => void
   open: boolean
 }
+
+const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: '#f5f5f9',
+    color: 'rgba(0, 0, 0, 0.87)',
+    maxWidth: 400,
+    border: '1px solid #dadde9'
+  }
+}))
 
 export const CreateNewSellerModal = ({ open, columns, onClose, onSubmit }: CreateSellerProps) => {
   const [values, setValues] = useState<any>(() =>
@@ -438,6 +463,7 @@ export const CreateDropshipModal = ({
   onClose,
   onSubmit,
   channelData,
+  carrierData,
   setCreateSellerModalOpen
 }: DropshipModalProps) => {
   const [values, setValues] = useState<any>(() =>
@@ -583,6 +609,45 @@ export const CreateDropshipModal = ({
                         />
                         {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
                         <span>{channel.name}</span>
+                      </Box>
+                    </MenuItem>
+                  ))}
+                </TextField>
+              ) : column.accessorKey === 'carrier' ? (
+                <TextField
+                  value={values.carrier}
+                  key={'carrier.name'}
+                  name={'Carrier'}
+                  label='Carrier'
+                  select
+                  onChange={e => setValues({ ...values, carrier: e.target.value })}
+                >
+                  {carrierData?.map(carrier => (
+                    <MenuItem
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '1rem'
+                      }}
+                      key={carrier.pk}
+                      value={carrier.pk}
+                    >
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.5rem'
+                        }}
+                      >
+                        <img
+                          alt='avatar'
+                          height={25}
+                          src={carrier.image}
+                          loading='lazy'
+                          style={{ borderRadius: '50%' }}
+                        />
+                        {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
+                        <span>{carrier.name}</span>
                       </Box>
                     </MenuItem>
                   ))}
@@ -773,6 +838,7 @@ const SalesDetail = (props: any) => {
 
   const [ratingData, setRatingData] = useState<Rating[]>([])
   const [channelData, setChannelData] = useState<Channel[]>([])
+  const [carrierData, setCarrierData] = useState<Carrier[]>([])
   const [addModalOpen, setAddModalOpen] = useState(false)
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [dropshipModalOpen, setDropshipModalOpen] = useState(false)
@@ -830,7 +896,49 @@ const SalesDetail = (props: any) => {
         maxSize: 100,
         Cell: ({ renderedCellValue, row }) =>
           row.original.dropship ? (
-            'Dropship'
+            <HtmlTooltip
+              placement='top'
+              title={
+                <React.Fragment>
+                  <Typography color='inherit'>Seller: Seller 1</Typography>
+                  <Typography color='inherit'>
+                    Tracking: {`${row.original.tracking.fullcarrier.name} `}
+                    <Link
+                      target='_blank'
+                      rel='noreferrer'
+                      href={`${row.original.tracking.fullcarrier.prefix}${row.original.tracking.tracking_number}${row.original.tracking.fullcarrier.suffix}`}
+                      underline='hover'
+                    >
+                      {row.original.tracking.tracking_number}
+                    </Link>
+                  </Typography>
+                </React.Fragment>
+              }
+            >
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center'
+                }}
+              >
+                <Chip
+                  sx={{
+                    fontSize: 10
+                  }}
+                  label='Dropship Item'
+                />
+                <Box
+                  sx={theme => ({
+                    backgroundColor: theme.palette.success.dark,
+                    borderRadius: '0.5rem',
+                    color: '#fff',
+                    width: 12,
+                    height: 12,
+                    marginLeft: 5
+                  })}
+                ></Box>
+              </Box>
+            </HtmlTooltip>
           ) : !row.original.item_null ? (
             ''
           ) : row.original.serial ? (
@@ -888,63 +996,6 @@ const SalesDetail = (props: any) => {
           )
       },
       {
-        accessorKey: 'room.name',
-        header: 'Room',
-        size: 200,
-        muiTableBodyCellEditTextFieldProps: {
-          select: true, //change to select for a dropdown
-          children: roomData?.map(room => (
-            <MenuItem key={room.pk} value={room.name}>
-              {room.name}
-            </MenuItem>
-          ))
-        }
-      },
-      {
-        accessorKey: 'rating.name',
-        header: 'Rating',
-        maxSize: 70,
-        muiTableBodyCellEditTextFieldProps: {
-          select: true, //change to select for a dropdown
-          children: ratingData?.map(rating => (
-            <MenuItem key={rating.pk} value={rating.name}>
-              <Box
-                component='span'
-                sx={theme => ({
-                  backgroundColor: rating.color ?? theme.palette.success.dark,
-                  borderRadius: '0.25rem',
-                  color: '#fff',
-                  maxWidth: '9ch',
-                  p: '0.25rem'
-                })}
-              >
-                {rating.name}
-              </Box>
-            </MenuItem>
-          ))
-        },
-        Cell: ({ renderedCellValue, row }) => {
-          if (row.original.rating) {
-            return (
-              <Box
-                component='span'
-                sx={theme => ({
-                  backgroundColor: row.original.rating.color ?? theme.palette.success.dark,
-                  borderRadius: '0.25rem',
-                  color: '#fff',
-                  maxWidth: '9ch',
-                  p: '0.25rem'
-                })}
-              >
-                {renderedCellValue}
-              </Box>
-            )
-          } else {
-            return <></>
-          }
-        }
-      },
-      {
         accessorKey: 'comment',
         header: 'Comment',
         size: 200
@@ -995,6 +1046,18 @@ const SalesDetail = (props: any) => {
       .then(json => {
         setRatingData(json.results)
       })
+    const fetchCarrierURL = new URL('/carrier/', 'https://cheapr.my.id')
+    fetch(fetchCarrierURL.href, {
+      method: 'get',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      })
+    })
+      .then(response => response.json())
+      .then(json => {
+        setCarrierData(json.results)
+      })
     const fetchChannelURL = new URL('/channel/', 'https://cheapr.my.id')
     fetch(fetchChannelURL.href, {
       method: 'get',
@@ -1031,7 +1094,8 @@ const SalesDetail = (props: any) => {
                 salesitem_pk: item.pk,
                 sku: item.sku,
                 inventory: item.inventory,
-                item_null: item.item == null
+                item_null: item.item == null,
+                tracking: item.tracking
               }
             })
           )
@@ -1289,6 +1353,10 @@ const SalesDetail = (props: any) => {
         header: 'Return Up To Date'
       },
       {
+        accessorKey: 'carrier',
+        header: 'Carrier'
+      },
+      {
         accessorKey: 'tracking_number',
         header: 'Tracking Number'
       },
@@ -1358,7 +1426,7 @@ const SalesDetail = (props: any) => {
           <MaterialReactTable
             columns={columns}
             initialState={{ showColumnFilters: false }}
-            enableEditing={false}
+            enableEditing={true}
             enableRowNumbers
             editingMode='cell'
             onEditingRowSave={handleSaveRow}
@@ -1437,6 +1505,7 @@ const SalesDetail = (props: any) => {
           onSubmit={handleUseDropship}
           purchaseId={pk}
           channelData={channelData}
+          carrierData={carrierData}
           session={session}
           mpnToAdd={mpnToAdd}
           setCreateSellerModalOpen={setCreateSellerModalOpen}

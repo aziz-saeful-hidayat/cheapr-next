@@ -89,6 +89,12 @@ const CardSales = ({
     })
     console.log(salesData)
   }, [orderData, tableData])
+  const getTotal = () =>
+    parseFloat(salesData.sales_item_revenue) +
+    parseFloat(salesData.sales_shipping) -
+    parseFloat(salesData.outbound_shipping) -
+    parseFloat(salesData.purchase_items_cost) -
+    parseFloat(salesData.inbound_shipping)
   return (
     <Card sx={{ marginBottom: 5 }}>
       <CardContent sx={{ padding: theme => `${theme.spacing(3.25, 5.75, 6.25)} !important` }}>
@@ -275,14 +281,8 @@ const CardSales = ({
               <StarOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
               <Typography variant='body1'>Gross Profit: </Typography>
 
-              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
-                {formatterUSD.format(
-                  parseFloat(salesData.sales_item_revenue) +
-                    parseFloat(salesData.sales_shipping) -
-                    parseFloat(salesData.outbound_shipping) -
-                    parseFloat(salesData.purchase_items_cost) -
-                    parseFloat(salesData.inbound_shipping)
-                )}
+              <Typography variant='body1' sx={{ marginLeft: 'auto', color: getTotal() > 0 ? 'black' : 'red' }}>
+                {formatterUSD.format(getTotal())}
               </Typography>
             </Box>
           </Grid>
