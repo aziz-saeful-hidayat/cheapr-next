@@ -543,7 +543,7 @@ export const CreateDropshipModal = ({
                       {...params}
                       onChange={e => {
                         setLoading(true)
-                        fetch(`https://cheapr.my.id/dropship_seller/?name=${e.target.value}`, {
+                        fetch(`https://cheapr.my.id/seller/?name=${e.target.value}`, {
                           // note we are going to /1
                           headers: {
                             'Content-Type': 'application/json'
@@ -860,85 +860,24 @@ const SalesDetail = (props: any) => {
   const columns = useMemo<MRT_ColumnDef<InventoryItem>[]>(
     () => [
       {
-        accessorKey: 'sku.sku',
-        header: 'SKU',
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) =>
-          row.original.sku ? (
-            <div>
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '1rem'
-                }}
-              >
-                {/* <img
-                  aria-owns={open ? 'mouse-over-popover' : undefined}
-                  onMouseEnter={handlePopoverOpen}
-                  onMouseLeave={handlePopoverClose}
-                  alt='avatar'
-                  height={30}
-                  src={'/images/no_image.png'}
-                  loading='lazy'
-                /> */}
-                {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
-                <span>{renderedCellValue}</span>
-              </Box>
-            </div>
-          ) : (
-            <></>
-          )
-      },
-      {
         accessorKey: 'serial',
         header: 'Serial',
         maxSize: 100,
         Cell: ({ renderedCellValue, row }) =>
           row.original.dropship ? (
-            <HtmlTooltip
-              placement='top'
-              title={
-                <React.Fragment>
-                  <Typography color='inherit'>Seller: Seller 1</Typography>
-                  <Typography color='inherit'>
-                    Tracking: {`${row.original.tracking.fullcarrier.name} `}
-                    <Link
-                      target='_blank'
-                      rel='noreferrer'
-                      href={`${row.original.tracking.fullcarrier.prefix}${row.original.tracking.tracking_number}${row.original.tracking.fullcarrier.suffix}`}
-                      underline='hover'
-                    >
-                      {row.original.tracking.tracking_number}
-                    </Link>
-                  </Typography>
-                </React.Fragment>
-              }
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center'
+              }}
             >
-              <Box
+              <Chip
                 sx={{
-                  display: 'flex',
-                  alignItems: 'center'
+                  fontSize: 10
                 }}
-              >
-                <Chip
-                  sx={{
-                    fontSize: 10
-                  }}
-                  label='Dropship Item'
-                />
-                <Box
-                  sx={theme => ({
-                    backgroundColor: theme.palette.success.dark,
-                    borderRadius: '0.5rem',
-                    color: '#fff',
-                    width: 12,
-                    height: 12,
-                    marginLeft: 5
-                  })}
-                ></Box>
-              </Box>
-            </HtmlTooltip>
+                label='Dropship Item'
+              />
+            </Box>
           ) : !row.original.item_null ? (
             ''
           ) : row.original.serial ? (
@@ -996,14 +935,56 @@ const SalesDetail = (props: any) => {
           )
       },
       {
-        accessorKey: 'comment',
-        header: 'Comment',
-        size: 200
+        accessorKey: 'sku.sku',
+        header: 'SKU',
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) =>
+          row.original.sku ? (
+            <div>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem'
+                }}
+              >
+                {/* <img
+                  aria-owns={open ? 'mouse-over-popover' : undefined}
+                  onMouseEnter={handlePopoverOpen}
+                  onMouseLeave={handlePopoverClose}
+                  alt='avatar'
+                  height={30}
+                  src={'/images/no_image.png'}
+                  loading='lazy'
+                /> */}
+                {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
+                <span>{renderedCellValue}</span>
+              </Box>
+            </div>
+          ) : (
+            <></>
+          )
       },
       {
+        accessorKey: 'inventory.buying.seller_name',
+        header: 'Seller',
+        size: 100
+      },
+      {
+        accessorKey: 'inventory.buying.purchase_link',
+        header: 'Purchase Link',
+        size: 75
+      },
+      {
+        accessorKey: 'inventory.buying.order_date',
+        header: 'Purchase Date',
+        size: 75
+      },
+
+      {
         accessorKey: 'total_cost',
-        header: 'Item Cost',
-        size: 100,
+        header: 'Unit Price',
+        size: 75,
         Cell: ({ renderedCellValue, row }) => (
           <Box component='span'>{renderedCellValue && formatterUSD.format(row.original.total_cost)}</Box>
         )
@@ -1011,12 +992,44 @@ const SalesDetail = (props: any) => {
       {
         accessorKey: 'shipping_cost',
         header: 'Shipping',
-        size: 100,
+        size: 75,
         Cell: ({ renderedCellValue, row }) => (
           <Box component='span'>
             {!isNaN(row.original.shipping_cost) && formatterUSD.format(row.original.shipping_cost)}
           </Box>
         )
+      },
+      {
+        accessorKey: 'tracking.fullcarrier.name',
+        header: 'Carrier',
+        size: 100
+      },
+      {
+        accessorKey: 'tracking.tracking_number',
+        header: 'Tracking',
+        size: 100,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>
+            <Link
+              target='_blank'
+              rel='noreferrer'
+              href={`${row.original.tracking.fullcarrier.prefix}${row.original.tracking.tracking_number}${row.original.tracking.fullcarrier.suffix}`}
+              underline='hover'
+            >
+              {row.original.tracking.tracking_number}
+            </Link>
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'tracking.eta_date',
+        header: 'ETA',
+        size: 100
+      },
+      {
+        accessorKey: 'tracking.status',
+        header: 'Status',
+        size: 100
       }
     ],
     [roomData, ratingData, open]
@@ -1158,7 +1171,7 @@ const SalesDetail = (props: any) => {
       return
     }
     setIsFetching(true)
-    const newValues = { item: null }
+    const newValues = { item: null, tracking: null }
     console.log(tableData)
     fetch(`https://cheapr.my.id/sales_items/${row.original.salesitem_pk}/`, {
       // note we are going to /1
@@ -1256,7 +1269,7 @@ const SalesDetail = (props: any) => {
   }
   const handleCreateSeller = (values: Seller) => {
     console.log(values)
-    fetch(`https://cheapr.my.id/dropship_seller/`, {
+    fetch(`https://cheapr.my.id/seller/`, {
       method: 'POST',
       headers: new Headers({
         Authorization: `Bearer ${session?.accessToken}`,
@@ -1427,7 +1440,8 @@ const SalesDetail = (props: any) => {
             columns={columns}
             initialState={{ showColumnFilters: false }}
             enableEditing={true}
-            enableRowNumbers
+            // enableRowNumbers
+
             editingMode='cell'
             onEditingRowSave={handleSaveRow}
             muiTableBodyCellEditTextFieldProps={({ cell }) => ({
