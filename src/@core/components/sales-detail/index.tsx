@@ -1013,10 +1013,10 @@ const SalesDetail = (props: any) => {
             <Link
               target='_blank'
               rel='noreferrer'
-              href={`${row.original.tracking.fullcarrier.prefix}${row.original.tracking.tracking_number}${row.original.tracking.fullcarrier.suffix}`}
+              href={`${row.original.tracking?.fullcarrier?.prefix}${row.original.tracking?.tracking_number}${row.original.tracking?.fullcarrier?.suffix}`}
               underline='hover'
             >
-              {row.original.tracking.tracking_number}
+              {row.original.tracking?.tracking_number}
             </Link>
           </Box>
         )
