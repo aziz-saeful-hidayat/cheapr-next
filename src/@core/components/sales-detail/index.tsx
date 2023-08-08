@@ -985,6 +985,7 @@ const SalesDetail = (props: any) => {
         accessorKey: 'serial',
         header: 'Serial',
         maxSize: 100,
+        enableEditing: false,
         Cell: ({ renderedCellValue, row }) =>
           row.original.dropship ? (
             <Box
