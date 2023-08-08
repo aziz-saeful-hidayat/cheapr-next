@@ -1142,6 +1142,9 @@ const SalesDetail = (props: any) => {
         accessorKey: 'buying.order_date',
         header: 'Purchase Date',
         size: 75,
+        muiTableBodyCellEditTextFieldProps: {
+          type: 'date'
+        },
         enableEditing: row => !row.original.item_null
       },
 
@@ -1172,7 +1175,7 @@ const SalesDetail = (props: any) => {
         muiTableBodyCellEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: carrierData?.map(carrier => (
-            <MenuItem key={carrier.pk} value={carrier.name}>
+            <MenuItem key={carrier.pk} value={carrier.pk}>
               <Box
                 sx={{
                   display: 'flex',
@@ -1230,7 +1233,10 @@ const SalesDetail = (props: any) => {
       {
         accessorKey: 'tracking.eta_date',
         header: 'ETA',
-        size: 100
+        size: 100,
+        muiTableBodyCellEditTextFieldProps: {
+          type: 'date'
+        }
       },
       {
         accessorKey: 'tracking.status',
@@ -1400,37 +1406,122 @@ const SalesDetail = (props: any) => {
     const key = cell.column.id
     const rowIdx = cell.row.index
     const payload: InventoryItem = {}
-    const oldData = [...tableData]
-    const newData: any = [...tableData]
-    payload[key] = value
-    if (key === 'room.name') {
-      const room = roomData.find(room => room.name == value)
-      payload['room'] = room?.pk
-      newData[cell.row.index]['room'] = room
-    } else if (key === 'rating.name') {
-      const rating = ratingData.find(rating => rating.name == value)
-      payload['rating'] = rating?.pk
-      newData[cell.row.index]['rating'] = rating
-    } else {
-      payload[key as keyof Payload] = value === '' ? null : value
-      newData[cell.row.index][cell.column.id as keyof InventoryItem] = value
-    }
-
-    newData[cell.row.index][cell.column.id as keyof Item] = value
-    setTableData([...newData])
-    fetch(`https://cheapr.my.id/inventory_items/${cell.row.original.pk}/`, {
-      method: 'PATCH',
-      headers: {
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    })
-      .then(response => response.json())
-      .then(json => {
-        if (json.pk) {
-        }
+    if (key === 'buying.purchase_link') {
+      payload['purchase_link'] = value
+      fetch(`https://cheapr.my.id/buying_order/${cell.row.original.buying?.pk}/`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
       })
+        .then(response => response.json())
+        .then(json => {
+          console.log(json)
+          if (json.pk) {
+            setRefresh(refresh + 1)
+          }
+        })
+    } else if (key === 'buying.order_date') {
+      payload['order_date'] = value
+      fetch(`https://cheapr.my.id/buying_order/${cell.row.original.buying?.pk}/`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      })
+        .then(response => response.json())
+        .then(json => {
+          if (json.pk) {
+            setRefresh(refresh + 1)
+          }
+        })
+    } else if (key === 'total_cost' || key === 'shipping_cost') {
+      payload[key as keyof Payload] = value
+      fetch(`https://cheapr.my.id/inventory_items/${cell.row.original.pk}/`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      })
+        .then(response => response.json())
+        .then(json => {
+          console.log(json)
+          if (json.pk) {
+            setRefresh(refresh + 1)
+          }
+        })
+    } else if (key === 'tracking.fullcarrier.name') {
+      payload['fullcarrier'] = value
+      fetch(`https://cheapr.my.id/tracking/${cell.row.original.tracking?.pk}/`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      })
+        .then(response => response.json())
+        .then(json => {
+          if (json.pk) {
+            setRefresh(refresh + 1)
+          }
+        })
+    } else if (key === 'tracking.tracking_number') {
+      payload['tracking_number'] = value
+      fetch(`https://cheapr.my.id/tracking/${cell.row.original.tracking?.pk}/`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      })
+        .then(response => response.json())
+        .then(json => {
+          if (json.pk) {
+            setRefresh(refresh + 1)
+          }
+        })
+    } else if (key === 'tracking.eta_date') {
+      payload['eta_date'] = value
+      fetch(`https://cheapr.my.id/tracking/${cell.row.original.tracking?.pk}/`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      })
+        .then(response => response.json())
+        .then(json => {
+          if (json.pk) {
+            setRefresh(refresh + 1)
+          }
+        })
+    } else if (key === 'tracking.status') {
+      payload['status'] = value
+      fetch(`https://cheapr.my.id/tracking/${cell.row.original.tracking?.pk}/`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      })
+        .then(response => response.json())
+        .then(json => {
+          if (json.pk) {
+            setRefresh(refresh + 1)
+          }
+        })
+    }
+    console.log(payload)
   }
   const handleAddItem = (values: InventoryPayload) => {
     const newValues = { item: values.item }
