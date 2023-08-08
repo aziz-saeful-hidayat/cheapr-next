@@ -1485,56 +1485,166 @@ const SalesDetail = (props: any) => {
         })
     } else if (key === 'tracking.fullcarrier.name') {
       payload['fullcarrier'] = value
-      fetch(`https://cheapr.my.id/tracking/${cell.row.original.tracking?.pk}/`, {
-        method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${session?.accessToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      })
-        .then(response => response.json())
-        .then(json => {
-          if (json.pk) {
-            setRefresh(refresh + 1)
-          }
+      if (cell.row.original.tracking?.pk) {
+        fetch(`https://cheapr.my.id/tracking/${cell.row.original.tracking?.pk}/`, {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
         })
+          .then(response => response.json())
+          .then(json => {
+            if (json.pk) {
+              setRefresh(refresh + 1)
+            }
+          })
+      } else {
+        fetch(`https://cheapr.my.id/tracking/`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        })
+          .then(response => response.json())
+          .then(json => {
+            if (json.pk) {
+              fetch(`https://cheapr.my.id/sales_items/${cell.row.original.salesitem_pk}/`, {
+                method: 'PATCH',
+                headers: {
+                  Authorization: `Bearer ${session?.accessToken}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ tracking: json.pk })
+              })
+                .then(response => response.json())
+                .then(json => {
+                  if (json.pk) {
+                    setRefresh(refresh + 1)
+                  }
+                })
+              setRefresh(refresh + 1)
+            }
+          })
+      }
     } else if (key === 'tracking.tracking_number') {
       payload['tracking_number'] = value
-      fetch(`https://cheapr.my.id/tracking/${cell.row.original.tracking?.pk}/`, {
-        method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${session?.accessToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      })
-        .then(response => response.json())
-        .then(json => {
-          if (json.pk) {
-            setRefresh(refresh + 1)
-          }
+      if (cell.row.original.tracking?.pk) {
+        fetch(`https://cheapr.my.id/tracking/${cell.row.original.tracking?.pk}/`, {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
         })
+          .then(response => response.json())
+          .then(json => {
+            if (json.pk) {
+              setRefresh(refresh + 1)
+            }
+          })
+      } else {
+        fetch(`https://cheapr.my.id/tracking/`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        })
+          .then(response => response.json())
+          .then(json => {
+            if (json.pk) {
+              fetch(`https://cheapr.my.id/sales_items/${cell.row.original.salesitem_pk}/`, {
+                method: 'PATCH',
+                headers: {
+                  Authorization: `Bearer ${session?.accessToken}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ tracking: json.pk })
+              })
+                .then(response => response.json())
+                .then(json => {
+                  if (json.pk) {
+                    setRefresh(refresh + 1)
+                  }
+                })
+              setRefresh(refresh + 1)
+            }
+          })
+      }
     } else if (key === 'tracking.eta_date') {
       payload['eta_date'] = value
-      fetch(`https://cheapr.my.id/tracking/${cell.row.original.tracking?.pk}/`, {
-        method: 'PATCH',
-        headers: {
-          Authorization: `Bearer ${session?.accessToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      })
-        .then(response => response.json())
-        .then(json => {
-          if (json.pk) {
-            setRefresh(refresh + 1)
-          }
+      if (cell.row.original.tracking?.pk) {
+        fetch(`https://cheapr.my.id/tracking/${cell.row.original.tracking?.pk}/`, {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
         })
+          .then(response => response.json())
+          .then(json => {
+            if (json.pk) {
+              setRefresh(refresh + 1)
+            }
+          })
+      } else {
+        fetch(`https://cheapr.my.id/tracking/`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        })
+          .then(response => response.json())
+          .then(json => {
+            if (json.pk) {
+              fetch(`https://cheapr.my.id/sales_items/${cell.row.original.salesitem_pk}/`, {
+                method: 'PATCH',
+                headers: {
+                  Authorization: `Bearer ${session?.accessToken}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ tracking: json.pk })
+              })
+                .then(response => response.json())
+                .then(json => {
+                  if (json.pk) {
+                    setRefresh(refresh + 1)
+                  }
+                })
+              setRefresh(refresh + 1)
+            }
+          })
+      }
     } else if (key === 'tracking.status') {
       payload['status'] = value
-      fetch(`https://cheapr.my.id/tracking/${cell.row.original.tracking?.pk}/`, {
-        method: 'PATCH',
+      if (cell.row.original.tracking?.pk) {
+        fetch(`https://cheapr.my.id/tracking/${cell.row.original.tracking?.pk}/`, {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        })
+          .then(response => response.json())
+          .then(json => {
+            if (json.pk) {
+              setRefresh(refresh + 1)
+            }
+          })
+      }
+    } else {
+      fetch(`https://cheapr.my.id/tracking/`, {
+        method: 'POST',
         headers: {
           Authorization: `Bearer ${session?.accessToken}`,
           'Content-Type': 'application/json'
@@ -1544,6 +1654,20 @@ const SalesDetail = (props: any) => {
         .then(response => response.json())
         .then(json => {
           if (json.pk) {
+            fetch(`https://cheapr.my.id/sales_items/${cell.row.original.salesitem_pk}/`, {
+              method: 'PATCH',
+              headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ tracking: json.pk })
+            })
+              .then(response => response.json())
+              .then(json => {
+                if (json.pk) {
+                  setRefresh(refresh + 1)
+                }
+              })
             setRefresh(refresh + 1)
           }
         })
