@@ -943,7 +943,12 @@ const SalesDetail = (props: any) => {
   //   keepPreviousData: true
   // })
   const [orderData, setOrderData] = useState<SellingOrder>()
-
+  const statusOptions: any[] = [
+    { key: 'D', name: 'Delivered', color: 'success' },
+    { key: 'T', name: 'Transit', color: 'warning' },
+    { key: 'I', name: 'Issue', color: 'error' },
+    { key: 'N', name: 'Not Started', color: 'default' }
+  ]
   const [tableData, setTableData] = useState<Item[]>([])
   const [roomData, setRoomData] = useState<Room[]>([])
   const [itemToEdit, setItemToEdit] = useState('')
@@ -1233,7 +1238,7 @@ const SalesDetail = (props: any) => {
       {
         accessorKey: 'tracking.eta_date',
         header: 'ETA',
-        size: 100,
+        size: 120,
         muiTableBodyCellEditTextFieldProps: {
           type: 'date'
         }
@@ -1241,7 +1246,33 @@ const SalesDetail = (props: any) => {
       {
         accessorKey: 'tracking.status',
         header: 'Status',
-        size: 100
+        size: 100,
+        muiTableBodyCellEditTextFieldProps: {
+          select: true, //change to select for a dropdown
+          children: statusOptions?.map(status => (
+            <MenuItem key={status.key} value={status.key}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
+              >
+                {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
+                <span>{status.name}</span>
+              </Box>
+            </MenuItem>
+          ))
+        },
+        Cell: ({ renderedCellValue, row }) => (
+          <Chip
+            sx={{
+              fontSize: 12
+            }}
+            label={statusOptions.find(e => e.key == renderedCellValue)?.name}
+            color={statusOptions.find(e => e.key == renderedCellValue)?.color}
+          />
+        )
       }
     ],
     [roomData, ratingData, open]
