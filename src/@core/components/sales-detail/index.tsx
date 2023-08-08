@@ -1049,22 +1049,7 @@ const SalesDetail = (props: any) => {
                   alignItems: 'center',
                   gap: '1rem'
                 }}
-                onClick={() => {
-                  setItemToEdit(row.original.salesitem_pk)
-                  setMpnToAdd(row.original.sku.mpn)
-                  setCreateModalOpen(true)
-                }}
               >
-                {/* <img
-                aria-owns={open ? 'mouse-over-popover' : undefined}
-                onMouseEnter={handlePopoverOpen}
-                onMouseLeave={handlePopoverClose}
-                alt='avatar'
-                height={30}
-                src={'/images/no_image.png'}
-                loading='lazy'
-              /> */}
-                {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
                 <Chip
                   sx={{
                     fontSize: 10
@@ -1265,13 +1250,23 @@ const SalesDetail = (props: any) => {
           ))
         },
         Cell: ({ renderedCellValue, row }) => (
-          <Chip
+          <Box
             sx={{
-              fontSize: 12
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
             }}
-            label={statusOptions.find(e => e.key == renderedCellValue)?.name}
-            color={statusOptions.find(e => e.key == renderedCellValue)?.color}
-          />
+          >
+            {row.original.tracking?.status ? (
+              <Chip
+                sx={{
+                  fontSize: 12
+                }}
+                label={statusOptions.find(e => e.key == renderedCellValue)?.name}
+                color={statusOptions.find(e => e.key == renderedCellValue)?.color}
+              />
+            ) : null}
+          </Box>
         )
       }
     ],
