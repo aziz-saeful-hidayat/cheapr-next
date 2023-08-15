@@ -82,6 +82,7 @@ type SellingOrder = {
   ss_shipping_cost: number
   purchase_cost: number
   gross_sales: number
+  channel_fee: number
   profit: number
   fulfillment: string
   comment: string
@@ -395,7 +396,7 @@ const Example = (props: any) => {
   const [sorting, setSorting] = useState<MRT_SortingState>([])
   const [pagination, setPagination] = useState<MRT_PaginationState>({
     pageIndex: 0,
-    pageSize: 10
+    pageSize: 100
   })
   const { data, isError, isFetching, isLoading } = useQuery({
     queryKey: [
@@ -628,6 +629,7 @@ const Example = (props: any) => {
     })
       .then(response => response.json())
       .then(json => {
+        console.log(json)
         if (json[key] !== value) {
           setTableData([...oldData])
         }
@@ -716,7 +718,10 @@ const Example = (props: any) => {
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
         },
-        enableEditing: false
+        enableEditing: false,
+        muiTableBodyCellProps: {
+          align: 'right'
+        }
       },
       {
         accessorFn: row => formatterUSD.format(row.shipping_cost - row.ss_shipping_cost),
@@ -725,6 +730,21 @@ const Example = (props: any) => {
         size: 100,
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
+        },
+        muiTableBodyCellProps: {
+          align: 'right'
+        }
+      },
+      {
+        accessorFn: row => formatterUSD.format(row.channel_fee),
+        id: 'channel_fee',
+        header: 'Channel Fee',
+        size: 100,
+        muiTableBodyCellEditTextFieldProps: {
+          type: 'number'
+        },
+        muiTableBodyCellProps: {
+          align: 'right'
         }
       },
       {
@@ -734,6 +754,9 @@ const Example = (props: any) => {
         size: 100,
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
+        },
+        muiTableBodyCellProps: {
+          align: 'right'
         }
       },
       {
@@ -743,6 +766,9 @@ const Example = (props: any) => {
         size: 100,
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
+        },
+        muiTableBodyCellProps: {
+          align: 'right'
         }
       },
       {
@@ -752,6 +778,9 @@ const Example = (props: any) => {
         size: 100,
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
+        },
+        muiTableBodyCellProps: {
+          align: 'right'
         }
       }
     ],
@@ -770,7 +799,7 @@ const Example = (props: any) => {
   useEffect(() => {
     setPagination({
       pageIndex: 0,
-      pageSize: 10
+      pageSize: 100
     })
   }, [sorting, globalFilter, columnFilters])
   useEffect(() => {

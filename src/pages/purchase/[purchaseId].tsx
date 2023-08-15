@@ -139,6 +139,10 @@ export type SalesOrder = {
   channel_order_id: string
   total_cost: number
   shipping_cost: number
+  channel_fee: number
+  purchase_cost: number
+  gross_sales: number
+  profit: number
   ss_shipping_cost: number
   comment: string
   inventoryitems: InventoryItem[]

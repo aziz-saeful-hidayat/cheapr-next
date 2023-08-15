@@ -78,6 +78,10 @@ const CardSales = ({
       sales_items: orderData ? orderData?.salesitems?.length : 0,
       sales_item_revenue: orderData?.total_cost ? orderData?.total_cost : 0,
       sales_shipping: orderData && !isNaN(orderData?.shipping_cost) ? orderData?.shipping_cost : 0,
+      sales_fee: orderData && !isNaN(orderData?.channel_fee) ? orderData?.channel_fee : 0,
+      gross_sales: orderData && !isNaN(orderData?.gross_sales) ? orderData?.gross_sales : 0,
+      purchase_cost: orderData && !isNaN(orderData?.purchase_cost) ? orderData?.purchase_cost : 0,
+      profit: orderData && !isNaN(orderData?.profit) ? orderData?.profit : 0,
       outbound_shipping: orderData?.ss_shipping_cost ? orderData?.ss_shipping_cost : 0,
       purchase_items: tableData?.filter(item => !!item.pk).reduce((prev, next) => prev + 1, 0),
       purchase_items_cost: tableData
@@ -194,6 +198,14 @@ const CardSales = ({
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
               <StarOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
+              <Typography variant='body1'>Channel Fee: </Typography>
+
+              <Typography variant='body1' sx={{ marginLeft: 'auto', color: 'red' }}>
+                {formatterUSD.format(salesData.sales_fee)}
+              </Typography>
+            </Box>
+            <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
+              <StarOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
               <Typography variant='body1'>Outbound Shipping: </Typography>
 
               <Typography variant='body1' sx={{ marginLeft: 'auto', color: 'red' }}>
@@ -205,11 +217,7 @@ const CardSales = ({
               <Typography variant='body1'>Total: </Typography>
 
               <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
-                {formatterUSD.format(
-                  parseFloat(salesData.sales_item_revenue) +
-                    parseFloat(salesData.sales_shipping) -
-                    parseFloat(salesData.outbound_shipping)
-                )}
+                {formatterUSD.format(salesData.gross_sales)}
               </Typography>
             </Box>
           </Grid>
@@ -246,9 +254,7 @@ const CardSales = ({
               <Typography variant='body1'>Total: </Typography>
 
               <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
-                {formatterUSD.format(
-                  parseFloat(salesData.purchase_items_cost) + parseFloat(salesData.inbound_shipping)
-                )}
+                {formatterUSD.format(salesData.purchase_cost)}
               </Typography>
             </Box>
           </Grid>
@@ -260,11 +266,7 @@ const CardSales = ({
               <StarOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
               <Typography variant='body1'>Revenue: </Typography>
               <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
-                {formatterUSD.format(
-                  parseFloat(salesData.sales_item_revenue) +
-                    parseFloat(salesData.sales_shipping) -
-                    parseFloat(salesData.outbound_shipping)
-                )}
+                {formatterUSD.format(salesData.gross_sales)}
               </Typography>
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
@@ -272,17 +274,15 @@ const CardSales = ({
               <Typography variant='body1'>Cost: </Typography>
 
               <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
-                {formatterUSD.format(
-                  parseFloat(salesData.purchase_items_cost) + parseFloat(salesData.inbound_shipping)
-                )}
+                {formatterUSD.format(salesData.purchase_cost)}
               </Typography>
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
               <StarOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
               <Typography variant='body1'>Gross Profit: </Typography>
 
-              <Typography variant='body1' sx={{ marginLeft: 'auto', color: getTotal() > 0 ? 'black' : 'red' }}>
-                {formatterUSD.format(getTotal())}
+              <Typography variant='body1' sx={{ marginLeft: 'auto', color: salesData.profit > 0 ? 'black' : 'red' }}>
+                {formatterUSD.format(salesData.profit)}
               </Typography>
             </Box>
           </Grid>
