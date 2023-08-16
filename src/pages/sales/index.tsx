@@ -87,6 +87,7 @@ type SellingOrder = {
   fulfillment: string
   comment: string
   status: string
+  delivery_status: string
   sellingitems: InventoryItem[]
   salesitems: InventoryItem[]
 }
@@ -685,9 +686,40 @@ const Example = (props: any) => {
         enableEditing: false
       },
       {
-        accessorKey: 'tracking_number',
+        accessorKey: 'delivery_status',
         header: 'Tracking',
-        maxSize: 100
+        maxSize: 100,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            <Chip
+              sx={{
+                fontSize: 10
+              }}
+              label={renderedCellValue}
+              color={
+                renderedCellValue == 'Delivered'
+                  ? 'success'
+                  : renderedCellValue == 'Issue'
+                  ? 'error'
+                  : renderedCellValue == 'Partially Delivered' || renderedCellValue == 'In Transit'
+                  ? 'warning'
+                  : renderedCellValue == 'Not Started'
+                  ? 'secondary'
+                  : 'default'
+              }
+            />
+            {/* <Link href={`/sales/${row.original.pk}`} target='_blank'>
+              {renderedCellValue}
+            </Link> */}
+          </Box>
+        )
       },
       {
         accessorKey: 'seller_name',

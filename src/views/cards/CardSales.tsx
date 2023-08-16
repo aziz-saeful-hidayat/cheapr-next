@@ -160,13 +160,13 @@ const CardSales = ({
                 {orderData?.status}
               </Typography>
             </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            {/* <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <TrendingUp sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
               <Typography variant='body1'>Tracking Number: </Typography>
               <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
                 {orderData?.tracking_number}
               </Typography>
-            </Box>
+            </Box> */}
           </Grid>
 
           <Grid item xs={12} sm={3}>

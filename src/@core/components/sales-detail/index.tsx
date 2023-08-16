@@ -1178,6 +1178,11 @@ const SalesDetail = (props: any) => {
       {
         accessorKey: 'sku.sku',
         header: 'SKU',
+        enableEditing: false
+      },
+      {
+        accessorKey: 'sub_sku.sku',
+        header: 'Sub SKU',
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) =>
           row.original.sub_sku ? (
@@ -1199,23 +1204,8 @@ const SalesDetail = (props: any) => {
                   loading='lazy'
                 /> */}
                 {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
-                <HtmlTooltip
-                  placement='top'
-                  title={
-                    <React.Fragment>
-                      <Typography color='inherit'>Original: {row.original.sku.sku}</Typography>
-                    </React.Fragment>
-                  }
-                >
-                  <Chip
-                    sx={{
-                      fontSize: 12
-                    }}
-                    label={row.original.sub_sku.sku}
-                    color='secondary'
-                  />
-                </HtmlTooltip>
 
+                <span>{renderedCellValue}</span>
                 <Tooltip arrow placement='top' title='Unsub SKU'>
                   <IconButton
                     color='error'
@@ -1239,7 +1229,12 @@ const SalesDetail = (props: any) => {
                   alignItems: 'center',
                   gap: '1rem'
                 }}
+                onClick={() => {
+                  setItemToEdit(row.original.salesitem_pk)
+                  setSubModalOpen(true)
+                }}
               >
+                <span>{renderedCellValue}</span>
                 {/* <img
                     aria-owns={open ? 'mouse-over-popover' : undefined}
                     onMouseEnter={handlePopoverOpen}
@@ -1250,7 +1245,6 @@ const SalesDetail = (props: any) => {
                     loading='lazy'
                   /> */}
                 {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
-                <span>{renderedCellValue}</span>
                 <Tooltip arrow placement='top' title='Sub SKU'>
                   <IconButton
                     color='error'
@@ -1266,7 +1260,6 @@ const SalesDetail = (props: any) => {
             </div>
           )
       },
-
       {
         accessorKey: 'buying.seller.name',
         header: 'Seller',
@@ -2135,7 +2128,7 @@ const SalesDetail = (props: any) => {
         <Card sx={{ padding: 3 }}>
           <MaterialReactTable
             columns={columns}
-            initialState={{ showColumnFilters: false }}
+            initialState={{ showColumnFilters: false, density: 'compact' }}
             enableEditing={true}
             // enableRowNumbers
 
