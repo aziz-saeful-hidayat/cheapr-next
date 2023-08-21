@@ -881,13 +881,13 @@ const Example = (props: any) => {
               label={renderedCellValue == 'completed' ? 'Completed' : 'Pending'}
               size='small'
               color={
-                renderedCellValue == 'open'
-                  ? 'error'
-                  : row.original.salesitems.filter(function (element) {
+                renderedCellValue == 'completed'
+                  ? row.original.salesitems.filter(function (element) {
                       return element.tracking
                     }).length > 0
-                  ? 'success'
-                  : 'warning'
+                    ? 'success'
+                    : 'warning'
+                  : 'error'
               }
             />
             {/* <Link href={`/sales/${row.original.pk}`} target='_blank'>
@@ -923,9 +923,9 @@ const Example = (props: any) => {
                       backgroundColor:
                         status == 'D'
                           ? theme.palette.success.dark
-                          : status == 'I'
-                          ? theme.palette.error.dark
-                          : theme.palette.warning.dark,
+                          : status == 'T'
+                          ? theme.palette.warning.dark
+                          : theme.palette.error.dark,
                       borderRadius: '0.5rem',
                       color: '#fff',
                       width: 12,
