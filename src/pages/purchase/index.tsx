@@ -806,7 +806,6 @@ const Example = (props: any) => {
         }}
         onEditingRowSave={handleSaveRow}
         enableColumnActions={false}
-        enableRowNumbers
         enableStickyHeader
         enableStickyFooter
         muiToolbarAlertBannerProps={

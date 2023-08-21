@@ -74,6 +74,8 @@ type SellingOrder = {
     pk: number
     name: string
   }
+  subs_status: boolean
+  channel_order_id: string
   tracking_number: string
   seller_name: string
   sell_link: string
@@ -641,7 +643,7 @@ const Example = (props: any) => {
     () => [
       {
         accessorKey: 'order_id',
-        header: 'Order ID',
+        header: 'SB.#',
         maxSize: 75,
         Cell: ({ renderedCellValue, row }) => (
           <Box
@@ -651,26 +653,22 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            <Chip
-              sx={{
-                fontSize: 10
-              }}
-              label={renderedCellValue}
+            <Link
+              href='#'
               onClick={() => {
                 setDetail(row.original.pk)
                 setDetailModalOpen(true)
               }}
-            />
-            {/* <Link href={`/sales/${row.original.pk}`} target='_blank'>
+            >
               {renderedCellValue}
-            </Link> */}
+            </Link>
           </Box>
         ),
         enableEditing: false
       },
       {
-        accessorKey: 'status',
-        header: 'Status',
+        accessorKey: 'channel_order_id',
+        header: 'Order ID',
         maxSize: 75,
         enableEditing: false
       },
@@ -678,53 +676,11 @@ const Example = (props: any) => {
         accessorKey: 'order_date',
         accessorFn: row => row.order_date.substr(0, 10),
         header: 'Date',
-        maxSize: 120,
+        maxSize: 100,
         muiTableBodyCellEditTextFieldProps: {
           type: 'date'
         },
         filterFn: 'between',
-        enableEditing: false
-      },
-      {
-        accessorKey: 'delivery_status',
-        header: 'Tracking',
-        maxSize: 100,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            <Chip
-              sx={{
-                fontSize: 10
-              }}
-              label={renderedCellValue}
-              color={
-                renderedCellValue == 'Delivered'
-                  ? 'success'
-                  : renderedCellValue == 'Issue'
-                  ? 'error'
-                  : renderedCellValue == 'Partially Delivered' || renderedCellValue == 'In Transit'
-                  ? 'warning'
-                  : renderedCellValue == 'Not Started'
-                  ? 'secondary'
-                  : 'default'
-              }
-            />
-            {/* <Link href={`/sales/${row.original.pk}`} target='_blank'>
-              {renderedCellValue}
-            </Link> */}
-          </Box>
-        )
-      },
-      {
-        accessorKey: 'seller_name',
-        header: 'Seller Name',
-        maxSize: 150,
         enableEditing: false
       },
       {
@@ -742,78 +698,244 @@ const Example = (props: any) => {
         enableEditing: false
       },
       {
+        accessorKey: 'seller_name',
+        header: 'Store',
+        maxSize: 125,
+        enableEditing: false
+      },
+
+      {
         accessorKey: 'total_cost',
-        accessorFn: row => formatterUSD.format(row.total_cost),
         id: 'total',
-        header: 'Price',
-        size: 100,
+        header: 'Item Price',
+        size: 75,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{formatterUSD.format(row.original.total_cost)}</Box>
+        ),
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
         },
         enableEditing: false,
         muiTableBodyCellProps: {
           align: 'right'
+        },
+        muiTableHeadCellProps: {
+          align: 'right'
         }
       },
       {
-        accessorFn: row => formatterUSD.format(row.shipping_cost - row.ss_shipping_cost),
+        accessorKey: 'shipping_cost',
         id: 'shipping_cost',
         header: 'Shipping',
-        size: 100,
+        size: 75,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{formatterUSD.format(row.original.shipping_cost)}</Box>
+        ),
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
         },
         muiTableBodyCellProps: {
           align: 'right'
+        },
+        muiTableHeadCellProps: {
+          align: 'right'
         }
       },
       {
-        accessorFn: row => formatterUSD.format(row.channel_fee),
+        accessorKey: 'channel_fee',
         id: 'channel_fee',
-        header: 'Channel Fee',
-        size: 100,
+        header: 'Fees',
+        size: 75,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{formatterUSD.format(row.original.channel_fee)}</Box>
+        ),
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
         },
         muiTableBodyCellProps: {
           align: 'right'
+        },
+        muiTableHeadCellProps: {
+          align: 'right'
         }
       },
       {
-        accessorFn: row => formatterUSD.format(row.gross_sales),
+        accessorKey: 'gross_sales',
         id: 'gross_sales',
-        header: 'Gross',
-        size: 100,
+        header: 'Net Sales',
+        size: 75,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{formatterUSD.format(row.original.gross_sales)}</Box>
+        ),
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
         },
         muiTableBodyCellProps: {
           align: 'right'
+        },
+        muiTableHeadCellProps: {
+          align: 'right'
         }
       },
       {
-        accessorFn: row => formatterUSD.format(row.purchase_cost),
+        accessorKey: 'purchase_cost',
+
         id: 'purchase_cost',
         header: 'Cost',
-        size: 100,
+        size: 75,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{formatterUSD.format(row.original.purchase_cost)}</Box>
+        ),
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
         },
         muiTableBodyCellProps: {
+          align: 'right'
+        },
+        muiTableHeadCellProps: {
           align: 'right'
         }
       },
       {
-        accessorFn: row => formatterUSD.format(row.profit),
-        id: 'profit',
-        header: 'Profit',
-        size: 100,
+        accessorKey: 'purchase_cost',
+
+        id: 'ss_shipping_cost',
+        header: 'Shipping',
+        size: 75,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{formatterUSD.format(row.original.ss_shipping_cost)}</Box>
+        ),
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
         },
         muiTableBodyCellProps: {
           align: 'right'
+        },
+        muiTableHeadCellProps: {
+          align: 'right'
         }
+      },
+      {
+        accessorKey: 'profit',
+        id: 'profit',
+        header: 'Margin',
+        size: 75,
+        Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSD.format(row.original.profit)}</Box>,
+        muiTableBodyCellEditTextFieldProps: {
+          type: 'number'
+        },
+        muiTableBodyCellProps: {
+          align: 'right'
+        },
+        muiTableHeadCellProps: {
+          align: 'right'
+        }
+      },
+      {
+        accessorKey: 'subs_status',
+        header: 'Subs',
+        maxSize: 50,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) =>
+          renderedCellValue ? (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center'
+              }}
+            >
+              <Box
+                sx={theme => ({
+                  backgroundColor: theme.palette.success.dark,
+                  borderRadius: '0.5rem',
+                  color: '#fff',
+                  width: 12,
+                  height: 12,
+                  marginLeft: 5
+                })}
+              ></Box>
+            </Box>
+          ) : (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center'
+              }}
+            ></Box>
+          )
+      },
+      {
+        accessorKey: 'status',
+        header: 'Status',
+        maxSize: 50,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            <Chip
+              label={renderedCellValue == 'completed' ? 'Completed' : 'Pending'}
+              size='small'
+              color={
+                renderedCellValue == 'open'
+                  ? 'error'
+                  : row.original.salesitems.filter(function (element) {
+                      return element.tracking
+                    }).length > 0
+                  ? 'success'
+                  : 'warning'
+              }
+            />
+            {/* <Link href={`/sales/${row.original.pk}`} target='_blank'>
+              {renderedCellValue}
+            </Link> */}
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'delivery_status',
+        header: 'Tracking',
+        maxSize: 100,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            {row.original.salesitems
+              .filter(e => e.tracking)
+              .map(sales => sales.tracking.status)
+              .filter((c, index, arr) => {
+                return arr.indexOf(c) === index
+              })
+              .map((status, index) => {
+                return (
+                  <Box
+                    key={index}
+                    sx={theme => ({
+                      backgroundColor:
+                        status == 'D'
+                          ? theme.palette.success.dark
+                          : status == 'I'
+                          ? theme.palette.error.dark
+                          : theme.palette.warning.dark,
+                      borderRadius: '0.5rem',
+                      color: '#fff',
+                      width: 12,
+                      height: 12
+                    })}
+                  ></Box>
+                )
+              })}
+          </Box>
+        )
       }
     ],
     [channelData]
@@ -869,8 +991,9 @@ const Example = (props: any) => {
       <MaterialReactTable
         columns={columns}
         data={tableData} //data is undefined on first render
-        initialState={{ showColumnFilters: false }}
+        initialState={{ showColumnFilters: false, density: 'compact' }}
         enableEditing
+        enableColumnActions={false}
         editingMode='cell'
         muiTableBodyCellEditTextFieldProps={({ cell }) => ({
           //onBlur is more efficient, but could use onChange instead
@@ -896,7 +1019,6 @@ const Example = (props: any) => {
         onGlobalFilterChange={setGlobalFilter}
         onPaginationChange={setPagination}
         onSortingChange={setSorting}
-        enableRowNumbers
         positionActionsColumn='last'
         renderTopToolbarCustomActions={() => (
           <>

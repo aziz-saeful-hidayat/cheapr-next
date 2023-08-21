@@ -58,11 +58,11 @@ const Table = (theme: Theme) => {
       styleOverrides: {
         root: {
           '& .MuiTableCell-head:first-child, & .MuiTableCell-root:first-child ': {
-            // paddingLeft: theme.spacing(5),
+            paddingLeft: theme.spacing(0),
             backgroundColor: theme.palette.background.paper
           },
           '& .MuiTableCell-head:last-child, & .MuiTableCell-root:last-child': {
-            // paddingRight: theme.spacing(5),
+            paddingRight: theme.spacing(0),
             backgroundColor: theme.palette.background.paper
           },
           backgroundColor: theme.palette.background.paper,
