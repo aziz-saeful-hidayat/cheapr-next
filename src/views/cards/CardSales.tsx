@@ -81,6 +81,7 @@ const CardSales = ({
       sales_fee: orderData && !isNaN(orderData?.channel_fee) ? orderData?.channel_fee : 0,
       gross_sales: orderData && !isNaN(orderData?.gross_sales) ? orderData?.gross_sales : 0,
       purchase_cost: orderData && !isNaN(orderData?.purchase_cost) ? orderData?.purchase_cost : 0,
+      all_cost: orderData && !isNaN(orderData?.all_cost) ? orderData?.all_cost : 0,
       profit: orderData && !isNaN(orderData?.profit) ? orderData?.profit : 0,
       outbound_shipping: orderData?.ss_shipping_cost ? orderData?.ss_shipping_cost : 0,
       purchase_items: tableData?.filter(item => !!item.pk).reduce((prev, next) => prev + 1, 0),
@@ -204,22 +205,15 @@ const CardSales = ({
                 {formatterUSD.format(salesData.sales_fee)}
               </Typography>
             </Box>
-            <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
-              <StarOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Outbound Shipping: </Typography>
 
-              <Typography variant='body1' sx={{ marginLeft: 'auto', color: 'red' }}>
-                {formatterUSD.format(salesData.outbound_shipping)}
-              </Typography>
-            </Box>
-            <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
+            {/* <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
               <StarOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
               <Typography variant='body1'>Total: </Typography>
 
               <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
                 {formatterUSD.format(salesData.gross_sales)}
               </Typography>
-            </Box>
+            </Box> */}
           </Grid>
 
           <Grid item xs={12} sm={3}>
@@ -251,12 +245,20 @@ const CardSales = ({
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
               <StarOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
+              <Typography variant='body1'>Outbound Shipping: </Typography>
+
+              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+                {formatterUSD.format(salesData.outbound_shipping)}
+              </Typography>
+            </Box>
+            {/* <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
+              <StarOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
               <Typography variant='body1'>Total: </Typography>
 
               <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
                 {formatterUSD.format(salesData.purchase_cost)}
               </Typography>
-            </Box>
+            </Box> */}
           </Grid>
           <Grid item xs={12} sm={3}>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
@@ -274,7 +276,7 @@ const CardSales = ({
               <Typography variant='body1'>Cost: </Typography>
 
               <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
-                {formatterUSD.format(salesData.purchase_cost)}
+                {formatterUSD.format(salesData.all_cost)}
               </Typography>
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>

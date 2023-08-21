@@ -797,7 +797,7 @@ const Example = (props: any) => {
         }
       },
       {
-        accessorKey: 'purchase_cost',
+        accessorKey: 'ss_shipping_cost',
 
         id: 'ss_shipping_cost',
         header: 'Shipping',
