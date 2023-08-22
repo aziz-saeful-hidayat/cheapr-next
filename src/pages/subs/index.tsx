@@ -66,32 +66,53 @@ type InventoryItem = {
   [key: string]: any
 }
 
-type SellingOrder = {
+type SalesItemsFull = {
   pk: number
-  order_id: string
-  order_date: string
-  channel: {
+  item: null
+  selling: {
     pk: number
-    name: string
+    order_id: string
+    order_date: string
+    delivery_date: string
+    channel: {
+      pk: number
+      name: string
+      image: string
+    }
+    seller_name: string
+    purchase_items: number
+    inbound_shipping: number
+    purchase_cost: number
+    gross_sales: number
+    profit: number
+    all_cost: number
+    channel_order_id: string
+    sell_link: string
+    total_cost: number
+    shipping_cost: number
+    ss_shipping_cost: number
+    channel_fee: number
   }
-  subs_status: boolean
-  channel_order_id: string
-  tracking_number: string
-  seller_name: string
-  sell_link: string
-  total_cost: number
-  shipping_cost: number
-  ss_shipping_cost: number
-  purchase_cost: number
-  gross_sales: number
-  channel_fee: number
-  profit: number
-  fulfillment: string
-  comment: string
-  status: string
-  delivery_status: string
-  sellingitems: InventoryItem[]
-  salesitems: InventoryItem[]
+  sku: {
+    pk: number
+    sku: string
+    mpn: string
+    make: string
+    model: string
+    asin: string
+    in_database: boolean
+  }
+  sub_sku: {
+    pk: number
+    sku: string
+    mpn: string
+    make: string
+    model: string
+    asin: string
+    in_database: boolean
+  }
+  inventory: boolean
+  tracking: string
 }
 type Payload = {
   pk?: number
@@ -131,9 +152,9 @@ type ItemOption = {
   shipping_cost: string
 }
 interface CreateModalProps {
-  columns: MRT_ColumnDef<SellingOrder>[]
+  columns: MRT_ColumnDef<SalesItemsFull>[]
   onClose: () => void
-  onSubmit: (values: SellingOrder) => void
+  onSubmit: (values: SalesItemsFull) => void
   open: boolean
   channelData: any[]
 }
@@ -142,7 +163,7 @@ interface AddItemProps {
   onClose: () => void
   onSubmit: (values: InventoryPayload) => void
   open: boolean
-  rowData: SellingOrder | undefined
+  rowData: SalesItemsFull | undefined
   roomData: Room[]
 }
 interface DeleteModalProps {
@@ -411,15 +432,15 @@ const Example = (props: any) => {
       sorting //refetch when sorting changes
     ],
     queryFn: async () => {
-      const fetchURL = new URL('/selling_order/', 'https://cheapr.my.id')
+      const fetchURL = new URL('/sales_items/', 'https://cheapr.my.id')
+      fetchURL.searchParams.set('no_sub', `false`)
       fetchURL.searchParams.set('limit', `${pagination.pageSize}`)
       fetchURL.searchParams.set('offset', `${pagination.pageIndex * pagination.pageSize}`)
       for (let f = 0; f < columnFilters.length; f++) {
         const filter = columnFilters[f]
-        if (filter.id == 'order_date') {
+        if (filter.id == 'sku') {
           console.log(filter)
-          fetchURL.searchParams.set('order_date_after', Array.isArray(filter.value) ? filter.value[0] : '')
-          fetchURL.searchParams.set('order_date_before', Array.isArray(filter.value) ? filter.value[1] : '')
+          fetchURL.searchParams.set('sku', typeof filter.value === 'string' ? filter.value : '')
         } else {
           fetchURL.searchParams.set(filter.id.split('.')[0], typeof filter.value === 'string' ? filter.value : '')
         }
@@ -451,12 +472,12 @@ const Example = (props: any) => {
     },
     keepPreviousData: true
   })
-  const [tableData, setTableData] = useState<SellingOrder[]>(() => data?.results ?? [])
+  const [tableData, setTableData] = useState<SalesItemsFull[]>(() => data?.results ?? [])
   const [channelData, setChannelData] = useState<Channel[]>([])
   const [roomData, setRoomData] = useState<Room[]>([])
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
-  const [addModalOpen, setAddModalOpen] = useState<SellingOrder>()
+  const [addModalOpen, setAddModalOpen] = useState<SalesItemsFull>()
   const [detail, setDetail] = useState<number | undefined>()
   const [detailModalOpen, setDetailModalOpen] = useState(false)
   const [tabActive, setTabActive] = useState('all')
@@ -469,9 +490,9 @@ const Example = (props: any) => {
       setColumnFilters([{ id: 'status', value: event.target.value != 'all' ? event.target.value : '' }])
     }
   }
-  const handleCreateNewRow = (values: SellingOrder) => {
+  const handleCreateNewRow = (values: SalesItemsFull) => {
     console.log(values)
-    const channel = channelData.find(channel => channel.name == values['channel']['name'])
+    const channel = channelData.find(channel => channel.name == values['selling']['channel']['name'])
     const new_obj = { ...values, channel: channel?.pk }
     console.log(new_obj)
     fetch(`https://cheapr.my.id/selling_order/`, {
@@ -493,20 +514,6 @@ const Example = (props: any) => {
       })
   }
 
-  const update = (idx: number, rowIdx: number, key: string, value: any) => {
-    const sellingitems_update = tableData[idx].sellingitems?.map((el, idx) => {
-      if (idx == rowIdx) {
-        const newEl = { ...el }
-        newEl[key] = value
-
-        return newEl
-      } else {
-        return el
-      }
-    })
-    tableData[idx].sellingitems = sellingitems_update
-    setTableData([...tableData])
-  }
   const reupdate = (order: number) => {
     fetch(`https://cheapr.my.id/selling_order/${order}/`, {
       // note we are going to /1
@@ -548,8 +555,8 @@ const Example = (props: any) => {
   }
 
   const handleDeleteRow = useCallback(
-    (row: MRT_Row<SellingOrder>) => {
-      if (!confirm(`Are you sure you want to delete ${row.original.order_id}`)) {
+    (row: MRT_Row<SalesItemsFull>) => {
+      if (!confirm(`Are you sure you want to delete ${row.original.pk}`)) {
         return
       }
       fetch(`https://cheapr.my.id/selling_order/${row.original.pk}/`, {
@@ -570,7 +577,7 @@ const Example = (props: any) => {
     },
     [tableData, session]
   )
-  const handleSaveRow: MaterialReactTableProps<SellingOrder>['onEditingRowSave'] = async ({
+  const handleSaveRow: MaterialReactTableProps<SalesItemsFull>['onEditingRowSave'] = async ({
     exitEditingMode,
     row,
     values
@@ -596,7 +603,7 @@ const Example = (props: any) => {
       .then(response => response.json())
       .then(json => {
         if (json['pk'] !== values.pk) {
-          tableData[row.index] = { ...json, channel: channel, sellingitems: row.original.sellingitems }
+          tableData[row.index] = { ...json, channel: channel }
 
           setTableData([...tableData])
           exitEditingMode() //required to exit editing mode
@@ -604,7 +611,7 @@ const Example = (props: any) => {
       })
   }
 
-  const handleSaveCell = (cell: MRT_Cell<SellingOrder>, value: any) => {
+  const handleSaveCell = (cell: MRT_Cell<SalesItemsFull>, value: any) => {
     const key = cell.column.id
     const channel = channelData.find(channel => channel.name == value)
     console.log(key, value)
@@ -616,7 +623,7 @@ const Example = (props: any) => {
       newData[cell.row.index]['channel'] = channel
     } else {
       payload[key as keyof Payload] = value
-      newData[cell.row.index][cell.column.id as keyof SellingOrder] = value
+      newData[cell.row.index][cell.column.id as keyof SalesItemsFull] = value
     }
     const pk = newData[cell.row.index]['pk']
 
@@ -639,10 +646,198 @@ const Example = (props: any) => {
       })
   }
 
-  const columns = useMemo<MRT_ColumnDef<SellingOrder>[]>(
+  const columns = useMemo<MRT_ColumnDef<SalesItemsFull>[]>(
     () => [
       {
-        accessorKey: 'order_id',
+        accessorKey: 'sku.make',
+        header: 'Make',
+        maxSize: 75,
+        enableEditing: false
+      },
+      {
+        accessorKey: 'sku.model',
+        header: 'Model',
+        maxSize: 75,
+        enableEditing: false
+      },
+      {
+        accessorKey: 'sku.mpn',
+        header: 'MPN',
+        maxSize: 100,
+        enableEditing: false
+      },
+      {
+        accessorKey: 'sub_sku.make',
+        header: 'Make',
+        maxSize: 75,
+        enableEditing: false
+      },
+      {
+        accessorKey: 'sub_sku.model',
+        header: 'Model',
+        maxSize: 75,
+        enableEditing: false
+      },
+      {
+        accessorKey: 'sub_sku.mpn',
+        header: 'MPN',
+        maxSize: 100,
+        enableEditing: false
+      },
+      {
+        accessorKey: 'selling.total_cost',
+        id: 'total_cost',
+        header: 'Item Price',
+        size: 75,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{formatterUSD.format(row.original.selling.total_cost)}</Box>
+        ),
+        muiTableBodyCellEditTextFieldProps: {
+          type: 'number'
+        },
+        enableEditing: false,
+        muiTableBodyCellProps: {
+          align: 'right'
+        },
+        muiTableHeadCellProps: {
+          align: 'right'
+        }
+      },
+      {
+        accessorKey: 'selling.shipping_cost',
+        id: 'shipping_cost',
+        header: 'Shipping',
+        size: 75,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{formatterUSD.format(row.original.selling.shipping_cost)}</Box>
+        ),
+        muiTableBodyCellEditTextFieldProps: {
+          type: 'number'
+        },
+        enableEditing: false,
+        muiTableBodyCellProps: {
+          align: 'right'
+        },
+        muiTableHeadCellProps: {
+          align: 'right'
+        }
+      },
+      {
+        accessorKey: 'selling.channel_fee',
+        id: 'channel_fee',
+        header: 'Fees',
+        size: 75,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{formatterUSD.format(row.original.selling.channel_fee)}</Box>
+        ),
+        muiTableBodyCellEditTextFieldProps: {
+          type: 'number'
+        },
+        enableEditing: false,
+        muiTableBodyCellProps: {
+          align: 'right'
+        },
+        muiTableHeadCellProps: {
+          align: 'right'
+        }
+      },
+      {
+        accessorKey: 'selling.gross_sales',
+        id: 'gross_sales',
+        header: 'Net Sales',
+        size: 75,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{formatterUSD.format(row.original.selling.gross_sales)}</Box>
+        ),
+        muiTableBodyCellEditTextFieldProps: {
+          type: 'number'
+        },
+        enableEditing: false,
+        muiTableBodyCellProps: {
+          align: 'right'
+        },
+        muiTableHeadCellProps: {
+          align: 'right'
+        }
+      },
+      {
+        accessorKey: 'selling.purchase_items',
+        id: 'purchase_items',
+        header: 'Item Cost',
+        size: 75,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{formatterUSD.format(row.original.selling.purchase_items)}</Box>
+        ),
+        muiTableBodyCellEditTextFieldProps: {
+          type: 'number'
+        },
+        enableEditing: false,
+        muiTableBodyCellProps: {
+          align: 'right'
+        },
+        muiTableHeadCellProps: {
+          align: 'right'
+        }
+      },
+      {
+        accessorKey: 'selling.inbound_shipping',
+        id: 'inbound_shipping',
+        header: 'Shipping',
+        size: 75,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{formatterUSD.format(row.original.selling.inbound_shipping)}</Box>
+        ),
+        muiTableBodyCellEditTextFieldProps: {
+          type: 'number'
+        },
+        enableEditing: false,
+        muiTableBodyCellProps: {
+          align: 'right'
+        },
+        muiTableHeadCellProps: {
+          align: 'right'
+        }
+      },
+      {
+        accessorKey: 'selling.purchase_cost',
+        id: 'purchase_cost',
+        header: 'Total',
+        size: 75,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{formatterUSD.format(row.original.selling.purchase_cost)}</Box>
+        ),
+        muiTableBodyCellEditTextFieldProps: {
+          type: 'number'
+        },
+        enableEditing: false,
+        muiTableBodyCellProps: {
+          align: 'right'
+        },
+        muiTableHeadCellProps: {
+          align: 'right'
+        }
+      },
+      {
+        accessorKey: 'selling.profit',
+        id: 'profit',
+        header: 'Net Margin',
+        size: 75,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{formatterUSD.format(row.original.selling.profit)}</Box>
+        ),
+        muiTableBodyCellEditTextFieldProps: {
+          type: 'number'
+        },
+        enableEditing: false,
+        muiTableBodyCellProps: {
+          align: 'right'
+        },
+        muiTableHeadCellProps: {
+          align: 'right'
+        }
+      },
+      {
+        accessorKey: 'selling.order_id',
         header: 'SB.#',
         maxSize: 75,
         Cell: ({ renderedCellValue, row }) => (
@@ -656,7 +851,7 @@ const Example = (props: any) => {
             <Link
               href='#'
               onClick={() => {
-                setDetail(row.original.pk)
+                setDetail(row.original.selling.pk)
                 setDetailModalOpen(true)
               }}
             >
@@ -667,14 +862,14 @@ const Example = (props: any) => {
         enableEditing: false
       },
       {
-        accessorKey: 'channel_order_id',
+        accessorKey: 'selling.channel_order_id',
         header: 'Order ID',
         maxSize: 75,
         enableEditing: false
       },
       {
-        accessorKey: 'order_date',
-        accessorFn: row => row.order_date.substr(0, 10),
+        accessorKey: 'selling.order_date',
+        accessorFn: row => row.selling.order_date.substr(0, 10),
         header: 'Date',
         maxSize: 100,
         muiTableBodyCellEditTextFieldProps: {
@@ -684,7 +879,7 @@ const Example = (props: any) => {
         enableEditing: false
       },
       {
-        accessorKey: 'channel.name',
+        accessorKey: 'selling.channel.name',
         header: 'Channel',
         maxSize: 100,
         muiTableBodyCellEditTextFieldProps: {
@@ -698,265 +893,10 @@ const Example = (props: any) => {
         enableEditing: false
       },
       {
-        accessorKey: 'seller_name',
+        accessorKey: 'selling.seller_name',
         header: 'Store',
         maxSize: 125,
         enableEditing: false
-      },
-
-      {
-        accessorKey: 'total_cost',
-        id: 'total',
-        header: 'Item Price',
-        size: 75,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSD.format(row.original.total_cost)}</Box>
-        ),
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        },
-        enableEditing: false,
-        muiTableBodyCellProps: {
-          align: 'right'
-        },
-        muiTableHeadCellProps: {
-          align: 'right'
-        }
-      },
-      {
-        accessorKey: 'shipping_cost',
-        id: 'shipping_cost',
-        header: 'Shipping',
-        size: 75,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSD.format(row.original.shipping_cost)}</Box>
-        ),
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        },
-        muiTableBodyCellProps: {
-          align: 'right'
-        },
-        muiTableHeadCellProps: {
-          align: 'right'
-        }
-      },
-      {
-        accessorKey: 'channel_fee',
-        id: 'channel_fee',
-        header: 'Fees',
-        size: 75,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSD.format(row.original.channel_fee)}</Box>
-        ),
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        },
-        muiTableBodyCellProps: {
-          align: 'right'
-        },
-        muiTableHeadCellProps: {
-          align: 'right'
-        }
-      },
-      {
-        accessorKey: 'gross_sales',
-        id: 'gross_sales',
-        header: 'Net Sales',
-        size: 75,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSD.format(row.original.gross_sales)}</Box>
-        ),
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        },
-        muiTableBodyCellProps: {
-          align: 'right'
-        },
-        muiTableHeadCellProps: {
-          align: 'right'
-        }
-      },
-      {
-        accessorKey: 'purchase_cost',
-
-        id: 'purchase_cost',
-        header: 'Cost',
-        size: 75,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSD.format(row.original.purchase_cost)}</Box>
-        ),
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        },
-        muiTableBodyCellProps: {
-          align: 'right'
-        },
-        muiTableHeadCellProps: {
-          align: 'right'
-        }
-      },
-      {
-        accessorKey: 'ss_shipping_cost',
-
-        id: 'ss_shipping_cost',
-        header: 'Shipping',
-        size: 75,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSD.format(row.original.ss_shipping_cost)}</Box>
-        ),
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        },
-        muiTableBodyCellProps: {
-          align: 'right'
-        },
-        muiTableHeadCellProps: {
-          align: 'right'
-        }
-      },
-      {
-        accessorKey: 'profit',
-        id: 'profit',
-        header: 'Margin',
-        size: 75,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSD.format(row.original.profit)}</Box>,
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        },
-        muiTableBodyCellProps: {
-          align: 'right'
-        },
-        muiTableHeadCellProps: {
-          align: 'right'
-        }
-      },
-      {
-        accessorKey: 'subs_status',
-        header: 'Subs',
-        maxSize: 50,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) =>
-          renderedCellValue ? (
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center'
-              }}
-            >
-              <Box
-                sx={theme => ({
-                  backgroundColor: theme.palette.success.dark,
-                  borderRadius: '0.5rem',
-                  color: '#fff',
-                  width: 15,
-                  height: 15,
-                  marginLeft: 5
-                })}
-              ></Box>
-            </Box>
-          ) : (
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center'
-              }}
-            ></Box>
-          )
-      },
-      {
-        accessorKey: 'status',
-        header: 'Shipped',
-        maxSize: 50,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            <Box
-              sx={theme => ({
-                backgroundColor:
-                  renderedCellValue == 'completed'
-                    ? row.original.salesitems.filter(function (element) {
-                        return element.tracking
-                      }).length > 0
-                      ? theme.palette.success.dark
-                      : theme.palette.warning.light
-                    : theme.palette.error.dark,
-                borderRadius: '0.5rem',
-                color: '#fff',
-                width: 12,
-                height: 12,
-                marginLeft: 5
-              })}
-            ></Box>
-
-            {/* <Chip
-              label={renderedCellValue == 'completed' ? 'Completed' : 'Pending'}
-              size='small'
-              color={
-                renderedCellValue == 'completed'
-                  ? row.original.salesitems.filter(function (element) {
-                      return element.tracking
-                    }).length > 0
-                    ? 'success'
-                    : 'warning'
-                  : 'error'
-              }
-            /> */}
-            {/* <Link href={`/sales/${row.original.pk}`} target='_blank'>
-              {renderedCellValue}
-            </Link> */}
-          </Box>
-        )
-      },
-      {
-        accessorKey: 'delivery_status',
-        header: 'Tracking',
-        maxSize: 100,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            {row.original.salesitems
-              .filter(e => e.tracking)
-              .map(sales => sales.tracking.status)
-              .filter((c, index, arr) => {
-                return arr.indexOf(c) === index
-              })
-              .map((status, index) => {
-                return (
-                  <Box
-                    key={index}
-                    sx={theme => ({
-                      backgroundColor:
-                        status == 'D'
-                          ? theme.palette.success.dark
-                          : status == 'T'
-                          ? theme.palette.warning.light
-                          : theme.palette.error.dark,
-                      borderRadius: '0.5rem',
-                      color: '#fff',
-                      width: 15,
-                      height: 15
-                    })}
-                  ></Box>
-                )
-              })}
-          </Box>
-        )
       }
     ],
     [channelData]

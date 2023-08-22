@@ -37,7 +37,7 @@ const Overrides = (theme: Theme) => {
   const tabs = MuiTabs(theme)
   const cards = MuiCard(theme)
   const input = MuiInput(theme)
-  const tables = MuiTable(theme)
+  // const tables = MuiTable(theme)
   const alerts = MuiAlerts(theme)
   const button = MuiButton(theme)
   const rating = MuiRating(theme)
@@ -65,7 +65,7 @@ const Overrides = (theme: Theme) => {
     button,
     dialog,
     rating,
-    tables,
+    // tables,
     avatars,
     divider,
     MuiLink,
