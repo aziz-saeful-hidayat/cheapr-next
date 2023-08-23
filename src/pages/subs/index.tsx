@@ -445,7 +445,7 @@ const Example = (props: any) => {
           fetchURL.searchParams.set(filter.id.split('.')[0], typeof filter.value === 'string' ? filter.value : '')
         }
       }
-      fetchURL.searchParams.set('mpn', globalFilter ?? '')
+      fetchURL.searchParams.set('search', globalFilter ?? '')
       let ordering = ''
       for (let s = 0; s < sorting.length; s++) {
         const sort = sorting[s]

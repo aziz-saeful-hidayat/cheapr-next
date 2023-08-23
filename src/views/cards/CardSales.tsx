@@ -76,30 +76,20 @@ const CardSales = ({
     console.log(tableData)
     setSalesData({
       sales_items: orderData ? orderData?.salesitems?.length : 0,
-      sales_item_revenue: orderData?.total_cost ? orderData?.total_cost : 0,
+      sales_item_revenue: orderData && !isNaN(orderData?.total_cost) ? orderData?.total_cost : 0,
       sales_shipping: orderData && !isNaN(orderData?.shipping_cost) ? orderData?.shipping_cost : 0,
       sales_fee: orderData && !isNaN(orderData?.channel_fee) ? orderData?.channel_fee : 0,
       gross_sales: orderData && !isNaN(orderData?.gross_sales) ? orderData?.gross_sales : 0,
       purchase_cost: orderData && !isNaN(orderData?.purchase_cost) ? orderData?.purchase_cost : 0,
       all_cost: orderData && !isNaN(orderData?.all_cost) ? orderData?.all_cost : 0,
       profit: orderData && !isNaN(orderData?.profit) ? orderData?.profit : 0,
-      outbound_shipping: orderData?.ss_shipping_cost ? orderData?.ss_shipping_cost : 0,
+      outbound_shipping: orderData && !isNaN(orderData?.ss_shipping_cost) ? orderData?.ss_shipping_cost : 0,
       purchase_items: tableData?.filter(item => !!item.pk).reduce((prev, next) => prev + 1, 0),
-      purchase_items_cost: tableData
-        ?.filter(item => !!item.pk)
-        .reduce((prev, next) => prev + parseFloat(next.total_cost), 0),
-      inbound_shipping: tableData
-        ?.filter(item => !!item.pk)
-        .reduce((prev, next) => prev + parseFloat(next.shipping_cost), 0)
+      purchase_items_cost: orderData && !isNaN(orderData?.purchase_items) ? orderData?.purchase_items : 0,
+      inbound_shipping: orderData && !isNaN(orderData?.inbound_shipping) ? orderData?.inbound_shipping : 0
     })
     console.log(salesData)
   }, [orderData, tableData])
-  const getTotal = () =>
-    parseFloat(salesData.sales_item_revenue) +
-    parseFloat(salesData.sales_shipping) -
-    parseFloat(salesData.outbound_shipping) -
-    parseFloat(salesData.purchase_items_cost) -
-    parseFloat(salesData.inbound_shipping)
   return (
     <Card sx={{ marginBottom: 5 }}>
       <CardContent sx={{ padding: theme => `${theme.spacing(3.25, 5.75, 6.25)} !important` }}>

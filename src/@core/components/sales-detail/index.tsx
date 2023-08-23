@@ -160,6 +160,8 @@ export type SellingOrder = {
   ss_shipping_cost: number
   channel_fee: number
   purchase_cost: number
+  inbound_shipping: number
+  purchase_items: number
   all_cost: number
   gross_sales: number
   profit: number
