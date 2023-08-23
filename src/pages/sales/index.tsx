@@ -824,11 +824,21 @@ const Example = (props: any) => {
         size: 75,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSD.format(row.original.profit)}</Box>,
+        muiTableBodyCellProps: ({ cell, table }) => {
+          if (cell.row.original.profit < 0) {
+            return {
+              align: 'right',
+              sx: { backgroundColor: '#ffcccb', color: '#4e0100' }
+            }
+          } else {
+            return {
+              align: 'right',
+              sx: { backgroundColor: '#90EE90', color: '#0a430a' }
+            }
+          }
+        },
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
-        },
-        muiTableBodyCellProps: {
-          align: 'right'
         },
         muiTableHeadCellProps: {
           align: 'right'

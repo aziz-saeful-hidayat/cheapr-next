@@ -1959,7 +1959,10 @@ const SalesDetail = (props: any) => {
   }
 
   const handleUseDropship = (values: InventoryItem) => {
-    const newValues = { ...values, sales: itemToEdit, mpn: mpnToAdd }
+    const newValues: {
+      [key: string]: number | string
+    } = { ...values, sales: itemToEdit, mpn: mpnToAdd }
+    Object.keys(newValues).forEach(k => newValues[k] == null || (newValues[k] == '' && delete newValues[k]))
     console.log(newValues)
     setIsFetching(true)
     fetch(`https://cheapr.my.id/use_dropship`, {

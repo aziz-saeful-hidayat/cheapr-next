@@ -829,8 +829,18 @@ const Example = (props: any) => {
           type: 'number'
         },
         enableEditing: false,
-        muiTableBodyCellProps: {
-          align: 'right'
+        muiTableBodyCellProps: ({ cell, table }) => {
+          if (cell.row.original.selling?.profit < 0) {
+            return {
+              align: 'right',
+              sx: { backgroundColor: '#ffcccb', color: '#4e0100' }
+            }
+          } else {
+            return {
+              align: 'right',
+              sx: { backgroundColor: '#90EE90', color: '#0a430a' }
+            }
+          }
         },
         muiTableHeadCellProps: {
           align: 'right'
@@ -1009,6 +1019,52 @@ const Example = (props: any) => {
           showAlertBanner: isError,
           showProgressBars: isFetching,
           sorting
+        }}
+        muiTableHeadProps={{
+          sx: {
+            //stripe the rows, make odd rows a darker color
+            '& td:nth-child(1)': {
+              backgroundColor: '#ADD8E6'
+            },
+            '& td:nth-child(2)': {
+              backgroundColor: '#ADD8E6'
+            },
+            '& td:nth-child(3)': {
+              backgroundColor: '#ADD8E6'
+            },
+            '& td:nth-child(4)': {
+              backgroundColor: '#FFD580'
+            },
+            '& td:nth-child(5)': {
+              backgroundColor: '#FFD580'
+            },
+            '& td:nth-child(6)': {
+              backgroundColor: '#FFD580'
+            }
+          }
+        }}
+        muiTableBodyProps={{
+          sx: {
+            //stripe the rows, make odd rows a darker color
+            '& td:nth-child(1)': {
+              backgroundColor: '#e8f4f8'
+            },
+            '& td:nth-child(2)': {
+              backgroundColor: '#e8f4f8'
+            },
+            '& td:nth-child(3)': {
+              backgroundColor: '#e8f4f8'
+            },
+            '& td:nth-child(4)': {
+              backgroundColor: '#ffedcd'
+            },
+            '& td:nth-child(5)': {
+              backgroundColor: '#ffedcd'
+            },
+            '& td:nth-child(6)': {
+              backgroundColor: '#ffedcd'
+            }
+          }
         }}
       />
       <CreateNewAccountModal
