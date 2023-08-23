@@ -39,7 +39,7 @@ import Card from '@mui/material/Card'
 import { ExtendedSession } from '../api/auth/[...nextauth]'
 import moment from 'moment'
 import { useRouter } from 'next/router'
-import { formatterUSD } from 'src/constants/Utils'
+import { formatterUSDStrip } from 'src/constants/Utils'
 import { getSession } from 'next-auth/react'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import PurchaseDetail from 'src/@core/components/purchase-detail'
@@ -731,7 +731,7 @@ const Example = (props: any) => {
       },
       {
         accessorFn: row =>
-          formatterUSD.format(
+          formatterUSDStrip(
             row.inventoryitems
               ? row.inventoryitems.reduce((accumulator, object) => {
                   return accumulator + parseFloat(object.total_cost)
@@ -745,7 +745,7 @@ const Example = (props: any) => {
       },
       {
         accessorFn: row =>
-          formatterUSD.format(
+          formatterUSDStrip(
             row.inventoryitems
               ? row.inventoryitems.reduce((accumulator, object) => {
                   return accumulator + parseFloat(object.shipping_cost)

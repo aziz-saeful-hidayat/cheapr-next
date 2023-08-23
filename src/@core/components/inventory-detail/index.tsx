@@ -35,7 +35,7 @@ import { Delete, ContentCopy } from '@mui/icons-material'
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
 import { withAuth } from 'src/constants/HOCs'
 import { useRouter } from 'next/router'
-import { formatterUSD } from 'src/constants/Utils'
+import { formatterUSDStrip } from 'src/constants/Utils'
 import CardOrder from 'src/views/cards/CardOrder'
 import { ExtendedSession } from 'src/pages/api/auth/[...nextauth]'
 import { SalesOrder } from 'src/pages/purchase/[purchaseId]'
@@ -469,7 +469,7 @@ const InventoryDetail = (props: any) => {
         header: 'Total',
         size: 100,
         Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{renderedCellValue && formatterUSD.format(row.original.total_cost)}</Box>
+          <Box component='span'>{renderedCellValue && formatterUSDStrip(row.original.total_cost)}</Box>
         )
       },
       {
@@ -477,7 +477,7 @@ const InventoryDetail = (props: any) => {
         header: 'Shipping',
         size: 100,
         Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSD.format(row.original.shipping_cost)}</Box>
+          <Box component='span'>{formatterUSDStrip(row.original.shipping_cost)}</Box>
         )
       }
     ],

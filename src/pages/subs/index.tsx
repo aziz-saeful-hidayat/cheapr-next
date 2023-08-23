@@ -39,7 +39,7 @@ import Items from 'src/@core/components/selling-item'
 import { withAuth } from 'src/constants/HOCs'
 import { useSession, signIn, signOut, getSession } from 'next-auth/react'
 import SalesDetail from 'src/@core/components/sales-detail'
-import { formatterUSD } from 'src/constants/Utils'
+import { formatterUSDStrip } from 'src/constants/Utils'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 
 type Channel = {
@@ -668,29 +668,29 @@ const Example = (props: any) => {
       },
       {
         accessorKey: 'sub_sku.make',
-        header: 'Make',
+        header: 'Sub-Make',
         maxSize: 75,
         enableEditing: false
       },
       {
         accessorKey: 'sub_sku.model',
-        header: 'Model',
+        header: 'Sub-Model',
         maxSize: 75,
         enableEditing: false
       },
       {
         accessorKey: 'sub_sku.mpn',
-        header: 'MPN',
+        header: 'Sub-MPN',
         maxSize: 100,
         enableEditing: false
       },
       {
         accessorKey: 'selling.total_cost',
-        id: 'total_cost',
+        id: 'item_price',
         header: 'Item Price',
         size: 75,
         Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSD.format(row.original.selling.total_cost)}</Box>
+          <Box component='span'>{formatterUSDStrip(row.original.selling.total_cost)}</Box>
         ),
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
@@ -709,7 +709,7 @@ const Example = (props: any) => {
         header: 'Shipping',
         size: 75,
         Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSD.format(row.original.selling.shipping_cost)}</Box>
+          <Box component='span'>{formatterUSDStrip(row.original.selling.shipping_cost)}</Box>
         ),
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
@@ -728,7 +728,7 @@ const Example = (props: any) => {
         header: 'Fees',
         size: 75,
         Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSD.format(row.original.selling.channel_fee)}</Box>
+          <Box component='span'>{formatterUSDStrip(row.original.selling.channel_fee)}</Box>
         ),
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
@@ -747,7 +747,7 @@ const Example = (props: any) => {
         header: 'Net Sales',
         size: 75,
         Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSD.format(row.original.selling.gross_sales)}</Box>
+          <Box component='span'>{formatterUSDStrip(row.original.selling.gross_sales)}</Box>
         ),
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
@@ -766,7 +766,7 @@ const Example = (props: any) => {
         header: 'Item Cost',
         size: 75,
         Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSD.format(row.original.selling.purchase_items)}</Box>
+          <Box component='span'>{formatterUSDStrip(row.original.selling.purchase_items)}</Box>
         ),
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
@@ -785,7 +785,7 @@ const Example = (props: any) => {
         header: 'Shipping',
         size: 75,
         Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSD.format(row.original.selling.inbound_shipping)}</Box>
+          <Box component='span'>{formatterUSDStrip(row.original.selling.inbound_shipping)}</Box>
         ),
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
@@ -801,10 +801,10 @@ const Example = (props: any) => {
       {
         accessorKey: 'selling.purchase_cost',
         id: 'purchase_cost',
-        header: 'Total',
+        header: 'Total Cost',
         size: 75,
         Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSD.format(row.original.selling.purchase_cost)}</Box>
+          <Box component='span'>{formatterUSDStrip(row.original.selling.purchase_cost)}</Box>
         ),
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
@@ -820,10 +820,10 @@ const Example = (props: any) => {
       {
         accessorKey: 'selling.profit',
         id: 'profit',
-        header: 'Net Margin',
+        header: 'Margin',
         size: 75,
         Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSD.format(row.original.selling.profit)}</Box>
+          <Box component='span'>{formatterUSDStrip(row.original.selling.profit)}</Box>
         ),
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
@@ -837,8 +837,7 @@ const Example = (props: any) => {
             }
           } else {
             return {
-              align: 'right',
-              sx: { backgroundColor: '#90EE90', color: '#0a430a' }
+              align: 'right'
             }
           }
         },
@@ -848,7 +847,7 @@ const Example = (props: any) => {
       },
       {
         accessorKey: 'selling.order_id',
-        header: 'SB.#',
+        header: 'SBO.#',
         maxSize: 75,
         Cell: ({ renderedCellValue, row }) => (
           <Box
@@ -873,6 +872,7 @@ const Example = (props: any) => {
       },
       {
         accessorKey: 'selling.channel_order_id',
+        id: 'channel_order_id',
         header: 'Order ID',
         maxSize: 75,
         enableEditing: false
@@ -890,6 +890,7 @@ const Example = (props: any) => {
       },
       {
         accessorKey: 'selling.channel.name',
+        id: 'channel_name',
         header: 'Channel',
         maxSize: 100,
         muiTableBodyCellEditTextFieldProps: {
@@ -904,7 +905,7 @@ const Example = (props: any) => {
       },
       {
         accessorKey: 'selling.seller_name',
-        header: 'Store',
+        header: 'Sold at',
         maxSize: 125,
         enableEditing: false
       }
@@ -962,7 +963,19 @@ const Example = (props: any) => {
       <MaterialReactTable
         columns={columns}
         data={tableData} //data is undefined on first render
-        initialState={{ showColumnFilters: false, density: 'compact' }}
+        initialState={{
+          showColumnFilters: false,
+          density: 'compact',
+          columnVisibility: {
+            item_price: false,
+            shipping_cost: false,
+            channel_fee: false,
+            purchase_items: false,
+            inbound_shipping: false,
+            channel_order_id: false,
+            channel_name: false
+          }
+        }}
         enableEditing
         enableColumnActions={false}
         editingMode='cell'

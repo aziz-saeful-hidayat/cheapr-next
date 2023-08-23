@@ -39,7 +39,7 @@ import Items from 'src/@core/components/selling-item'
 import { withAuth } from 'src/constants/HOCs'
 import { useSession, signIn, signOut, getSession } from 'next-auth/react'
 import SalesDetail from 'src/@core/components/sales-detail'
-import { formatterUSD } from 'src/constants/Utils'
+import { formatterUSDStrip } from 'src/constants/Utils'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 
 type Channel = {
@@ -708,7 +708,7 @@ const Example = (props: any) => {
       },
       {
         accessorKey: 'total_cost',
-        accessorFn: row => formatterUSD.format(row.total_cost),
+        accessorFn: row => formatterUSDStrip(row.total_cost),
         id: 'total',
         header: 'Price',
         size: 100,
@@ -718,7 +718,7 @@ const Example = (props: any) => {
         enableEditing: false
       },
       {
-        accessorFn: row => formatterUSD.format(row.shipping_cost),
+        accessorFn: row => formatterUSDStrip(row.shipping_cost),
         id: 'shipping_cost',
         header: 'Shipping',
         size: 100,

@@ -14,7 +14,7 @@ import StarOutline from 'mdi-material-ui/StarOutline'
 import AccountOutline from 'mdi-material-ui/AccountOutline'
 import LockOpenOutline from 'mdi-material-ui/LockOpenOutline'
 import { BuyingOrder, SalesOrder } from 'src/pages/purchase/[purchaseId]'
-import { formatterUSD } from 'src/constants/Utils'
+import { formatterUSDStrip } from 'src/constants/Utils'
 
 // Styled Box component
 const StyledBox = styled(Box)<BoxProps>(({ theme }) => ({
@@ -115,7 +115,7 @@ const CardOrder = ({
 
               <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
                 {type == 'buying'
-                  ? formatterUSD.format(
+                  ? formatterUSDStrip(
                       orderData?.inventoryitems
                         ? orderData?.inventoryitems.reduce((accumulator, object) => {
                             if (object.total_cost) {
@@ -126,7 +126,7 @@ const CardOrder = ({
                           }, 0)
                         : 0
                     )
-                  : formatterUSD.format(orderData?.total_cost ? orderData?.total_cost : 0)}
+                  : formatterUSDStrip(orderData?.total_cost ? orderData?.total_cost : 0)}
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -135,7 +135,7 @@ const CardOrder = ({
 
               <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
                 {type == 'buying'
-                  ? formatterUSD.format(
+                  ? formatterUSDStrip(
                       orderData?.inventoryitems
                         ? orderData?.inventoryitems.reduce((accumulator, object) => {
                             if (object.shipping_cost) {
@@ -146,7 +146,7 @@ const CardOrder = ({
                           }, 0)
                         : 0
                     )
-                  : formatterUSD.format(orderData?.shipping_cost ? orderData?.shipping_cost : 0)}
+                  : formatterUSDStrip(orderData?.shipping_cost ? orderData?.shipping_cost : 0)}
               </Typography>
             </Box>
           </Grid>

@@ -39,7 +39,7 @@ import Items from 'src/@core/components/selling-item'
 import { withAuth } from 'src/constants/HOCs'
 import { useSession, signIn, signOut, getSession } from 'next-auth/react'
 import SalesDetail from 'src/@core/components/sales-detail'
-import { formatterUSD } from 'src/constants/Utils'
+import { formatterUSDStrip } from 'src/constants/Utils'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 
 type Channel = {
@@ -685,6 +685,7 @@ const Example = (props: any) => {
       },
       {
         accessorKey: 'channel.name',
+        id: 'channel_name',
         header: 'Channel',
         maxSize: 100,
         muiTableBodyCellEditTextFieldProps: {
@@ -709,9 +710,7 @@ const Example = (props: any) => {
         id: 'total',
         header: 'Item Price',
         size: 75,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSD.format(row.original.total_cost)}</Box>
-        ),
+        Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.total_cost)}</Box>,
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
         },
@@ -729,7 +728,7 @@ const Example = (props: any) => {
         header: 'Shipping',
         size: 75,
         Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSD.format(row.original.shipping_cost)}</Box>
+          <Box component='span'>{formatterUSDStrip(row.original.shipping_cost)}</Box>
         ),
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
@@ -746,9 +745,7 @@ const Example = (props: any) => {
         id: 'channel_fee',
         header: 'Fees',
         size: 75,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSD.format(row.original.channel_fee)}</Box>
-        ),
+        Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.channel_fee)}</Box>,
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
         },
@@ -765,9 +762,7 @@ const Example = (props: any) => {
         header: 'Net Sales',
         size: 75,
         enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSD.format(row.original.gross_sales)}</Box>
-        ),
+        Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.gross_sales)}</Box>,
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
         },
@@ -786,7 +781,7 @@ const Example = (props: any) => {
         size: 75,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSD.format(row.original.purchase_cost)}</Box>
+          <Box component='span'>{formatterUSDStrip(row.original.purchase_cost)}</Box>
         ),
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
@@ -805,7 +800,7 @@ const Example = (props: any) => {
         header: 'Shipping',
         size: 75,
         Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSD.format(row.original.ss_shipping_cost)}</Box>
+          <Box component='span'>{formatterUSDStrip(row.original.ss_shipping_cost)}</Box>
         ),
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
@@ -823,7 +818,7 @@ const Example = (props: any) => {
         header: 'Margin',
         size: 75,
         enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSD.format(row.original.profit)}</Box>,
+        Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.profit)}</Box>,
         muiTableBodyCellProps: ({ cell, table }) => {
           if (cell.row.original.profit < 0) {
             return {
@@ -832,8 +827,7 @@ const Example = (props: any) => {
             }
           } else {
             return {
-              align: 'right',
-              sx: { backgroundColor: '#90EE90', color: '#0a430a' }
+              align: 'right'
             }
           }
         },
@@ -875,7 +869,10 @@ const Example = (props: any) => {
                 alignItems: 'center'
               }}
             ></Box>
-          )
+          ),
+        muiTableBodyCellProps: {
+          align: 'center'
+        }
       },
       {
         accessorKey: 'status',
@@ -890,23 +887,42 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            <Box
-              sx={theme => ({
-                backgroundColor:
-                  renderedCellValue == 'completed'
-                    ? row.original.salesitems.filter(function (element) {
-                        return element.tracking
-                      }).length > 0
-                      ? theme.palette.success.dark
-                      : theme.palette.warning.light
-                    : theme.palette.error.dark,
-                borderRadius: '0.5rem',
-                color: '#fff',
-                width: 12,
-                height: 12,
-                marginLeft: 5
-              })}
-            ></Box>
+            {renderedCellValue == 'completed' ? (
+              <Box
+                sx={theme => ({
+                  backgroundColor: theme.palette.success.dark,
+                  borderRadius: '0.5rem',
+                  color: '#fff',
+                  width: 12,
+                  height: 12
+                })}
+              ></Box>
+            ) : (
+              <Box
+                sx={theme => ({
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: '#a9a9a9',
+                  borderRadius: '0.5rem',
+                  borderColor: '#000',
+                  color: '#fff',
+                  width: 12,
+                  height: 12
+                })}
+              >
+                <Box
+                  sx={theme => ({
+                    backgroundColor: theme.palette.background.paper,
+                    borderRadius: '0.5rem',
+                    borderColor: '#000',
+                    color: '#fff',
+                    width: 9,
+                    height: 9
+                  })}
+                ></Box>
+              </Box>
+            )}
 
             {/* <Chip
               label={renderedCellValue == 'completed' ? 'Completed' : 'Pending'}
@@ -925,7 +941,10 @@ const Example = (props: any) => {
               {renderedCellValue}
             </Link> */}
           </Box>
-        )
+        ),
+        muiTableBodyCellProps: {
+          align: 'center'
+        }
       },
       {
         accessorKey: 'delivery_status',
@@ -1022,7 +1041,13 @@ const Example = (props: any) => {
       <MaterialReactTable
         columns={columns}
         data={tableData} //data is undefined on first render
-        initialState={{ showColumnFilters: false, density: 'compact' }}
+        initialState={{
+          showColumnFilters: false,
+          density: 'compact',
+          columnVisibility: {
+            channel_name: false
+          }
+        }}
         enableEditing
         enableColumnActions={false}
         editingMode='cell'

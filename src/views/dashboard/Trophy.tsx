@@ -4,7 +4,7 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
 import { styled, useTheme } from '@mui/material/styles'
-import { formatterUSD } from 'src/constants/Utils'
+import { formatterUSDStrip } from 'src/constants/Utils'
 
 // Styled component for the triangle shaped background image
 const TriangleImg = styled('img')({
@@ -37,7 +37,7 @@ const Trophy = (props: any) => {
           Total purchased items yesterday
         </Typography>
         <Typography variant='h5' sx={{ my: 4, color: 'primary.main' }}>
-          {formatterUSD.format(
+          {formatterUSDStrip(
             data.reduce((total: number, obj: any) => {
               if (obj.yesterday_sum) {
                 return parseFloat(obj.yesterday_sum) + total

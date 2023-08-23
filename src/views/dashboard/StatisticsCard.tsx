@@ -20,7 +20,7 @@ import AccountOutline from 'mdi-material-ui/AccountOutline'
 
 // ** Types
 import { ThemeColor } from 'src/@core/layouts/types'
-import { formatterUSD } from 'src/constants/Utils'
+import { formatterUSDStrip } from 'src/constants/Utils'
 
 interface DataType {
   stats: string
@@ -59,7 +59,7 @@ const StatisticsCard = (props: any) => {
   const { data } = props
   const salesData: DataType[] = [
     {
-      stats: formatterUSD.format(
+      stats: formatterUSDStrip(
         data.reduce((total: number, obj: any) => {
           if (obj.last30_sum) {
             return parseFloat(obj.last30_sum) + total

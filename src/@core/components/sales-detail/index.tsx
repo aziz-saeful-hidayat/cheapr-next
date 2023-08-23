@@ -31,7 +31,7 @@ import Popover from '@mui/material/Popover'
 import { Delete, ContentCopy, Add, DisabledByDefault, FindReplace, Block } from '@mui/icons-material'
 import { useRouter } from 'next/router'
 import { ExtendedSession } from 'src/pages/api/auth/[...nextauth]'
-import { formatterUSD } from 'src/constants/Utils'
+import { formatterUSDStrip } from 'src/constants/Utils'
 import CardOrder from 'src/views/cards/CardOrder'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import CardSales from 'src/views/cards/CardSales'
@@ -866,7 +866,7 @@ export const AddItemModal = ({
                 options.map(item => (
                   <MenuItem value={item.pk}>
                     {item.product ? item.product.sku : ''} {item.serial}{' '}
-                    {formatterUSD.format(parseFloat(item.total_cost))}
+                    {formatterUSDStrip(parseFloat(item.total_cost))}
                   </MenuItem>
                 ))
               ) : (
@@ -1313,7 +1313,7 @@ const SalesDetail = (props: any) => {
         header: 'Unit Price',
         size: 75,
         Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{renderedCellValue && formatterUSD.format(row.original.total_cost)}</Box>
+          <Box component='span'>{renderedCellValue && formatterUSDStrip(row.original.total_cost)}</Box>
         ),
         enableEditing: row => !row.original.item_null
       },
@@ -1323,7 +1323,7 @@ const SalesDetail = (props: any) => {
         size: 75,
         Cell: ({ renderedCellValue, row }) => (
           <Box component='span'>
-            {!isNaN(row.original.shipping_cost) && formatterUSD.format(row.original.shipping_cost)}
+            {!isNaN(row.original.shipping_cost) && formatterUSDStrip(row.original.shipping_cost)}
           </Box>
         ),
         enableEditing: row => !row.original.item_null

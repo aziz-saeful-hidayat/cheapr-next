@@ -14,7 +14,7 @@ import StarOutline from 'mdi-material-ui/StarOutline'
 import AccountOutline from 'mdi-material-ui/AccountOutline'
 import LockOpenOutline from 'mdi-material-ui/LockOpenOutline'
 import { BuyingOrder, SalesOrder } from 'src/pages/purchase/[purchaseId]'
-import { formatterUSD } from 'src/constants/Utils'
+import { formatterUSDStrip } from 'src/constants/Utils'
 import { useEffect, useState } from 'react'
 
 type Room = {
@@ -186,7 +186,7 @@ const CardSales = ({
               <Typography variant='body1'>Item: </Typography>
 
               <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
-                {formatterUSD.format(salesData.sales_item_revenue)}
+                {formatterUSDStrip(salesData.sales_item_revenue)}
               </Typography>
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
@@ -194,7 +194,7 @@ const CardSales = ({
               <Typography variant='body1'>Shipping: </Typography>
 
               <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
-                {formatterUSD.format(salesData.sales_shipping)}
+                {formatterUSDStrip(salesData.sales_shipping)}
               </Typography>
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
@@ -202,7 +202,7 @@ const CardSales = ({
               <Typography variant='body1'>Channel Fee: </Typography>
 
               <Typography variant='body1' sx={{ marginLeft: 'auto', color: 'red' }}>
-                {formatterUSD.format(salesData.sales_fee)}
+                {formatterUSDStrip(salesData.sales_fee)}
               </Typography>
             </Box>
 
@@ -211,7 +211,7 @@ const CardSales = ({
               <Typography variant='body1'>Total: </Typography>
 
               <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
-                {formatterUSD.format(salesData.gross_sales)}
+                {formatterUSDStrip(salesData.gross_sales)}
               </Typography>
             </Box> */}
           </Grid>
@@ -232,7 +232,7 @@ const CardSales = ({
               <Typography variant='body1'>Item: </Typography>
 
               <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
-                {formatterUSD.format(parseFloat(salesData.purchase_items_cost))}
+                {formatterUSDStrip(parseFloat(salesData.purchase_items_cost))}
               </Typography>
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
@@ -240,7 +240,7 @@ const CardSales = ({
               <Typography variant='body1'>Inbound Shipping: </Typography>
 
               <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
-                {formatterUSD.format(parseFloat(salesData.inbound_shipping))}
+                {formatterUSDStrip(parseFloat(salesData.inbound_shipping))}
               </Typography>
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
@@ -248,7 +248,7 @@ const CardSales = ({
               <Typography variant='body1'>Outbound Shipping: </Typography>
 
               <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
-                {formatterUSD.format(salesData.outbound_shipping)}
+                {formatterUSDStrip(salesData.outbound_shipping)}
               </Typography>
             </Box>
             {/* <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
@@ -256,7 +256,7 @@ const CardSales = ({
               <Typography variant='body1'>Total: </Typography>
 
               <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
-                {formatterUSD.format(salesData.purchase_cost)}
+                {formatterUSDStrip(salesData.purchase_cost)}
               </Typography>
             </Box> */}
           </Grid>
@@ -268,7 +268,7 @@ const CardSales = ({
               <StarOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
               <Typography variant='body1'>Revenue: </Typography>
               <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
-                {formatterUSD.format(salesData.gross_sales)}
+                {formatterUSDStrip(salesData.gross_sales)}
               </Typography>
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
@@ -276,7 +276,7 @@ const CardSales = ({
               <Typography variant='body1'>Cost: </Typography>
 
               <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
-                {formatterUSD.format(salesData.all_cost)}
+                {formatterUSDStrip(salesData.all_cost)}
               </Typography>
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
@@ -284,7 +284,7 @@ const CardSales = ({
               <Typography variant='body1'>Gross Profit: </Typography>
 
               <Typography variant='body1' sx={{ marginLeft: 'auto', color: salesData.profit > 0 ? 'black' : 'red' }}>
-                {formatterUSD.format(salesData.profit)}
+                {formatterUSDStrip(salesData.profit)}
               </Typography>
             </Box>
           </Grid>
