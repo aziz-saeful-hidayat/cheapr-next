@@ -41,6 +41,7 @@ import { useSession, signIn, signOut, getSession } from 'next-auth/react'
 import SalesDetail from 'src/@core/components/sales-detail'
 import { formatterUSDStrip } from 'src/constants/Utils'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
+import { Close } from 'mdi-material-ui'
 
 type Channel = {
   pk: number
@@ -123,7 +124,7 @@ type Payload = {
   pk?: number
   status?: string
   comment?: string
-  manager?: number
+  manager?: number | null
   tracking?: string
   sub?: string
 }
@@ -422,6 +423,8 @@ const Example = (props: any) => {
     pageIndex: 0,
     pageSize: 100
   })
+  const [refresh, setRefresh] = useState(0)
+
   const { data, isError, isFetching, isLoading } = useQuery({
     queryKey: [
       'table-data',
@@ -429,7 +432,8 @@ const Example = (props: any) => {
       globalFilter, //refetch when globalFilter changes
       pagination.pageIndex, //refetch when pagination.pageIndex changes
       pagination.pageSize, //refetch when pagination.pageSize changes
-      sorting //refetch when sorting changes
+      sorting, //refetch when sorting changes
+      refresh //refetch when sorting changes
     ],
     queryFn: async () => {
       const fetchURL = new URL('/sales_items/', 'https://cheapr.my.id')
@@ -475,7 +479,6 @@ const Example = (props: any) => {
   const [tableData, setTableData] = useState<SalesItemsFull[]>(() => data?.results ?? [])
   const [channelData, setChannelData] = useState<Channel[]>([])
   const [managerData, setManagerData] = useState<Room[]>([])
-
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [addModalOpen, setAddModalOpen] = useState<SalesItemsFull>()
   const [detail, setDetail] = useState<number | undefined>()
@@ -699,7 +702,45 @@ const Example = (props: any) => {
               {manager.name}
             </MenuItem>
           ))
-        }
+        },
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>
+            <span>{renderedCellValue}</span>
+            {row.original.manager && (
+              <Tooltip arrow placement='top' title='Remove'>
+                <IconButton
+                  color='error'
+                  onClick={() => {
+                    const oldData = [...tableData]
+                    const newData: any = [...tableData]
+                    const payload: Payload = {}
+
+                    payload['manager'] = null
+
+                    const pk = row.original.pk
+                    fetch(`https://cheapr.my.id/sales_items/${pk}/`, {
+                      method: 'PATCH',
+                      headers: new Headers({
+                        Authorization: `Bearer ${session?.accessToken}`,
+                        'Content-Type': 'application/json'
+                      }),
+                      body: JSON.stringify(payload)
+                    })
+                      .then(response => response.json())
+                      .then(json => {
+                        console.log(json)
+                      })
+                      .finally(() => {
+                        setRefresh(ref => ref + 1)
+                      })
+                  }}
+                >
+                  <Close />
+                </IconButton>
+              </Tooltip>
+            )}
+          </Box>
+        )
       },
       {
         accessorKey: 'selling.total_cost',
@@ -973,7 +1014,7 @@ const Example = (props: any) => {
         maxSize: 125
       }
     ],
-    [channelData]
+    [managerData]
   )
   const columnsAddItem = useMemo<MRT_ColumnDef<InventoryPayload>[]>(
     () => [
