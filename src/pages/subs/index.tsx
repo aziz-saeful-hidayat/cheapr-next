@@ -113,19 +113,19 @@ type SalesItemsFull = {
   }
   inventory: boolean
   tracking: string
+  status: string
+  manager: {
+    name: string
+  }
+  comment: string
 }
 type Payload = {
   pk?: number
-  order_id?: string
-  order_date?: string
-  channel?: number
-  tracking_number?: string
-  seller_name?: string
-  purchase_link?: string
-  total_cost?: number
-  shipping_cost?: number
+  status?: string
   comment?: string
-  sellingitems?: InventoryItem[]
+  manager?: number
+  tracking?: string
+  sub?: string
 }
 
 type ItemOption = {
@@ -474,14 +474,18 @@ const Example = (props: any) => {
   })
   const [tableData, setTableData] = useState<SalesItemsFull[]>(() => data?.results ?? [])
   const [channelData, setChannelData] = useState<Channel[]>([])
-  const [roomData, setRoomData] = useState<Room[]>([])
+  const [managerData, setManagerData] = useState<Room[]>([])
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [addModalOpen, setAddModalOpen] = useState<SalesItemsFull>()
   const [detail, setDetail] = useState<number | undefined>()
   const [detailModalOpen, setDetailModalOpen] = useState(false)
   const [tabActive, setTabActive] = useState('all')
-
+  const statusOptions: any[] = [
+    { key: 'S', name: 'Successful', color: 'success' },
+    { key: 'R', name: 'Returned', color: 'error' },
+    { key: 'N', name: 'Not Completed', color: 'default' }
+  ]
   const handleChange = (event: SelectChangeEvent) => {
     setTabActive(event.target.value as string)
     if (event.target.value == 'to_pick') {
@@ -613,14 +617,14 @@ const Example = (props: any) => {
 
   const handleSaveCell = (cell: MRT_Cell<SalesItemsFull>, value: any) => {
     const key = cell.column.id
-    const channel = channelData.find(channel => channel.name == value)
+    const manager = managerData.find(manager => manager.name == value)
     console.log(key, value)
     const oldData = [...tableData]
     const newData: any = [...tableData]
     const payload: Payload = {}
-    if (key === 'channel.name') {
-      payload['channel'] = channel?.pk
-      newData[cell.row.index]['channel'] = channel
+    if (key === 'manager.name') {
+      payload['manager'] = manager?.pk
+      newData[cell.row.index]['manager'] = manager
     } else {
       payload[key as keyof Payload] = value
       newData[cell.row.index][cell.column.id as keyof SalesItemsFull] = value
@@ -629,7 +633,7 @@ const Example = (props: any) => {
 
     setTableData([...newData])
     console.log(payload)
-    fetch(`https://cheapr.my.id/selling_order/${pk}/`, {
+    fetch(`https://cheapr.my.id/sales_items/${pk}/`, {
       method: 'PATCH',
       headers: new Headers({
         Authorization: `Bearer ${session?.accessToken}`,
@@ -683,6 +687,19 @@ const Example = (props: any) => {
         header: 'Sub-MPN',
         maxSize: 100,
         enableEditing: false
+      },
+      {
+        accessorKey: 'manager.name',
+        header: 'Sub-By',
+        maxSize: 100,
+        muiTableBodyCellEditTextFieldProps: {
+          select: true, //change to select for a dropdown
+          children: managerData?.map(manager => (
+            <MenuItem key={manager.pk} value={manager.name}>
+              {manager.name}
+            </MenuItem>
+          ))
+        }
       },
       {
         accessorKey: 'selling.total_cost',
@@ -908,6 +925,52 @@ const Example = (props: any) => {
         header: 'Sold at',
         maxSize: 125,
         enableEditing: false
+      },
+      {
+        accessorKey: 'status',
+        header: 'Status',
+        size: 100,
+        muiTableBodyCellEditTextFieldProps: {
+          select: true, //change to select for a dropdown
+          children: statusOptions?.map(status => (
+            <MenuItem key={status.key} value={status.key}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
+              >
+                {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
+                <span>{status.name}</span>
+              </Box>
+            </MenuItem>
+          ))
+        },
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            {row.original.status ? (
+              <Chip
+                sx={{
+                  fontSize: 12
+                }}
+                label={statusOptions.find(e => e.key == renderedCellValue)?.name}
+                color={statusOptions.find(e => e.key == renderedCellValue)?.color}
+              />
+            ) : null}
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'comment',
+        header: 'Comment',
+        maxSize: 125
       }
     ],
     [channelData]
@@ -944,8 +1007,8 @@ const Example = (props: any) => {
       .then(json => {
         setChannelData(json.results)
       })
-    const fetchURLRoom = new URL('/room/', 'https://cheapr.my.id')
-    fetch(fetchURLRoom.href, {
+    const fetchURLManager = new URL('/manager/', 'https://cheapr.my.id')
+    fetch(fetchURLManager.href, {
       method: 'get',
       headers: new Headers({
         Authorization: `Bearer ${session?.accessToken}`,
@@ -954,7 +1017,7 @@ const Example = (props: any) => {
     })
       .then(response => response.json())
       .then(json => {
-        setRoomData(json.results)
+        setManagerData(json.results)
       })
   }, [session])
 
@@ -1086,14 +1149,6 @@ const Example = (props: any) => {
         onClose={() => setCreateModalOpen(false)}
         onSubmit={handleCreateNewRow}
         channelData={channelData}
-      />
-      <AddItemModal
-        columns={columnsAddItem}
-        open={addModalOpen !== undefined}
-        onClose={() => setAddModalOpen(undefined)}
-        onSubmit={handleAddItem}
-        rowData={addModalOpen}
-        roomData={roomData}
       />
       <SalesDetail
         session={session}
