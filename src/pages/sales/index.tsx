@@ -853,7 +853,7 @@ const Example = (props: any) => {
             >
               <Box
                 sx={theme => ({
-                  backgroundColor: theme.palette.success.dark,
+                  backgroundColor: '#00CCCC',
                   borderRadius: '0.5rem',
                   color: '#fff',
                   width: 15,
