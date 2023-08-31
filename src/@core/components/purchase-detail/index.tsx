@@ -398,72 +398,87 @@ const PurchaseDetail = (props: any) => {
           )
       },
       {
+        accessorKey: 'product.make',
+        header: 'Make',
+        maxSize: 100
+      },
+      {
+        accessorKey: 'product.model',
+        header: 'Model',
+        maxSize: 100
+      },
+      {
+        accessorKey: 'product.mpn',
+        header: 'MPN',
+        maxSize: 100
+      },
+      {
         accessorKey: 'serial',
         header: 'Serial',
         maxSize: 100
       },
-      {
-        accessorKey: 'room.name',
-        header: 'Room',
-        size: 200,
-        muiTableBodyCellEditTextFieldProps: {
-          select: true, //change to select for a dropdown
-          children: roomData?.map(room => (
-            <MenuItem key={room.pk} value={room.name}>
-              {room.name}
-            </MenuItem>
-          ))
-        }
-      },
-      {
-        accessorKey: 'rating.name',
-        header: 'Rating',
-        maxSize: 70,
-        muiTableBodyCellEditTextFieldProps: {
-          select: true, //change to select for a dropdown
-          children: ratingData?.map(rating => (
-            <MenuItem key={rating.pk} value={rating.name}>
-              <Box
-                component='span'
-                sx={theme => ({
-                  backgroundColor: rating.color ?? theme.palette.success.dark,
-                  borderRadius: '0.25rem',
-                  color: '#fff',
-                  maxWidth: '9ch',
-                  p: '0.25rem'
-                })}
-              >
-                {rating.name}
-              </Box>
-            </MenuItem>
-          ))
-        },
-        Cell: ({ renderedCellValue, row }) => {
-          if (row.original.rating) {
-            return (
-              <Box
-                component='span'
-                sx={theme => ({
-                  backgroundColor: row.original.rating.color ?? theme.palette.success.dark,
-                  borderRadius: '0.25rem',
-                  color: '#fff',
-                  maxWidth: '9ch',
-                  p: '0.25rem'
-                })}
-              >
-                {renderedCellValue}
-              </Box>
-            )
-          } else {
-            return <></>
-          }
-        }
-      },
-      {
-        accessorKey: 'comment',
-        header: 'Comment',
-        size: 200
-      },
+      // {
+      //   accessorKey: 'room.name',
+      //   header: 'Room',
+      //   size: 200,
+      //   muiTableBodyCellEditTextFieldProps: {
+      //     select: true, //change to select for a dropdown
+      //     children: roomData?.map(room => (
+      //       <MenuItem key={room.pk} value={room.name}>
+      //         {room.name}
+      //       </MenuItem>
+      //     ))
+      //   }
+      // },
+      // {
+      //   accessorKey: 'rating.name',
+      //   header: 'Rating',
+      //   maxSize: 70,
+      //   muiTableBodyCellEditTextFieldProps: {
+      //     select: true, //change to select for a dropdown
+      //     children: ratingData?.map(rating => (
+      //       <MenuItem key={rating.pk} value={rating.name}>
+      //         <Box
+      //           component='span'
+      //           sx={theme => ({
+      //             backgroundColor: rating.color ?? theme.palette.success.dark,
+      //             borderRadius: '0.25rem',
+      //             color: '#fff',
+      //             maxWidth: '9ch',
+      //             p: '0.25rem'
+      //           })}
+      //         >
+      //           {rating.name}
+      //         </Box>
+      //       </MenuItem>
+      //     ))
+      //   },
+      //   Cell: ({ renderedCellValue, row }) => {
+      //     if (row.original.rating) {
+      //       return (
+      //         <Box
+      //           component='span'
+      //           sx={theme => ({
+      //             backgroundColor: row.original.rating.color ?? theme.palette.success.dark,
+      //             borderRadius: '0.25rem',
+      //             color: '#fff',
+      //             maxWidth: '9ch',
+      //             p: '0.25rem'
+      //           })}
+      //         >
+      //           {renderedCellValue}
+      //         </Box>
+      //       )
+      //     } else {
+      //       return <></>
+      //     }
+      //   }
+      // },
+      // {
+      //   accessorKey: 'comment',
+      //   header: 'Comment',
+      //   size: 200
+      // },
       {
         accessorKey: 'total_cost',
         header: 'Total',

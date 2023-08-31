@@ -43,6 +43,8 @@ import { formatterUSDStrip } from 'src/constants/Utils'
 import { getSession } from 'next-auth/react'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import PurchaseDetail from 'src/@core/components/purchase-detail'
+import PickSellerModal from 'src/@core/components/pick-seller'
+import CreateNewSellerModal from 'src/@core/components/create-seller'
 
 type Channel = {
   pk: number
@@ -85,6 +87,10 @@ type BuyingOrder = {
     name: string
     image: string
   }
+  seller: {
+    pk: number
+    name: string
+  }
   tracking_number: string
   seller_name: string
   purchase_link: string
@@ -93,6 +99,9 @@ type BuyingOrder = {
   shipping_cost: number
   comment: string
   inventoryitems: InventoryItem[]
+  num_items: number
+  total_sum: number
+  shipping_sum: number
 }
 type Payload = {
   pk?: number
@@ -378,6 +387,8 @@ const Example = (props: any) => {
     pageIndex: 0,
     pageSize: 25
   })
+  const [refresh, setRefresh] = useState(0)
+
   const { data, isError, isFetching, isLoading } = useQuery({
     queryKey: [
       'table-data',
@@ -385,7 +396,8 @@ const Example = (props: any) => {
       globalFilter, //refetch when globalFilter changes
       pagination.pageIndex, //refetch when pagination.pageIndex changes
       pagination.pageSize, //refetch when pagination.pageSize changes
-      sorting //refetch when sorting changes
+      sorting, //refetch when sorting changes
+      refresh
     ],
     queryFn: async () => {
       const fetchURL = new URL('/buying_order/', 'https://cheapr.my.id')
@@ -433,6 +445,9 @@ const Example = (props: any) => {
   const [detail, setDetail] = useState<number | undefined>()
   const [detailModalOpen, setDetailModalOpen] = useState(false)
   const [tabActive, setTabActive] = useState('all')
+  const [buyingToEdit, setBuyingToEdit] = useState('')
+  const [pickSellerModalOpen, setPickSellerModalOpen] = useState(false)
+  const [createSellerModalOpen, setCreateSellerModalOpen] = useState(false)
 
   const handleChange = (event: SelectChangeEvent) => {
     setTabActive(event.target.value as string)
@@ -575,13 +590,34 @@ const Example = (props: any) => {
         }
       })
   }
-
+  const handlePickSeller = (values: { seller: number }) => {
+    const newValues = { seller: values.seller }
+    console.log(`https://cheapr.my.id/buying_order/${buyingToEdit}/`)
+    console.log(newValues)
+    fetch(`https://cheapr.my.id/buying_order/${buyingToEdit}/`, {
+      method: 'PATCH',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify(newValues)
+    })
+      .then(response => response.json())
+      .then(json => {
+        console.log(json)
+        if (json.pk) {
+        }
+      })
+      .finally(() => {
+        setRefresh(refresh + 1)
+      })
+  }
   const columns = useMemo<MRT_ColumnDef<BuyingOrder>[]>(
     () => [
       {
         accessorKey: 'order_id',
-        header: 'Purchase ID',
-        maxSize: 150,
+        header: 'Internal ID',
+        maxSize: 120,
         Cell: ({ renderedCellValue, row }) => (
           <Box
             sx={{
@@ -590,92 +626,21 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            <Chip
-              sx={{
-                fontSize: 10
-              }}
-              label={renderedCellValue?.toString()}
+            <Link
+              href='#'
               onClick={() => {
                 setDetail(row.original.pk)
                 setDetailModalOpen(true)
               }}
-            />
+            >
+              {renderedCellValue}
+            </Link>
           </Box>
         )
-      },
-      {
-        accessorKey: 'order_date',
-        header: 'Order Date',
-        maxSize: 120,
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'date'
-        },
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            <span>{renderedCellValue ? moment(renderedCellValue?.toString()).format('MMM D YYYY') : ''}</span>
-          </Box>
-        )
-      },
-      {
-        accessorKey: 'delivery_date',
-        header: 'Received',
-        maxSize: 100,
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'date'
-        },
-        Cell: ({ renderedCellValue, row }) =>
-          renderedCellValue ? (
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center'
-              }}
-            >
-              <Box
-                sx={theme => ({
-                  backgroundColor: theme.palette.success.dark,
-                  borderRadius: '0.5rem',
-                  color: '#fff',
-                  width: 12,
-                  height: 12,
-                  marginLeft: 5
-                })}
-              ></Box>
-            </Box>
-          ) : (
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center'
-              }}
-            >
-              <Box
-                sx={theme => ({
-                  backgroundColor: theme.palette.error.dark,
-                  borderRadius: '0.5rem',
-                  color: '#fff',
-                  width: 12,
-                  height: 12,
-                  marginLeft: 5
-                })}
-              ></Box>
-            </Box>
-          )
-      },
-      {
-        accessorKey: 'tracking_number',
-        header: 'Tracking',
-        maxSize: 175
       },
       {
         accessorKey: 'channel.name',
-        header: 'Channel',
+        header: 'Source',
         maxSize: 100,
         muiTableBodyCellEditTextFieldProps: {
           select: true, //change to select for a dropdown
@@ -706,7 +671,7 @@ const Example = (props: any) => {
             >
               <img
                 alt='avatar'
-                height={25}
+                height={20}
                 src={row.original.channel.image}
                 loading='lazy'
                 style={{ borderRadius: '50%' }}
@@ -718,44 +683,156 @@ const Example = (props: any) => {
             <></>
           )
       },
-      {
-        accessorKey: 'seller_name',
-        header: 'Seller Name',
-        maxSize: 150
-      },
 
       {
         accessorKey: 'channel_order_id',
-        header: 'Order ID',
-        maxSize: 100
+        header: 'P.O.#'
       },
       {
-        accessorFn: row =>
-          formatterUSDStrip(
-            row.inventoryitems
-              ? row.inventoryitems.reduce((accumulator, object) => {
-                  return accumulator + parseFloat(object.total_cost)
-                }, 0)
-              : 0
-          ), //accessorFn used to join multiple data into a single cell
-        id: 'total', //id is still required when using accessorFn instead of accessorKey
-        header: 'Price',
+        accessorKey: 'order_date',
+        header: 'Date',
+        maxSize: 120,
+        muiTableBodyCellEditTextFieldProps: {
+          type: 'date'
+        },
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            <span>{renderedCellValue ? moment(renderedCellValue?.toString()).format('MMM D YYYY') : ''}</span>
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'seller.name',
+        header: 'Seller',
+        maxSize: 150,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>
+            {row.original.seller ? (
+              <Chip
+                sx={{
+                  fontSize: 10
+                }}
+                label={renderedCellValue ? renderedCellValue : 'Pick Seller'}
+                onClick={() => {
+                  setBuyingToEdit(row.original?.pk.toString())
+                  setPickSellerModalOpen(true)
+                }}
+              />
+            ) : null}
+          </Box>
+        )
+      },
+
+      // {
+      //   accessorKey: 'delivery_date',
+      //   header: 'Received',
+      //   maxSize: 100,
+      //   muiTableBodyCellEditTextFieldProps: {
+      //     type: 'date'
+      //   },
+      //   Cell: ({ renderedCellValue, row }) =>
+      //     renderedCellValue ? (
+      //       <Box
+      //         sx={{
+      //           display: 'flex',
+      //           alignItems: 'center'
+      //         }}
+      //       >
+      //         <Box
+      //           sx={theme => ({
+      //             backgroundColor: theme.palette.success.dark,
+      //             borderRadius: '0.5rem',
+      //             color: '#fff',
+      //             width: 12,
+      //             height: 12,
+      //             marginLeft: 5
+      //           })}
+      //         ></Box>
+      //       </Box>
+      //     ) : (
+      //       <Box
+      //         sx={{
+      //           display: 'flex',
+      //           alignItems: 'center'
+      //         }}
+      //       >
+      //         <Box
+      //           sx={theme => ({
+      //             backgroundColor: theme.palette.error.dark,
+      //             borderRadius: '0.5rem',
+      //             color: '#fff',
+      //             width: 12,
+      //             height: 12,
+      //             marginLeft: 5
+      //           })}
+      //         ></Box>
+      //       </Box>
+      //     )
+      // },
+      // {
+      //   accessorKey: 'tracking_number',
+      //   header: 'Tracking',
+      //   maxSize: 175
+      // },
+      {
+        accessorKey: 'num_items',
+        header: 'Item(s) Qty',
         maxSize: 100,
-        enableEditing: false
+        enableEditing: false,
+        muiTableBodyCellProps: {
+          align: 'center'
+        },
+        muiTableHeadCellProps: {
+          align: 'center'
+        }
       },
       {
-        accessorFn: row =>
-          formatterUSDStrip(
-            row.inventoryitems
-              ? row.inventoryitems.reduce((accumulator, object) => {
-                  return accumulator + parseFloat(object.shipping_cost)
-                }, 0)
-              : 0
-          ), //accessorFn used to join multiple data into a single cell
-        id: 'shipping_cost', //id is still required when using accessorFn instead of accessorKey
+        accessorKey: 'total_sum',
+        header: 'Item(s) Cost',
+        Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.total_sum)}</Box>,
+        maxSize: 100,
+        enableEditing: false,
+        muiTableBodyCellProps: {
+          align: 'right'
+        },
+        muiTableHeadCellProps: {
+          align: 'right'
+        }
+      },
+      {
+        accessorKey: 'shipping_sum',
         header: 'Shipping',
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{formatterUSDStrip(row.original.shipping_sum)}</Box>
+        ),
         maxSize: 100,
-        enableEditing: false
+        enableEditing: false,
+        muiTableBodyCellProps: {
+          align: 'right'
+        },
+        muiTableHeadCellProps: {
+          align: 'right'
+        }
+      },
+      {
+        accessorFn: row =>
+          formatterUSDStrip(parseFloat(row.total_sum.toString()) + parseFloat(row.shipping_sum.toString())), //accessorFn used to join multiple data into a single cell
+        id: 'all_cost', //id is still required when using accessorFn instead of accessorKey
+        header: 'Total Cost',
+        maxSize: 100,
+        enableEditing: false,
+        muiTableBodyCellProps: {
+          align: 'right'
+        },
+        muiTableHeadCellProps: {
+          align: 'right'
+        }
       }
     ],
     [channelData]
@@ -885,6 +962,17 @@ const Example = (props: any) => {
         pk={detail}
         modalOpen={detailModalOpen}
         onClose={() => setDetailModalOpen(false)}
+      />
+      <PickSellerModal
+        open={pickSellerModalOpen}
+        onClose={() => setPickSellerModalOpen(false)}
+        onSubmit={handlePickSeller}
+        setCreateSellerModalOpen={setCreateSellerModalOpen}
+      />
+      <CreateNewSellerModal
+        session={session}
+        open={createSellerModalOpen}
+        onClose={() => setCreateSellerModalOpen(false)}
       />
     </Card>
   )
