@@ -337,8 +337,8 @@ const PurchaseDetail = (props: any) => {
 
   const handleCreateNewRow = (values: Item) => {
     console.log(values)
-    const room = roomData.find(room => room.name == values.room.toString())
-    const rating = ratingData.find(rating => rating.name == values.rating.toString())
+    const room = roomData.find(room => room.name == values.room?.toString())
+    const rating = ratingData.find(rating => rating.name == values.rating?.toString())
     const newValues = {
       ...values,
       buying: pk,
@@ -481,7 +481,7 @@ const PurchaseDetail = (props: any) => {
       // },
       {
         accessorKey: 'total_cost',
-        header: 'Total',
+        header: 'Item Price',
         size: 100,
         Cell: ({ renderedCellValue, row }) => (
           <Box component='span'>{renderedCellValue && formatterUSDStrip(row.original.total_cost)}</Box>
@@ -489,7 +489,7 @@ const PurchaseDetail = (props: any) => {
       },
       {
         accessorKey: 'shipping_cost',
-        header: 'Shipping',
+        header: 'IB.Ship (if our label)',
         size: 100,
         Cell: ({ renderedCellValue, row }) => (
           <Box component='span'>{formatterUSDStrip(row.original.shipping_cost)}</Box>
@@ -636,7 +636,7 @@ const PurchaseDetail = (props: any) => {
       })
   }
   const handleAddItem = (values: InventoryPayload) => {
-    const newValues = { ...values, room: roomData.find(room => room.name == values.room.toString())?.pk }
+    const newValues = { ...values, room: roomData.find(room => room.name == values.room?.toString())?.pk }
     console.log(newValues)
 
     fetch(`https://cheapr.my.id/inventory_items/`, {
@@ -670,7 +670,7 @@ const PurchaseDetail = (props: any) => {
 
       {
         accessorKey: 'total_cost',
-        header: 'Total',
+        header: 'Item Price',
         size: 70,
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
@@ -678,18 +678,12 @@ const PurchaseDetail = (props: any) => {
       },
       {
         accessorKey: 'shipping_cost',
-        header: 'Shipping',
+        header: 'IB.Ship (if our label)',
         size: 70,
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
         }
-      },
-      {
-        accessorKey: 'comment',
-        header: 'Comment',
-        size: 250
       }
-
       //end
     ],
     []
@@ -787,7 +781,7 @@ const PurchaseDetail = (props: any) => {
           />
         </Card>
         <CreateNewAccountModal
-          columns={columns}
+          columns={columnsItem}
           open={createModalOpen}
           onClose={() => setCreateModalOpen(false)}
           onSubmit={handleCreateNewRow}
