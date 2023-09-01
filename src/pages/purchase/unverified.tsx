@@ -185,7 +185,7 @@ export const CreateNewAccountModal = ({
   const loading = open && options.length === 0
   function validURL(str: string) {
     if (str != '' || str != undefined) {
-      let pattern = new RegExp(
+      const pattern = new RegExp(
         '^(https?:\\/\\/)?' + // protocol
           '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
           '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
@@ -894,6 +894,7 @@ const Example = (props: any) => {
           </Box>
         )
       },
+
       // {
       //   accessorKey: 'delivery_date',
       //   header: 'Received',
