@@ -185,7 +185,7 @@ export const CreateNewAccountModal = ({
   const loading = open && options.length === 0
   function validURL(str: string) {
     if (str != '' || str != undefined) {
-      var pattern = new RegExp(
+      let pattern = new RegExp(
         '^(https?:\\/\\/)?' + // protocol
           '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
           '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
@@ -194,11 +194,13 @@ export const CreateNewAccountModal = ({
           '(\\#[-a-z\\d_]*)?$',
         'i'
       ) // fragment locator
+
       return !!pattern.test(str)
     } else {
       return false
     }
   }
+
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Create New Buying Order</DialogTitle>
