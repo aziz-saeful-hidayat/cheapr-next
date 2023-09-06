@@ -111,6 +111,10 @@ export type BuyingOrder = {
     name: string
     image: string
   }
+  seller: {
+    pk: number
+    name: string
+  }
   tracking_number: string
   seller_name: string
   purchase_link: string
@@ -121,16 +125,46 @@ export type BuyingOrder = {
   inventoryitems: InventoryItem[]
   salesitems: InventoryItem[]
 }
-
+const person = {
+  pk: 23,
+  name: 'Leigh Ann Peters',
+  phone: '+1 207-835-4259 ext. 30141',
+  email: null,
+  address: {
+    pk: 22,
+    street_1: '13517 STATESVILLE RD',
+    street_2: null,
+    zip: '28078-9047',
+    city: {
+      pk: 24,
+      name: 'HUNTERSVILLE',
+      state: {
+        pk: 13,
+        name: '',
+        short: 'NC',
+        country: {
+          pk: 1,
+          name: 'United States',
+          short: 'US'
+        }
+      }
+    }
+  }
+}
 export type SalesOrder = {
   pk: number
   order_id: string
   order_date: string
   delivery_date: string
+  person: typeof person
   channel: {
     pk: number
     name: string
     image: string
+  }
+  seller: {
+    pk: number
+    name: string
   }
   status: string
   tracking_number: string
@@ -150,6 +184,11 @@ export type SalesOrder = {
   comment: string
   inventoryitems: InventoryItem[]
   salesitems: InventoryItem[]
+  destination: string
+  sales: {
+    pk: number
+    order_id: string
+  }
 }
 
 interface CreateModalProps {

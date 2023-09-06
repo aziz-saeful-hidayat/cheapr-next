@@ -74,7 +74,7 @@ const CardOrder = ({
               <AccountOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
               <Typography variant='body1'>Seller: </Typography>
               <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
-                {orderData?.seller_name}
+                {orderData?.seller?.name}
               </Typography>
             </Box>
           </Grid>

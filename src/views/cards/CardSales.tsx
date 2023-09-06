@@ -93,18 +93,53 @@ const CardSales = ({
   return (
     <Card sx={{ marginBottom: 5 }}>
       <CardContent sx={{ padding: theme => `${theme.spacing(3.25, 5.75, 6.25)} !important` }}>
-        <Typography variant='h6' sx={{ marginBottom: 3.5 }}>
-          Order / {orderData?.order_id}
-        </Typography>
+        <Grid container spacing={20}>
+          <Grid item xs={12} sm={2}>
+            <Typography variant='h6'>SBO.#: </Typography>
+            <Typography variant='body1'>{orderData?.order_id}</Typography>
+          </Grid>
+          <Grid item xs={12} sm={2}>
+            <Typography variant='h6'>Order Id: </Typography>
+
+            <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+              {orderData?.channel_order_id}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} sm={2}>
+            <Typography variant='h6'>Channel: </Typography>
+
+            <Typography variant='body1'>{orderData?.channel?.name}</Typography>
+          </Grid>
+          <Grid item xs={12} sm={2}>
+            <Typography variant='h6'>Seller: </Typography>
+            <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+              {orderData?.seller_name}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} sm={2}>
+            <Typography variant='h6'>Order Date: </Typography>
+            <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+              {orderData?.order_date.slice(0, 10)}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} sm={2}>
+            <Typography variant='h6'>Status: </Typography>
+            <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+              {orderData?.status}
+            </Typography>
+          </Grid>
+        </Grid>
+
         {/* <Typography variant='body2'>
           Here, I focus on a range of items and features that we use in life without giving them a second thought such
           as Coca Cola, body muscles and holding ones own breath. Though, most of these notes are not fundamentally
           necessary, they are such that you can use them for a good laugh, at a drinks party or for picking up women or
           men.
         </Typography> */}
+
         <Divider sx={{ marginTop: 6.5, marginBottom: 6.75 }} />
         <Grid container spacing={20}>
-          <Grid item xs={12} sm={3}>
+          {/* <Grid item xs={12} sm={3}>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
               <AccountOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />{' '}
               <Typography variant='body1'>Channel: </Typography>
@@ -151,6 +186,80 @@ const CardSales = ({
                 {orderData?.status}
               </Typography>
             </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <TrendingUp sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
+              <Typography variant='body1'>Tracking Number: </Typography>
+              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+                {orderData?.tracking_number}
+              </Typography>
+            </Box>
+          </Grid> */}
+          <Grid item xs={12} sm={3}>
+            <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
+              <Typography variant='h6'>Buyer </Typography>
+            </Box>
+            <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
+              <AccountOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
+              <Typography variant='body1'>Name: </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', marginLeft: 'auto' }}>
+                {orderData?.person?.name && (
+                  <>
+                    <Typography variant='body1'>{orderData?.person?.name}</Typography>
+                  </>
+                )}
+              </Box>
+            </Box>
+            <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
+              <AccountOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
+              <Typography variant='body1'>Phone: </Typography>
+              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+                {orderData?.person?.phone}
+              </Typography>
+            </Box>
+            {orderData?.person?.email && (
+              <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
+                <AccountOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
+                <Typography variant='body1'>Email: </Typography>
+                <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+                  {orderData?.person?.email}
+                </Typography>
+              </Box>
+            )}
+            <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
+              <TrendingUp sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
+              <Typography variant='body1'>Street 1: </Typography>
+              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+                {orderData?.person?.address?.street_1}
+              </Typography>
+            </Box>
+            {orderData?.person?.address?.street_2 && (
+              <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
+                <TrendingUp sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
+                <Typography variant='body1'>Street 2: </Typography>
+                <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+                  {orderData?.person?.address?.street_2}
+                </Typography>
+              </Box>
+            )}
+            {orderData?.person?.address?.zip && (
+              <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
+                <TrendingUp sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
+                <Typography variant='body1'>ZIP: </Typography>
+                <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+                  {orderData?.person?.address?.zip}
+                </Typography>
+              </Box>
+            )}
+            <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
+              <TrendingUp sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
+              <Typography variant='body1'>City: </Typography>
+              {orderData?.person?.address?.city?.name && (
+                <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+                  {orderData?.person?.address?.city?.name}, {orderData?.person?.address?.city?.state?.short},{' '}
+                  {orderData?.person?.address?.city?.state?.country?.short}
+                </Typography>
+              )}
+            </Box>
             {/* <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <TrendingUp sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
               <Typography variant='body1'>Tracking Number: </Typography>
@@ -159,7 +268,6 @@ const CardSales = ({
               </Typography>
             </Box> */}
           </Grid>
-
           <Grid item xs={12} sm={3}>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
               <Typography variant='h6'>Sales: </Typography>

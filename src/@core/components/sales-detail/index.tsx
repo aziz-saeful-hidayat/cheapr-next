@@ -42,6 +42,7 @@ import dayjs from 'dayjs'
 import { Cross } from 'mdi-material-ui'
 import { styled } from '@mui/material/styles'
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip'
+import { SalesOrder } from 'src/pages/purchase/[purchaseId]'
 
 type InventoryItem = {
   [key: string]: any
@@ -1060,7 +1061,7 @@ const SalesDetail = (props: any) => {
   //   },
   //   keepPreviousData: true
   // })
-  const [orderData, setOrderData] = useState<SellingOrder>()
+  const [orderData, setOrderData] = useState<SalesOrder>()
   const statusOptions: any[] = [
     { key: 'D', name: 'Delivered', color: 'success' },
     { key: 'T', name: 'Transit', color: 'warning' },

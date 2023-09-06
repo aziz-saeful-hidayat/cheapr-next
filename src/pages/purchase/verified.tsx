@@ -102,6 +102,7 @@ type BuyingOrder = {
   num_items: number
   total_sum: number
   shipping_sum: number
+  destination: 'D' | 'H' | null
 }
 type Payload = {
   pk?: number
@@ -853,6 +854,45 @@ const Example = (props: any) => {
         muiTableHeadCellProps: {
           align: 'right'
         }
+      },
+      {
+        accessorFn: row => (row.destination == 'H' ? 'HA' : row.destination == 'D' ? 'Dropship' : ''), //accessorFn used to join multiple data into a single cell
+        id: 'ha_sbo', //id is still required when using accessorFn instead of accessorKey
+        header: 'HA / SBO',
+        maxSize: 100,
+        enableEditing: false,
+        muiTableBodyCellProps: {
+          align: 'right'
+        },
+        muiTableHeadCellProps: {
+          align: 'right'
+        }
+      },
+      {
+        accessorFn: row => '', //accessorFn used to join multiple data into a single cell
+        id: 'shipped', //id is still required when using accessorFn instead of accessorKey
+        header: 'Shipped',
+        maxSize: 100,
+        enableEditing: false,
+        muiTableBodyCellProps: {
+          align: 'right'
+        },
+        muiTableHeadCellProps: {
+          align: 'right'
+        }
+      },
+      {
+        accessorFn: row => '', //accessorFn used to join multiple data into a single cell
+        id: 'trackings', //id is still required when using accessorFn instead of accessorKey
+        header: 'Tracking',
+        maxSize: 100,
+        enableEditing: false,
+        muiTableBodyCellProps: {
+          align: 'right'
+        },
+        muiTableHeadCellProps: {
+          align: 'right'
+        }
       }
     ],
     [channelData]
@@ -886,7 +926,7 @@ const Example = (props: any) => {
       <MaterialReactTable
         columns={columns}
         data={tableData} //data is undefined on first render
-        enableDensityToggle={false}
+        // enableDensityToggle={false}
         initialState={{ showColumnFilters: false, density: 'compact' }}
         enableEditing
         editingMode='cell'

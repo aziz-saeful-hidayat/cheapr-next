@@ -328,7 +328,7 @@ export const CreateNewAccountModal = ({
               name={'channel_order_id'}
               onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
             />
-            <TextField
+            {/* <TextField
               value={values.carrier?.name}
               key={'carrier.name'}
               name={'Carrier'}
@@ -354,18 +354,17 @@ export const CreateNewAccountModal = ({
                     }}
                   >
                     <img alt='avatar' height={25} src={carrier.image} loading='lazy' style={{ borderRadius: '50%' }} />
-                    {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
                     <span>{carrier.name}</span>
                   </Box>
                 </MenuItem>
               ))}
-            </TextField>
-            <TextField
+            </TextField> */}
+            {/* <TextField
               key={'tracking_number'}
               label={'Tracking Number'}
               name={'tracking_number'}
               onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
-            />
+            /> */}
           </Stack>
         </form>
       </DialogContent>
@@ -617,12 +616,10 @@ const Example = (props: any) => {
   const handleCreateNewRow = (values: BuyingOrder) => {
     console.log(values)
     const channel = channelData.find(channel => channel.name == values['channel']['name'])
-    const carrier = carrierData.find(carrier => carrier.name == values['carrier']['name'])
 
     const new_obj = {
       ...values,
       channel: channel?.pk,
-      carrier: carrier?.pk,
       order_date: values.order_date ? values.order_date : null,
       delivery_date: values.delivery_date ? values.delivery_date : null
     }
@@ -973,7 +970,7 @@ const Example = (props: any) => {
       },
       {
         accessorKey: 'shipping_sum',
-        header: 'Shipping',
+        header: 'Our Label',
         Cell: ({ renderedCellValue, row }) => (
           <Box component='span'>{formatterUSDStrip(row.original.shipping_sum)}</Box>
         ),
@@ -988,7 +985,7 @@ const Example = (props: any) => {
       },
       {
         accessorFn: row =>
-          formatterUSDStrip(parseFloat(row.total_sum.toString()) + parseFloat(row.shipping_sum.toString())), //accessorFn used to join multiple data into a single cell
+          formatterUSDStrip(parseFloat(row.total_sum?.toString()) + parseFloat(row.shipping_sum?.toString())), //accessorFn used to join multiple data into a single cell
         id: 'all_cost', //id is still required when using accessorFn instead of accessorKey
         header: 'Total Cost',
         maxSize: 100,
@@ -1043,7 +1040,7 @@ const Example = (props: any) => {
       <MaterialReactTable
         columns={columns}
         data={tableData} //data is undefined on first render
-        enableDensityToggle={false}
+        // enableDensityToggle={false}
         initialState={{ showColumnFilters: false, density: 'compact' }}
         enableEditing
         editingMode='cell'

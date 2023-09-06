@@ -38,7 +38,7 @@ import { useRouter } from 'next/router'
 import { formatterUSDStrip } from 'src/constants/Utils'
 import CardOrder from 'src/views/cards/CardOrder'
 import { ExtendedSession } from 'src/pages/api/auth/[...nextauth]'
-import { SalesOrder } from 'src/pages/purchase/[purchaseId]'
+import { BuyingOrder, SalesOrder } from 'src/pages/purchase/[purchaseId]'
 
 type InventoryItem = {
   [key: string]: any
@@ -101,27 +101,6 @@ type Item = {
   rating: Rating
   total_cost: number
   shipping_cost: number
-}
-
-export type BuyingOrder = {
-  pk: number
-  order_id: string
-  order_date: string
-  delivery_date: string
-  channel: {
-    pk: number
-    name: string
-    image: string
-  }
-  tracking_number: string
-  seller_name: string
-  purchase_link: string
-  channel_order_id: string
-  total_cost: number
-  shipping_cost: number
-  comment: string
-  inventoryitems: InventoryItem[]
-  salesitems: InventoryItem[]
 }
 
 interface CreateModalProps {
