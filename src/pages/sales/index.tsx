@@ -41,6 +41,7 @@ import { useSession, signIn, signOut, getSession } from 'next-auth/react'
 import SalesDetail from 'src/@core/components/sales-detail'
 import { formatterUSDStrip } from 'src/constants/Utils'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
+import moment from 'moment'
 
 type Channel = {
   pk: number
@@ -642,7 +643,7 @@ const Example = (props: any) => {
     () => [
       {
         accessorKey: 'delivery_status',
-        header: 'Tracking',
+        header: 'Status',
         maxSize: 75,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
@@ -721,7 +722,18 @@ const Example = (props: any) => {
           type: 'date'
         },
         filterFn: 'between',
-        enableEditing: false
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            <span>{renderedCellValue ? moment(renderedCellValue?.toString()).format('MMM D YYYY') : ''}</span>
+          </Box>
+        )
       },
       {
         accessorKey: 'channel.name',
