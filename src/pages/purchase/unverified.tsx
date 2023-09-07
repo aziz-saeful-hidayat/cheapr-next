@@ -32,7 +32,7 @@ import Chip from '@mui/material/Chip'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
-import { Delete, Add } from '@mui/icons-material'
+import { Delete, Add, TaskAlt } from '@mui/icons-material'
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import Items from 'src/@core/components/inventory-item'
@@ -665,6 +665,30 @@ const Example = (props: any) => {
     [tableData, session]
   )
 
+  const handleVerifyRow = useCallback(
+    (row: MRT_Row<BuyingOrder>) => {
+      if (!confirm(`Are you sure you want to verify ${row.original.order_id}`)) {
+        return
+      }
+      fetch(`https://cheapr.my.id/buying_order/${row.original.pk}/`, {
+        // note we are going to /1
+        method: 'PATCH',
+        headers: new Headers({
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        }),
+        body: JSON.stringify({ verified: true })
+      })
+        .then(response => response.status)
+        .then(status => {
+          if (status == 204) {
+            setRefresh(refresh + 1)
+          }
+        })
+    },
+    [tableData, session]
+  )
+
   const handleSaveRow: MaterialReactTableProps<BuyingOrder>['onEditingRowSave'] = async ({
     exitEditingMode,
     row,
@@ -1083,11 +1107,11 @@ const Example = (props: any) => {
                 <Edit />
               </IconButton>
             </Tooltip> */}
-            {/* <Tooltip arrow placement='top' title='Add Item'>
-              <IconButton color='primary' onClick={() => setAddModalOpen(row.original)}>
-                <Add />
+            <Tooltip arrow placement='top' title='Verify'>
+              <IconButton color='primary' onClick={() => handleVerifyRow(row)}>
+                <TaskAlt />
               </IconButton>
-            </Tooltip> */}
+            </Tooltip>
             <Tooltip arrow placement='top' title='Delete'>
               <IconButton color='error' onClick={() => handleDeleteRow(row)}>
                 <Delete />
