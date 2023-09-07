@@ -401,6 +401,8 @@ const Example = (props: any) => {
     pageIndex: 0,
     pageSize: 100
   })
+  const [tabActive, setTabActive] = useState('to_monitor')
+
   const { data, isError, isFetching, isLoading } = useQuery({
     queryKey: [
       'table-data',
@@ -408,7 +410,8 @@ const Example = (props: any) => {
       globalFilter, //refetch when globalFilter changes
       pagination.pageIndex, //refetch when pagination.pageIndex changes
       pagination.pageSize, //refetch when pagination.pageSize changes
-      sorting //refetch when sorting changes
+      sorting, //refetch when sorting changes
+      tabActive
     ],
     queryFn: async () => {
       const fetchURL = new URL('/selling_order/', 'https://cheapr.my.id')
@@ -437,6 +440,8 @@ const Example = (props: any) => {
         ordering = ordering + sort.id
       }
       fetchURL.searchParams.set('ordering', ordering)
+      fetchURL.searchParams.set('filter', tabActive)
+
       console.log(fetchURL.href)
       const response = await fetch(fetchURL.href, {
         method: 'get',
@@ -459,15 +464,9 @@ const Example = (props: any) => {
   const [addModalOpen, setAddModalOpen] = useState<SellingOrder>()
   const [detail, setDetail] = useState<number | undefined>()
   const [detailModalOpen, setDetailModalOpen] = useState(false)
-  const [tabActive, setTabActive] = useState('all')
 
   const handleChange = (event: SelectChangeEvent) => {
     setTabActive(event.target.value as string)
-    if (event.target.value == 'to_pick') {
-      setColumnFilters([{ id: 'to_pick', value: 'yes' }])
-    } else {
-      setColumnFilters([{ id: 'status', value: event.target.value != 'all' ? event.target.value : '' }])
-    }
   }
   const handleCreateNewRow = (values: SellingOrder) => {
     console.log(values)
@@ -641,6 +640,47 @@ const Example = (props: any) => {
 
   const columns = useMemo<MRT_ColumnDef<SellingOrder>[]>(
     () => [
+      {
+        accessorKey: 'delivery_status',
+        header: 'Tracking',
+        maxSize: 75,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            {row.original.salesitems
+              .filter(e => e.tracking)
+              .map(sales => sales.tracking.status)
+              .filter((c, index, arr) => {
+                return arr.indexOf(c) === index
+              })
+              .map((status, index) => {
+                return (
+                  <Box
+                    key={index}
+                    sx={theme => ({
+                      backgroundColor:
+                        status == 'D'
+                          ? theme.palette.success.dark
+                          : status == 'T'
+                          ? theme.palette.warning.light
+                          : theme.palette.error.dark,
+                      borderRadius: '0.5rem',
+                      color: '#fff',
+                      width: 15,
+                      height: 15
+                    })}
+                  ></Box>
+                )
+              })}
+          </Box>
+        )
+      },
       {
         accessorKey: 'order_id',
         header: 'SB.#',
@@ -945,47 +985,6 @@ const Example = (props: any) => {
         muiTableBodyCellProps: {
           align: 'center'
         }
-      },
-      {
-        accessorKey: 'delivery_status',
-        header: 'Tracking',
-        maxSize: 100,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            {row.original.salesitems
-              .filter(e => e.tracking)
-              .map(sales => sales.tracking.status)
-              .filter((c, index, arr) => {
-                return arr.indexOf(c) === index
-              })
-              .map((status, index) => {
-                return (
-                  <Box
-                    key={index}
-                    sx={theme => ({
-                      backgroundColor:
-                        status == 'D'
-                          ? theme.palette.success.dark
-                          : status == 'T'
-                          ? theme.palette.warning.light
-                          : theme.palette.error.dark,
-                      borderRadius: '0.5rem',
-                      color: '#fff',
-                      width: 15,
-                      height: 15
-                    })}
-                  ></Box>
-                )
-              })}
-          </Box>
-        )
       }
     ],
     [channelData]
@@ -1082,11 +1081,12 @@ const Example = (props: any) => {
               Add New Sales
             </Button>
             <Select labelId='demo-select-small-label' id='demo-select-small' value={tabActive} onChange={handleChange}>
+              <MenuItem value={'to_monitor'}>To Monitor</MenuItem>
+              <MenuItem value={'delivered'}>Delivered</MenuItem>
               <MenuItem value={'all'}>All</MenuItem>
-              <MenuItem value={'open'}>Open</MenuItem>
-              <MenuItem value={'completed'}>Completed</MenuItem>
-              <MenuItem value={'canceled'}>Canceled</MenuItem>
-              <MenuItem value={'to_pick'}>To Pick</MenuItem>
+
+              {/* <MenuItem value={'canceled'}>Canceled</MenuItem>
+              <MenuItem value={'to_pick'}>To Pick</MenuItem> */}
             </Select>
           </>
         )}

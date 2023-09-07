@@ -782,30 +782,6 @@ const Example = (props: any) => {
   const columns = useMemo<MRT_ColumnDef<BuyingOrder>[]>(
     () => [
       {
-        accessorKey: 'order_id',
-        header: 'Detail',
-        maxSize: 75,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            <Link
-              href='#'
-              onClick={() => {
-                setDetail(row.original.pk)
-                setDetailModalOpen(true)
-              }}
-            >
-              {'View'}
-            </Link>
-          </Box>
-        )
-      },
-      {
         accessorKey: 'order_date',
         header: 'Date',
         maxSize: 100,
@@ -873,7 +849,26 @@ const Example = (props: any) => {
       {
         accessorKey: 'channel_order_id',
         header: 'P.O.#',
-        maxSize: 150
+        maxSize: 150,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            <Link
+              href='#'
+              onClick={() => {
+                setDetail(row.original.pk)
+                setDetailModalOpen(true)
+              }}
+            >
+              {row.original.channel_order_id || 'View'}
+            </Link>
+          </Box>
+        )
       },
 
       {
