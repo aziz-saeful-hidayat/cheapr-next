@@ -32,7 +32,7 @@ const themeOptions = (settings: Settings): ThemeOptions => {
         '"Segoe UI Emoji"',
         '"Segoe UI Symbol"'
       ].join(','),
-      fontSize: 10,
+      fontSize: 11,
       color: 'black',
     },
     shadows: shadows(mode),
