@@ -427,6 +427,8 @@ const Example = (props: any) => {
         ordering = ordering + sort.id.split('.')[0]
       }
       fetchURL.searchParams.set('ordering', ordering)
+      fetchURL.searchParams.set('verified', 'True')
+
       console.log(fetchURL.href)
       const response = await fetch(fetchURL.href, {
         method: 'get',
