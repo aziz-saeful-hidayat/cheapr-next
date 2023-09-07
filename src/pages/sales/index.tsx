@@ -685,7 +685,7 @@ const Example = (props: any) => {
       {
         accessorKey: 'order_id',
         header: 'SB.#',
-        maxSize: 75,
+        maxSize: 60,
         Cell: ({ renderedCellValue, row }) => (
           <Box
             sx={{
@@ -710,14 +710,14 @@ const Example = (props: any) => {
       {
         accessorKey: 'channel_order_id',
         header: 'Order ID',
-        maxSize: 75,
+        maxSize: 70,
         enableEditing: false
       },
       {
         accessorKey: 'order_date',
         accessorFn: row => row.order_date.substr(0, 10),
         header: 'Date',
-        maxSize: 100,
+        maxSize: 70,
         muiTableBodyCellEditTextFieldProps: {
           type: 'date'
         },
@@ -752,8 +752,9 @@ const Example = (props: any) => {
       },
       {
         accessorKey: 'seller_name',
+        accessorFn: row => row.seller_name.substr(0, 15),
         header: 'Store',
-        maxSize: 125,
+        maxSize: 75,
         enableEditing: false
       },
 
@@ -761,7 +762,7 @@ const Example = (props: any) => {
         accessorKey: 'total_cost',
         id: 'total',
         header: 'Item Price',
-        size: 75,
+        maxSize: 70,
         Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.total_cost)}</Box>,
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
@@ -778,7 +779,7 @@ const Example = (props: any) => {
         accessorKey: 'shipping_cost',
         id: 'shipping_cost',
         header: 'Shipping',
-        size: 75,
+        maxSize: 70,
         Cell: ({ renderedCellValue, row }) => (
           <Box component='span'>{formatterUSDStrip(row.original.shipping_cost)}</Box>
         ),
@@ -796,7 +797,7 @@ const Example = (props: any) => {
         accessorKey: 'channel_fee',
         id: 'channel_fee',
         header: 'Fees',
-        size: 75,
+        maxSize: 70,
         Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.channel_fee)}</Box>,
         muiTableBodyCellEditTextFieldProps: {
           type: 'number'
@@ -812,7 +813,7 @@ const Example = (props: any) => {
         accessorKey: 'gross_sales',
         id: 'gross_sales',
         header: 'Net Sales',
-        size: 75,
+        maxSize: 70,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.gross_sales)}</Box>,
         muiTableBodyCellEditTextFieldProps: {
@@ -830,7 +831,7 @@ const Example = (props: any) => {
 
         id: 'purchase_cost',
         header: 'Cost',
-        size: 75,
+        maxSize: 70,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
           <Box component='span'>{formatterUSDStrip(row.original.purchase_cost)}</Box>
@@ -850,7 +851,7 @@ const Example = (props: any) => {
 
         id: 'ss_shipping_cost',
         header: 'Shipping',
-        size: 75,
+        maxSize: 70,
         Cell: ({ renderedCellValue, row }) => (
           <Box component='span'>{formatterUSDStrip(row.original.ss_shipping_cost)}</Box>
         ),
@@ -868,7 +869,7 @@ const Example = (props: any) => {
         accessorKey: 'profit',
         id: 'profit',
         header: 'Margin',
-        size: 75,
+        maxSize: 70,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.profit)}</Box>,
         muiTableBodyCellProps: ({ cell, table }) => {
