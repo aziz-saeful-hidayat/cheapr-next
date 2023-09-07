@@ -124,6 +124,7 @@ export type BuyingOrder = {
   comment: string
   inventoryitems: InventoryItem[]
   salesitems: InventoryItem[]
+  person: typeof person
 }
 const person = {
   pk: 23,

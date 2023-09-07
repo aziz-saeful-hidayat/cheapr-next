@@ -45,9 +45,94 @@ const CardOrder = ({
         <Divider sx={{ marginTop: 6.5, marginBottom: 6.75 }} />
         <Grid container spacing={20}>
           <Grid item xs={12} sm={4}>
-            <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+              <Typography variant='h6'>Buyer </Typography>
+            </Box>
+            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+              <AccountOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
+              <Typography variant='body2'>Name: </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', marginLeft: 'auto' }}>
+                {orderData?.person?.name && (
+                  <>
+                    <Typography variant='body2'>{orderData?.person?.name}</Typography>
+                  </>
+                )}
+              </Box>
+            </Box>
+            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+              <AccountOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
+              <Typography variant='body2'>Phone: </Typography>
+              <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
+                {orderData?.person?.phone}
+              </Typography>
+            </Box>
+            {orderData?.person?.email && (
+              <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+                <AccountOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
+                <Typography variant='body2'>Email: </Typography>
+                <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
+                  {orderData?.person?.email}
+                </Typography>
+              </Box>
+            )}
+            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+              <TrendingUp sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
+              <Typography variant='body2'>Street 1: </Typography>
+              <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
+                {orderData?.person?.address?.street_1}
+              </Typography>
+            </Box>
+            {orderData?.person?.address?.street_2 && (
+              <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+                <TrendingUp sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
+                <Typography variant='body2'>Street 2: </Typography>
+                <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
+                  {orderData?.person?.address?.street_2}
+                </Typography>
+              </Box>
+            )}
+            {orderData?.person?.address?.zip && (
+              <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+                <TrendingUp sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
+                <Typography variant='body2'>ZIP: </Typography>
+                <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
+                  {orderData?.person?.address?.zip}
+                </Typography>
+              </Box>
+            )}
+            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+              <TrendingUp sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
+              <Typography variant='body2'>City: </Typography>
+              {orderData?.person?.address?.city?.name && (
+                <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
+                  {orderData?.person?.address?.city?.name}, {orderData?.person?.address?.city?.state?.short},{' '}
+                  {orderData?.person?.address?.city?.state?.country?.short}
+                </Typography>
+              )}
+            </Box>
+            {/* <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <TrendingUp sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
+              <Typography variant='body2'>Tracking Number: </Typography>
+              <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
+                {orderData?.tracking_number}
+              </Typography>
+            </Box> */}
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+              <Typography variant='h6'>Detail </Typography>
+            </Box>
+            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+              <TrendingUp sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
+              <Typography variant='body2'>Order Date: </Typography>
+              <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
+                {orderData?.order_date}
+              </Typography>
+            </Box>
+
+            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
               <AccountOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />{' '}
-              <Typography variant='body1'>Channel: </Typography>
+              <Typography variant='body2'>Channel: </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', marginLeft: 'auto' }}>
                 {orderData?.channel?.image && (
                   <>
@@ -58,62 +143,35 @@ const CardOrder = ({
                       loading='lazy'
                       style={{ borderRadius: '50%', marginRight: 2.75 }}
                     />
-                    <Typography variant='body1'>{orderData?.channel?.name}</Typography>
+                    <Typography variant='body2'>{orderData?.channel?.name}</Typography>
                   </>
                 )}
               </Box>
             </Box>
-            <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
               <AccountOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Order ID: </Typography>
-              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+              <Typography variant='body2'>Order ID: </Typography>
+              <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
                 {orderData?.channel_order_id}
               </Typography>
             </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <AccountOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Seller: </Typography>
-              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
-                {orderData?.seller?.name}
-              </Typography>
-            </Box>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
-              <TrendingUp sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Order Date: </Typography>
-              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
-                {orderData?.order_date}
-              </Typography>
+            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+              <Typography variant='h6'>Financial </Typography>
             </Box>
-            <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
-              <TrendingUp sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Status: </Typography>
-              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
-                {orderData?.delivery_date ? 'Received' : 'Incoming'}
-              </Typography>
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <TrendingUp sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Tracking Number: </Typography>
-              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
-                {orderData?.tracking_number}
-              </Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
               <StarOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Num of Item: </Typography>
-              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+              <Typography variant='body2'>Num of Item: </Typography>
+              <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
                 {type == 'buying' ? orderData?.inventoryitems?.length : orderData?.salesitems?.length} Item
               </Typography>
             </Box>
-            <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
               <StarOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Total: </Typography>
+              <Typography variant='body2'>Total: </Typography>
 
-              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+              <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
                 {type == 'buying'
                   ? formatterUSDStrip(
                       orderData?.inventoryitems
@@ -131,9 +189,9 @@ const CardOrder = ({
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <StarOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Shipping: </Typography>
+              <Typography variant='body2'>Shipping: </Typography>
 
-              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+              <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
                 {type == 'buying'
                   ? formatterUSDStrip(
                       orderData?.inventoryitems

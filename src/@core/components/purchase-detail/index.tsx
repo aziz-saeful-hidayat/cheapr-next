@@ -123,7 +123,32 @@ type Item = {
   total_cost: number
   shipping_cost: number
 }
-
+const person = {
+  pk: 23,
+  name: 'Leigh Ann Peters',
+  phone: '+1 207-835-4259 ext. 30141',
+  email: null,
+  address: {
+    pk: 22,
+    street_1: '13517 STATESVILLE RD',
+    street_2: null,
+    zip: '28078-9047',
+    city: {
+      pk: 24,
+      name: 'HUNTERSVILLE',
+      state: {
+        pk: 13,
+        name: '',
+        short: 'NC',
+        country: {
+          pk: 1,
+          name: 'United States',
+          short: 'US'
+        }
+      }
+    }
+  }
+}
 export type BuyingOrder = {
   pk: number
   order_id: string
@@ -152,6 +177,7 @@ export type BuyingOrder = {
     pk: number
     order_id: string
   }
+  person: typeof person
 }
 
 export type SalesItem = {

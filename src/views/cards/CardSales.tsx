@@ -96,35 +96,35 @@ const CardSales = ({
         <Grid container spacing={20}>
           <Grid item xs={12} sm={2}>
             <Typography variant='h6'>SBO.#: </Typography>
-            <Typography variant='body1'>{orderData?.order_id}</Typography>
+            <Typography variant='body2'>{orderData?.order_id}</Typography>
           </Grid>
           <Grid item xs={12} sm={2}>
             <Typography variant='h6'>Order Id: </Typography>
 
-            <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+            <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
               {orderData?.channel_order_id}
             </Typography>
           </Grid>
           <Grid item xs={12} sm={2}>
             <Typography variant='h6'>Channel: </Typography>
 
-            <Typography variant='body1'>{orderData?.channel?.name}</Typography>
+            <Typography variant='body2'>{orderData?.channel?.name}</Typography>
           </Grid>
           <Grid item xs={12} sm={2}>
             <Typography variant='h6'>Seller: </Typography>
-            <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+            <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
               {orderData?.seller_name}
             </Typography>
           </Grid>
           <Grid item xs={12} sm={2}>
             <Typography variant='h6'>Order Date: </Typography>
-            <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+            <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
               {orderData?.order_date.slice(0, 10)}
             </Typography>
           </Grid>
           <Grid item xs={12} sm={2}>
             <Typography variant='h6'>Status: </Typography>
-            <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+            <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
               {orderData?.status}
             </Typography>
           </Grid>
@@ -142,7 +142,7 @@ const CardSales = ({
           {/* <Grid item xs={12} sm={3}>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
               <AccountOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />{' '}
-              <Typography variant='body1'>Channel: </Typography>
+              <Typography variant='body2'>Channel: </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', marginLeft: 'auto' }}>
                 {orderData?.channel?.image && (
                   <>
@@ -153,43 +153,43 @@ const CardSales = ({
                       loading='lazy'
                       style={{ borderRadius: '50%', marginRight: 2.75 }}
                     />
-                    <Typography variant='body1'>{orderData?.channel?.name}</Typography>
+                    <Typography variant='body2'>{orderData?.channel?.name}</Typography>
                   </>
                 )}
               </Box>
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
               <AccountOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Order ID: </Typography>
-              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+              <Typography variant='body2'>Order ID: </Typography>
+              <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
                 {orderData?.channel_order_id}
               </Typography>
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
               <AccountOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Seller: </Typography>
-              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+              <Typography variant='body2'>Seller: </Typography>
+              <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
                 {orderData?.seller_name}
               </Typography>
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
               <TrendingUp sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Order Date: </Typography>
-              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+              <Typography variant='body2'>Order Date: </Typography>
+              <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
                 {orderData?.order_date.slice(0, 10)}
               </Typography>
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
               <TrendingUp sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Status: </Typography>
-              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+              <Typography variant='body2'>Status: </Typography>
+              <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
                 {orderData?.status}
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <TrendingUp sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Tracking Number: </Typography>
-              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+              <Typography variant='body2'>Tracking Number: </Typography>
+              <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
                 {orderData?.tracking_number}
               </Typography>
             </Box>
@@ -200,43 +200,43 @@ const CardSales = ({
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
               <AccountOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Name: </Typography>
+              <Typography variant='body2'>Name: </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', marginLeft: 'auto' }}>
                 {orderData?.person?.name && (
                   <>
-                    <Typography variant='body1'>{orderData?.person?.name}</Typography>
+                    <Typography variant='body2'>{orderData?.person?.name}</Typography>
                   </>
                 )}
               </Box>
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
               <AccountOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Phone: </Typography>
-              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+              <Typography variant='body2'>Phone: </Typography>
+              <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
                 {orderData?.person?.phone}
               </Typography>
             </Box>
             {orderData?.person?.email && (
               <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
                 <AccountOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-                <Typography variant='body1'>Email: </Typography>
-                <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+                <Typography variant='body2'>Email: </Typography>
+                <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
                   {orderData?.person?.email}
                 </Typography>
               </Box>
             )}
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
               <TrendingUp sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Street 1: </Typography>
-              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+              <Typography variant='body2'>Street 1: </Typography>
+              <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
                 {orderData?.person?.address?.street_1}
               </Typography>
             </Box>
             {orderData?.person?.address?.street_2 && (
               <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
                 <TrendingUp sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-                <Typography variant='body1'>Street 2: </Typography>
-                <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+                <Typography variant='body2'>Street 2: </Typography>
+                <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
                   {orderData?.person?.address?.street_2}
                 </Typography>
               </Box>
@@ -244,17 +244,17 @@ const CardSales = ({
             {orderData?.person?.address?.zip && (
               <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
                 <TrendingUp sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-                <Typography variant='body1'>ZIP: </Typography>
-                <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+                <Typography variant='body2'>ZIP: </Typography>
+                <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
                   {orderData?.person?.address?.zip}
                 </Typography>
               </Box>
             )}
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
               <TrendingUp sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>City: </Typography>
+              <Typography variant='body2'>City: </Typography>
               {orderData?.person?.address?.city?.name && (
-                <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+                <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
                   {orderData?.person?.address?.city?.name}, {orderData?.person?.address?.city?.state?.short},{' '}
                   {orderData?.person?.address?.city?.state?.country?.short}
                 </Typography>
@@ -262,8 +262,8 @@ const CardSales = ({
             </Box>
             {/* <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <TrendingUp sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Tracking Number: </Typography>
-              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+              <Typography variant='body2'>Tracking Number: </Typography>
+              <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
                 {orderData?.tracking_number}
               </Typography>
             </Box> */}
@@ -274,41 +274,41 @@ const CardSales = ({
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
               <StarOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Num of Item: </Typography>
-              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+              <Typography variant='body2'>Num of Item: </Typography>
+              <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
                 {salesData.sales_items} Item
               </Typography>
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
               <StarOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Item: </Typography>
+              <Typography variant='body2'>Item: </Typography>
 
-              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+              <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
                 {formatterUSDStrip(salesData.sales_item_revenue)}
               </Typography>
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
               <StarOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Shipping: </Typography>
+              <Typography variant='body2'>Shipping: </Typography>
 
-              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+              <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
                 {formatterUSDStrip(salesData.sales_shipping)}
               </Typography>
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
               <StarOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Channel Fee: </Typography>
+              <Typography variant='body2'>Channel Fee: </Typography>
 
-              <Typography variant='body1' sx={{ marginLeft: 'auto', color: 'red' }}>
+              <Typography variant='body2' sx={{ marginLeft: 'auto', color: 'red' }}>
                 {formatterUSDStrip(salesData.sales_fee)}
               </Typography>
             </Box>
 
             {/* <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
               <StarOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Total: </Typography>
+              <Typography variant='body2'>Total: </Typography>
 
-              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+              <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
                 {formatterUSDStrip(salesData.gross_sales)}
               </Typography>
             </Box> */}
@@ -320,40 +320,40 @@ const CardSales = ({
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
               <StarOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Num of Item: </Typography>
-              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+              <Typography variant='body2'>Num of Item: </Typography>
+              <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
                 {salesData.purchase_items} Item
               </Typography>
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
               <StarOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Item: </Typography>
+              <Typography variant='body2'>Item: </Typography>
 
-              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+              <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
                 {formatterUSDStrip(parseFloat(salesData.purchase_items_cost))}
               </Typography>
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
               <StarOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Inbound Shipping: </Typography>
+              <Typography variant='body2'>Inbound Shipping: </Typography>
 
-              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+              <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
                 {formatterUSDStrip(parseFloat(salesData.inbound_shipping))}
               </Typography>
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
               <StarOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Outbound Shipping: </Typography>
+              <Typography variant='body2'>Outbound Shipping: </Typography>
 
-              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+              <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
                 {formatterUSDStrip(salesData.outbound_shipping)}
               </Typography>
             </Box>
             {/* <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
               <StarOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Total: </Typography>
+              <Typography variant='body2'>Total: </Typography>
 
-              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+              <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
                 {formatterUSDStrip(salesData.purchase_cost)}
               </Typography>
             </Box> */}
@@ -364,24 +364,24 @@ const CardSales = ({
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
               <StarOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Revenue: </Typography>
-              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+              <Typography variant='body2'>Revenue: </Typography>
+              <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
                 {formatterUSDStrip(salesData.gross_sales)}
               </Typography>
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
               <StarOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Cost: </Typography>
+              <Typography variant='body2'>Cost: </Typography>
 
-              <Typography variant='body1' sx={{ marginLeft: 'auto' }}>
+              <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
                 {formatterUSDStrip(salesData.all_cost)}
               </Typography>
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
               <StarOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
-              <Typography variant='body1'>Gross Profit: </Typography>
+              <Typography variant='body2'>Gross Profit: </Typography>
 
-              <Typography variant='body1' sx={{ marginLeft: 'auto', color: salesData.profit > 0 ? 'black' : 'red' }}>
+              <Typography variant='body2' sx={{ marginLeft: 'auto', color: salesData.profit > 0 ? 'black' : 'red' }}>
                 {formatterUSDStrip(salesData.profit)}
               </Typography>
             </Box>
