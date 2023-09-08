@@ -39,6 +39,7 @@ import { formatterUSDStrip } from 'src/constants/Utils'
 import CardOrder from 'src/views/cards/CardOrder'
 import { ExtendedSession } from 'src/pages/api/auth/[...nextauth]'
 import { BuyingOrder, SalesOrder } from 'src/pages/purchase/[purchaseId]'
+import CloseIcon from '@mui/icons-material/Close'
 
 type InventoryItem = {
   [key: string]: any
@@ -147,6 +148,18 @@ export const CreateNewAccountModal = ({
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Create New Item</DialogTitle>
+      <IconButton
+        aria-label='close'
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: theme => theme.palette.grey[500]
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
       <DialogContent>
         <form onSubmit={e => e.preventDefault()}>
           <Stack
@@ -273,6 +286,18 @@ export const DeleteModal = ({ open, onClose, onSubmit, data }: DeleteModalProps)
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Delete {data}</DialogTitle>
+      <IconButton
+        aria-label='close'
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: theme => theme.palette.grey[500]
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
       <DialogActions sx={{ p: '1.25rem' }}>
         <Button onClick={onClose}>Cancel</Button>
         <Button color='error' onClick={handleSubmit} variant='contained'>
@@ -676,7 +701,7 @@ const InventoryDetail = (props: any) => {
         </Typography>
         <Typography variant='body2'>Material Design Icons from the Community</Typography>
       </Grid> */}
-        <CardOrder orderData={orderData} type={'buying'} />
+        <CardOrder orderData={orderData} type={'buying'} onClose={onClose} />
         <Card sx={{ padding: 3 }}>
           <MaterialReactTable
             columns={columns}

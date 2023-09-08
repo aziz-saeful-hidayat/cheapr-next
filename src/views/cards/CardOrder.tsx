@@ -15,6 +15,8 @@ import AccountOutline from 'mdi-material-ui/AccountOutline'
 import LockOpenOutline from 'mdi-material-ui/LockOpenOutline'
 import { BuyingOrder, SalesOrder } from 'src/pages/purchase/[purchaseId]'
 import { formatterUSDStrip } from 'src/constants/Utils'
+import { IconButton } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
 
 // Styled Box component
 const StyledBox = styled(Box)<BoxProps>(({ theme }) => ({
@@ -25,10 +27,12 @@ const StyledBox = styled(Box)<BoxProps>(({ theme }) => ({
 
 const CardOrder = ({
   orderData,
-  type
+  type,
+  onClose
 }: {
   orderData: BuyingOrder | SalesOrder | undefined
   type: 'buying' | 'sales'
+  onClose: () => void
 }) => {
   return (
     <Card sx={{ marginBottom: 5 }}>
@@ -36,6 +40,7 @@ const CardOrder = ({
         <Typography variant='h6' sx={{ marginBottom: 3.5 }}>
           Order / {orderData?.order_id}
         </Typography>
+
         {/* <Typography variant='body2'>
           Here, I focus on a range of items and features that we use in life without giving them a second thought such
           as Coca Cola, body muscles and holding ones own breath. Though, most of these notes are not fundamentally

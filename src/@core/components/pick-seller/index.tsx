@@ -8,10 +8,12 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
   Stack,
   TextField
 } from '@mui/material'
 import { Add } from '@mui/icons-material'
+import CloseIcon from '@mui/icons-material/Close'
 
 type Seller = {
   pk: number
@@ -58,6 +60,18 @@ const PickSellerModal = ({ open, onClose, onSubmit, setCreateSellerModalOpen }: 
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Choose Seller</DialogTitle>
+      <IconButton
+        aria-label='close'
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: theme => theme.palette.grey[500]
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
       <DialogContent>
         <form onSubmit={e => e.preventDefault()}>
           <Stack

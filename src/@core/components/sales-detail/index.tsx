@@ -43,6 +43,7 @@ import { Cross } from 'mdi-material-ui'
 import { styled } from '@mui/material/styles'
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip'
 import { SalesOrder } from 'src/pages/purchase/[purchaseId]'
+import CloseIcon from '@mui/icons-material/Close'
 
 type InventoryItem = {
   [key: string]: any
@@ -279,6 +280,18 @@ export const CreateNewSellerModal = ({ open, columns, onClose, onSubmit }: Creat
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Create New Seller</DialogTitle>
+      <IconButton
+        aria-label='close'
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: theme => theme.palette.grey[500]
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
       <DialogContent>
         <form onSubmit={e => e.preventDefault()}>
           <Stack
@@ -327,6 +340,18 @@ export const CreateNewSKUModal = ({ open, columns, onClose, onSubmit }: CreateSK
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Create New SKU</DialogTitle>
+      <IconButton
+        aria-label='close'
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: theme => theme.palette.grey[500]
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
       <DialogContent>
         <form onSubmit={e => e.preventDefault()}>
           <Stack
@@ -385,6 +410,18 @@ export const CreateItemModal = ({
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Pick SKU</DialogTitle>
+      <IconButton
+        aria-label='close'
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: theme => theme.palette.grey[500]
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
       <DialogContent>
         <form onSubmit={e => e.preventDefault()}>
           <Stack
@@ -509,6 +546,18 @@ export const CreateDropshipModal = ({
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Add Droship Item</DialogTitle>
+      <IconButton
+        aria-label='close'
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: theme => theme.palette.grey[500]
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
       <DialogContent>
         <form onSubmit={e => e.preventDefault()}>
           <Stack
@@ -727,6 +776,18 @@ export const PickSellerModal = ({
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Choose Seller</DialogTitle>
+      <IconButton
+        aria-label='close'
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: theme => theme.palette.grey[500]
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
       <DialogContent>
         <form onSubmit={e => e.preventDefault()}>
           <Stack
@@ -854,6 +915,18 @@ export const AddItemModal = ({
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Add Item</DialogTitle>
+      <IconButton
+        aria-label='close'
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: theme => theme.palette.grey[500]
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
       <DialogContent>
         <form onSubmit={e => e.preventDefault()}>
           <Stack
@@ -909,6 +982,18 @@ export const SubItemModal = ({ open, columns, onClose, onSubmit, setCreateSKUMod
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Choose Sub SKU</DialogTitle>
+      <IconButton
+        aria-label='close'
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: theme => theme.palette.grey[500]
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
       <DialogContent>
         <form onSubmit={e => e.preventDefault()}>
           <Stack
@@ -1001,6 +1086,18 @@ export const DeleteModal = ({ open, onClose, onSubmit, data }: DeleteModalProps)
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Delete {data}</DialogTitle>
+      <IconButton
+        aria-label='close'
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: theme => theme.palette.grey[500]
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
       <DialogActions sx={{ p: '1.25rem' }}>
         <Button onClick={onClose}>Cancel</Button>
         <Button color='error' onClick={handleSubmit} variant='contained'>
@@ -2142,7 +2239,7 @@ const SalesDetail = (props: any) => {
       sx={{ padding: 10, overflow: 'scroll' }}
     >
       <>
-        <CardSales orderData={orderData} type={'sales'} tableData={tableData} />
+        <CardSales orderData={orderData} type={'sales'} tableData={tableData} onClose={onClose} />
         <Card sx={{ padding: 3 }}>
           <MaterialReactTable
             columns={columns}

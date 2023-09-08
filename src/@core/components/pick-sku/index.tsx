@@ -8,12 +8,14 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
   Stack,
   TextField
 } from '@mui/material'
 import { Add } from '@mui/icons-material'
 import { ExtendedSession } from 'src/pages/api/auth/[...nextauth]'
 import { CreateNewSKUModal } from './new-sku'
+import CloseIcon from '@mui/icons-material/Close'
 
 type InventoryItem = {
   [key: string]: any
@@ -137,6 +139,18 @@ export const CreateItemModal = ({ open, columns, onClose, onSubmit, session }: C
     <>
       <Dialog open={open}>
         <DialogTitle textAlign='center'>Pick SKU</DialogTitle>
+        <IconButton
+          aria-label='close'
+          onClick={onClose}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: theme => theme.palette.grey[500]
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
         <DialogContent>
           <form onSubmit={e => e.preventDefault()}>
             <Stack

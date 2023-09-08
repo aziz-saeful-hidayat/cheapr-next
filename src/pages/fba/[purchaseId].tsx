@@ -38,6 +38,7 @@ import { ExtendedSession } from '../api/auth/[...nextauth]'
 import { formatterUSDStrip } from 'src/constants/Utils'
 import CardOrder from 'src/views/cards/CardOrder'
 import { SalesOrder } from '../purchase/[purchaseId]'
+import CloseIcon from '@mui/icons-material/Close'
 
 type InventoryItem = {
   [key: string]: any
@@ -183,6 +184,18 @@ export const AddItemModal = ({ open, columns, onClose, onSubmit, purchaseId, roo
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Add Item</DialogTitle>
+      <IconButton
+        aria-label='close'
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: theme => theme.palette.grey[500]
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
       <DialogContent>
         <form onSubmit={e => e.preventDefault()}>
           <Stack
@@ -299,6 +312,18 @@ export const DeleteModal = ({ open, onClose, onSubmit, data }: DeleteModalProps)
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Delete {data}</DialogTitle>
+      <IconButton
+        aria-label='close'
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: theme => theme.palette.grey[500]
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
       <DialogActions sx={{ p: '1.25rem' }}>
         <Button onClick={onClose}>Cancel</Button>
         <Button color='error' onClick={handleSubmit} variant='contained'>

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react'
 import { type MRT_ColumnDef } from 'material-react-table'
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField } from '@mui/material'
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField, IconButton } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
 
 type ItemOption = {
   pk: number
@@ -83,6 +84,18 @@ const CreateNewSellerModal = ({ open, onClose, session }: CreateSellerProps) => 
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Create New Seller</DialogTitle>
+      <IconButton
+        aria-label='close'
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: theme => theme.palette.grey[500]
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
       <DialogContent>
         <form onSubmit={e => e.preventDefault()}>
           <Stack

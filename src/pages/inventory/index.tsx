@@ -25,6 +25,7 @@ import { withAuth } from 'src/constants/HOCs'
 import Card from '@mui/material/Card'
 import { useSession, signIn, signOut, getSession } from 'next-auth/react'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
+import CloseIcon from '@mui/icons-material/Close'
 
 type Payload = {
   pk?: number
@@ -104,6 +105,18 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit }: Crea
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Create New Item</DialogTitle>
+      <IconButton
+        aria-label='close'
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: theme => theme.palette.grey[500]
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
       <DialogContent>
         <form onSubmit={e => e.preventDefault()}>
           <Stack
@@ -145,6 +158,18 @@ export const DeleteModal = ({ open, onClose, onSubmit, data }: DeleteModalProps)
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Delete {data}</DialogTitle>
+      <IconButton
+        aria-label='close'
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: theme => theme.palette.grey[500]
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
       <DialogActions sx={{ p: '1.25rem' }}>
         <Button onClick={onClose}>Cancel</Button>
         <Button color='error' onClick={handleSubmit} variant='contained'>

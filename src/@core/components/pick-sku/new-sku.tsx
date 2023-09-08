@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import { type MRT_ColumnDef } from 'material-react-table'
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Stack, TextField } from '@mui/material'
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Stack, TextField } from '@mui/material'
 import { ExtendedSession } from 'src/pages/api/auth/[...nextauth]'
+import CloseIcon from '@mui/icons-material/Close'
 
 type InventoryItem = {
   [key: string]: any
@@ -70,6 +71,18 @@ export const CreateNewSKUModal = ({ open, columns, onClose, onSubmit }: CreateSK
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Create New SKU</DialogTitle>
+      <IconButton
+        aria-label='close'
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: theme => theme.palette.grey[500]
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
       <DialogContent>
         <form onSubmit={e => e.preventDefault()}>
           <Stack

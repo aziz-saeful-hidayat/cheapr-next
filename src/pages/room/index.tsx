@@ -24,6 +24,7 @@ import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-quer
 import { withAuth } from 'src/constants/HOCs'
 import { getSession } from 'next-auth/react'
 import Card from '@mui/material/Card'
+import CloseIcon from '@mui/icons-material/Close'
 
 type Room = {
   pk: number
@@ -69,6 +70,18 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit }: Crea
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Create New Room</DialogTitle>
+      <IconButton
+        aria-label='close'
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: theme => theme.palette.grey[500]
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
       <DialogContent>
         <form onSubmit={e => e.preventDefault()}>
           <Stack
@@ -110,6 +123,18 @@ export const DeleteModal = ({ open, onClose, onSubmit, data }: DeleteModalProps)
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Delete {data}</DialogTitle>
+      <IconButton
+        aria-label='close'
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: theme => theme.palette.grey[500]
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
       <DialogActions sx={{ p: '1.25rem' }}>
         <Button onClick={onClose}>Cancel</Button>
         <Button color='error' onClick={handleSubmit} variant='contained'>

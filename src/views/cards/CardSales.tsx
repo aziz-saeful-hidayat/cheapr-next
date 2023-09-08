@@ -16,6 +16,8 @@ import LockOpenOutline from 'mdi-material-ui/LockOpenOutline'
 import { BuyingOrder, SalesOrder } from 'src/pages/purchase/[purchaseId]'
 import { formatterUSDStrip } from 'src/constants/Utils'
 import { useEffect, useState } from 'react'
+import { IconButton } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
 
 type Room = {
   pk: number
@@ -57,11 +59,13 @@ const StyledBox = styled(Box)<BoxProps>(({ theme }) => ({
 const CardSales = ({
   orderData,
   type,
-  tableData
+  tableData,
+  onClose
 }: {
   orderData: SalesOrder | undefined
   type: 'sales'
   tableData: Item[]
+  onClose: () => void
 }) => {
   const [salesData, setSalesData] = useState<any>({
     sales_items: 0,
