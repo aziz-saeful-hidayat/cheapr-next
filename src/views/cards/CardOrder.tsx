@@ -32,7 +32,7 @@ const CardOrder = ({
 }: {
   orderData: BuyingOrder | SalesOrder | undefined
   type: 'buying' | 'sales'
-  onClose: () => void
+  onClose?: () => void
 }) => {
   return (
     <Card sx={{ marginBottom: 5 }}>
@@ -40,7 +40,18 @@ const CardOrder = ({
         <Typography variant='h6' sx={{ marginBottom: 3.5 }}>
           Order / {orderData?.order_id}
         </Typography>
-
+        <IconButton
+          aria-label='close'
+          onClick={onClose}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: theme => theme.palette.grey[500]
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
         {/* <Typography variant='body2'>
           Here, I focus on a range of items and features that we use in life without giving them a second thought such
           as Coca Cola, body muscles and holding ones own breath. Though, most of these notes are not fundamentally

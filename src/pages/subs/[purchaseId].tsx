@@ -766,6 +766,7 @@ const Example = (props: any) => {
 
   return (
     <>
+      <CardOrder orderData={orderData} type={'sales'} />
       <Card sx={{ padding: 3 }}>
         <MaterialReactTable
           columns={columns}
