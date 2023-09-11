@@ -442,14 +442,14 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, data, pick
               </TableRow>
             </TableHead>
             <TableBody>
-              <TableRow key='best' sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+              {/* <TableRow key='best' sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                 <TableCell component='th' scope='row'>
                   <span style={{ fontWeight: 500 }}>Best Match</span>
                 </TableCell>
                 <TableCell align='right'></TableCell>
                 <TableCell align='right'></TableCell>
                 <TableCell align='right'></TableCell>
-              </TableRow>
+              </TableRow> */}
               {data.best?.map(sales => (
                 <TableRow key={sales.pk}>
                   <TableCell component='th' scope='row'>
@@ -482,14 +482,14 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, data, pick
                   </TableCell>
                 </TableRow>
               ))}
-              <TableRow key='other' sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+              {/* <TableRow key='other' sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                 <TableCell component='th' scope='row'>
                   <span style={{ fontWeight: 500 }}>Other Open Order</span>
                 </TableCell>
                 <TableCell align='right'></TableCell>
                 <TableCell align='right'></TableCell>
                 <TableCell align='right'></TableCell>
-              </TableRow>
+              </TableRow> */}
 
               {data.other?.map(sales => (
                 <TableRow key={sales.pk}>
@@ -996,7 +996,7 @@ const PurchaseDetail = (props: any) => {
         }
       }
     ],
-    [roomData, ratingData, open]
+    [roomData, salesItemData, open]
   )
   useEffect(() => {
     const fetchURL = new URL('/room/', 'https://cheapr.my.id')
@@ -1042,19 +1042,20 @@ const PurchaseDetail = (props: any) => {
       })
   }, [session, pk, modalOpen, refresh])
   useEffect(() => {
-    orderData?.sales?.pk &&
-      fetch(`https://cheapr.my.id/sales_items/?item=&no_item=true&selling=${orderData?.sales?.pk}`, {
-        method: 'get',
-        headers: new Headers({
-          Authorization: `Bearer ${session?.accessToken}`,
-          'Content-Type': 'application/json'
+    orderData?.sales?.pk
+      ? fetch(`https://cheapr.my.id/sales_items/?item=&no_item=true&selling=${orderData?.sales?.pk}`, {
+          method: 'get',
+          headers: new Headers({
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json'
+          })
         })
-      })
-        .then(response => response.json())
-        .then(json => {
-          setSalesItemData(json.results)
-        })
-  }, [session, pk, orderData, refresh])
+          .then(response => response.json())
+          .then(json => {
+            setSalesItemData(json.results)
+          })
+      : setSalesItemData([])
+  }, [orderData])
   useEffect(() => {
     setPagination({
       pageIndex: 0,
@@ -1131,7 +1132,22 @@ const PurchaseDetail = (props: any) => {
         .then(response => response.json())
         .then(json => {
           if (json.pk) {
-            setRefresh(refresh + 1)
+            if (!cell.row.original.product) {
+              fetch(`https://cheapr.my.id/inventory_items/${cell.row.original.pk}/`, {
+                method: 'PATCH',
+                headers: {
+                  Authorization: `Bearer ${session?.accessToken}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ product: json.pk })
+              })
+                .then(response => response.json())
+                .then(json => {
+                  if (json.pk) {
+                    setRefresh(refresh + 1)
+                  }
+                })
+            }
           }
         })
     }
@@ -1362,6 +1378,39 @@ const PurchaseDetail = (props: any) => {
                     >
                       {orderData?.sales ? `${orderData?.sales.pk} ${orderData?.sales.order_id}` : 'Pick'}
                     </Link>
+                    {orderData?.sales && (
+                      <Tooltip arrow placement='top' title='Remove'>
+                        <IconButton
+                          color='error'
+                          onClick={() => {
+                            const oldData = [...tableData]
+                            const newData: any = [...tableData]
+                            const payload: any = {}
+
+                            payload['sales'] = null
+
+                            const id = orderData.pk
+                            fetch(`https://cheapr.my.id/buying_order/${id}/`, {
+                              method: 'PATCH',
+                              headers: new Headers({
+                                Authorization: `Bearer ${session?.accessToken}`,
+                                'Content-Type': 'application/json'
+                              }),
+                              body: JSON.stringify(payload)
+                            })
+                              .then(response => response.json())
+                              .then(json => {
+                                console.log(json)
+                              })
+                              .finally(() => {
+                                setRefresh(ref => ref + 1)
+                              })
+                          }}
+                        >
+                          <Close />
+                        </IconButton>
+                      </Tooltip>
+                    )}
                   </span>
                 )}
                 {/* {orderData?.destination == 'D' ? (

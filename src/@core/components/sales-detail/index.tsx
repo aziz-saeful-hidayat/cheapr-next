@@ -18,6 +18,9 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
   IconButton,
   Link,
   MenuItem,
@@ -535,6 +538,8 @@ export const CreateDropshipModal = ({
     }, {} as any)
   )
   const [isopen, setOpen] = useState(false)
+  const [action, setAction] = useState<string>('')
+
   const [options, setOptions] = useState<readonly DropshipItemOption[]>([])
   const [loading, setLoading] = useState(false)
   const handleSubmit = () => {
@@ -559,6 +564,18 @@ export const CreateDropshipModal = ({
         <CloseIcon />
       </IconButton>
       <DialogContent>
+        <RadioGroup
+          row
+          aria-labelledby='demo-row-radio-buttons-group-label'
+          name='row-radio-buttons-group'
+          value={action}
+          onChange={e => {
+            setAction(e.target.value)
+          }}
+        >
+          <FormControlLabel value='match' control={<Radio />} label='match' />
+          <FormControlLabel value='create' control={<Radio />} label='create' sx={{ marginLeft: 50 }} />
+        </RadioGroup>
         <form onSubmit={e => e.preventDefault()}>
           <Stack
             sx={{
