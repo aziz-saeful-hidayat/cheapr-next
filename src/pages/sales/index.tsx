@@ -732,6 +732,8 @@ const Example = (props: any) => {
                             ? theme.palette.success.dark
                             : tracking.status == 'T'
                             ? theme.palette.warning.light
+                            : tracking.status == 'I'
+                            ? 'purple'
                             : theme.palette.error.dark,
                         borderRadius: '0.5rem',
                         color: '#fff',
@@ -1376,6 +1378,11 @@ const Example = (props: any) => {
               Add New Sales
             </Button>
             <Select labelId='demo-select-small-label' id='demo-select-small' value={tabActive} onChange={handleChange}>
+              <MenuItem value={'in_transit'}>In-Transit</MenuItem>
+              <MenuItem value={'not_moving'}>Not Moving</MenuItem>
+              <MenuItem value={'have_issue'}>Have Issue</MenuItem>
+              <MenuItem value={'no_tracking'}>No-Tracking</MenuItem>
+              <MenuItem value={'potential_delay'}>Potential Delay</MenuItem>
               <MenuItem value={'to_monitor'}>To Monitor</MenuItem>
               <MenuItem value={'delivered'}>Delivered</MenuItem>
               <MenuItem value={'all'}>All</MenuItem>
