@@ -67,11 +67,38 @@ type InventoryPayload = {
 type InventoryItem = {
   [key: string]: any
 }
-
+const person = {
+  pk: 23,
+  name: 'Leigh Ann Peters',
+  phone: '+1 207-835-4259 ext. 30141',
+  email: null,
+  address: {
+    pk: 22,
+    street_1: '13517 STATESVILLE RD',
+    street_2: null,
+    zip: '28078-9047',
+    city: {
+      pk: 24,
+      name: 'HUNTERSVILLE',
+      state: {
+        pk: 13,
+        name: '',
+        short: 'NC',
+        country: {
+          pk: 1,
+          name: 'United States',
+          short: 'US'
+        }
+      }
+    }
+  }
+}
 type SellingOrder = {
   pk: number
   order_id: string
   order_date: string
+  delivery_date: string
+  ship_date: string
   channel: {
     pk: number
     name: string
@@ -94,6 +121,7 @@ type SellingOrder = {
   delivery_status: string
   sellingitems: InventoryItem[]
   salesitems: InventoryItem[]
+  person: typeof person
 }
 type Payload = {
   pk?: number
@@ -680,9 +708,75 @@ const Example = (props: any) => {
     () => [
       {
         accessorKey: 'delivery_status',
-        header: 'Status',
-        maxSize: 60,
+        header: 'STS',
+        maxSize: 40,
         enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.salesitems
+              .map(sales => sales.tracking)
+              .map((tracking, index) => {
+                if (tracking) {
+                  return (
+                    <Box
+                      key={index}
+                      sx={theme => ({
+                        backgroundColor:
+                          tracking.status == 'D'
+                            ? theme.palette.success.dark
+                            : tracking.status == 'T'
+                            ? theme.palette.warning.light
+                            : theme.palette.error.dark,
+                        borderRadius: '0.5rem',
+                        color: '#fff',
+                        width: 15,
+                        height: 15
+                      })}
+                    ></Box>
+                  )
+                } else {
+                  return (
+                    <Box
+                      key={index}
+                      sx={theme => ({
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: '#a9a9a9',
+                        borderRadius: '0.5rem',
+                        borderColor: '#000',
+                        color: '#fff',
+                        width: 12,
+                        height: 12
+                      })}
+                    >
+                      <Box
+                        sx={theme => ({
+                          backgroundColor: theme.palette.background.paper,
+                          borderRadius: '0.5rem',
+                          borderColor: '#000',
+                          color: '#fff',
+                          width: 9,
+                          height: 9
+                        })}
+                      ></Box>
+                    </Box>
+                  )
+                }
+              })}
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'delivery_date',
+        header: 'GET BY',
+        maxSize: 50,
         Cell: ({ renderedCellValue, row }) => (
           <Box
             sx={{
@@ -691,38 +785,66 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
+            {row.original.delivery_date ? moment(row.original.delivery_date).format('MM-DD-YY') : ''}
+          </Box>
+        ),
+        enableEditing: false
+      },
+      {
+        id: 'make_mpn',
+        header: 'MAKE-MPN',
+        maxSize: 60,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
             {row.original.salesitems
-              .filter(e => e.tracking)
-              .map(sales => sales.tracking.status)
-              .filter((c, index, arr) => {
-                return arr.indexOf(c) === index
-              })
-              .map((status, index) => {
-                return (
-                  <Box
-                    key={index}
-                    sx={theme => ({
-                      backgroundColor:
-                        status == 'D'
-                          ? theme.palette.success.dark
-                          : status == 'T'
-                          ? theme.palette.warning.light
-                          : theme.palette.error.dark,
-                      borderRadius: '0.5rem',
-                      color: '#fff',
-                      width: 15,
-                      height: 15
-                    })}
-                  ></Box>
-                )
+              .map(sales => sales.sku)
+              .map((sku, index) => {
+                if (sku) {
+                  return <span key={index}>{`${sku.make}-${sku.mpn}`}</span>
+                } else {
+                  return <span key={index}>{` `}</span>
+                }
               })}
           </Box>
         )
       },
       {
-        accessorKey: 'order_id',
-        header: 'SB.#',
-        maxSize: 50,
+        id: 'sub_make_mpn',
+        header: 'SUB',
+        maxSize: 60,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.salesitems
+              .map(sales => sales.sub_sku)
+              .map((sub_sku, index) => {
+                if (sub_sku) {
+                  return <span key={index}>{`${sub_sku.make}-${sub_sku.mpn}`}</span>
+                } else {
+                  return <span key={index}>{` `}</span>
+                }
+              })}
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'channel_order_id',
+        header: 'ORDER',
+        size: 70,
+        enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
           <Box
             sx={{
@@ -738,15 +860,15 @@ const Example = (props: any) => {
                 setDetailModalOpen(true)
               }}
             >
-              {renderedCellValue}
+              <span>{renderedCellValue}</span>
             </Link>
           </Box>
-        ),
-        enableEditing: false
+        )
       },
       {
-        accessorKey: 'channel_order_id',
-        header: 'Order ID',
+        accessorKey: 'person.name',
+        accessorFn: row => row.person?.name?.substr(0, 15),
+        header: 'CUST',
         size: 70,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
@@ -762,14 +884,9 @@ const Example = (props: any) => {
         )
       },
       {
-        accessorKey: 'order_date',
-        accessorFn: row => row.order_date.substr(0, 10),
-        header: 'Date',
+        accessorKey: 'person.phone',
+        header: 'CUST.CONT',
         size: 70,
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'date'
-        },
-        filterFn: 'between',
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
           <Box
@@ -779,37 +896,21 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            <span>{renderedCellValue ? moment(renderedCellValue?.toString()).format('MMM D YYYY') : ''}</span>
+            <span>{renderedCellValue}</span>
           </Box>
         )
       },
       {
-        accessorKey: 'channel.name',
-        id: 'channel_name',
-        header: 'Channel',
-        size: 100,
-        muiTableBodyCellEditTextFieldProps: {
-          select: true, //change to select for a dropdown
-          children: channelData?.map(channel => (
-            <MenuItem key={channel.pk} value={channel.name}>
-              {channel.name}
-            </MenuItem>
-          ))
-        },
-        enableEditing: false
-      },
-      {
         accessorKey: 'seller_name',
         accessorFn: row => row.seller_name.substr(0, 15),
-        header: 'Store',
+        header: 'STORE',
         size: 75,
         enableEditing: false
       },
-
       {
         accessorKey: 'total_cost',
         id: 'total',
-        header: 'Item Price',
+        header: 'ITEM',
         size: 70,
         Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.total_cost)}</Box>,
         muiTableBodyCellEditTextFieldProps: {
@@ -826,7 +927,7 @@ const Example = (props: any) => {
       {
         accessorKey: 'shipping_cost',
         id: 'shipping_cost',
-        header: 'Shipping',
+        header: 'SHIP',
         size: 70,
         Cell: ({ renderedCellValue, row }) => (
           <Box component='span'>{formatterUSDStrip(row.original.shipping_cost)}</Box>
@@ -844,7 +945,7 @@ const Example = (props: any) => {
       {
         accessorKey: 'channel_fee',
         id: 'channel_fee',
-        header: 'Fees',
+        header: 'FEES',
         size: 70,
         Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.channel_fee)}</Box>,
         muiTableBodyCellEditTextFieldProps: {
@@ -860,7 +961,7 @@ const Example = (props: any) => {
       {
         accessorKey: 'gross_sales',
         id: 'gross_sales',
-        header: 'Net Sales',
+        header: 'NET SALE',
         size: 70,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.gross_sales)}</Box>,
@@ -875,10 +976,67 @@ const Example = (props: any) => {
         }
       },
       {
+        id: 'type',
+        header: 'TYPE',
+        maxSize: 60,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.salesitems
+              .map(sales => sales.item)
+              .map((item, index) => {
+                if (item) {
+                  return <span key={index}>{item.buying?.destination == 'D' ? 'DS' : 'HA'}</span>
+                } else {
+                  return <span key={index}>{` `}</span>
+                }
+              })}
+          </Box>
+        )
+      },
+      {
+        id: 'vendor',
+        header: 'VENDOR',
+        maxSize: 60,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.salesitems
+              .map(sales => sales.item)
+              .map((item, index) => {
+                if (item) {
+                  return (
+                    <Link
+                      href={`https://order.ebay.com/ord/show?orderId=${item.buying.channel_order_id}#/`}
+                      target='_blank'
+                    >
+                      {item?.buying?.seller?.name}
+                    </Link>
+                  )
+                } else {
+                  return <span key={index}>{` `}</span>
+                }
+              })}
+          </Box>
+        )
+      },
+      {
         accessorKey: 'purchase_cost',
 
         id: 'purchase_cost',
-        header: 'Cost',
+        header: 'TTL.COST',
         size: 70,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
@@ -898,7 +1056,7 @@ const Example = (props: any) => {
         accessorKey: 'ss_shipping_cost',
 
         id: 'ss_shipping_cost',
-        header: 'Shipping',
+        header: 'IB.SHIP',
         size: 70,
         Cell: ({ renderedCellValue, row }) => (
           <Box component='span'>{formatterUSDStrip(row.original.ss_shipping_cost)}</Box>
@@ -916,7 +1074,7 @@ const Example = (props: any) => {
       {
         accessorKey: 'profit',
         id: 'profit',
-        header: 'Margin',
+        header: 'MRGN',
         size: 70,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.profit)}</Box>,
@@ -938,6 +1096,82 @@ const Example = (props: any) => {
         muiTableHeadCellProps: {
           align: 'right'
         }
+      },
+      {
+        accessorKey: 'order_date',
+        header: 'DATE',
+        size: 70,
+        muiTableBodyCellEditTextFieldProps: {
+          type: 'date'
+        },
+        filterFn: 'between',
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            <span>{row.original.order_date ? moment(row.original.order_date).format('MM-DD-YY') : ''}</span>
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'ship_date',
+        header: 'SHIP BY',
+        size: 70,
+        muiTableBodyCellEditTextFieldProps: {
+          type: 'date'
+        },
+        filterFn: 'between',
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            <span>{row.original.ship_date ? moment(row.original.ship_date).format('MM-DD-YY') : ''}</span>
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'channel.name',
+        id: 'channel_name',
+        header: 'CHANNEL',
+        size: 100,
+        muiTableBodyCellEditTextFieldProps: {
+          select: true, //change to select for a dropdown
+          children: channelData?.map(channel => (
+            <MenuItem key={channel.pk} value={channel.name}>
+              {channel.name}
+            </MenuItem>
+          ))
+        },
+        enableEditing: false
+      },
+      {
+        accessorKey: 'order_id',
+        header: 'SB.#',
+        maxSize: 50,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            <Link href={`https://app.sellbrite.com/orders?query=${row.original.order_id}`} target='_blank'>
+              {renderedCellValue}
+            </Link>
+          </Box>
+        ),
+        enableEditing: false
       },
       {
         accessorKey: 'subs_status',
