@@ -724,23 +724,28 @@ const Example = (props: any) => {
               .map((tracking, index) => {
                 if (tracking) {
                   return (
-                    <Box
-                      key={index}
-                      sx={theme => ({
-                        backgroundColor:
-                          tracking.status == 'D'
-                            ? theme.palette.success.dark
-                            : tracking.status == 'T'
-                            ? theme.palette.warning.light
-                            : tracking.status == 'I'
-                            ? 'purple'
-                            : theme.palette.error.dark,
-                        borderRadius: '0.5rem',
-                        color: '#fff',
-                        width: 15,
-                        height: 15
-                      })}
-                    ></Box>
+                    <Link
+                      href={`${tracking.fullcarrier.prefix}${tracking.tracking_number}${tracking.fullcarrier.suffix}`}
+                      target='_blank'
+                    >
+                      <Box
+                        key={index}
+                        sx={theme => ({
+                          backgroundColor:
+                            tracking.status == 'D'
+                              ? theme.palette.success.dark
+                              : tracking.status == 'T'
+                              ? theme.palette.warning.light
+                              : tracking.status == 'I'
+                              ? 'purple'
+                              : theme.palette.error.dark,
+                          borderRadius: '0.5rem',
+                          color: '#fff',
+                          width: 15,
+                          height: 15
+                        })}
+                      ></Box>
+                    </Link>
                   )
                 } else {
                   return (
