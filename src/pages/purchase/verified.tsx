@@ -895,12 +895,29 @@ const Example = (props: any) => {
         header: 'HA / SBO',
         maxSize: 100,
         enableEditing: false,
-        muiTableBodyCellProps: {
-          align: 'right'
-        },
-        muiTableHeadCellProps: {
-          align: 'right'
-        }
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            {row.original.destination == 'H' ? (
+              <span>HA</span>
+            ) : row.original.destination == 'D' && row.original.inventoryitems.length > 0 ? (
+              <Link
+                target='_blank'
+                rel='noreferrer'
+                href={`https://app.sellbrite.com/orders?query=${row.original.inventoryitems[0].itemsales.selling.order_id}`}
+              >
+                {row.original.inventoryitems[0].itemsales.selling.order_id}
+              </Link>
+            ) : (
+              ''
+            )}
+          </Box>
+        )
       },
       {
         accessorFn: row => '', //accessorFn used to join multiple data into a single cell
