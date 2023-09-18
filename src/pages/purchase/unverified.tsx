@@ -1139,11 +1139,11 @@ const Example = (props: any) => {
                 <Edit />
               </IconButton>
             </Tooltip> */}
-            <Tooltip arrow placement='top' title='Verify'>
+            {/* <Tooltip arrow placement='top' title='Verify'>
               <IconButton color='primary' onClick={() => handleVerifyRow(row)}>
                 <TaskAlt />
               </IconButton>
-            </Tooltip>
+            </Tooltip> */}
             <Tooltip arrow placement='top' title='Delete'>
               <IconButton color='error' onClick={() => handleDeleteRow(row)}>
                 <Delete />

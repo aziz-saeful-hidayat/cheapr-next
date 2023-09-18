@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import MaterialReactTable, {
   type MRT_ColumnDef,
   type MRT_Cell,
@@ -1282,6 +1282,25 @@ const PurchaseDetail = (props: any) => {
         setRefresh(refresh + 1)
       })
   }
+
+  const handleVerify = () => {
+    fetch(`https://cheapr.my.id/buying_order/${pk}/`, {
+      // note we are going to /1
+      method: 'PATCH',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify({ verified: true })
+    })
+      .then(response => response.status)
+      .then(status => {
+        if (status == 204) {
+          setRefresh(refresh + 1)
+        }
+      })
+  }
+
   const columnsSKU = useMemo<MRT_ColumnDef<InventoryItem>[]>(
     () => [
       {
@@ -1451,6 +1470,7 @@ const PurchaseDetail = (props: any) => {
                     )}
                   </span>
                 )}
+
                 {/* {orderData?.destination == 'D' ? (
                   <>
                     <TextField
@@ -1484,6 +1504,11 @@ const PurchaseDetail = (props: any) => {
                   <></>
                 )} */}
               </>
+            )}
+            renderBottomToolbarCustomActions={() => (
+              <Button color='primary' onClick={() => handleVerify()} variant='contained'>
+                Verify
+              </Button>
             )}
             renderRowActions={({ row, table }) => (
               <Box sx={{ display: 'flex' }}>
