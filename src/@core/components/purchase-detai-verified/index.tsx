@@ -1394,7 +1394,7 @@ const PurchaseDetailVerified = (props: any) => {
                       handleAddItem({
                         buying: row.original.buying,
                         selling: row.original.selling,
-                        product: row.original.product.pk,
+                        product: row.original.product ? row.original.product.pk : null,
                         status: row.original.status,
                         serial: row.original.serial,
                         comment: row.original.comment,

@@ -89,7 +89,7 @@ type CAProduct = {
 type InventoryPayload = {
   buying: number
   selling: number
-  product: number
+  product?: number
   status: string
   serial: string
   comment: string
@@ -1220,9 +1220,6 @@ const PurchaseDetail = (props: any) => {
     //   })
   }
   const handleAddItem = (values: InventoryPayload) => {
-    const newValues = { ...values, room: roomData.find(room => room.name == values.room?.toString())?.pk }
-    console.log(newValues)
-
     fetch(`https://cheapr.my.id/inventory_items/`, {
       // note we are going to /1
       method: 'POST',
@@ -1230,13 +1227,14 @@ const PurchaseDetail = (props: any) => {
         Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json'
       }),
-      body: JSON.stringify(newValues)
+      body: JSON.stringify(values)
     })
       .then(response => response.json())
       .then(json => {
         if (json.pk) {
         }
       })
+      .catch(e => console.error(e))
   }
 
   type InventoryItem = {
@@ -1295,8 +1293,9 @@ const PurchaseDetail = (props: any) => {
     })
       .then(response => response.status)
       .then(status => {
-        if (status == 204) {
+        if (status == 200) {
           setRefresh(refresh + 1)
+          onClose()
         }
       })
   }
@@ -1516,17 +1515,28 @@ const PurchaseDetail = (props: any) => {
                   <IconButton
                     color='primary'
                     onClick={() =>
-                      handleAddItem({
-                        buying: row.original.buying,
-                        selling: row.original.selling,
-                        product: row.original.product.pk,
-                        status: row.original.status,
-                        serial: row.original.serial,
-                        comment: row.original.comment,
-                        room: row.original.room,
-                        total_cost: row.original.total_cost,
-                        shipping_cost: row.original.shipping_cost
-                      })
+                      row.original.product
+                        ? handleAddItem({
+                            buying: row.original.buying,
+                            selling: row.original.selling,
+                            product: row.original.product.pk,
+                            status: row.original.status,
+                            serial: row.original.serial,
+                            comment: row.original.comment,
+                            room: row.original.room,
+                            total_cost: row.original.total_cost,
+                            shipping_cost: row.original.shipping_cost
+                          })
+                        : handleAddItem({
+                            buying: row.original.buying,
+                            selling: row.original.selling,
+                            status: row.original.status,
+                            serial: row.original.serial,
+                            comment: row.original.comment,
+                            room: row.original.room,
+                            total_cost: row.original.total_cost,
+                            shipping_cost: row.original.shipping_cost
+                          })
                     }
                   >
                     <ContentCopy />
