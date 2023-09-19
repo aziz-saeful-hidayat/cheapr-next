@@ -890,7 +890,7 @@ const Example = (props: any) => {
       },
       {
         id: 'asigne',
-        header: 'Asigne',
+        header: 'ASIGNEE',
         maxSize: 50,
         Cell: ({ renderedCellValue, row }) => (
           <Box
