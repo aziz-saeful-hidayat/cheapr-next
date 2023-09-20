@@ -551,7 +551,7 @@ const Example = (props: any) => {
     pageIndex: 0,
     pageSize: 100
   })
-  const [tabActive, setTabActive] = useState('all')
+  const [tabActive, setTabActive] = useState('6')
   const [refresh, setRefresh] = useState(0)
 
   const { data, isError, isFetching, isLoading } = useQuery({
