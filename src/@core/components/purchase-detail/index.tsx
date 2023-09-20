@@ -1032,7 +1032,9 @@ const PurchaseDetail = (props: any) => {
       },
       {
         accessorFn: row =>
-          formatterUSDStrip(parseFloat(row.total_cost?.toString()) + parseFloat(row.shipping_cost?.toString())), //accessorFn used to join multiple data into a single cell
+          row.shipping_cost
+            ? formatterUSDStrip(parseFloat(row.total_cost?.toString()) + parseFloat(row.shipping_cost?.toString()))
+            : formatterUSDStrip(parseFloat(row.total_cost?.toString())), //accessorFn used to join multiple data into a single cell
         id: 'cost', //id is still required when using accessorFn instead of accessorKey
         header: 'Total Cost',
         maxSize: 100,
@@ -1191,9 +1193,11 @@ const PurchaseDetail = (props: any) => {
       })
   }
   const handleDeleteRow = (row: MRT_Row<InventoryItem>) => {
-    if (!confirm(`Are you sure you want to delete Item #${row.index + 1} ${row.original.product.sku}`)) {
+    if (!confirm(`Are you sure you want to delete Item #${row.index + 1}`)) {
       return
     }
+    setisFetching(true)
+
     fetch(`https://cheapr.my.id/inventory_items/${row.original.pk}/`, {
       // note we are going to /1
       method: 'DELETE',
@@ -1205,10 +1209,11 @@ const PurchaseDetail = (props: any) => {
       .then(response => response.status)
       .then(status => {
         if (status == 204) {
-          const newData: any = [...tableData]
-          newData.splice(row.index, 1)
-          setTableData([...newData])
+          setRefresh(r => r + 1)
         }
+      })
+      .finally(() => {
+        setisFetching(false)
       })
   }
   const handleSaveCell = (cell: MRT_Cell<InventoryItem>, value: any) => {
@@ -1297,7 +1302,27 @@ const PurchaseDetail = (props: any) => {
       })
       .catch(e => console.error(e))
   }
-
+  const handleCopyItem = (pk: number) => {
+    setisFetching(true)
+    fetch(`https://cheapr.my.id/inventory_items/${pk}/copy_item/`, {
+      // note we are going to /1
+      method: 'POST',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      })
+    })
+      .then(response => response.json())
+      .then(json => {
+        if (json.status == 'copied') {
+          setRefresh(r => r + 1)
+        }
+      })
+      .catch(e => console.error(e))
+      .finally(() => {
+        setisFetching(false)
+      })
+  }
   type InventoryItem = {
     [key: string]: any
   }
@@ -1573,33 +1598,7 @@ const PurchaseDetail = (props: any) => {
             renderRowActions={({ row, table }) => (
               <Box sx={{ display: 'flex' }}>
                 <Tooltip arrow placement='top' title='Duplicate'>
-                  <IconButton
-                    color='primary'
-                    onClick={() =>
-                      row.original.product
-                        ? handleAddItem({
-                            buying: row.original.buying,
-                            selling: row.original.selling,
-                            product: row.original.product.pk,
-                            status: row.original.status,
-                            serial: row.original.serial,
-                            comment: row.original.comment,
-                            room: row.original.room,
-                            total_cost: row.original.total_cost,
-                            shipping_cost: row.original.shipping_cost
-                          })
-                        : handleAddItem({
-                            buying: row.original.buying,
-                            selling: row.original.selling,
-                            status: row.original.status,
-                            serial: row.original.serial,
-                            comment: row.original.comment,
-                            room: row.original.room,
-                            total_cost: row.original.total_cost,
-                            shipping_cost: row.original.shipping_cost
-                          })
-                    }
-                  >
+                  <IconButton color='primary' onClick={() => handleCopyItem(row.original.pk)}>
                     <ContentCopy />
                   </IconButton>
                 </Tooltip>
