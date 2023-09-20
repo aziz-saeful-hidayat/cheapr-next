@@ -225,6 +225,7 @@ interface PickSalesModalProps {
   open: boolean
   data: { best: SalesOrder[]; other: SalesOrder[] }
   picked: number | undefined
+  session: any
 }
 
 export const CreateNewAccountModal = ({
@@ -415,7 +416,13 @@ export const DeleteModal = ({ open, onClose, onSubmit, data }: DeleteModalProps)
   )
 }
 
-export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, data, picked }: PickSalesModalProps) => {
+export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, data, picked, session }: PickSalesModalProps) => {
+  const [isopen, setOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
+
+  const [choosed, setChoosed] = useState('')
+  const [options, setOptions] = useState<SalesOrder[]>([])
+
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Pick Sales</DialogTitle>
@@ -432,6 +439,60 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, data, pick
         <CloseIcon />
       </IconButton>
       <Box sx={{ width: '100%', bgcolor: 'background.paper' }}>
+        <Autocomplete
+          id='search-sales'
+          sx={{ margin: 10 }}
+          open={isopen}
+          onOpen={() => {
+            setOpen(true)
+          }}
+          onClose={() => {
+            setOpen(false)
+          }}
+          onChange={(event, newValue) => {
+            console.log(newValue)
+            if (newValue) {
+              setChoosed(newValue.pk.toString())
+              onSubmit(newValue.pk)
+            }
+          }}
+          isOptionEqualToValue={(option, value) => option.pk === value.pk}
+          getOptionLabel={option =>
+            `${option.order_id}       ${option.person?.name ? option.person?.name : '------'}      ${
+              option.person?.address?.zip ? option.person?.address?.zip : '------'
+            }`
+          }
+          options={options}
+          loading={loading}
+          renderInput={params => (
+            <TextField
+              {...params}
+              onChange={e =>
+                fetch(`https://cheapr.my.id/selling_order/?search=${e.target.value}`, {
+                  // note we are going to /1
+                  headers: {
+                    Authorization: `Bearer ${session?.accessToken}`,
+                    'Content-Type': 'application/json'
+                  }
+                })
+                  .then(response => response.json())
+                  .then(json => {
+                    setOptions(json.results)
+                  })
+              }
+              label='Search Sales'
+              InputProps={{
+                ...params.InputProps,
+                endAdornment: (
+                  <React.Fragment>
+                    {loading ? <CircularProgress color='inherit' size={20} /> : null}
+                    {params.InputProps.endAdornment}
+                  </React.Fragment>
+                )
+              }}
+            />
+          )}
+        />
         <TableContainer component={Paper}>
           <Table aria-label='simple table'>
             <TableHead>
@@ -1605,6 +1666,7 @@ const PurchaseDetail = (props: any) => {
           }}
           data={matchesData}
           picked={orderData?.sales?.pk}
+          session={session}
         />
         <CreateNewAccountModal
           columns={columnsItem}
