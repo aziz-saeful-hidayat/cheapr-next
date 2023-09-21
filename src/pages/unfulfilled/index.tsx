@@ -896,15 +896,14 @@ const Example = (props: any) => {
           <Box
             sx={{
               display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
+              flexDirection: 'column'
             }}
           >
             {row.original.salesitems.map((sales, index) => {
               const manager = sales.manager
               if (manager) {
                 return (
-                  <Box key={index}>
+                  <div key={index}>
                     <Link
                       href='#'
                       onClick={() => {
@@ -939,7 +938,7 @@ const Example = (props: any) => {
                         <Close />
                       </IconButton>
                     </Tooltip>
-                  </Box>
+                  </div>
                 )
               } else {
                 return (
@@ -1112,254 +1111,9 @@ const Example = (props: any) => {
         }
       },
       {
-        accessorKey: 'shipping_cost',
-        id: 'shipping_cost',
-        header: 'SHIP',
-        size: 70,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSDStrip(row.original.shipping_cost)}</Box>
-        ),
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        },
-        muiTableBodyCellProps: {
-          align: 'right'
-        },
-        muiTableHeadCellProps: {
-          align: 'right'
-        }
-      },
-      {
-        accessorKey: 'channel_fee',
-        id: 'channel_fee',
-        header: 'FEES',
-        size: 70,
-        Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.channel_fee)}</Box>,
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        },
-        muiTableBodyCellProps: {
-          align: 'right'
-        },
-        muiTableHeadCellProps: {
-          align: 'right'
-        }
-      },
-      {
-        accessorKey: 'gross_sales',
-        id: 'gross_sales',
-        header: 'NET SALE',
-        size: 70,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.gross_sales)}</Box>,
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        },
-        muiTableBodyCellProps: {
-          align: 'right'
-        },
-        muiTableHeadCellProps: {
-          align: 'right'
-        }
-      },
-      {
-        id: 'type',
-        header: 'TYPE',
-        maxSize: 60,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
-            }}
-          >
-            {row.original.salesitems
-              .map(sales => sales.item)
-              .map((item, index) => {
-                if (item) {
-                  return <span key={index}>{item.buying?.destination == 'D' ? 'DS' : 'HA'}</span>
-                } else {
-                  return <span key={index}>{` `}</span>
-                }
-              })}
-          </Box>
-        )
-      },
-      {
-        id: 'vendor',
-        header: 'VENDOR',
-        maxSize: 60,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
-            }}
-          >
-            {row.original.salesitems
-              .map(sales => sales.item)
-              .map((item, index) => {
-                if (item) {
-                  return (
-                    <Link
-                      key={index}
-                      href={`https://order.ebay.com/ord/show?orderId=${item.buying.channel_order_id}#/`}
-                      target='_blank'
-                    >
-                      {item?.buying?.seller?.name}
-                    </Link>
-                  )
-                } else {
-                  return <span key={index}>{` `}</span>
-                }
-              })}
-          </Box>
-        )
-      },
-      {
-        accessorKey: 'purchase_cost',
-
-        id: 'purchase_cost',
-        header: 'TTL.COST',
-        size: 70,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSDStrip(row.original.purchase_cost)}</Box>
-        ),
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        },
-        muiTableBodyCellProps: {
-          align: 'right'
-        },
-        muiTableHeadCellProps: {
-          align: 'right'
-        }
-      },
-      {
-        accessorKey: 'ss_shipping_cost',
-
-        id: 'ss_shipping_cost',
-        header: 'IB.SHIP',
-        size: 70,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSDStrip(row.original.ss_shipping_cost)}</Box>
-        ),
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        },
-        muiTableBodyCellProps: {
-          align: 'right'
-        },
-        muiTableHeadCellProps: {
-          align: 'right'
-        }
-      },
-      {
-        accessorKey: 'profit',
-        id: 'profit',
-        header: 'MRGN',
-        size: 70,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.profit)}</Box>,
-        muiTableBodyCellProps: ({ cell, table }) => {
-          if (cell.row.original.profit < 0) {
-            return {
-              align: 'right',
-              sx: { backgroundColor: '#ffcccb', color: '#4e0100' }
-            }
-          } else {
-            return {
-              align: 'right'
-            }
-          }
-        },
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        },
-        muiTableHeadCellProps: {
-          align: 'right'
-        }
-      },
-      {
-        accessorKey: 'order_date',
-        header: 'DATE',
-        size: 70,
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'date'
-        },
-        filterFn: 'between',
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            <span>{row.original.order_date ? moment(row.original.order_date).format('MM-DD-YY') : ''}</span>
-          </Box>
-        )
-      },
-      {
-        accessorKey: 'ship_date',
-        header: 'SHIP BY',
-        size: 70,
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'date'
-        },
-        filterFn: 'between',
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            <span>{row.original.ship_date ? moment(row.original.ship_date).format('MM-DD-YY') : ''}</span>
-          </Box>
-        )
-      },
-      {
-        accessorKey: 'channel.name',
-        id: 'channel_name',
-        header: 'CHANNEL',
-        size: 100,
-        muiTableBodyCellEditTextFieldProps: {
-          select: true, //change to select for a dropdown
-          children: channelData?.map(channel => (
-            <MenuItem key={channel.pk} value={channel.name}>
-              {channel.name}
-            </MenuItem>
-          ))
-        },
-        enableEditing: false
-      },
-      {
-        accessorKey: 'order_id',
-        header: 'SB.#',
-        maxSize: 50,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            <Link href={`https://app.sellbrite.com/orders?query=${row.original.order_id}`} target='_blank'>
-              {renderedCellValue}
-            </Link>
-          </Box>
-        ),
-        enableEditing: false
+        accessorKey: 'comment',
+        header: 'COMMENT',
+        size: 100
       }
     ],
     [channelData]
