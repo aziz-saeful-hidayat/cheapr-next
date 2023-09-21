@@ -438,7 +438,7 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, data, pick
       >
         <CloseIcon />
       </IconButton>
-      <Box sx={{ width: '100%', bgcolor: 'background.paper' }}>
+      <Box sx={{ width: 600, bgcolor: 'background.paper' }}>
         <Autocomplete
           id='search-sales'
           sx={{ margin: 10 }}
@@ -458,9 +458,11 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, data, pick
           }}
           isOptionEqualToValue={(option, value) => option.pk === value.pk}
           getOptionLabel={option =>
-            `${option.order_id}       ${option.person?.name ? option.person?.name : '------'}      ${
+            `${option.order_id} ${option.channel_order_id ? option.channel_order_id : '------'} ${
+              option.person?.name ? option.person?.name : '------'
+            } ${option.person?.address?.street_1 ? option.person?.address?.street_1 : '------'} ${
               option.person?.address?.zip ? option.person?.address?.zip : '------'
-            }`
+            } ${option.person?.address?.zip ? option.person?.address?.zip : '------'}`
           }
           options={options}
           loading={loading}
@@ -468,7 +470,7 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, data, pick
             <TextField
               {...params}
               onChange={e =>
-                fetch(`https://cheapr.my.id/selling_order/?search=${e.target.value}`, {
+                fetch(`https://cheapr.my.id/selling_order/?search=${e.target.value}&no_buying=true`, {
                   // note we are going to /1
                   headers: {
                     Authorization: `Bearer ${session?.accessToken}`,
