@@ -915,16 +915,15 @@ const Example = (props: any) => {
         Cell: ({ renderedCellValue, row }) => (
           <Box component='span'>
             {row.original.seller ? (
-              <Chip
-                sx={{
-                  fontSize: 10
-                }}
-                label={renderedCellValue ? renderedCellValue : 'Pick Seller'}
+              <Link
+                href=''
                 onClick={() => {
                   setBuyingToEdit(row.original?.pk.toString())
                   setPickSellerModalOpen(true)
                 }}
-              />
+              >
+                {renderedCellValue ? renderedCellValue : 'Pick Seller'}
+              </Link>
             ) : null}
           </Box>
         )
