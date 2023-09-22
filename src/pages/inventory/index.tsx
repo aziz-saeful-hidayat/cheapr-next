@@ -26,6 +26,7 @@ import Card from '@mui/material/Card'
 import { useSession, signIn, signOut, getSession } from 'next-auth/react'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import CloseIcon from '@mui/icons-material/Close'
+import { formatterUSDStrip } from 'src/constants/Utils'
 
 type Payload = {
   pk?: number
@@ -55,25 +56,172 @@ type Rating = {
   pk: number
   name: string
 }
+type Channel = {
+  pk: number
+  name: string
+  image: string
+}
+type Manager = {
+  pk: number
+  name: string
+  user: string
+}
 type Item = {
   pk: number
-  buying: number
+  item_id: string
+  title: string
+  buying: {
+    pk: number
+    order_id: string
+    order_date: string
+    delivery_date: null | string
+    channel: number
+    tracking_number: null | string
+    tracking: null | string
+    seller_name: null | string
+    seller: {
+      pk: number
+      name: string
+      platform: null | string
+      link: null | string
+    }
+    channel_order_id: string
+    purchase_link: string
+    total_cost: null | string
+    shipping_cost: null | string
+    comment: null | string
+    return_up_to_date: null | string
+    destination: null | string
+    sales: {
+      pk: number
+      order_id: null | string
+    }
+    verified: boolean
+    person: {
+      pk: number
+      name: string
+      phone: string
+      email: null | string
+      address: {
+        pk: number
+        street_1: string
+        street_2: null
+        zip: null | string
+        city: {
+          pk: number
+          name: string
+          state: {
+            pk: number
+            name: string
+            short: string
+            country: {
+              pk: number
+              name: string
+              short: string
+            }
+          }
+        }
+      }
+    }
+  }
+  selling: null | string
   product: {
     pk: number
     sku: string
     mpn: string
-    make: string
+    make: null | string
     model: string
     asin: string
+    in_database: boolean
   }
-  status: string
-  serial: string
-  comment: string
+  rating: null | string
+  status: null | string
+  serial: null | string
+  comment: null | string
   room: Room
-  rating: Rating
-  total_cost: number
-  shipping_cost: number
+  total_cost: string
+  shipping_cost: null | string
+  all_cost: number
+  dropship: boolean
+  tracking: {
+    pk: number
+    tracking_number: string
+    carrier: null | string
+    fullcarrier: {
+      pk: number
+      name: string
+      image: string
+      prefix: string
+      suffix: string
+      suffix2: string
+    }
+    last_updated: null | string
+    activity_date: null | string
+    status: null | string
+    milestone_name: null | string
+    location: null | string
+    est_delivery: null | string
+    eta_date: null | string
+    delivery_date: null
+    address: null | string
+    src_address: null | string
+    person: {
+      pk: number
+      name: string
+      phone: string
+      email: null | string
+      address: {
+        pk: number
+        street_1: string
+        street_2: null | string
+        zip: string
+        city: {
+          pk: number
+          name: string
+          state: {
+            pk: number
+            name: string
+            short: string
+            country: {
+              pk: number
+              name: string
+              short: string
+            }
+          }
+        }
+      }
+    }
+  }
+  itemsales: {
+    pk: number
+    sku: {
+      pk: number
+      sku: string
+      mpn: string
+      make: string
+      model: string
+      asin: string
+      in_database: false
+    }
+    sub_sku: null | string
+    tracking: null | string
+    selling: {
+      pk: number
+      order_id: string
+      channel_order_id: string
+      seller_name: string
+      gross_sales: null | number
+      ss_shipping_cost: null | number
+      profit: number
+    }
+    manager: {
+      pk: number
+      name: string
+      user: null | number
+    }
+  }
 }
+
 interface CreateModalProps {
   columns: MRT_ColumnDef<Item>[]
   onClose: () => void
@@ -186,7 +334,7 @@ const Example = (props: any) => {
   const [sorting, setSorting] = useState<MRT_SortingState>([])
   const [pagination, setPagination] = useState<MRT_PaginationState>({
     pageIndex: 0,
-    pageSize: 25
+    pageSize: 100
   })
   const { data, isError, isFetching, isLoading } = useQuery({
     queryKey: [
@@ -240,6 +388,9 @@ const Example = (props: any) => {
   const [tableData, setTableData] = useState<Item[]>([])
   const [roomData, setRoomData] = useState<Room[]>([])
   const [ratingData, setRatingData] = useState<Rating[]>([])
+  const [channelData, setChannelData] = useState<Channel[]>([])
+  const [managerData, setManagerData] = useState<Manager[]>([])
+
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [rowDel, setRowDel] = useState<number>()
@@ -321,18 +472,101 @@ const Example = (props: any) => {
   const columns = useMemo<MRT_ColumnDef<Item>[]>(
     () => [
       {
-        accessorKey: 'product.sku',
-        header: 'SKU',
-        enableEditing: false
+        accessorKey: 'product.mpn',
+        header: 'MPN',
+        enableEditing: false,
+        size: 75
+      },
+      {
+        accessorKey: 'product.make',
+        header: 'MAKE',
+        enableEditing: false,
+        size: 75
+      },
+      {
+        accessorKey: 'product.model',
+        header: 'MODEL',
+        enableEditing: false,
+        size: 75
       },
       {
         accessorKey: 'serial',
-        header: 'Serial'
+        header: 'Serial',
+        size: 75
+      },
+      {
+        accessorKey: 'product.sku',
+        header: 'SKU',
+        enableEditing: false,
+        size: 75
+      },
+      {
+        accessorKey: 'buying.sales.order_id',
+        header: 'TYPE',
+        enableEditing: false,
+        size: 75
+      },
+      {
+        accessorKey: 'buying.order_date',
+        header: 'P.DATE',
+        enableEditing: false,
+        size: 75
+      },
+      {
+        accessorKey: 'buying.order_date',
+        header: 'R.DATE',
+        enableEditing: false,
+        size: 75
+      },
+      {
+        accessorKey: 'buying.order_date',
+        header: 'RET.WIN',
+        enableEditing: false,
+        size: 75
+      },
+      {
+        accessorKey: 'buying.order_date',
+        header: 'RET.WIN',
+        enableEditing: false,
+        size: 75
+      },
+      {
+        id: 'source',
+        header: 'Source',
+        size: 75,
+        muiTableBodyCellEditTextFieldProps: {
+          select: true, //change to select for a dropdown
+          children: channelData?.map(channel => (
+            <MenuItem key={channel.pk} value={channel.name}>
+              {channel.name}
+            </MenuItem>
+          ))
+        },
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center'
+            }}
+          >
+            <span>{channelData.find(c => c.pk == row.original.buying.channel)?.name}</span>
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'buying.channel_order_id',
+        header: 'P.O',
+        size: 75
+      },
+      {
+        accessorKey: 'buying.seller.name',
+        header: 'VENDOR',
+        size: 75
       },
       {
         accessorKey: 'room.name',
-        header: 'Room',
-        size: 150,
+        header: 'LOC',
+        size: 75,
         muiTableBodyCellEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: roomData?.map(room => (
@@ -343,35 +577,93 @@ const Example = (props: any) => {
         }
       },
       {
-        accessorKey: 'rating.name',
-        header: 'Rating',
-        size: 150,
+        accessorKey: 'comment',
+        header: 'COMMENTS',
+        size: 200
+      },
+      {
+        accessorKey: 'itemsales.manager.name',
+        accessorFn: row =>
+          ['Holding Area', 'Approval'].includes(row.itemsales?.manager?.name) ? '' : row.itemsales?.manager?.name,
+        header: 'PURCHASER',
+        size: 75,
         muiTableBodyCellEditTextFieldProps: {
           select: true, //change to select for a dropdown
-          children: ratingData?.map(rating => (
-            <MenuItem key={rating.pk} value={rating.name}>
-              {rating.name}
+          children: managerData?.map(manager => (
+            <MenuItem key={manager.pk} value={manager.name}>
+              {manager.name}
             </MenuItem>
           ))
         }
       },
       {
-        accessorKey: 'comment',
-        header: 'Comment',
-        size: 200
-      },
-      {
         accessorKey: 'total_cost',
-        header: 'Total',
-        size: 100
+        header: 'ITM.COST',
+        Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.total_cost)}</Box>,
+        size: 75
       },
       {
         accessorKey: 'shipping_cost',
-        header: 'Shipping',
-        size: 100
+        header: 'LABEL',
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{formatterUSDStrip(row.original.shipping_cost)}</Box>
+        ),
+        size: 75
+      },
+      {
+        accessorKey: 'all_cost',
+        header: 'TTL.COST',
+        Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.all_cost)}</Box>,
+        size: 75
+      },
+      {
+        accessorKey: 'itemsales.selling.channel_order_id',
+        header: 'S.O',
+        size: 75
+      },
+      {
+        accessorKey: 'itemsales.selling.seller_name',
+        header: 'STORE',
+        size: 75
+      },
+      {
+        accessorKey: 'itemsales.selling.gross_sales',
+        header: 'NET.SALE',
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{formatterUSDStrip(row.original.itemsales?.selling?.gross_sales)}</Box>
+        ),
+        size: 75
+      },
+      {
+        accessorKey: 'itemsales.selling.ss_shipping_cost',
+        header: 'LABEL',
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{formatterUSDStrip(row.original.itemsales?.selling?.ss_shipping_cost)}</Box>
+        ),
+        size: 75
+      },
+      {
+        accessorKey: 'itemsales.selling.profit',
+        header: 'PROFIT',
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{formatterUSDStrip(row.original.itemsales?.selling?.profit)}</Box>
+        ),
+        muiTableBodyCellProps: ({ cell, table }) => {
+          if (cell.row?.original?.itemsales?.selling?.profit && cell.row?.original?.itemsales?.selling?.profit < 0) {
+            return {
+              align: 'right',
+              sx: { backgroundColor: '#ffcccb', color: '#4e0100' }
+            }
+          } else {
+            return {
+              align: 'right'
+            }
+          }
+        },
+        size: 75
       }
     ],
-    [roomData, ratingData]
+    [roomData, ratingData, channelData, managerData]
   )
   useEffect(() => {
     const fetchURL = new URL('/room/', 'https://cheapr.my.id')
@@ -398,11 +690,36 @@ const Example = (props: any) => {
       .then(json => {
         setRatingData(json.results)
       })
+    const fetchChannelURL = new URL('/channel/', 'https://cheapr.my.id')
+    fetch(fetchChannelURL.href, {
+      method: 'get',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      })
+    })
+      .then(response => response.json())
+      .then(json => {
+        setChannelData(json.results)
+      })
+
+    const fetchManagerlURL = new URL('/manager/', 'https://cheapr.my.id')
+    fetch(fetchManagerlURL.href, {
+      method: 'get',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      })
+    })
+      .then(response => response.json())
+      .then(json => {
+        setManagerData(json.results)
+      })
   }, [session])
   useEffect(() => {
     setPagination({
       pageIndex: 0,
-      pageSize: 25
+      pageSize: 100
     })
   }, [sorting, globalFilter, columnFilters])
   useEffect(() => {
