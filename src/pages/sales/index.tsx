@@ -1282,6 +1282,7 @@ const Example = (props: any) => {
               <MenuItem value={'potential_delay'}>Potential Delay</MenuItem>
               <MenuItem value={'to_monitor'}>To Monitor</MenuItem>
               <MenuItem value={'delivered'}>Delivered</MenuItem>
+              <MenuItem value={'canceled'}>Canceled</MenuItem>
               <MenuItem value={'all'}>All</MenuItem>
 
               {/* <MenuItem value={'canceled'}>Canceled</MenuItem>
