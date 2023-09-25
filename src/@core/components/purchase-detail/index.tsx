@@ -574,7 +574,10 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, data, pick
                   </TableCell>
                   <TableCell align='right'>{sales.person?.name}</TableCell>
                   <TableCell align='right'>{sales.person?.address?.street_1}</TableCell>
-                  <TableCell align='right'>{sales.person?.address?.zip}</TableCell>
+                  <TableCell align='right'>
+                    {sales.person?.address?.street_1} {sales.person?.address?.city?.name}{' '}
+                    {sales.person?.address?.city?.state?.name}
+                  </TableCell>{' '}
                   <TableCell align='right'>
                     {picked == sales.pk ? (
                       <Chip

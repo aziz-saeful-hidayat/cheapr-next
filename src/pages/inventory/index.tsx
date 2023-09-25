@@ -496,7 +496,7 @@ const Example = (props: any) => {
       },
       {
         id: 'item',
-        accessorFn: row => `${row.product?.make} - ${row.product?.model} - ${row.product?.mpn}`,
+        accessorFn: row => (row.product ? `${row.product?.make} - ${row.product?.model} - ${row.product?.mpn}` : ''),
         header: 'ITEM',
         enableEditing: false,
         size: 75

@@ -836,13 +836,9 @@ const Example = (props: any) => {
             }}
           >
             {row.original.salesitems
-              .map(sales => sales.sub_sku)
-              .map((sub_sku, index) => {
-                if (sub_sku) {
-                  return <span key={index}>{`${sub_sku.make}+${sub_sku.model}+${sub_sku.mpn}`}</span>
-                } else {
-                  return <span key={index}>{` `}</span>
-                }
+              .map(item => item.historical)
+              .map((history, index) => {
+                return <span key={index}>{`${history.product?.mpn}: ${history.count}`}</span>
               })}
           </Box>
         )
