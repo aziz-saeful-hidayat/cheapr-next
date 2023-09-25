@@ -495,8 +495,9 @@ const Example = (props: any) => {
         size: 75
       },
       {
-        accessorKey: 'product.sku',
-        header: 'SKU',
+        id: 'item',
+        accessorFn: row => `${row.product?.make} - ${row.product?.model} - ${row.product?.mpn}`,
+        header: 'ITEM',
         enableEditing: false,
         size: 75
       },

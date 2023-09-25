@@ -799,7 +799,7 @@ const Example = (props: any) => {
       },
       {
         id: 'make_mpn',
-        header: 'MAKE-MPN',
+        header: 'ITEM',
         maxSize: 60,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
@@ -814,7 +814,7 @@ const Example = (props: any) => {
               .map(sales => sales.sku)
               .map((sku, index) => {
                 if (sku) {
-                  return <span key={index}>{`${sku.make}-${sku.mpn}`}</span>
+                  return <span key={index}>{`${sku.make}+${sku.model}+${sku.mpn}`}</span>
                 } else {
                   return <span key={index}>{` `}</span>
                 }
@@ -823,8 +823,8 @@ const Example = (props: any) => {
         )
       },
       {
-        id: 'sub_make_mpn',
-        header: 'SUB',
+        id: 'historical',
+        header: 'HISTORICAL',
         maxSize: 60,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
@@ -839,7 +839,7 @@ const Example = (props: any) => {
               .map(sales => sales.sub_sku)
               .map((sub_sku, index) => {
                 if (sub_sku) {
-                  return <span key={index}>{`${sub_sku.make}-${sub_sku.mpn}`}</span>
+                  return <span key={index}>{`${sub_sku.make}+${sub_sku.model}+${sub_sku.mpn}`}</span>
                 } else {
                   return <span key={index}>{` `}</span>
                 }
