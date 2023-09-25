@@ -499,27 +499,36 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, data, pick
           <Table aria-label='simple table'>
             <TableHead>
               <TableRow>
-                <TableCell>Order Id</TableCell>
-                <TableCell align='right'>Name</TableCell>
-                <TableCell align='right'>Destination Zip</TableCell>
-                <TableCell align='right'>Action</TableCell>
+                <TableCell>ORDER</TableCell>
+                <TableCell>SB.#</TableCell>
+                <TableCell align='right'>CUSTOMER</TableCell>
+                <TableCell align='right'>ADDRESS</TableCell>
+                <TableCell align='right'>ZIP</TableCell>
+                <TableCell align='right'>ACTION</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {/* <TableRow key='best' sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+              <TableRow key='best' sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                 <TableCell component='th' scope='row'>
-                  <span style={{ fontWeight: 500 }}>Best Match</span>
+                  <span style={{ fontWeight: 500 }}>Matching Names:</span>
                 </TableCell>
                 <TableCell align='right'></TableCell>
                 <TableCell align='right'></TableCell>
                 <TableCell align='right'></TableCell>
-              </TableRow> */}
+              </TableRow>
               {data.best?.map(sales => (
                 <TableRow key={sales.pk}>
+                  <TableCell component='th' scope='row'>
+                    {sales.channel_order_id}
+                  </TableCell>
                   <TableCell component='th' scope='row'>
                     {sales.order_id}
                   </TableCell>
                   <TableCell align='right'>{sales.person?.name}</TableCell>
+                  <TableCell align='right'>
+                    {sales.person?.address?.street_1} {sales.person?.address?.city?.name}{' '}
+                    {sales.person?.address?.city?.state?.name}
+                  </TableCell>
                   <TableCell align='right'>{sales.person?.address?.zip}</TableCell>
                   <TableCell align='right'>
                     {picked == sales.pk ? (
@@ -546,21 +555,25 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, data, pick
                   </TableCell>
                 </TableRow>
               ))}
-              {/* <TableRow key='other' sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+              <TableRow key='other' sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                 <TableCell component='th' scope='row'>
-                  <span style={{ fontWeight: 500 }}>Other Open Order</span>
+                  <span style={{ fontWeight: 500 }}>Matching ZIP (where NO name)</span>
                 </TableCell>
                 <TableCell align='right'></TableCell>
                 <TableCell align='right'></TableCell>
                 <TableCell align='right'></TableCell>
-              </TableRow> */}
+              </TableRow>
 
               {data.other?.map(sales => (
                 <TableRow key={sales.pk}>
                   <TableCell component='th' scope='row'>
+                    {sales.channel_order_id}
+                  </TableCell>
+                  <TableCell component='th' scope='row'>
                     {sales.order_id}
                   </TableCell>
                   <TableCell align='right'>{sales.person?.name}</TableCell>
+                  <TableCell align='right'>{sales.person?.address?.street_1}</TableCell>
                   <TableCell align='right'>{sales.person?.address?.zip}</TableCell>
                   <TableCell align='right'>
                     {picked == sales.pk ? (
