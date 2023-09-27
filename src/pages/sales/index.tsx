@@ -911,17 +911,13 @@ const Example = (props: any) => {
                         {sales.model_match
                           .filter((model: any) => model.mpn == 'Exact')
                           .map((model: any, index: number) => (
-                            <Typography color='inherit' key={index}>{`${model.mpn ? `${model.mpn}` : ''}(${
-                              model.count ? `${model.count}` : ''
-                            })`}</Typography>
+                            <Typography color='inherit' key={index}>{`${model.mpn} (${model.count})`}</Typography>
                           ))}
 
                         {sales.model_match
                           .filter((model: any) => model.mpn != 'Exact')
                           .map((model: any, index: number) => (
-                            <span key={index}>{`${model.mpn ? `${model.mpn}` : ''}(${
-                              model.count ? `${model.count}` : ''
-                            })`}</span>
+                            <Typography color='inherit' key={index}>{`${model.mpn} (${model.count})`}</Typography>
                           ))}
                       </React.Fragment>
                     }
@@ -959,23 +955,38 @@ const Example = (props: any) => {
               const sku = sales.sku
               if (sku) {
                 return (
-                  <div>
-                    {sales.model_match
-                      .filter((model: any) => model.mpn == 'Exact')
-                      .map((model: any, index: number) => (
-                        <span key={index}>{`${model.mpn ? `${model.mpn}` : ''}(${
-                          model.count ? `${model.count}` : ''
-                        })`}</span>
-                      ))}
+                  <HtmlTooltip
+                    title={
+                      <React.Fragment>
+                        {sales.model_match.length == 0 && <Typography color='inherit'>Not in Inventory</Typography>}
+                        {sales.model_match
+                          .filter((model: any) => model.mpn == 'Exact')
+                          .map((model: any, index: number) => (
+                            <Typography
+                              color={model.count > 0 ? 'inherit' : 'grey'}
+                              key={index}
+                            >{`${model.mpn} (${model.count})`}</Typography>
+                          ))}
 
-                    {sales.model_match
-                      .filter((model: any) => model.mpn != 'Exact')
-                      .map((model: any, index: number) => (
-                        <span key={index}>{`${model.mpn ? `${model.mpn}` : ''}(${
-                          model.count ? `${model.count}` : ''
-                        })`}</span>
-                      ))}
-                  </div>
+                        {sales.model_match
+                          .filter((model: any) => model.mpn != 'Exact')
+                          .map((model: any, index: number) => (
+                            <Typography
+                              color={model.count > 0 ? 'inherit' : 'grey'}
+                              key={index}
+                            >{`${model.mpn} (${model.count})`}</Typography>
+                          ))}
+                      </React.Fragment>
+                    }
+                  >
+                    {sales.model_match.length > 0 ? (
+                      <span key={index}>
+                        {sales.model_match.length} {sales.model_match.length > 1 ? 'mpns' : 'mpn'}
+                      </span>
+                    ) : (
+                      <span></span>
+                    )}
+                  </HtmlTooltip>
                 )
               } else {
                 return <span key={index}>{` `}</span>
@@ -1001,23 +1012,38 @@ const Example = (props: any) => {
               const sku = sales.sku
               if (sku) {
                 return (
-                  <div>
-                    {sales.historical
-                      .filter((history: any) => history.mpn == 'Exact')
-                      .map((history: any, index: number) => (
-                        <span key={index}>{`${history.mpn ? `${history.mpn}` : ''}(${
-                          history.count ? `${history.count}` : ''
-                        })`}</span>
-                      ))}
+                  <HtmlTooltip
+                    title={
+                      <React.Fragment>
+                        {sales.historical.length == 0 && <Typography color='inherit'>Not in Inventory</Typography>}
+                        {sales.historical
+                          .filter((sku: any) => sku.mpn == 'Exact')
+                          .map((sku: any, index: number) => (
+                            <Typography
+                              color={sku.count > 0 ? 'inherit' : 'grey'}
+                              key={index}
+                            >{`${sku.mpn} (${sku.count})`}</Typography>
+                          ))}
 
-                    {sales.historical
-                      .filter((history: any) => history.mpn != 'Exact')
-                      .map((history: any, index: number) => (
-                        <span key={index}>{`${history.mpn ? `${history.mpn}` : ''}(${
-                          history.count ? `${history.count}` : ''
-                        })`}</span>
-                      ))}
-                  </div>
+                        {sales.historical
+                          .filter((sku: any) => sku.mpn != 'Exact')
+                          .map((sku: any, index: number) => (
+                            <Typography
+                              color={sku.count > 0 ? 'inherit' : 'grey'}
+                              key={index}
+                            >{`${sku.mpn} (${sku.count})`}</Typography>
+                          ))}
+                      </React.Fragment>
+                    }
+                  >
+                    {sales.historical.length > 0 ? (
+                      <span key={index}>
+                        {sales.historical.length} {sales.historical.length > 1 ? 'mpns' : 'mpn'}
+                      </span>
+                    ) : (
+                      <span></span>
+                    )}
+                  </HtmlTooltip>
                 )
               } else {
                 return <span key={index}>{` `}</span>
