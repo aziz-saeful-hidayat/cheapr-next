@@ -18,6 +18,13 @@ import {
   IconButton,
   MenuItem,
   Stack,
+  TableContainer,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  Paper,
+  TableBody,
   TextField,
   Autocomplete,
   CircularProgress
@@ -183,7 +190,13 @@ interface DeleteModalProps {
   open: boolean
   data: any
 }
-
+interface CustHistoryModalProps {
+  onClose: () => void
+  onSubmit: () => void
+  open: boolean
+  pk?: number
+  session: any
+}
 const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} placement='right-start' />
 ))(({ theme }) => ({
@@ -472,6 +485,107 @@ export const DeleteModal = ({ open, onClose, onSubmit, data }: DeleteModalProps)
     </Dialog>
   )
 }
+export const CustHistoryModal = ({ open, onClose, onSubmit, pk, session }: CustHistoryModalProps) => {
+  const handleSubmit = () => {
+    //put your validation logic here
+    onClose()
+    onSubmit()
+  }
+  const [data, setData] = useState<SellingOrder[]>([])
+  useEffect(() => {
+    if (pk) {
+      const fetchURL = `https://cheapr.my.id/selling_order/?person=${pk}`
+      console.log(fetchURL)
+      fetch(fetchURL, {
+        method: 'get',
+        headers: new Headers({
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        })
+      })
+        .then(response => response.json())
+        .then(json => {
+          setData(json.results)
+        })
+    }
+  }, [session, pk])
+  return (
+    <Dialog open={open}>
+      <DialogTitle textAlign='center'>Customer Order History</DialogTitle>
+      <IconButton
+        aria-label='close'
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: theme => theme.palette.grey[500]
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
+      <Box sx={{ width: 600, bgcolor: 'background.paper' }}>
+        <TableContainer component={Paper}>
+          <Table aria-label='simple table'>
+            <TableHead>
+              <TableRow>
+                <TableCell>ORDER</TableCell>
+                <TableCell>SB.#</TableCell>
+                <TableCell align='right'>CUSTOMER</TableCell>
+                <TableCell align='right'>ITEM</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {/* <TableRow key='best' sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+              <TableCell component='th' scope='row'>
+                <span style={{ fontWeight: 500 }}>Matching Names:</span>
+              </TableCell>
+              <TableCell align='right'></TableCell>
+              <TableCell align='right'></TableCell>
+              <TableCell align='right'></TableCell>
+            </TableRow> */}
+              {data.map(sales => (
+                <TableRow key={sales.pk}>
+                  <TableCell component='th' scope='row'>
+                    {sales.channel_order_id}
+                  </TableCell>
+                  <TableCell component='th' scope='row'>
+                    {sales.order_id}
+                  </TableCell>
+                  <TableCell align='right'>{sales.person?.name}</TableCell>
+                  <TableCell align='right'>
+                    {sales.salesitems.map((item, index) => (
+                      <span key={index}>{item.sku.mpn}</span>
+                    ))}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        {/* <nav aria-label='main mailbox folders'>
+
+        <List>
+          {data.map(sales => (
+            <ListItem disablePadding>
+              <ListItemButton>
+                <ListItemIcon>
+                  <InboxIcon />
+                </ListItemIcon>
+                <ListItemText primary={sales.order_id} />
+                <ListItemText primary={sales.seller_name} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      </nav> */}
+      </Box>
+      <DialogActions sx={{ p: '1.25rem' }}>
+        <Button onClick={onClose}>Close</Button>
+      </DialogActions>
+    </Dialog>
+  )
+}
 const Example = (props: any) => {
   const { session } = props
   const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>([])
@@ -544,6 +658,8 @@ const Example = (props: any) => {
   const [addModalOpen, setAddModalOpen] = useState<SellingOrder>()
   const [detail, setDetail] = useState<number | undefined>()
   const [detailModalOpen, setDetailModalOpen] = useState(false)
+  const [custHistoryModalOpen, setCustHistoryModalOpen] = useState(false)
+  const [custPk, setCustPk] = useState<number | undefined>()
 
   const handleChange = (event: SelectChangeEvent) => {
     setTabActive(event.target.value as string)
@@ -831,20 +947,20 @@ const Example = (props: any) => {
                   <HtmlTooltip
                     title={
                       <React.Fragment>
-                        {sales.historical.length == 0 && <Typography color='inherit'>No History</Typography>}
-                        {sales.historical
-                          .filter((history: any) => history.mpn == 'Exact')
-                          .map((history: any, index: number) => (
-                            <Typography color='inherit' key={index}>{`${history.mpn ? `${history.mpn}` : ''}(${
-                              history.count ? `${history.count}` : ''
+                        {sales.model_match.length == 0 && <Typography color='inherit'>Not in Inventory</Typography>}
+                        {sales.model_match
+                          .filter((model: any) => model.mpn == 'Exact')
+                          .map((model: any, index: number) => (
+                            <Typography color='inherit' key={index}>{`${model.mpn ? `${model.mpn}` : ''}(${
+                              model.count ? `${model.count}` : ''
                             })`}</Typography>
                           ))}
 
-                        {sales.historical
-                          .filter((history: any) => history.mpn != 'Exact')
-                          .map((history: any, index: number) => (
-                            <span key={index}>{`${history.mpn ? `${history.mpn}` : ''}(${
-                              history.count ? `${history.count}` : ''
+                        {sales.model_match
+                          .filter((model: any) => model.mpn != 'Exact')
+                          .map((model: any, index: number) => (
+                            <span key={index}>{`${model.mpn ? `${model.mpn}` : ''}(${
+                              model.count ? `${model.count}` : ''
                             })`}</span>
                           ))}
                       </React.Fragment>
@@ -858,6 +974,48 @@ const Example = (props: any) => {
                       <span key={index}>{sku.sku}</span>
                     )}
                   </HtmlTooltip>
+                )
+              } else {
+                return <span key={index}>{` `}</span>
+              }
+            })}
+          </Box>
+        )
+      },
+      {
+        id: 'historical',
+        header: 'ModelMatch',
+        maxSize: 60,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.salesitems.map((sales, index) => {
+              const sku = sales.sku
+              if (sku) {
+                return (
+                  <div>
+                    {sales.model_match
+                      .filter((model: any) => model.mpn == 'Exact')
+                      .map((model: any, index: number) => (
+                        <span key={index}>{`${model.mpn ? `${model.mpn}` : ''}(${
+                          model.count ? `${model.count}` : ''
+                        })`}</span>
+                      ))}
+
+                    {sales.model_match
+                      .filter((model: any) => model.mpn != 'Exact')
+                      .map((model: any, index: number) => (
+                        <span key={index}>{`${model.mpn ? `${model.mpn}` : ''}(${
+                          model.count ? `${model.count}` : ''
+                        })`}</span>
+                      ))}
+                  </div>
                 )
               } else {
                 return <span key={index}>{` `}</span>
@@ -884,7 +1042,6 @@ const Example = (props: any) => {
               if (sku) {
                 return (
                   <div>
-                    {sales.historical.length == 0 && <span color='inherit'>No History</span>}
                     {sales.historical
                       .filter((history: any) => history.mpn == 'Exact')
                       .map((history: any, index: number) => (
@@ -948,7 +1105,15 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            <span>{renderedCellValue}</span>
+            <Link
+              href='#'
+              onClick={() => {
+                setCustPk(row.original.person.pk)
+                setCustHistoryModalOpen(true)
+              }}
+            >
+              <span>{renderedCellValue}</span>
+            </Link>
           </Box>
         )
       },
@@ -1382,6 +1547,13 @@ const Example = (props: any) => {
         onSubmit={handleAddItem}
         rowData={addModalOpen}
         roomData={roomData}
+      />
+      <CustHistoryModal
+        session={session}
+        pk={custPk}
+        open={custHistoryModalOpen}
+        onSubmit={() => {}}
+        onClose={() => setCustHistoryModalOpen(false)}
       />
       <SalesDetail
         session={session}
