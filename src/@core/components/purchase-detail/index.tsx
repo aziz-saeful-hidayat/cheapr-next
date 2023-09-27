@@ -1261,7 +1261,7 @@ const PurchaseDetail = (props: any) => {
                   Authorization: `Bearer ${session?.accessToken}`,
                   'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ product: json.pk })
+                body: JSON.stringify({ product: json.sku.pk })
               })
                 .then(response => response.json())
                 .then(json => {
