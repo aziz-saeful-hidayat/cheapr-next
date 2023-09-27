@@ -491,6 +491,7 @@ export const CustHistoryModal = ({ open, onClose, onSubmit, data, session }: Cus
     onClose()
     onSubmit()
   }
+
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Customer Order History</DialogTitle>
