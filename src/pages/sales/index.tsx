@@ -509,6 +509,7 @@ export const CustHistoryModal = ({ open, onClose, onSubmit, pk, session }: CustH
         })
     }
   }, [session, pk])
+
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Customer Order History</DialogTitle>
