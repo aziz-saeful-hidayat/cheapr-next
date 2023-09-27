@@ -194,7 +194,7 @@ interface CustHistoryModalProps {
   onClose: () => void
   onSubmit: () => void
   open: boolean
-  pk?: number
+  data: SellingOrder[]
   session: any
 }
 const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
@@ -485,31 +485,12 @@ export const DeleteModal = ({ open, onClose, onSubmit, data }: DeleteModalProps)
     </Dialog>
   )
 }
-export const CustHistoryModal = ({ open, onClose, onSubmit, pk, session }: CustHistoryModalProps) => {
+export const CustHistoryModal = ({ open, onClose, onSubmit, data, session }: CustHistoryModalProps) => {
   const handleSubmit = () => {
     //put your validation logic here
     onClose()
     onSubmit()
   }
-  const [data, setData] = useState<SellingOrder[]>([])
-  useEffect(() => {
-    if (pk) {
-      const fetchURL = `https://cheapr.my.id/selling_order/?person=${pk}`
-      console.log(fetchURL)
-      fetch(fetchURL, {
-        method: 'get',
-        headers: new Headers({
-          Authorization: `Bearer ${session?.accessToken}`,
-          'Content-Type': 'application/json'
-        })
-      })
-        .then(response => response.json())
-        .then(json => {
-          setData(json.results)
-        })
-    }
-  }, [session, pk])
-
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Customer Order History</DialogTitle>
@@ -537,14 +518,6 @@ export const CustHistoryModal = ({ open, onClose, onSubmit, pk, session }: CustH
               </TableRow>
             </TableHead>
             <TableBody>
-              {/* <TableRow key='best' sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-              <TableCell component='th' scope='row'>
-                <span style={{ fontWeight: 500 }}>Matching Names:</span>
-              </TableCell>
-              <TableCell align='right'></TableCell>
-              <TableCell align='right'></TableCell>
-              <TableCell align='right'></TableCell>
-            </TableRow> */}
               {data.map(sales => (
                 <TableRow key={sales.pk}>
                   <TableCell component='th' scope='row'>
@@ -564,22 +537,6 @@ export const CustHistoryModal = ({ open, onClose, onSubmit, pk, session }: CustH
             </TableBody>
           </Table>
         </TableContainer>
-        {/* <nav aria-label='main mailbox folders'>
-
-        <List>
-          {data.map(sales => (
-            <ListItem disablePadding>
-              <ListItemButton>
-                <ListItemIcon>
-                  <InboxIcon />
-                </ListItemIcon>
-                <ListItemText primary={sales.order_id} />
-                <ListItemText primary={sales.seller_name} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-      </nav> */}
       </Box>
       <DialogActions sx={{ p: '1.25rem' }}>
         <Button onClick={onClose}>Close</Button>
@@ -654,6 +611,7 @@ const Example = (props: any) => {
   const [tableData, setTableData] = useState<SellingOrder[]>(() => data?.results ?? [])
   const [channelData, setChannelData] = useState<Channel[]>([])
   const [roomData, setRoomData] = useState<Room[]>([])
+  const [historyData, setHistoryData] = useState<SellingOrder[]>([])
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [addModalOpen, setAddModalOpen] = useState<SellingOrder>()
@@ -1109,8 +1067,20 @@ const Example = (props: any) => {
             <Link
               href='#'
               onClick={() => {
-                setCustPk(row.original.person.pk)
-                setCustHistoryModalOpen(true)
+                const fetchURL = `https://cheapr.my.id/selling_order/?person=${row.original.person.pk}`
+                console.log(fetchURL)
+                fetch(fetchURL, {
+                  method: 'get',
+                  headers: new Headers({
+                    Authorization: `Bearer ${session?.accessToken}`,
+                    'Content-Type': 'application/json'
+                  })
+                })
+                  .then(response => response.json())
+                  .then(json => {
+                    setHistoryData(json.results)
+                  })
+                  .finally(() => setCustHistoryModalOpen(true))
               }}
             >
               <span>{renderedCellValue}</span>
@@ -1551,7 +1521,7 @@ const Example = (props: any) => {
       />
       <CustHistoryModal
         session={session}
-        pk={custPk}
+        data={historyData}
         open={custHistoryModalOpen}
         onSubmit={() => {
           console.log('ok')
