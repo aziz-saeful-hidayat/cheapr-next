@@ -884,7 +884,7 @@ const Example = (props: any) => {
               if (sku) {
                 return (
                   <div>
-                    {sales.historical.length == 0 && <Typography color='inherit'>No History</Typography>}
+                    {sales.historical.length == 0 && <span color='inherit'>No History</span>}
                     {sales.historical
                       .filter((history: any) => history.mpn == 'Exact')
                       .map((history: any, index: number) => (
