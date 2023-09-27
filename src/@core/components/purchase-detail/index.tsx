@@ -1253,6 +1253,8 @@ const PurchaseDetail = (props: any) => {
       })
         .then(response => response.json())
         .then(json => {
+          console.log(json)
+
           if (json.pk) {
             if (!cell.row.original.product) {
               fetch(`https://cheapr.my.id/inventory_items/${cell.row.original.pk}/`, {
@@ -1261,10 +1263,11 @@ const PurchaseDetail = (props: any) => {
                   Authorization: `Bearer ${session?.accessToken}`,
                   'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ product: json.sku.pk })
+                body: JSON.stringify({ product: json.sku })
               })
                 .then(response => response.json())
                 .then(json => {
+                  console.log(json)
                   if (json.pk) {
                     setRefresh(refresh + 1)
                   }
