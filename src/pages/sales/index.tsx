@@ -1553,7 +1553,9 @@ const Example = (props: any) => {
         session={session}
         pk={custPk}
         open={custHistoryModalOpen}
-        onSubmit={() => {}}
+        onSubmit={() => {
+          console.log('ok')
+        }}
         onClose={() => setCustHistoryModalOpen(false)}
       />
       <SalesDetail
