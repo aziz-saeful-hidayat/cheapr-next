@@ -19,7 +19,6 @@ import {
   MenuItem,
   Stack,
   TextField,
-  Tooltip,
   Autocomplete,
   CircularProgress
 } from '@mui/material'
@@ -43,7 +42,9 @@ import { formatterUSDStrip } from 'src/constants/Utils'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import moment from 'moment'
 import CloseIcon from '@mui/icons-material/Close'
-
+import HistoryIcon from '@mui/icons-material/History'
+import { styled } from '@mui/material/styles'
+import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip'
 type Channel = {
   pk: number
   name: string
@@ -181,6 +182,18 @@ interface DeleteModalProps {
   open: boolean
   data: any
 }
+
+const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
+  <Tooltip {...props} classes={{ popper: className }} placement='right-start' />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: '#f5f5f9',
+    color: 'rgba(0, 0, 0, 0.87)',
+    maxWidth: 400,
+    border: '1px solid #dadde9'
+  }
+}))
+
 export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channelData }: CreateModalProps) => {
   const [values, setValues] = useState<any>(() =>
     columns.reduce((acc, column) => {
@@ -810,15 +823,45 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            {row.original.salesitems
-              .map(sales => sales.sku)
-              .map((sku, index) => {
-                if (sku) {
-                  return <span key={index}>{`${sku.make}+${sku.model}+${sku.mpn}`}</span>
-                } else {
-                  return <span key={index}>{` `}</span>
-                }
-              })}
+            {row.original.salesitems.map((sales, index) => {
+              const sku = sales.sku
+              if (sku) {
+                return (
+                  <HtmlTooltip
+                    title={
+                      <React.Fragment>
+                        {sales.historical.length == 0 && <Typography color='inherit'>No History</Typography>}
+                        {sales.historical
+                          .filter((history: any) => history.mpn == 'Exact')
+                          .map((history: any, index: number) => (
+                            <Typography color='inherit' key={index}>{`${history.mpn ? `${history.mpn}` : ''}(${
+                              history.count ? `${history.count}` : ''
+                            })`}</Typography>
+                          ))}
+
+                        {sales.historical
+                          .filter((history: any) => history.mpn != 'Exact')
+                          .map((history: any, index: number) => (
+                            <span key={index}>{`${history.mpn ? `${history.mpn}` : ''}(${
+                              history.count ? `${history.count}` : ''
+                            })`}</span>
+                          ))}
+                      </React.Fragment>
+                    }
+                  >
+                    {sku.mpn ? (
+                      <span key={index}>{`${sku.make ? `${sku.make} | ` : ''}${sku.model ? `${sku.model} | ` : ''}${
+                        sku.mpn ? `${sku.mpn}` : ''
+                      }`}</span>
+                    ) : (
+                      <span key={index}>{sku.sku}</span>
+                    )}
+                  </HtmlTooltip>
+                )
+              } else {
+                return <span key={index}>{` `}</span>
+              }
+            })}
           </Box>
         )
       },
@@ -835,11 +878,33 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            {row.original.salesitems
-              .map(item => item.historical)
-              .map((history, index) => {
-                return <span key={index}>{`${history.product?.mpn}: ${history.count}`}</span>
-              })}
+            {row.original.salesitems.map((sales, index) => {
+              const sku = sales.sku
+              if (sku) {
+                return (
+                  <div>
+                    {sales.historical.length == 0 && <Typography color='inherit'>No History</Typography>}
+                    {sales.historical
+                      .filter((history: any) => history.mpn == 'Exact')
+                      .map((history: any, index: number) => (
+                        <span key={index}>{`${history.mpn ? `${history.mpn}` : ''}(${
+                          history.count ? `${history.count}` : ''
+                        })`}</span>
+                      ))}
+
+                    {sales.historical
+                      .filter((history: any) => history.mpn != 'Exact')
+                      .map((history: any, index: number) => (
+                        <span key={index}>{`${history.mpn ? `${history.mpn}` : ''}(${
+                          history.count ? `${history.count}` : ''
+                        })`}</span>
+                      ))}
+                  </div>
+                )
+              } else {
+                return <span key={index}>{` `}</span>
+              }
+            })}
           </Box>
         )
       },
