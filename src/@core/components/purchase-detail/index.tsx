@@ -557,7 +557,7 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, data, pick
               ))}
               <TableRow key='other' sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                 <TableCell component='th' scope='row'>
-                  <span style={{ fontWeight: 500 }}>Matching ZIP (where NO name)</span>
+                  <span style={{ fontWeight: 500 }}>Matching ZIP</span>
                 </TableCell>
                 <TableCell align='right'></TableCell>
                 <TableCell align='right'></TableCell>
@@ -573,11 +573,11 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, data, pick
                     {sales.order_id}
                   </TableCell>
                   <TableCell align='right'>{sales.person?.name}</TableCell>
-                  <TableCell align='right'>{sales.person?.address?.street_1}</TableCell>
                   <TableCell align='right'>
                     {sales.person?.address?.street_1} {sales.person?.address?.city?.name}{' '}
                     {sales.person?.address?.city?.state?.name}
-                  </TableCell>{' '}
+                  </TableCell>
+                  <TableCell align='right'>{sales.person?.address?.zip}</TableCell>
                   <TableCell align='right'>
                     {picked == sales.pk ? (
                       <Chip
