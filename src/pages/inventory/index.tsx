@@ -348,6 +348,8 @@ const Example = (props: any) => {
     queryFn: async () => {
       const fetchURL = new URL('/inventory_items/', 'https://cheapr.my.id')
       fetchURL.searchParams.set('limit', `${pagination.pageSize}`)
+      fetchURL.searchParams.set('inventory', 'true')
+
       fetchURL.searchParams.set('offset', `${pagination.pageIndex * pagination.pageSize}`)
       for (let f = 0; f < columnFilters.length; f++) {
         const filter = columnFilters[f]

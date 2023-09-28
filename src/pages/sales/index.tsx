@@ -81,6 +81,7 @@ const person = {
   name: 'Leigh Ann Peters',
   phone: '+1 207-835-4259 ext. 30141',
   email: null,
+  history: 1,
   address: {
     pk: 22,
     street_1: '13517 STATESVILLE RD',
@@ -169,6 +170,14 @@ type ItemOption = {
   total_cost: string
   shipping_cost: string
 }
+type HistoricalData = {
+  make: string
+  model: string
+  mpn: string
+  sku: string
+  count: number
+  order_id: string[]
+}
 interface CreateModalProps {
   columns: MRT_ColumnDef<SellingOrder>[]
   onClose: () => void
@@ -194,7 +203,14 @@ interface CustHistoryModalProps {
   onClose: () => void
   onSubmit: () => void
   open: boolean
-  data: SellingOrder[]
+  pk?: number
+  session: any
+}
+interface SubHistoryModalProps {
+  onClose: () => void
+  onSubmit: () => void
+  open: boolean
+  data: HistoricalData[]
   session: any
 }
 const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
@@ -485,13 +501,28 @@ export const DeleteModal = ({ open, onClose, onSubmit, data }: DeleteModalProps)
     </Dialog>
   )
 }
-export const CustHistoryModal = ({ open, onClose, onSubmit, data, session }: CustHistoryModalProps) => {
+export const CustHistoryModal = ({ open, onClose, onSubmit, pk, session }: CustHistoryModalProps) => {
   const handleSubmit = () => {
     //put your validation logic here
     onClose()
     onSubmit()
   }
-
+  const [data, setData] = useState<SellingOrder[]>([])
+  useEffect(() => {
+    const fetchURL = `https://cheapr.my.id/selling_order/?person=${pk}`
+    console.log(fetchURL)
+    fetch(fetchURL, {
+      method: 'get',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      })
+    })
+      .then(response => response.json())
+      .then(json => {
+        setData(json.results)
+      })
+  }, [pk])
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Customer Order History</DialogTitle>
@@ -513,9 +544,10 @@ export const CustHistoryModal = ({ open, onClose, onSubmit, data, session }: Cus
             <TableHead>
               <TableRow>
                 <TableCell>ORDER</TableCell>
-                <TableCell>SB.#</TableCell>
-                <TableCell align='right'>CUSTOMER</TableCell>
                 <TableCell align='right'>ITEM</TableCell>
+                <TableCell align='right'>CARRIER</TableCell>
+                <TableCell>TRACKING</TableCell>
+                <TableCell align='right'>STATUS</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -524,13 +556,26 @@ export const CustHistoryModal = ({ open, onClose, onSubmit, data, session }: Cus
                   <TableCell component='th' scope='row'>
                     {sales.channel_order_id}
                   </TableCell>
-                  <TableCell component='th' scope='row'>
-                    {sales.order_id}
-                  </TableCell>
-                  <TableCell align='right'>{sales.person?.name}</TableCell>
                   <TableCell align='right'>
                     {sales.salesitems.map((item, index) => (
-                      <span key={index}>{item.sku.mpn}</span>
+                      <span key={index}>{`${item.sku.make ? `${item.sku.make} | ` : ''}${
+                        item.sku.model ? `${item.sku.model} | ` : ''
+                      }${item.sku.mpn ? `${item.sku.mpn}` : ''}`}</span>
+                    ))}
+                  </TableCell>
+                  <TableCell align='right'>
+                    {sales.salesitems.map((item, index) => (
+                      <span key={index}>{item.tracking?.fullcarrier.name}</span>
+                    ))}
+                  </TableCell>
+                  <TableCell align='right'>
+                    {sales.salesitems.map((item, index) => (
+                      <span key={index}>{item.tracking?.tracking_number}</span>
+                    ))}
+                  </TableCell>
+                  <TableCell align='right'>
+                    {sales.salesitems.map((item, index) => (
+                      <span key={index}>{item.tracking?.status}</span>
                     ))}
                   </TableCell>
                 </TableRow>
@@ -545,6 +590,60 @@ export const CustHistoryModal = ({ open, onClose, onSubmit, data, session }: Cus
     </Dialog>
   )
 }
+
+export const SubHistoryModal = ({ open, onClose, onSubmit, data }: SubHistoryModalProps) => {
+  const handleSubmit = () => {
+    //put your validation logic here
+    onClose()
+    onSubmit()
+  }
+
+  return (
+    <Dialog open={open}>
+      <DialogTitle textAlign='center'>Sub Order History</DialogTitle>
+      <IconButton
+        aria-label='close'
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: theme => theme.palette.grey[500]
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
+      <Box sx={{ width: 200, bgcolor: 'background.paper' }}>
+        <TableContainer component={Paper}>
+          <Table aria-label='simple table'>
+            <TableHead>
+              <TableRow>
+                <TableCell>MPN</TableCell>
+                <TableCell align='right'>Count</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data.map(sales => (
+                <TableRow key={sales.mpn}>
+                  <TableCell component='th' scope='row'>
+                    {sales.mpn}
+                  </TableCell>
+                  <TableCell component='th' scope='row' align='right'>
+                    {`(${sales.count})`}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+      <DialogActions sx={{ p: '1.25rem' }}>
+        <Button onClick={onClose}>Close</Button>
+      </DialogActions>
+    </Dialog>
+  )
+}
+
 const Example = (props: any) => {
   const { session } = props
   const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>([])
@@ -612,13 +711,15 @@ const Example = (props: any) => {
   const [tableData, setTableData] = useState<SellingOrder[]>(() => data?.results ?? [])
   const [channelData, setChannelData] = useState<Channel[]>([])
   const [roomData, setRoomData] = useState<Room[]>([])
-  const [historyData, setHistoryData] = useState<SellingOrder[]>([])
+  const [historyData, setHistoryData] = useState<HistoricalData[]>([])
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [addModalOpen, setAddModalOpen] = useState<SellingOrder>()
   const [detail, setDetail] = useState<number | undefined>()
   const [detailModalOpen, setDetailModalOpen] = useState(false)
   const [custHistoryModalOpen, setCustHistoryModalOpen] = useState(false)
+  const [subHistoryModalOpen, setSubHistoryModalOpen] = useState(false)
+
   const [custPk, setCustPk] = useState<number | undefined>()
 
   const handleChange = (event: SelectChangeEvent) => {
@@ -939,8 +1040,8 @@ const Example = (props: any) => {
         )
       },
       {
-        id: 'historical',
-        header: 'ModelMatch',
+        id: 'mm',
+        header: 'M.M.',
         maxSize: 60,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
@@ -980,9 +1081,7 @@ const Example = (props: any) => {
                     }
                   >
                     {sales.model_match.length > 0 ? (
-                      <span key={index}>
-                        {sales.model_match.length} {sales.model_match.length > 1 ? 'mpns' : 'mpn'}
-                      </span>
+                      <span>{sales.model_match.reduce((total: number, obj: any) => obj.count + total, 0)}</span>
                     ) : (
                       <span></span>
                     )}
@@ -1012,38 +1111,15 @@ const Example = (props: any) => {
               const sku = sales.sku
               if (sku) {
                 return (
-                  <HtmlTooltip
-                    title={
-                      <React.Fragment>
-                        {sales.historical.length == 0 && <Typography color='inherit'>Not in Inventory</Typography>}
-                        {sales.historical
-                          .filter((sku: any) => sku.mpn == 'Exact')
-                          .map((sku: any, index: number) => (
-                            <Typography
-                              color={sku.count > 0 ? 'inherit' : 'grey'}
-                              key={index}
-                            >{`${sku.mpn} (${sku.count})`}</Typography>
-                          ))}
-
-                        {sales.historical
-                          .filter((sku: any) => sku.mpn != 'Exact')
-                          .map((sku: any, index: number) => (
-                            <Typography
-                              color={sku.count > 0 ? 'inherit' : 'grey'}
-                              key={index}
-                            >{`${sku.mpn} (${sku.count})`}</Typography>
-                          ))}
-                      </React.Fragment>
-                    }
+                  <Link
+                    href='#'
+                    onClick={() => {
+                      setHistoryData(sales.historical)
+                      setSubHistoryModalOpen(true)
+                    }}
                   >
-                    {sales.historical.length > 0 ? (
-                      <span key={index}>
-                        {sales.historical.length} {sales.historical.length > 1 ? 'mpns' : 'mpn'}
-                      </span>
-                    ) : (
-                      <span></span>
-                    )}
-                  </HtmlTooltip>
+                    {sales.historical.length > 0 ? <span>Click</span> : <span></span>}{' '}
+                  </Link>
                 )
               } else {
                 return <span key={index}>{` `}</span>
@@ -1091,27 +1167,19 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            <Link
-              href='#'
-              onClick={() => {
-                const fetchURL = `https://cheapr.my.id/selling_order/?person=${row.original.person.pk}`
-                console.log(fetchURL)
-                fetch(fetchURL, {
-                  method: 'get',
-                  headers: new Headers({
-                    Authorization: `Bearer ${session?.accessToken}`,
-                    'Content-Type': 'application/json'
-                  })
-                })
-                  .then(response => response.json())
-                  .then(json => {
-                    setHistoryData(json.results)
-                  })
-                  .finally(() => setCustHistoryModalOpen(true))
-              }}
-            >
+            {row.original.person.history > 0 ? (
+              <Link
+                href='#'
+                onClick={() => {
+                  setCustPk(row.original.person.pk)
+                  setCustHistoryModalOpen(true)
+                }}
+              >
+                <span>{renderedCellValue}</span>
+              </Link>
+            ) : (
               <span>{renderedCellValue}</span>
-            </Link>
+            )}
           </Box>
         )
       },
@@ -1548,12 +1616,21 @@ const Example = (props: any) => {
       />
       <CustHistoryModal
         session={session}
-        data={historyData}
+        pk={custPk}
         open={custHistoryModalOpen}
         onSubmit={() => {
           console.log('ok')
         }}
         onClose={() => setCustHistoryModalOpen(false)}
+      />
+      <SubHistoryModal
+        session={session}
+        data={historyData}
+        open={subHistoryModalOpen}
+        onSubmit={() => {
+          console.log('ok')
+        }}
+        onClose={() => setSubHistoryModalOpen(false)}
       />
       <SalesDetail
         session={session}
