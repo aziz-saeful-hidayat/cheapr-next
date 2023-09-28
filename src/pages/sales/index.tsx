@@ -523,6 +523,7 @@ export const CustHistoryModal = ({ open, onClose, onSubmit, pk, session }: CustH
         setData(json.results)
       })
   }, [pk])
+
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Customer Order History</DialogTitle>
