@@ -21,16 +21,7 @@ const navigation = (): VerticalNavItemsType => {
       icon: HomeOutline as unknown as ReactNode,
       path: '/'
     },
-    {
-      title: 'Account Settings',
-      icon: AccountCogOutline as unknown as ReactNode,
-      path: '/account-settings'
-    },
-    {
-      title: 'Report',
-      icon: AccountCogOutline as unknown as ReactNode,
-      path: '/report'
-    },
+    
     // {
     //   sectionTitle: 'Pages'
     // },
@@ -53,78 +44,180 @@ const navigation = (): VerticalNavItemsType => {
     //   openInNewTab: true
     // },
     {
-      sectionTitle: 'ADMINISTRATION'
+      sectionTitle: 'SALES'
     },
     {
-      title: 'Purchase',
-      icon: Table as unknown as ReactNode,
-      path: '/purchase'
-    },
-    {
-      title: 'Sales',
+      title: 'Open Order',
       icon: Table as unknown as ReactNode,
       path: '/sales'
     },
     {
-      title: 'Unfulfilled Orders',
+      title: 'Fullfilled Order',
       icon: Table as unknown as ReactNode,
-      path: '/unfulfilled'
+      path: '/sales-fullfilled'
     },
     {
-      title: 'Subs',
+      title: 'Replacements',
       icon: Table as unknown as ReactNode,
-      path: '/subs'
+      path: '/sales-replacements'
     },
     {
-      title: 'Dropship Seller',
+      title: 'Return Refund',
       icon: Table as unknown as ReactNode,
-      path: '/dropship-seller'
+      path: '/sales-refund'
     },
     {
-      title: 'Return',
-      icon: Table as unknown as ReactNode,
-      path: '/return'
+      sectionTitle: 'CUSTOMER SERVICE'
     },
     {
-      title: 'FBA',
+      title: 'Open Issues',
       icon: Table as unknown as ReactNode,
-      path: '/fba'
+      path: '/construction'
     },
     {
-      title: 'Good to Go',
+      title: 'Negative FB',
       icon: Table as unknown as ReactNode,
-      path: '/goodtogo'
+      path: '/construction'
     },
     {
-      title: 'NAD',
+      title: 'A-2-Z Claims',
       icon: Table as unknown as ReactNode,
-      path: '/nad'
+      path: '/construction'
     },
     {
-      title: 'Inventory',
+      title: 'Chargeback',
+      icon: Table as unknown as ReactNode,
+      path: '/construction'
+    },
+    {
+      sectionTitle: 'PURCHASE'
+    },
+    {
+      title: 'New (Unverified)',
+      icon: Table as unknown as ReactNode,
+      path: '/purchase'
+    },
+    {
+      title: 'Verified Orders',
+      icon: Table as unknown as ReactNode,
+      path: '/purchase-verified'
+    },
+    {
+      title: 'Replacements',
+      icon: Table as unknown as ReactNode,
+      path: '/purchase-replacements'
+    },
+    {
+      title: 'Return Refund',
+      icon: Table as unknown as ReactNode,
+      path: '/purchase-refund'
+    },
+    {
+      sectionTitle: 'INVENTORY'
+    },
+    {
+      title: 'Product Identifiers',
+      icon: Table as unknown as ReactNode,
+      path: '/inventory-identifiers'
+    },
+    {
+      title: 'No Identifiers',
+      icon: Table as unknown as ReactNode,
+      path: '/inventory-no-identifiers'
+    },
+    {
+      title: 'All Inventory',
       icon: Table as unknown as ReactNode,
       path: '/inventory'
     },
     {
-      title: 'Channel',
-      icon: Table as unknown as ReactNode,
-      path: '/channel'
+      sectionTitle: 'SETTINGS'
     },
     {
-      title: 'Room',
-      icon: Table as unknown as ReactNode,
-      path: '/room'
+      title: 'Account Settings',
+      icon: AccountCogOutline as unknown as ReactNode,
+      path: '/account-settings'
     },
     {
-      title: 'Item Rating',
-      icon: Table as unknown as ReactNode,
-      path: '/item-rating'
+      title: 'Vendors',
+      icon: AccountCogOutline as unknown as ReactNode,
+      path: '/vendors'
     },
-    {
-      title: 'SKU',
-      icon: Table as unknown as ReactNode,
-      path: '/sku'
-    },
+    // {
+    //   title: 'Report',
+    //   icon: AccountCogOutline as unknown as ReactNode,
+    //   path: '/report'
+    // },
+    // {
+    //   title: 'Purchase',
+    //   icon: Table as unknown as ReactNode,
+    //   path: '/purchase'
+    // },
+    // {
+    //   title: 'Sales',
+    //   icon: Table as unknown as ReactNode,
+    //   path: '/sales'
+    // },
+    // {
+    //   title: 'Unfulfilled Orders',
+    //   icon: Table as unknown as ReactNode,
+    //   path: '/unfulfilled'
+    // },
+    // {
+    //   title: 'Subs',
+    //   icon: Table as unknown as ReactNode,
+    //   path: '/subs'
+    // },
+    // {
+    //   title: 'Dropship Seller',
+    //   icon: Table as unknown as ReactNode,
+    //   path: '/dropship-seller'
+    // },
+    // {
+    //   title: 'Return',
+    //   icon: Table as unknown as ReactNode,
+    //   path: '/return'
+    // },
+    // {
+    //   title: 'FBA',
+    //   icon: Table as unknown as ReactNode,
+    //   path: '/fba'
+    // },
+    // {
+    //   title: 'Good to Go',
+    //   icon: Table as unknown as ReactNode,
+    //   path: '/goodtogo'
+    // },
+    // {
+    //   title: 'NAD',
+    //   icon: Table as unknown as ReactNode,
+    //   path: '/nad'
+    // },
+    // {
+    //   title: 'Inventory',
+    //   icon: Table as unknown as ReactNode,
+    //   path: '/inventory'
+    // },
+    // {
+    //   title: 'Channel',
+    //   icon: Table as unknown as ReactNode,
+    //   path: '/channel'
+    // },
+    // {
+    //   title: 'Room',
+    //   icon: Table as unknown as ReactNode,
+    //   path: '/room'
+    // },
+    // {
+    //   title: 'Item Rating',
+    //   icon: Table as unknown as ReactNode,
+    //   path: '/item-rating'
+    // },
+    // {
+    //   title: 'SKU',
+    //   icon: Table as unknown as ReactNode,
+    //   path: '/sku'
+    // },
    
     // {
     //   title: 'Typography',
