@@ -44,92 +44,30 @@ const navigation = (): VerticalNavItemsType => {
     //   openInNewTab: true
     // },
     {
-      sectionTitle: 'SALES'
-    },
-    {
-      title: 'Open Order',
+      title: 'Sales',
       icon: Table as unknown as ReactNode,
       path: '/sales'
     },
-    {
-      title: 'Fullfilled Order',
-      icon: Table as unknown as ReactNode,
-      path: '/sales-fullfilled'
-    },
-    {
-      title: 'Replacements',
-      icon: Table as unknown as ReactNode,
-      path: '/sales-replacements'
-    },
-    {
-      title: 'Return Refund',
-      icon: Table as unknown as ReactNode,
-      path: '/sales-refund'
-    },
-    {
-      sectionTitle: 'CUSTOMER SERVICE'
-    },
+    // {
+    //   sectionTitle: 'CUSTOMER SERVICE'
+    // },
     {
       title: 'Open Issues',
       icon: Table as unknown as ReactNode,
       path: '/construction'
     },
     {
-      title: 'Negative FB',
-      icon: Table as unknown as ReactNode,
-      path: '/construction'
-    },
-    {
-      title: 'A-2-Z Claims',
-      icon: Table as unknown as ReactNode,
-      path: '/construction'
-    },
-    {
-      title: 'Chargeback',
-      icon: Table as unknown as ReactNode,
-      path: '/construction'
-    },
-    {
-      sectionTitle: 'PURCHASE'
-    },
-    {
-      title: 'New (Unverified)',
+      title: 'Purchase',
       icon: Table as unknown as ReactNode,
       path: '/purchase'
     },
+
     {
-      title: 'Verified Orders',
-      icon: Table as unknown as ReactNode,
-      path: '/purchase-verified'
-    },
-    {
-      title: 'Replacements',
-      icon: Table as unknown as ReactNode,
-      path: '/purchase-replacements'
-    },
-    {
-      title: 'Return Refund',
-      icon: Table as unknown as ReactNode,
-      path: '/purchase-refund'
-    },
-    {
-      sectionTitle: 'INVENTORY'
-    },
-    {
-      title: 'Product Identifiers',
-      icon: Table as unknown as ReactNode,
-      path: '/inventory-identifiers'
-    },
-    {
-      title: 'No Identifiers',
-      icon: Table as unknown as ReactNode,
-      path: '/inventory-no-identifiers'
-    },
-    {
-      title: 'All Inventory',
+      title: 'Inventory',
       icon: Table as unknown as ReactNode,
       path: '/inventory'
     },
+    
     {
       sectionTitle: 'SETTINGS'
     },

@@ -27,6 +27,8 @@ import { withAuth } from '../../constants/HOCs'
 import { getSession } from 'next-auth/react'
 import Unverified from './unverified'
 import Verified from './verified'
+import Replacement from './replacement'
+import Return from './return'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -82,6 +84,24 @@ const Purchase = (props: any) => {
                 </Box>
               }
             />
+            <Tab
+              value='replacement'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <LockOpenOutline />
+                  <TabName>Replacements</TabName>
+                </Box>
+              }
+            />
+            <Tab
+              value='return'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <LockOpenOutline />
+                  <TabName>Return & Refund</TabName>
+                </Box>
+              }
+            />
             {/* <Tab
               value='info'
               label={
@@ -98,6 +118,12 @@ const Purchase = (props: any) => {
           </TabPanel>
           <TabPanel sx={{ p: 0 }} value='verified'>
             <Verified session={session} />
+          </TabPanel>
+          <TabPanel sx={{ p: 0 }} value='replacement'>
+            <Replacement session={session} />
+          </TabPanel>
+          <TabPanel sx={{ p: 0 }} value='return'>
+            <Return session={session} />
           </TabPanel>
           {/* <TabPanel sx={{ p: 0 }} value='info'>
             <TabInfo />
