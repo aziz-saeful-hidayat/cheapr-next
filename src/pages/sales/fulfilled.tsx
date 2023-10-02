@@ -223,7 +223,151 @@ const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
     border: '1px solid #dadde9'
   }
 }))
+export const CustHistoryModal = ({ open, onClose, onSubmit, pk, session }: CustHistoryModalProps) => {
+  const handleSubmit = () => {
+    //put your validation logic here
+    onClose()
+    onSubmit()
+  }
+  const [data, setData] = useState<SellingOrder[]>([])
+  useEffect(() => {
+    if (pk) {
+      const fetchURL = `https://cheapr.my.id/selling_order/?person=${pk}`
+      console.log(fetchURL)
+      fetch(fetchURL, {
+        method: 'get',
+        headers: new Headers({
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        })
+      })
+        .then(response => response.json())
+        .then(json => {
+          setData(json.results)
+        })
+    }
+  }, [pk])
 
+  return (
+    <Dialog open={open}>
+      <DialogTitle textAlign='center'>Customer Order History</DialogTitle>
+      <IconButton
+        aria-label='close'
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: theme => theme.palette.grey[500]
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
+      <Box sx={{ width: 600, bgcolor: 'background.paper' }}>
+        <TableContainer component={Paper}>
+          <Table aria-label='simple table'>
+            <TableHead>
+              <TableRow>
+                <TableCell>ORDER</TableCell>
+                <TableCell align='right'>ITEM</TableCell>
+                <TableCell align='right'>CARRIER</TableCell>
+                <TableCell>TRACKING</TableCell>
+                <TableCell align='right'>STATUS</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data.map(sales => (
+                <TableRow key={sales.pk}>
+                  <TableCell component='th' scope='row'>
+                    {sales.channel_order_id}
+                  </TableCell>
+                  <TableCell align='right'>
+                    {sales.salesitems.map((item, index) => (
+                      <span key={index}>{`${item.sku.make ? `${item.sku.make} | ` : ''}${
+                        item.sku.model ? `${item.sku.model} | ` : ''
+                      }${item.sku.mpn ? `${item.sku.mpn}` : ''}`}</span>
+                    ))}
+                  </TableCell>
+                  <TableCell align='right'>
+                    {sales.salesitems.map((item, index) => (
+                      <span key={index}>{item.tracking?.fullcarrier.name}</span>
+                    ))}
+                  </TableCell>
+                  <TableCell align='right'>
+                    {sales.salesitems.map((item, index) => (
+                      <span key={index}>{item.tracking?.tracking_number}</span>
+                    ))}
+                  </TableCell>
+                  <TableCell align='right'>
+                    {sales.salesitems.map((item, index) => (
+                      <span key={index}>{item.tracking?.status}</span>
+                    ))}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+      <DialogActions sx={{ p: '1.25rem' }}>
+        <Button onClick={onClose}>Close</Button>
+      </DialogActions>
+    </Dialog>
+  )
+}
+
+export const SubHistoryModal = ({ open, onClose, onSubmit, data }: SubHistoryModalProps) => {
+  const handleSubmit = () => {
+    //put your validation logic here
+    onClose()
+    onSubmit()
+  }
+
+  return (
+    <Dialog open={open}>
+      <DialogTitle textAlign='center'>Sub Order History</DialogTitle>
+      <IconButton
+        aria-label='close'
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: theme => theme.palette.grey[500]
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
+      <Box sx={{ width: 300, bgcolor: 'background.paper' }}>
+        <TableContainer component={Paper}>
+          <Table aria-label='simple table'>
+            <TableHead>
+              <TableRow>
+                <TableCell>Item</TableCell>
+                <TableCell align='right'>Count</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data.map(sales => (
+                <TableRow key={sales.mpn}>
+                  <TableCell component='th' scope='row'>
+                    {sales.make ? `${sales.make} | ` : ''} {sales.model ? `${sales.model} | ` : ''} {sales.mpn}
+                  </TableCell>
+                  <TableCell component='th' scope='row' align='right'>
+                    {`(${sales.count})`}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+      <DialogActions sx={{ p: '1.25rem' }}>
+        <Button onClick={onClose}>Close</Button>
+      </DialogActions>
+    </Dialog>
+  )
+}
 export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channelData }: CreateModalProps) => {
   const [values, setValues] = useState<any>(() =>
     columns.reduce((acc, column) => {
@@ -501,151 +645,6 @@ export const DeleteModal = ({ open, onClose, onSubmit, data }: DeleteModalProps)
     </Dialog>
   )
 }
-export const CustHistoryModal = ({ open, onClose, onSubmit, pk, session }: CustHistoryModalProps) => {
-  const handleSubmit = () => {
-    //put your validation logic here
-    onClose()
-    onSubmit()
-  }
-  const [data, setData] = useState<SellingOrder[]>([])
-  useEffect(() => {
-    if (pk) {
-      const fetchURL = `https://cheapr.my.id/selling_order/?person=${pk}`
-      console.log(fetchURL)
-      fetch(fetchURL, {
-        method: 'get',
-        headers: new Headers({
-          Authorization: `Bearer ${session?.accessToken}`,
-          'Content-Type': 'application/json'
-        })
-      })
-        .then(response => response.json())
-        .then(json => {
-          setData(json.results)
-        })
-    }
-  }, [pk])
-
-  return (
-    <Dialog open={open}>
-      <DialogTitle textAlign='center'>Customer Order History</DialogTitle>
-      <IconButton
-        aria-label='close'
-        onClick={onClose}
-        sx={{
-          position: 'absolute',
-          right: 8,
-          top: 8,
-          color: theme => theme.palette.grey[500]
-        }}
-      >
-        <CloseIcon />
-      </IconButton>
-      <Box sx={{ width: 600, bgcolor: 'background.paper' }}>
-        <TableContainer component={Paper}>
-          <Table aria-label='simple table'>
-            <TableHead>
-              <TableRow>
-                <TableCell>ORDER</TableCell>
-                <TableCell align='right'>ITEM</TableCell>
-                <TableCell align='right'>CARRIER</TableCell>
-                <TableCell>TRACKING</TableCell>
-                <TableCell align='right'>STATUS</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {data.map(sales => (
-                <TableRow key={sales.pk}>
-                  <TableCell component='th' scope='row'>
-                    {sales.channel_order_id}
-                  </TableCell>
-                  <TableCell align='right'>
-                    {sales.salesitems.map((item, index) => (
-                      <span key={index}>{`${item.sku.make ? `${item.sku.make} | ` : ''}${
-                        item.sku.model ? `${item.sku.model} | ` : ''
-                      }${item.sku.mpn ? `${item.sku.mpn}` : ''}`}</span>
-                    ))}
-                  </TableCell>
-                  <TableCell align='right'>
-                    {sales.salesitems.map((item, index) => (
-                      <span key={index}>{item.tracking?.fullcarrier.name}</span>
-                    ))}
-                  </TableCell>
-                  <TableCell align='right'>
-                    {sales.salesitems.map((item, index) => (
-                      <span key={index}>{item.tracking?.tracking_number}</span>
-                    ))}
-                  </TableCell>
-                  <TableCell align='right'>
-                    {sales.salesitems.map((item, index) => (
-                      <span key={index}>{item.tracking?.status}</span>
-                    ))}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
-      <DialogActions sx={{ p: '1.25rem' }}>
-        <Button onClick={onClose}>Close</Button>
-      </DialogActions>
-    </Dialog>
-  )
-}
-
-export const SubHistoryModal = ({ open, onClose, onSubmit, data }: SubHistoryModalProps) => {
-  const handleSubmit = () => {
-    //put your validation logic here
-    onClose()
-    onSubmit()
-  }
-
-  return (
-    <Dialog open={open}>
-      <DialogTitle textAlign='center'>Sub Order History</DialogTitle>
-      <IconButton
-        aria-label='close'
-        onClick={onClose}
-        sx={{
-          position: 'absolute',
-          right: 8,
-          top: 8,
-          color: theme => theme.palette.grey[500]
-        }}
-      >
-        <CloseIcon />
-      </IconButton>
-      <Box sx={{ width: 300, bgcolor: 'background.paper' }}>
-        <TableContainer component={Paper}>
-          <Table aria-label='simple table'>
-            <TableHead>
-              <TableRow>
-                <TableCell>Item</TableCell>
-                <TableCell align='right'>Count</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {data.map(sales => (
-                <TableRow key={sales.mpn}>
-                  <TableCell component='th' scope='row'>
-                    {sales.make ? `${sales.make} | ` : ''} {sales.model ? `${sales.model} | ` : ''} {sales.mpn}
-                  </TableCell>
-                  <TableCell component='th' scope='row' align='right'>
-                    {`(${sales.count})`}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
-      <DialogActions sx={{ p: '1.25rem' }}>
-        <Button onClick={onClose}>Close</Button>
-      </DialogActions>
-    </Dialog>
-  )
-}
 
 const Example = (props: any) => {
   const { session } = props
@@ -716,7 +715,6 @@ const Example = (props: any) => {
   const [tableData, setTableData] = useState<SellingOrder[]>(() => data?.results ?? [])
   const [channelData, setChannelData] = useState<Channel[]>([])
   const [roomData, setRoomData] = useState<Room[]>([])
-  const [historyData, setHistoryData] = useState<HistoricalData[]>([])
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [addModalOpen, setAddModalOpen] = useState<SellingOrder>()
@@ -724,6 +722,7 @@ const Example = (props: any) => {
   const [detailModalOpen, setDetailModalOpen] = useState(false)
   const [custHistoryModalOpen, setCustHistoryModalOpen] = useState(false)
   const [subHistoryModalOpen, setSubHistoryModalOpen] = useState(false)
+  const [historyData, setHistoryData] = useState<HistoricalData[]>([])
 
   const [custPk, setCustPk] = useState<number | undefined>()
 
