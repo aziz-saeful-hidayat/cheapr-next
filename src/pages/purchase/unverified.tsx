@@ -48,6 +48,8 @@ import Select, { SelectChangeEvent } from '@mui/material/Select'
 import PurchaseDetail from 'src/@core/components/purchase-detail'
 import PickSellerModal from 'src/@core/components/pick-seller'
 import CreateNewSellerModal from 'src/@core/components/create-seller'
+import CreateNewPurchase from 'src/@core/components/create-purchase'
+
 import CloseIcon from '@mui/icons-material/Close'
 
 type Channel = {
@@ -1179,7 +1181,7 @@ const Example = (props: any) => {
           sorting
         }}
       />
-      <CreateNewAccountModal
+      <CreateNewPurchase
         columns={columns}
         open={createModalOpen}
         onClose={() => setCreateModalOpen(false)}

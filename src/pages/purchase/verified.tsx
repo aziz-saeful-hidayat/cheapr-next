@@ -1039,9 +1039,9 @@ const Example = (props: any) => {
               <RefreshIcon />
             </IconButton>
           </Tooltip> */}
-            <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
+            {/* <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
               Add New Purchase
-            </Button>
+            </Button> */}
             <Select labelId='demo-select-small-label' id='demo-select-small' value={tabActive} onChange={handleChange}>
               <MenuItem value={'all'}>All</MenuItem>
               <MenuItem value={'notracking'}>No Tracking</MenuItem>
@@ -1061,13 +1061,13 @@ const Example = (props: any) => {
           sorting
         }}
       />
-      <CreateNewAccountModal
+      {/* <CreateNewAccountModal
         columns={columns}
         open={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
         onSubmit={handleCreateNewRow}
         channelData={channelData}
-      />
+      /> */}
       <PurchaseDetailVerified
         session={session}
         pk={detail}

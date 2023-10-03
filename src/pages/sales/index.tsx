@@ -29,6 +29,7 @@ import Unfullfilled from './unfulfilled'
 import Fullfilled from './fulfilled'
 import Replacement from './replacement'
 import Return from './return'
+import UnfulfilledBuffers from './unfulfilled-buffer'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -76,6 +77,15 @@ const Sales = (props: any) => {
               }
             />
             <Tab
+              value='unfulfilled-buffers'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <AccountOutline />
+                  <TabName>Unfulfilled (Buffer)</TabName>
+                </Box>
+              }
+            />
+            <Tab
               value='fulfilled'
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -116,6 +126,9 @@ const Sales = (props: any) => {
           <TabPanel sx={{ p: 0 }} value='unfulfilled'>
             <Unfullfilled session={session} />
           </TabPanel>
+          <TabPanel sx={{ p: 0 }} value='unfulfilled-buffers'>
+            <UnfulfilledBuffers session={session} />
+          </TabPanel>
           <TabPanel sx={{ p: 0 }} value='fulfilled'>
             <Fullfilled session={session} />
           </TabPanel>
@@ -125,9 +138,6 @@ const Sales = (props: any) => {
           <TabPanel sx={{ p: 0 }} value='return'>
             <Return session={session} />
           </TabPanel>
-          {/* <TabPanel sx={{ p: 0 }} value='info'>
-            <TabInfo />
-          </TabPanel> */}
         </TabContext>
       </Card>
     )
