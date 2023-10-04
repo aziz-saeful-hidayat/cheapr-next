@@ -864,7 +864,7 @@ const PurchaseDetailVerified = (props: any) => {
           ))
         },
         Cell: ({ renderedCellValue, row }) =>
-          row.original.tracking?.fullcarrier ? (
+          row.original.itemsales?.tracking?.fullcarrier ? (
             <Box
               sx={{
                 display: 'flex',
@@ -875,7 +875,7 @@ const PurchaseDetailVerified = (props: any) => {
               <img
                 alt='avatar'
                 height={25}
-                src={row.original.tracking?.fullcarrier.image}
+                src={row.original.itemsales?.tracking?.fullcarrier.image}
                 loading='lazy'
                 style={{ borderRadius: '50%' }}
               />
@@ -1118,6 +1118,7 @@ const PurchaseDetailVerified = (props: any) => {
         })
           .then(response => response.json())
           .then(json => {
+            console.log(json)
             if (json.pk) {
               setRefresh(refresh + 1)
             }
