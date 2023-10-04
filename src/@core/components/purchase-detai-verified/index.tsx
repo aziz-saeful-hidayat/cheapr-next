@@ -107,6 +107,14 @@ type Rating = {
   name: string
   color: string
 }
+type Carrier = {
+  pk: number
+  name: string
+  image: string
+  prefix: string
+  suffix: string
+  suffix2: string
+}
 type Item = {
   pk: number
   buying: number
@@ -574,6 +582,7 @@ const PurchaseDetailVerified = (props: any) => {
   const [roomData, setRoomData] = useState<Room[]>([])
   const [matchesData, setMatchesData] = useState<{ best: SalesOrder[]; other: SalesOrder[] }>({ best: [], other: [] })
   const [salesItemData, setSalesItemData] = useState<SalesItem[]>([])
+  const [carrierData, setCarrierData] = useState<Carrier[]>([])
 
   const [ratingData, setRatingData] = useState<Rating[]>([])
   const [createModalOpen, setCreateModalOpen] = useState(false)
@@ -835,51 +844,47 @@ const PurchaseDetailVerified = (props: any) => {
       {
         accessorKey: 'itemsales.tracking.fullcarrier.name',
         header: 'Carrier',
-        size: 75
-        // muiTableBodyCellEditTextFieldProps: {
-        //   select: true, //change to select for a dropdown
-        //   children: salesItemData?.map(salesItem => (
-        //     <MenuItem key={salesItem.pk} value={salesItem.pk}>
-        //       {salesItem.sku.sku}
-        //     </MenuItem>
-        //   ))
-        // },
-        // Cell: ({ renderedCellValue, row }) => (
-        //   <Box component='span'>
-        //     <span>{renderedCellValue}</span>
-        //     {row.original.itemsales && (
-        //       <Tooltip arrow placement='top' title='Remove'>
-        //         <IconButton
-        //           color='error'
-        //           onClick={() => {
-        //             const payload: Payload = {}
-
-        //             payload['item'] = null
-
-        //             const pk = row.original.pk
-        //             fetch(`https://cheapr.my.id/sales_items/${row.original.itemsales.pk}/`, {
-        //               method: 'PATCH',
-        //               headers: new Headers({
-        //                 Authorization: `Bearer ${session?.accessToken}`,
-        //                 'Content-Type': 'application/json'
-        //               }),
-        //               body: JSON.stringify(payload)
-        //             })
-        //               .then(response => response.json())
-        //               .then(json => {
-        //                 console.log(json)
-        //               })
-        //               .finally(() => {
-        //                 setRefresh(ref => ref + 1)
-        //               })
-        //           }}
-        //         >
-        //           <Close />
-        //         </IconButton>
-        //       </Tooltip>
-        //     )}
-        //   </Box>
-        // )
+        size: 75,
+        muiTableBodyCellEditTextFieldProps: {
+          select: true, //change to select for a dropdown
+          children: carrierData?.map(carrier => (
+            <MenuItem key={carrier.pk} value={carrier.pk}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
+              >
+                <img alt='avatar' height={25} src={carrier.image} loading='lazy' style={{ borderRadius: '50%' }} />
+                {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
+                <span>{carrier.name}</span>
+              </Box>
+            </MenuItem>
+          ))
+        },
+        Cell: ({ renderedCellValue, row }) =>
+          row.original.tracking?.fullcarrier ? (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
+            >
+              <img
+                alt='avatar'
+                height={25}
+                src={row.original.tracking?.fullcarrier.image}
+                loading='lazy'
+                style={{ borderRadius: '50%' }}
+              />
+              {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
+              <span>{renderedCellValue}</span>
+            </Box>
+          ) : (
+            <></>
+          )
       },
       {
         accessorKey: 'itemsales.tracking.tracking_number',
@@ -959,6 +964,18 @@ const PurchaseDetailVerified = (props: any) => {
       .then(response => response.json())
       .then(json => {
         setRatingData(json.results)
+      })
+    const fetchCarrierURL = new URL('/carrier/', 'https://cheapr.my.id')
+    fetch(fetchCarrierURL.href, {
+      method: 'get',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      })
+    })
+      .then(response => response.json())
+      .then(json => {
+        setCarrierData(json.results)
       })
   }, [session])
   useEffect(() => {
@@ -1088,36 +1105,195 @@ const PurchaseDetailVerified = (props: any) => {
             }
           }
         })
+    } else if (key === 'itemsales.tracking.fullcarrier.name') {
+      payload['fullcarrier'] = value
+      if (cell.row.original.itemsales?.tracking?.pk) {
+        fetch(`https://cheapr.my.id/tracking/${cell.row.original.itemsales?.tracking?.pk}/`, {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        })
+          .then(response => response.json())
+          .then(json => {
+            if (json.pk) {
+              setRefresh(refresh + 1)
+            }
+          })
+      } else {
+        fetch(`https://cheapr.my.id/tracking/`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        })
+          .then(response => response.json())
+          .then(json => {
+            if (json.pk) {
+              fetch(`https://cheapr.my.id/sales_items/${cell.row.original.itemsales.pk}/`, {
+                method: 'PATCH',
+                headers: {
+                  Authorization: `Bearer ${session?.accessToken}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ tracking: json.pk })
+              })
+                .then(response => response.json())
+                .then(json => {
+                  if (json.pk) {
+                    setRefresh(refresh + 1)
+                  }
+                })
+              setRefresh(refresh + 1)
+            }
+          })
+      }
+    } else if (key === 'itemsales.tracking.tracking_number') {
+      if (!value) {
+        fetch(`https://cheapr.my.id/sales_items/${cell.row.original.itemsales.pk}/`, {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ tracking: null })
+        })
+          .then(response => response.json())
+          .then(json => {
+            if (json.pk) {
+              setRefresh(refresh + 1)
+            }
+          })
+      }
+      {
+        payload['tracking_number'] = value
+        fetch(`https://cheapr.my.id/tracking/?tracking_number=${value}`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json'
+          }
+        })
+          .then(response => response.json())
+          .then(json => {
+            if (json.count == 0) {
+              fetch(`https://cheapr.my.id/tracking/`, {
+                method: 'POST',
+                headers: {
+                  Authorization: `Bearer ${session?.accessToken}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+              })
+                .then(response => response.json())
+                .then(json => {
+                  if (json.pk) {
+                    fetch(`https://cheapr.my.id/sales_items/${cell.row.original.itemsales.pk}/`, {
+                      method: 'PATCH',
+                      headers: {
+                        Authorization: `Bearer ${session?.accessToken}`,
+                        'Content-Type': 'application/json'
+                      },
+                      body: JSON.stringify({ tracking: json.pk })
+                    })
+                      .then(response => response.json())
+                      .then(json => {
+                        if (json.pk) {
+                          setRefresh(refresh + 1)
+                        }
+                      })
+                    setRefresh(refresh + 1)
+                  }
+                })
+            } else {
+              fetch(`https://cheapr.my.id/sales_items/${cell.row.original.itemsales.pk}/`, {
+                method: 'PATCH',
+                headers: {
+                  Authorization: `Bearer ${session?.accessToken}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ tracking: json.results[0].pk })
+              })
+                .then(response => response.json())
+                .then(json => {
+                  if (json.pk) {
+                    setRefresh(refresh + 1)
+                  }
+                })
+              setRefresh(refresh + 1)
+            }
+          })
+      }
+    } else if (key === 'itemsales.tracking.eta_date') {
+      payload['eta_date'] = value
+      if (cell.row.original.itemsales?.tracking?.pk) {
+        fetch(`https://cheapr.my.id/tracking/${cell.row.original.itemsales?.tracking?.pk}/`, {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        })
+          .then(response => response.json())
+          .then(json => {
+            if (json.pk) {
+              setRefresh(refresh + 1)
+            }
+          })
+      } else {
+        fetch(`https://cheapr.my.id/tracking/`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        })
+          .then(response => response.json())
+          .then(json => {
+            if (json.pk) {
+              fetch(`https://cheapr.my.id/sales_items/${cell.row.original.itemsales.pk}/`, {
+                method: 'PATCH',
+                headers: {
+                  Authorization: `Bearer ${session?.accessToken}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ tracking: json.pk })
+              })
+                .then(response => response.json())
+                .then(json => {
+                  if (json.pk) {
+                    setRefresh(refresh + 1)
+                  }
+                })
+              setRefresh(refresh + 1)
+            }
+          })
+      }
+    } else if (key === 'itemsales.tracking.status') {
+      payload['status'] = value
+      if (cell.row.original.itemsales?.tracking?.pk) {
+        fetch(`https://cheapr.my.id/tracking/${cell.row.original.itemsales?.tracking?.pk}/`, {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        })
+          .then(response => response.json())
+          .then(json => {
+            if (json.pk) {
+              setRefresh(refresh + 1)
+            }
+          })
+      }
     }
-    // if (key === 'room.name') {
-    //   const room = roomData.find(room => room.name == value)
-    //   payload['room'] = room?.pk
-    //   newData[cell.row.index]['room'] = room
-    // } else if (key === 'rating.name') {
-    //   const rating = ratingData.find(rating => rating.name == value)
-    //   payload['rating'] = rating?.pk
-    //   newData[cell.row.index]['rating'] = rating
-    // } else {
-    //   payload[key as keyof Payload] = value === '' ? null : value
-    //   newData[cell.row.index][cell.column.id as keyof InventoryItem] = value
-    // }
-
-    // newData[cell.row.index][cell.column.id as keyof Item] = value
-    // setTableData([...newData])
-    // console.log(cell.row.original.pk, key, value)
-    // fetch(`https://cheapr.my.id/inventory_items/${cell.row.original.pk}/`, {
-    //   method: 'PATCH',
-    //   headers: {
-    //     Authorization: `Bearer ${session?.accessToken}`,
-    //     'Content-Type': 'application/json'
-    //   },
-    //   body: JSON.stringify(payload)
-    // })
-    //   .then(response => response.json())
-    //   .then(json => {
-    //     if (json.pk) {
-    //     }
-    //   })
   }
   const handleAddItem = (values: InventoryPayload) => {
     const newValues = { ...values, room: roomData.find(room => room.name == values.room?.toString())?.pk }

@@ -265,38 +265,7 @@ export const CreateNewPurchase = ({
                 value={values.order_date != '' ? dayjs(values.order_date) : null}
               />
             </LocalizationProvider>
-            <TextField
-              value={values.channel?.name}
-              key={'channel.name'}
-              name={'Channel'}
-              label='Channel'
-              select
-              onChange={e => setValues({ ...values, channel: { name: e.target.value } })}
-            >
-              {channelData?.map(channel => (
-                <MenuItem
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '1rem'
-                  }}
-                  key={channel.pk}
-                  value={channel.name}
-                >
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem'
-                    }}
-                  >
-                    <img alt='avatar' height={25} src={channel.image} loading='lazy' style={{ borderRadius: '50%' }} />
-                    {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
-                    <span>{channel.name}</span>
-                  </Box>
-                </MenuItem>
-              ))}
-            </TextField>
+
             <AutoCompleteSeller values={values} setValues={setValues} session={session} />
             <TextField
               key={'purchase_link'}

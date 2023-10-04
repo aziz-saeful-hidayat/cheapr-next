@@ -909,9 +909,9 @@ const Example = (props: any) => {
               <Link
                 target='_blank'
                 rel='noreferrer'
-                href={`https://app.sellbrite.com/orders?query=${row.original.inventoryitems[0].itemsales.selling.order_id}`}
+                href={`https://app.sellbrite.com/orders?query=${row.original.inventoryitems[0].itemsales?.selling.order_id}`}
               >
-                {row.original.inventoryitems[0].itemsales.selling.order_id}
+                {row.original.inventoryitems[0].itemsales?.selling.order_id}
               </Link>
             ) : (
               ''
