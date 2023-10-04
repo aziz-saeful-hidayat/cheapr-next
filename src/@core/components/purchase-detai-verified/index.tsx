@@ -1168,8 +1168,7 @@ const PurchaseDetailVerified = (props: any) => {
               setRefresh(refresh + 1)
             }
           })
-      }
-      {
+      } else {
         payload['tracking_number'] = value
         fetch(`https://cheapr.my.id/tracking/?tracking_number=${value}`, {
           method: 'GET',
