@@ -1027,7 +1027,7 @@ const Example = (props: any) => {
                   return (
                     <Link
                       key={index}
-                      href={`${tracking.fullcarrier.prefix}${tracking.tracking_number}${tracking.fullcarrier.suffix}`}
+                      href={`${tracking?.fullcarrier?.prefix}${tracking.tracking_number}${tracking?.fullcarrier?.suffix}`}
                       target='_blank'
                     >
                       <Box
