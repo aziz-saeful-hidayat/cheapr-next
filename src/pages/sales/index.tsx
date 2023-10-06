@@ -30,6 +30,7 @@ import Fullfilled from './fulfilled'
 import Replacement from './replacement'
 import Return from './return'
 import UnfulfilledBuffers from './unfulfilled-buffer'
+import HAUnlinked from './ha-unlinked'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -86,6 +87,15 @@ const Sales = (props: any) => {
               }
             />
             <Tab
+              value='ha-unlinked'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <AccountOutline />
+                  <TabName>HA Unlinked</TabName>
+                </Box>
+              }
+            />
+            <Tab
               value='fulfilled'
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -128,6 +138,9 @@ const Sales = (props: any) => {
           </TabPanel>
           <TabPanel sx={{ p: 0 }} value='unfulfilled-buffers'>
             <UnfulfilledBuffers session={session} />
+          </TabPanel>
+          <TabPanel sx={{ p: 0 }} value='ha-unlinked'>
+            <HAUnlinked session={session} />
           </TabPanel>
           <TabPanel sx={{ p: 0 }} value='fulfilled'>
             <Fullfilled session={session} />
