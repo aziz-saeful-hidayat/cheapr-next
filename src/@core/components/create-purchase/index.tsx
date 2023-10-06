@@ -327,7 +327,12 @@ export const CreateNewPurchase = ({
       </DialogContent>
       <DialogActions sx={{ p: '1.25rem' }}>
         <Button onClick={onClose}>Cancel</Button>
-        <Button color='primary' onClick={handleSubmit} variant='contained'>
+        <Button
+          color='primary'
+          onClick={handleSubmit}
+          variant='contained'
+          disabled={!values.channel?.name || !values.order_date || !values.seller || !values.person}
+        >
           Create
         </Button>
       </DialogActions>
