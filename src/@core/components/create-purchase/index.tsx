@@ -270,7 +270,7 @@ export const CreateNewPurchase = ({
             <AutoCompleteSeller values={values} setValues={setValues} session={session} />
             <TextField
               key={'purchase_link'}
-              label={'Purchase Link'}
+              label={'Purchase Link (optional)'}
               name={'purchase_link'}
               error={values.purchase_link && !validURL(values.purchase_link)}
               helperText={values.purchase_link && !validURL(values.purchase_link) ? 'Must be an URL' : ''}
@@ -278,7 +278,7 @@ export const CreateNewPurchase = ({
             />
             <TextField
               key={'channel_order_id'}
-              label={'Channel Order ID'}
+              label={'Channel Order ID  (optional)'}
               name={'channel_order_id'}
               onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
             />

@@ -675,7 +675,7 @@ const Example = (props: any) => {
                 setDetailModalOpen(true)
               }}
             >
-              {row.original.channel_order_id || 'View'}
+              {row.original.channel_order_id || row.original.order_id}
             </Link>
           </Box>
         )
