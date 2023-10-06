@@ -1612,7 +1612,12 @@ const PurchaseDetail = (props: any) => {
               </>
             )}
             renderBottomToolbarCustomActions={() => (
-              <Button color='primary' onClick={() => handleVerify()} variant='contained'>
+              <Button
+                color='primary'
+                onClick={() => handleVerify()}
+                variant='contained'
+                disabled={!orderData?.destination || !orderData?.sales}
+              >
                 Verify
               </Button>
             )}

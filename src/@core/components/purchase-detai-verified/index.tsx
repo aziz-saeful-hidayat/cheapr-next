@@ -1339,6 +1339,24 @@ const PurchaseDetailVerified = (props: any) => {
         }
       })
   }
+  const handleUnverify = () => {
+    fetch(`https://cheapr.my.id/buying_order/${pk}/`, {
+      // note we are going to /1
+      method: 'PATCH',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify({ verified: false })
+    })
+      .then(response => response.status)
+      .then(status => {
+        if (status == 200) {
+          setRefresh(refresh + 1)
+          onClose()
+        }
+      })
+  }
   const handleUpdateDestination = (values: string | null) => {
     fetch(`https://cheapr.my.id/buying_order/${pk}/`, {
       method: 'PATCH',
@@ -1444,6 +1462,11 @@ const PurchaseDetailVerified = (props: any) => {
             enableRowActions
             enableColumnActions={false}
             positionActionsColumn='first'
+            renderBottomToolbarCustomActions={() => (
+              <Button color='primary' onClick={() => handleUnverify()} variant='contained'>
+                Unverify
+              </Button>
+            )}
             renderTopToolbarCustomActions={() => (
               <>
                 {/* <Tooltip arrow title='Refresh Data'>

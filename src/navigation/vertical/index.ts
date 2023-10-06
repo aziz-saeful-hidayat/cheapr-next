@@ -51,17 +51,17 @@ const navigation = (): VerticalNavItemsType => {
     // {
     //   sectionTitle: 'CUSTOMER SERVICE'
     // },
-    {
-      title: 'Open Issues',
-      icon: Table as unknown as ReactNode,
-      path: '/construction'
-    },
+
     {
       title: 'Purchase',
       icon: Table as unknown as ReactNode,
       path: '/purchase'
     },
-
+    {
+      title: 'Open Issues',
+      icon: Table as unknown as ReactNode,
+      path: '/issue'
+    },
     {
       title: 'Inventory',
       icon: Table as unknown as ReactNode,

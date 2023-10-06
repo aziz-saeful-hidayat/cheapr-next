@@ -272,8 +272,8 @@ export const CreateNewPurchase = ({
               key={'purchase_link'}
               label={'Purchase Link'}
               name={'purchase_link'}
-              error={!validURL(values.purchase_link)}
-              helperText={!validURL(values.purchase_link) ? 'Must be an URL' : ''}
+              error={values.purchase_link && !validURL(values.purchase_link)}
+              helperText={values.purchase_link && !validURL(values.purchase_link) ? 'Must be an URL' : ''}
               onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
             />
             <TextField
