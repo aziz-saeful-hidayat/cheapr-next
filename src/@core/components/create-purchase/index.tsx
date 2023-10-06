@@ -53,6 +53,7 @@ import AutoCompleteCity from 'src/@core/components/autocomplete-city'
 import AutoCompletePerson from 'src/@core/components/autocomplete-person'
 
 import CloseIcon from '@mui/icons-material/Close'
+import PickChannel from '../inputs/channel'
 
 type ItemOption = {
   pk: number
@@ -265,7 +266,7 @@ export const CreateNewPurchase = ({
                 value={values.order_date != '' ? dayjs(values.order_date) : null}
               />
             </LocalizationProvider>
-
+            <PickChannel values={values} setValues={setValues} session={session} />
             <AutoCompleteSeller values={values} setValues={setValues} session={session} />
             <TextField
               key={'purchase_link'}
