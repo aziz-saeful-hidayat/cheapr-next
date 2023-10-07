@@ -737,7 +737,6 @@ const Example = (props: any) => {
     pageIndex: 0,
     pageSize: 100
   })
-  const [tabActive, setTabActive] = useState('6')
   const [refresh, setRefresh] = useState(0)
 
   const { data, isError, isFetching, isLoading } = useQuery({
@@ -748,7 +747,6 @@ const Example = (props: any) => {
       pagination.pageIndex, //refetch when pagination.pageIndex changes
       pagination.pageSize, //refetch when pagination.pageSize changes
       sorting, //refetch when sorting changes
-      tabActive,
       refresh
     ],
 
@@ -781,7 +779,6 @@ const Example = (props: any) => {
       fetchURL.searchParams.set('haunlinked', 'true')
 
       fetchURL.searchParams.set('ordering', ordering)
-      fetchURL.searchParams.set('manager', tabActive == 'all' ? '' : tabActive)
 
       console.log(fetchURL.href)
       const response = await fetch(fetchURL.href, {
@@ -814,9 +811,6 @@ const Example = (props: any) => {
   const [historyData, setHistoryData] = useState<HistoricalData[]>([])
   const [custPk, setCustPk] = useState<number | undefined>()
 
-  const handleChange = (event: SelectChangeEvent) => {
-    setTabActive(event.target.value as string)
-  }
   const handleCreateNewRow = (values: SellingOrder) => {
     console.log(values)
     const channel = channelData.find(channel => channel.name == values['channel']['name'])
@@ -1080,77 +1074,77 @@ const Example = (props: any) => {
           </Box>
         )
       },
-      {
-        id: 'asigne',
-        header: 'ASIGNEE',
-        maxSize: 50,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column'
-            }}
-          >
-            {row.original.salesitems.map((sales, index) => {
-              const manager = sales.manager
-              if (manager) {
-                return (
-                  <div key={index}>
-                    <Link
-                      href='#'
-                      onClick={() => {
-                        setSalesItemPk(sales.pk)
-                        setManagerModalOpen(true)
-                      }}
-                    >
-                      <span>{`${manager.name}`}</span>
-                    </Link>
+      // {
+      //   id: 'asigne',
+      //   header: 'ASIGNEE',
+      //   maxSize: 50,
+      //   Cell: ({ renderedCellValue, row }) => (
+      //     <Box
+      //       sx={{
+      //         display: 'flex',
+      //         flexDirection: 'column'
+      //       }}
+      //     >
+      //       {row.original.salesitems.map((sales, index) => {
+      //         const manager = sales.manager
+      //         if (manager) {
+      //           return (
+      //             <div key={index}>
+      //               <Link
+      //                 href='#'
+      //                 onClick={() => {
+      //                   setSalesItemPk(sales.pk)
+      //                   setManagerModalOpen(true)
+      //                 }}
+      //               >
+      //                 <span>{`${manager.name}`}</span>
+      //               </Link>
 
-                    <Tooltip arrow placement='top' title='Remove'>
-                      <IconButton
-                        color='error'
-                        onClick={() => {
-                          fetch(`https://cheapr.my.id/sales_items/${sales.pk}/`, {
-                            method: 'PATCH',
-                            headers: new Headers({
-                              Authorization: `Bearer ${session?.accessToken}`,
-                              'Content-Type': 'application/json'
-                            }),
-                            body: JSON.stringify({ manager: null })
-                          })
-                            .then(response => response.json())
-                            .then(json => {
-                              console.log(json)
-                            })
-                            .finally(() => {
-                              setRefresh(ref => ref + 1)
-                            })
-                        }}
-                      >
-                        <Close />
-                      </IconButton>
-                    </Tooltip>
-                  </div>
-                )
-              } else {
-                return (
-                  <Link
-                    key={index}
-                    href='#'
-                    onClick={() => {
-                      setSalesItemPk(sales.pk)
-                      setManagerModalOpen(true)
-                    }}
-                  >
-                    <span>Assign</span>
-                  </Link>
-                )
-              }
-            })}
-          </Box>
-        ),
-        enableEditing: false
-      },
+      //               <Tooltip arrow placement='top' title='Remove'>
+      //                 <IconButton
+      //                   color='error'
+      //                   onClick={() => {
+      //                     fetch(`https://cheapr.my.id/sales_items/${sales.pk}/`, {
+      //                       method: 'PATCH',
+      //                       headers: new Headers({
+      //                         Authorization: `Bearer ${session?.accessToken}`,
+      //                         'Content-Type': 'application/json'
+      //                       }),
+      //                       body: JSON.stringify({ manager: null })
+      //                     })
+      //                       .then(response => response.json())
+      //                       .then(json => {
+      //                         console.log(json)
+      //                       })
+      //                       .finally(() => {
+      //                         setRefresh(ref => ref + 1)
+      //                       })
+      //                   }}
+      //                 >
+      //                   <Close />
+      //                 </IconButton>
+      //               </Tooltip>
+      //             </div>
+      //           )
+      //         } else {
+      //           return (
+      //             <Link
+      //               key={index}
+      //               href='#'
+      //               onClick={() => {
+      //                 setSalesItemPk(sales.pk)
+      //                 setManagerModalOpen(true)
+      //               }}
+      //             >
+      //               <span>Assign</span>
+      //             </Link>
+      //           )
+      //         }
+      //       })}
+      //     </Box>
+      //   ),
+      //   enableEditing: false
+      // },
       {
         accessorKey: 'delivery_date',
         header: 'GET BY',
@@ -1537,7 +1531,7 @@ const Example = (props: any) => {
             <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
               Add New Sales
             </Button>
-            <Select labelId='demo-select-small-label' id='demo-select-small' value={tabActive} onChange={handleChange}>
+            {/* <Select labelId='demo-select-small-label' id='demo-select-small' value={tabActive} onChange={handleChange}>
               <MenuItem value={'all'}>All</MenuItem>
               {managerData?.map(manager => (
                 <MenuItem key={manager.pk} value={manager.pk}>
@@ -1545,9 +1539,7 @@ const Example = (props: any) => {
                 </MenuItem>
               ))}
 
-              {/* <MenuItem value={'canceled'}>Canceled</MenuItem>
-              <MenuItem value={'to_pick'}>To Pick</MenuItem> */}
-            </Select>
+            </Select> */}
           </>
         )}
         renderBottomToolbarCustomActions={() => (

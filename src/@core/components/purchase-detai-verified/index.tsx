@@ -62,6 +62,7 @@ import { Refresh } from 'mdi-material-ui'
 import { CreateItemModal } from '../pick-sku'
 import { Close } from 'mdi-material-ui'
 import CloseIcon from '@mui/icons-material/Close'
+import PickMacthingSales from '../pick-matching-sales'
 
 type InventoryItem = {
   [key: string]: any
@@ -418,142 +419,6 @@ export const DeleteModal = ({ open, onClose, onSubmit, data }: DeleteModalProps)
         <Button color='error' onClick={handleSubmit} variant='contained'>
           Delete
         </Button>
-      </DialogActions>
-    </Dialog>
-  )
-}
-
-export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, data, picked }: PickSalesModalProps) => {
-  return (
-    <Dialog open={open}>
-      <DialogTitle textAlign='center'>Pick Sales</DialogTitle>
-      <IconButton
-        aria-label='close'
-        onClick={onClose}
-        sx={{
-          position: 'absolute',
-          right: 8,
-          top: 8,
-          color: theme => theme.palette.grey[500]
-        }}
-      >
-        <CloseIcon />
-      </IconButton>
-      <Box sx={{ width: '100%', bgcolor: 'background.paper' }}>
-        <TableContainer component={Paper}>
-          <Table aria-label='simple table'>
-            <TableHead>
-              <TableRow>
-                <TableCell>Order Id</TableCell>
-                <TableCell align='right'>Name</TableCell>
-                <TableCell align='right'>Destination Zip</TableCell>
-                <TableCell align='right'>Action</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {/* <TableRow key='best' sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                <TableCell component='th' scope='row'>
-                  <span style={{ fontWeight: 500 }}>Best Match</span>
-                </TableCell>
-                <TableCell align='right'></TableCell>
-                <TableCell align='right'></TableCell>
-                <TableCell align='right'></TableCell>
-              </TableRow> */}
-              {data.best?.map(sales => (
-                <TableRow key={sales.pk}>
-                  <TableCell component='th' scope='row'>
-                    {sales.order_id}
-                  </TableCell>
-                  <TableCell align='right'>{sales.person?.name}</TableCell>
-                  <TableCell align='right'>{sales.person?.address?.zip}</TableCell>
-                  <TableCell align='right'>
-                    {picked == sales.pk ? (
-                      <Chip
-                        sx={{
-                          fontSize: 10
-                        }}
-                        label='Remove'
-                        onClick={() => {
-                          onReset()
-                        }}
-                      />
-                    ) : (
-                      <Chip
-                        sx={{
-                          fontSize: 10
-                        }}
-                        label='Pick'
-                        onClick={() => {
-                          onSubmit(sales.pk)
-                        }}
-                      />
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-              {/* <TableRow key='other' sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                <TableCell component='th' scope='row'>
-                  <span style={{ fontWeight: 500 }}>Other Open Order</span>
-                </TableCell>
-                <TableCell align='right'></TableCell>
-                <TableCell align='right'></TableCell>
-                <TableCell align='right'></TableCell>
-              </TableRow> */}
-
-              {data.other?.map(sales => (
-                <TableRow key={sales.pk}>
-                  <TableCell component='th' scope='row'>
-                    {sales.order_id}
-                  </TableCell>
-                  <TableCell align='right'>{sales.person?.name}</TableCell>
-                  <TableCell align='right'>{sales.person?.address?.zip}</TableCell>
-                  <TableCell align='right'>
-                    {picked == sales.pk ? (
-                      <Chip
-                        sx={{
-                          fontSize: 10
-                        }}
-                        label='Remove'
-                        onClick={() => {
-                          onReset()
-                        }}
-                      />
-                    ) : (
-                      <Chip
-                        sx={{
-                          fontSize: 10
-                        }}
-                        label='Pick'
-                        onClick={() => {
-                          onSubmit(sales.pk)
-                        }}
-                      />
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        {/* <nav aria-label='main mailbox folders'>
-
-          <List>
-            {data.map(sales => (
-              <ListItem disablePadding>
-                <ListItemButton>
-                  <ListItemIcon>
-                    <InboxIcon />
-                  </ListItemIcon>
-                  <ListItemText primary={sales.order_id} />
-                  <ListItemText primary={sales.seller_name} />
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
-        </nav> */}
-      </Box>
-      <DialogActions sx={{ p: '1.25rem' }}>
-        <Button onClick={onClose}>Close</Button>
       </DialogActions>
     </Dialog>
   )
@@ -1669,7 +1534,9 @@ const PurchaseDetailVerified = (props: any) => {
           }}
           data={matchesData}
           picked={orderData?.sales?.pk}
+          session={session}
         />
+
         <CreateNewAccountModal
           columns={columnsItem}
           open={createModalOpen}
