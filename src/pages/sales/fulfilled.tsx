@@ -27,7 +27,8 @@ import {
   TableBody,
   TextField,
   Autocomplete,
-  CircularProgress
+  CircularProgress,
+  Checkbox
 } from '@mui/material'
 import Chip from '@mui/material/Chip'
 import Typography from '@mui/material/Typography'
@@ -114,6 +115,7 @@ type SellingOrder = {
     name: string
   }
   subs_status: boolean
+  submited: boolean
   channel_order_id: string
   tracking_number: string
   seller_name: string
@@ -656,6 +658,7 @@ const Example = (props: any) => {
     pageSize: 100
   })
   const [tabActive, setTabActive] = useState('to_monitor')
+  const [refresh, setRefresh] = useState(0)
 
   const { data, isError, isFetching, isLoading } = useQuery({
     queryKey: [
@@ -665,6 +668,7 @@ const Example = (props: any) => {
       pagination.pageIndex, //refetch when pagination.pageIndex changes
       pagination.pageSize, //refetch when pagination.pageSize changes
       sorting, //refetch when sorting changes
+      refresh,
       tabActive
     ],
     queryFn: async () => {
@@ -898,6 +902,23 @@ const Example = (props: any) => {
         }
       })
   }
+  const handleCheck = (event: React.ChangeEvent<HTMLInputElement>, pk: number) => {
+    fetch(`https://cheapr.my.id/selling_order/${pk}/`, {
+      method: 'PATCH',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify({ submited: event.target.checked })
+    })
+      .then(response => response.json())
+      .then(json => {
+        console.log(json)
+      })
+      .finally(() => {
+        setRefresh(r => r + 1)
+      })
+  }
 
   const columns = useMemo<MRT_ColumnDef<SellingOrder>[]>(
     () => [
@@ -974,6 +995,28 @@ const Example = (props: any) => {
               })}
           </Box>
         )
+      },
+      {
+        accessorKey: 'submited',
+        header: 'ADD',
+        maxSize: 50,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            <Checkbox
+              checked={row.original.submited}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => handleCheck(event, row.original.pk)}
+              size='small'
+              inputProps={{ 'aria-label': 'controlled' }}
+            />
+          </Box>
+        ),
+        enableEditing: false
       },
       {
         accessorKey: 'delivery_date',
