@@ -63,6 +63,7 @@ import { CreateItemModal } from '../pick-sku'
 import { Close } from 'mdi-material-ui'
 import CloseIcon from '@mui/icons-material/Close'
 import PickMacthingSales from '../pick-matching-sales'
+import moment from 'moment'
 
 type InventoryItem = {
   [key: string]: any
@@ -759,7 +760,20 @@ const PurchaseDetailVerified = (props: any) => {
       {
         accessorKey: 'itemsales.tracking.eta_date',
         header: 'ETA',
-        size: 75
+        size: 75,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            {row.original.itemsales?.tracking?.eta_date
+              ? moment(row.original?.itemsales?.tracking?.eta_date).format('MM-DD-YY')
+              : ''}
+          </Box>
+        )
       },
       {
         accessorKey: 'itemsales.tracking.status',

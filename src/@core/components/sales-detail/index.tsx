@@ -1555,6 +1555,68 @@ const SalesDetail = (props: any) => {
             ) : null}
           </Box>
         )
+      },
+      {
+        accessorKey: 'letter_tracking.fullcarrier.name',
+        header: 'LT Carrier',
+        size: 100,
+        muiTableBodyCellEditTextFieldProps: {
+          select: true, //change to select for a dropdown
+          children: carrierData?.map(carrier => (
+            <MenuItem key={carrier.pk} value={carrier.pk}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
+              >
+                <img alt='avatar' height={25} src={carrier.image} loading='lazy' style={{ borderRadius: '50%' }} />
+                {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
+                <span>{carrier.name}</span>
+              </Box>
+            </MenuItem>
+          ))
+        },
+        Cell: ({ renderedCellValue, row }) =>
+          row.original.letter_tracking?.fullcarrier ? (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
+            >
+              <img
+                alt='avatar'
+                height={25}
+                src={row.original.letter_tracking?.fullcarrier.image}
+                loading='lazy'
+                style={{ borderRadius: '50%' }}
+              />
+              {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
+              <span>{renderedCellValue}</span>
+            </Box>
+          ) : (
+            <></>
+          )
+      },
+      {
+        accessorKey: 'letter_tracking.tracking_number',
+        header: 'LT Tracking',
+        size: 100,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>
+            <Link
+              target='_blank'
+              rel='noreferrer'
+              href={`${row.original.letter_tracking?.fullcarrier?.prefix}${row.original.letter_tracking?.tracking_number}${row.original.letter_tracking?.fullcarrier?.suffix}`}
+              underline='hover'
+            >
+              {row.original.letter_tracking?.tracking_number}
+            </Link>
+          </Box>
+        )
       }
     ],
     [roomData, ratingData, open]
@@ -1847,6 +1909,118 @@ const SalesDetail = (props: any) => {
                       'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ tracking: json.pk })
+                  })
+                    .then(response => response.json())
+                    .then(json => {
+                      if (json.pk) {
+                        setRefresh(refresh + 1)
+                      }
+                    })
+                  setRefresh(refresh + 1)
+                }
+              })
+          } else {
+            fetch(`https://cheapr.my.id/sales_items/${cell.row.original.salesitem_pk}/`, {
+              method: 'PATCH',
+              headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ tracking: json.results[0].pk })
+            })
+              .then(response => response.json())
+              .then(json => {
+                if (json.pk) {
+                  setRefresh(refresh + 1)
+                }
+              })
+            setRefresh(refresh + 1)
+          }
+        })
+    } else if (key === 'letter_tracking.fullcarrier.name') {
+      payload['fullcarrier'] = value
+      if (cell.row.original.letter_tracking?.pk) {
+        fetch(`https://cheapr.my.id/tracking/${cell.row.original.letter_tracking?.pk}/`, {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        })
+          .then(response => response.json())
+          .then(json => {
+            console.log(json)
+
+            if (json.pk) {
+              setRefresh(refresh + 1)
+            }
+          })
+      } else {
+        fetch(`https://cheapr.my.id/tracking/`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        })
+          .then(response => response.json())
+          .then(json => {
+            console.log(json)
+
+            if (json.pk) {
+              fetch(`https://cheapr.my.id/sales_items/${cell.row.original.salesitem_pk}/`, {
+                method: 'PATCH',
+                headers: {
+                  Authorization: `Bearer ${session?.accessToken}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ tracking: json.pk })
+              })
+                .then(response => response.json())
+                .then(json => {
+                  console.log(json)
+
+                  if (json.pk) {
+                    setRefresh(refresh + 1)
+                  }
+                })
+              setRefresh(refresh + 1)
+            }
+          })
+      }
+    } else if (key === 'letter_tracking.tracking_number') {
+      payload['tracking_number'] = value
+      fetch(`https://cheapr.my.id/tracking/?tracking_number=${value}`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      })
+        .then(response => response.json())
+        .then(json => {
+          console.log(json)
+          if (json.count == 0) {
+            fetch(`https://cheapr.my.id/tracking/`, {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(payload)
+            })
+              .then(response => response.json())
+              .then(json => {
+                if (json.pk) {
+                  fetch(`https://cheapr.my.id/sales_items/${cell.row.original.salesitem_pk}/`, {
+                    method: 'PATCH',
+                    headers: {
+                      Authorization: `Bearer ${session?.accessToken}`,
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ letter_tracking: json.pk })
                   })
                     .then(response => response.json())
                     .then(json => {

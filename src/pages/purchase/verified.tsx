@@ -547,6 +547,80 @@ const Example = (props: any) => {
   const columns = useMemo<MRT_ColumnDef<BuyingOrder>[]>(
     () => [
       {
+        id: 'delivery_status',
+        header: 'STS',
+        maxSize: 40,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.inventoryitems
+              .map(item => item.tracking)
+              .map((tracking, index) => {
+                if (tracking) {
+                  return (
+                    <Link
+                      key={index}
+                      href={`${tracking?.fullcarrier?.prefix}${tracking.tracking_number}${tracking?.fullcarrier?.suffix}`}
+                      target='_blank'
+                    >
+                      <Box
+                        sx={theme => ({
+                          backgroundColor:
+                            tracking.status == 'D'
+                              ? theme.palette.success.dark
+                              : tracking.status == 'T'
+                              ? theme.palette.warning.light
+                              : tracking.status == 'I'
+                              ? 'purple'
+                              : theme.palette.error.dark,
+                          borderRadius: '0.5rem',
+                          color: '#fff',
+                          width: 15,
+                          height: 15
+                        })}
+                      ></Box>
+                    </Link>
+                  )
+                } else {
+                  return (
+                    <Box
+                      key={index}
+                      sx={theme => ({
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: '#a9a9a9',
+                        borderRadius: '0.5rem',
+                        borderColor: '#000',
+                        color: '#fff',
+                        width: 12,
+                        height: 12
+                      })}
+                    >
+                      <Box
+                        sx={theme => ({
+                          backgroundColor: theme.palette.background.paper,
+                          borderRadius: '0.5rem',
+                          borderColor: '#000',
+                          color: '#fff',
+                          width: 9,
+                          height: 9
+                        })}
+                      ></Box>
+                    </Box>
+                  )
+                }
+              })}
+          </Box>
+        )
+      },
+      {
         accessorKey: 'order_date',
         header: 'Date',
         maxSize: 100,
@@ -561,7 +635,7 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            <span>{renderedCellValue ? moment(renderedCellValue?.toString()).format('MMM D YYYY') : ''}</span>
+            <span>{renderedCellValue ? moment(renderedCellValue?.toString()).format('MM-DD-YY') : ''}</span>
           </Box>
         )
       },
@@ -810,32 +884,6 @@ const Example = (props: any) => {
             )}
           </Box>
         )
-      },
-      {
-        accessorFn: row => '', //accessorFn used to join multiple data into a single cell
-        id: 'shipped', //id is still required when using accessorFn instead of accessorKey
-        header: 'Shipped',
-        maxSize: 100,
-        enableEditing: false,
-        muiTableBodyCellProps: {
-          align: 'right'
-        },
-        muiTableHeadCellProps: {
-          align: 'right'
-        }
-      },
-      {
-        accessorFn: row => '', //accessorFn used to join multiple data into a single cell
-        id: 'trackings', //id is still required when using accessorFn instead of accessorKey
-        header: 'Tracking',
-        maxSize: 100,
-        enableEditing: false,
-        muiTableBodyCellProps: {
-          align: 'right'
-        },
-        muiTableHeadCellProps: {
-          align: 'right'
-        }
       }
     ],
     [channelData]

@@ -11,6 +11,7 @@ import MaterialReactTable, {
 import {
   Box,
   Button,
+  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
@@ -307,6 +308,7 @@ type SellingOrder = {
     name: string
   }
   subs_status: boolean
+  submited: boolean
   channel_order_id: string
   tracking_number: string
   seller_name: string
@@ -905,7 +907,23 @@ const Example = (props: any) => {
         }
       })
   }
-
+  const handleCheck = (event: React.ChangeEvent<HTMLInputElement>, pk: number) => {
+    fetch(`https://cheapr.my.id/selling_order/${pk}/`, {
+      method: 'PATCH',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify({ submited: event.target.checked })
+    })
+      .then(response => response.json())
+      .then(json => {
+        console.log(json)
+      })
+      .finally(() => {
+        setRefresh(r => r + 1)
+      })
+  }
   const handleDeleteRow = useCallback(
     (row: MRT_Row<SellingOrder>) => {
       if (!confirm(`Are you sure you want to delete ${row.original.order_id}`)) {
@@ -1074,78 +1092,27 @@ const Example = (props: any) => {
           </Box>
         )
       },
-
-      // {
-      //   id: 'asigne',
-      //   header: 'ASIGNEE',
-      //   maxSize: 50,
-      //   Cell: ({ renderedCellValue, row }) => (
-      //     <Box
-      //       sx={{
-      //         display: 'flex',
-      //         flexDirection: 'column'
-      //       }}
-      //     >
-      //       {row.original.salesitems.map((sales, index) => {
-      //         const manager = sales.manager
-      //         if (manager) {
-      //           return (
-      //             <div key={index}>
-      //               <Link
-      //                 href='#'
-      //                 onClick={() => {
-      //                   setSalesItemPk(sales.pk)
-      //                   setManagerModalOpen(true)
-      //                 }}
-      //               >
-      //                 <span>{`${manager.name}`}</span>
-      //               </Link>
-
-      //               <Tooltip arrow placement='top' title='Remove'>
-      //                 <IconButton
-      //                   color='error'
-      //                   onClick={() => {
-      //                     fetch(`https://cheapr.my.id/sales_items/${sales.pk}/`, {
-      //                       method: 'PATCH',
-      //                       headers: new Headers({
-      //                         Authorization: `Bearer ${session?.accessToken}`,
-      //                         'Content-Type': 'application/json'
-      //                       }),
-      //                       body: JSON.stringify({ manager: null })
-      //                     })
-      //                       .then(response => response.json())
-      //                       .then(json => {
-      //                         console.log(json)
-      //                       })
-      //                       .finally(() => {
-      //                         setRefresh(ref => ref + 1)
-      //                       })
-      //                   }}
-      //                 >
-      //                   <Close />
-      //                 </IconButton>
-      //               </Tooltip>
-      //             </div>
-      //           )
-      //         } else {
-      //           return (
-      //             <Link
-      //               key={index}
-      //               href='#'
-      //               onClick={() => {
-      //                 setSalesItemPk(sales.pk)
-      //                 setManagerModalOpen(true)
-      //               }}
-      //             >
-      //               <span>Assign</span>
-      //             </Link>
-      //           )
-      //         }
-      //       })}
-      //     </Box>
-      //   ),
-      //   enableEditing: false
-      // },
+      {
+        accessorKey: 'submited',
+        header: 'ADD',
+        maxSize: 50,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center'
+            }}
+          >
+            <Checkbox
+              checked={row.original.submited}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => handleCheck(event, row.original.pk)}
+              size='small'
+              inputProps={{ 'aria-label': 'controlled' }}
+            />
+          </Box>
+        ),
+        enableEditing: false
+      },
       {
         accessorKey: 'delivery_date',
         header: 'GET BY',
