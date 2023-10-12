@@ -819,6 +819,23 @@ const PurchaseDetailVerified = (props: any) => {
     ],
     [roomData, salesItemData, open]
   )
+
+  const fetchPickSales = () => {
+    fetch(`https://cheapr.my.id/buying_order/${pk}/find_matches/`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(response => response.json())
+      .then(json => {
+        setMatchesData(json)
+      })
+      .finally(() => {
+        setMatchSalesModalOpen(true)
+      })
+  }
   useEffect(() => {
     const fetchURL = new URL('/room/', 'https://cheapr.my.id')
     fetch(fetchURL.href, {
@@ -1365,6 +1382,9 @@ const PurchaseDetailVerified = (props: any) => {
                     if (orderData) {
                       setOrderData({ ...orderData, destination: e.target.value })
                       handleUpdateDestination(e.target.value)
+                      if (e.target.value == 'D') {
+                        fetchPickSales()
+                      }
                     }
                   }}
                 >
@@ -1374,26 +1394,7 @@ const PurchaseDetailVerified = (props: any) => {
                 {orderData?.destination == 'D' && (
                   <span>
                     SBO.#{'     '}
-                    <Link
-                      onClick={() => {
-                        fetch(`https://cheapr.my.id/buying_order/${pk}/find_matches/`, {
-                          method: 'GET',
-                          headers: {
-                            Authorization: `Bearer ${session?.accessToken}`,
-                            'Content-Type': 'application/json'
-                          }
-                        })
-                          .then(response => response.json())
-                          .then(json => {
-                            setMatchesData(json)
-                          })
-                          .finally(() => {
-                            setMatchSalesModalOpen(true)
-                          })
-                      }}
-                    >
-                      {orderData?.sales ? `${orderData?.sales.order_id}` : 'Pick'}
-                    </Link>
+                    <Link onClick={fetchPickSales}>{orderData?.sales ? `${orderData?.sales.order_id}` : 'Pick'}</Link>
                     {orderData?.sales && (
                       <Tooltip arrow placement='top' title='Remove'>
                         <IconButton
@@ -1546,7 +1547,7 @@ const PurchaseDetailVerified = (props: any) => {
                 setMatchSalesModalOpen(false)
               })
           }}
-          data={matchesData}
+          pk={pk}
           picked={orderData?.sales?.pk}
           session={session}
         />

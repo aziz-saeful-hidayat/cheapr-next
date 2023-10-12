@@ -318,6 +318,7 @@ const Example = (props: any) => {
     pageSize: 100
   })
   const [refresh, setRefresh] = useState(0)
+  const [tabActive, setTabActive] = useState('all')
 
   const { data, isError, isFetching, isLoading } = useQuery({
     queryKey: [
@@ -327,7 +328,8 @@ const Example = (props: any) => {
       pagination.pageIndex, //refetch when pagination.pageIndex changes
       pagination.pageSize, //refetch when pagination.pageSize changes
       sorting, //refetch when sorting changes
-      refresh
+      refresh,
+      tabActive
     ],
     queryFn: async () => {
       const fetchURL = new URL('/buying_order/', 'https://cheapr.my.id')
@@ -357,6 +359,7 @@ const Example = (props: any) => {
       }
       fetchURL.searchParams.set('ordering', ordering)
       fetchURL.searchParams.set('verified', 'True')
+      fetchURL.searchParams.set('filter', tabActive)
 
       console.log(fetchURL.href)
       const response = await fetch(fetchURL.href, {
@@ -376,7 +379,6 @@ const Example = (props: any) => {
   const [channelData, setChannelData] = useState<Channel[]>([])
   const [detail, setDetail] = useState<number | undefined>()
   const [detailModalOpen, setDetailModalOpen] = useState(false)
-  const [tabActive, setTabActive] = useState('all')
   const [buyingToEdit, setBuyingToEdit] = useState('')
   const [pickSellerModalOpen, setPickSellerModalOpen] = useState(false)
   const [createSellerModalOpen, setCreateSellerModalOpen] = useState(false)

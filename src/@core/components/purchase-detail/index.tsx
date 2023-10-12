@@ -438,7 +438,6 @@ const PurchaseDetail = (props: any) => {
 
   const [tableData, setTableData] = useState<Item[]>([])
   const [roomData, setRoomData] = useState<Room[]>([])
-  const [matchesData, setMatchesData] = useState<{ best: SalesOrder[]; other: SalesOrder[] }>({ best: [], other: [] })
   const [salesItemData, setSalesItemData] = useState<SalesItem[]>([])
 
   const [ratingData, setRatingData] = useState<Rating[]>([])
@@ -1134,6 +1133,7 @@ const PurchaseDetail = (props: any) => {
   type InventoryItem = {
     [key: string]: any
   }
+
   const handleSetSKU = (values: InventoryItem) => {
     console.log(values)
     console.log(`https://cheapr.my.id/inventory_items/${itemPk}/`)
@@ -1299,6 +1299,9 @@ const PurchaseDetail = (props: any) => {
                     if (orderData) {
                       setOrderData({ ...orderData, destination: e.target.value })
                       handleUpdateDestination(e.target.value)
+                      if (e.target.value == 'D') {
+                        setMatchSalesModalOpen(true)
+                      }
                     }
                   }}
                 >
@@ -1308,24 +1311,7 @@ const PurchaseDetail = (props: any) => {
                 {orderData?.destination == 'D' && (
                   <span>
                     SBO.#{'     '}
-                    <Link
-                      onClick={() => {
-                        fetch(`https://cheapr.my.id/buying_order/${pk}/find_matches/`, {
-                          method: 'GET',
-                          headers: {
-                            Authorization: `Bearer ${session?.accessToken}`,
-                            'Content-Type': 'application/json'
-                          }
-                        })
-                          .then(response => response.json())
-                          .then(json => {
-                            setMatchesData(json)
-                          })
-                          .finally(() => {
-                            setMatchSalesModalOpen(true)
-                          })
-                      }}
-                    >
+                    <Link onClick={() => setMatchSalesModalOpen(true)}>
                       {orderData?.sales ? `${orderData?.sales.order_id}` : 'Pick'}
                     </Link>
                     {orderData?.sales && (
@@ -1476,7 +1462,7 @@ const PurchaseDetail = (props: any) => {
                 setMatchSalesModalOpen(false)
               })
           }}
-          data={matchesData}
+          pk={pk}
           picked={orderData?.sales?.pk}
           session={session}
         />

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Autocomplete,
   Box,
@@ -99,12 +99,12 @@ interface PickSalesModalProps {
   onSubmit: (sales: number) => void
   onReset: () => void
   open: boolean
-  data: { best: SalesOrder[]; other: SalesOrder[] }
+  pk: number
   picked: number | undefined
   session: any
 }
 
-export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, data, picked, session }: PickSalesModalProps) => {
+export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, pk, picked, session }: PickSalesModalProps) => {
   const [isopen, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [loading2, setLoading2] = useState(false)
@@ -142,6 +142,24 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, data, pick
         })
     }
   }
+  const [matchesData, setMatchesData] = useState<{ best: SalesOrder[]; other: SalesOrder[] }>({ best: [], other: [] })
+
+  const fetchPickSales = () => {
+    fetch(`https://cheapr.my.id/buying_order/${pk}/find_matches/`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(response => response.json())
+      .then(json => {
+        setMatchesData(json)
+      })
+  }
+  useEffect(() => {
+    fetchPickSales()
+  }, [pk, session])
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Pick Sales</DialogTitle>
@@ -219,8 +237,9 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, data, pick
           <Table aria-label='simple table'>
             <TableHead>
               <TableRow>
-                <TableCell>ORDER</TableCell>
                 <TableCell>SB.#</TableCell>
+
+                <TableCell>ORDER</TableCell>
                 <TableCell align='right'>CUSTOMER</TableCell>
                 <TableCell align='right'>ADDRESS</TableCell>
                 <TableCell align='right'>ZIP</TableCell>
@@ -236,14 +255,15 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, data, pick
                 <TableCell align='right'></TableCell>
                 <TableCell align='right'></TableCell>
               </TableRow>
-              {data.best?.map(sales => (
+              {matchesData.best?.map(sales => (
                 <TableRow key={sales.pk}>
-                  <TableCell component='th' scope='row'>
-                    {sales.channel_order_id}
-                  </TableCell>
                   <TableCell component='th' scope='row'>
                     {sales.order_id}
                   </TableCell>
+                  <TableCell component='th' scope='row'>
+                    {sales.channel_order_id}
+                  </TableCell>
+
                   <TableCell align='right'>{sales.person?.name}</TableCell>
                   <TableCell align='right'>
                     {sales.person?.address?.street_1} {sales.person?.address?.city?.name}{' '}
@@ -284,13 +304,13 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, data, pick
                 <TableCell align='right'></TableCell>
               </TableRow>
 
-              {data.other?.map(sales => (
+              {matchesData.other?.map(sales => (
                 <TableRow key={sales.pk}>
                   <TableCell component='th' scope='row'>
-                    {sales.channel_order_id}
+                    {sales.order_id}
                   </TableCell>
                   <TableCell component='th' scope='row'>
-                    {sales.order_id}
+                    {sales.channel_order_id}
                   </TableCell>
                   <TableCell align='right'>{sales.person?.name}</TableCell>
                   <TableCell align='right'>

@@ -833,7 +833,7 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            <span>{renderedCellValue ? moment(renderedCellValue?.toString()).format('MMM D YYYY') : ''}</span>
+            <span>{renderedCellValue ? moment(renderedCellValue?.toString()).format('MM-DD-YY') : ''}</span>
           </Box>
         )
       },
