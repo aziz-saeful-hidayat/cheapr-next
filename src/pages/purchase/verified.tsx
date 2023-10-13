@@ -896,7 +896,6 @@ const Example = (props: any) => {
         onGlobalFilterChange={setGlobalFilter}
         onPaginationChange={setPagination}
         onSortingChange={setSorting}
-        enableRowActions
         positionActionsColumn='last'
         renderTopToolbarCustomActions={() => (
           <>
@@ -928,6 +927,7 @@ const Example = (props: any) => {
           sorting
         }}
 
+        // enableRowActions
         // renderRowActions={({ row }) => (
         //   <Box sx={{ display: 'flex', width: 100 }}>
         //     <Tooltip arrow placement='top' title='Delete'>
