@@ -46,65 +46,17 @@ import PickSellerModal from 'src/@core/components/pick-seller'
 import CreateNewSellerModal from 'src/@core/components/create-seller'
 import CloseIcon from '@mui/icons-material/Close'
 import PurchaseDetailVerified from 'src/@core/components/purchase-detai-verified'
+import {
+  BuyingOrder,
+  Channel,
+  Carrier,
+  Room,
+  CAProduct,
+  Person,
+  InventoryPayload,
+  InventoryItem
+} from 'src/@core/types'
 
-type Channel = {
-  pk: number
-  name: string
-  image: string
-}
-type Room = {
-  pk: number
-  name: string
-  room_id: string
-}
-type InventoryPayload = {
-  buying: number
-  product: number
-  status: string
-  serial: string
-  comment: string
-  room: number
-  total_cost: number
-  shipping_cost: number
-}
-type InventoryItem = {
-  [key: string]: any
-}
-type CAProduct = {
-  pk: number
-  sku: string
-  mpn: string
-  make: string
-  model: string
-  asin: string
-}
-type BuyingOrder = {
-  pk: number
-  order_id: string
-  order_date: string
-  delivery_date: string
-  channel: {
-    pk: number
-    name: string
-    image: string
-  }
-  seller: {
-    pk: number
-    name: string
-  }
-  tracking_number: string
-  seller_name: string
-  purchase_link: string
-  channel_order_id: string
-  total_cost: number
-  shipping_cost: number
-  comment: string
-  inventoryitems: InventoryItem[]
-  num_items: number
-  total_sum: number
-  shipping_sum: number
-  destination: 'D' | 'H' | null
-}
 type Payload = {
   pk?: number
   order_id?: string
@@ -385,21 +337,6 @@ const Example = (props: any) => {
 
   const handleChange = (event: SelectChangeEvent) => {
     setTabActive(event.target.value as string)
-    if (event.target.value == 'all') {
-      setColumnFilters([])
-    } else if (event.target.value == 'notracking') {
-      setColumnFilters([{ id: 'wait_tracking', value: 'true' }])
-    } else if (event.target.value == 'incoming') {
-      setColumnFilters([
-        { id: 'wait_tracking', value: 'false' },
-        { id: 'incoming', value: 'true' }
-      ])
-    } else if (event.target.value == 'delivered') {
-      setColumnFilters([
-        { id: 'wait_tracking', value: 'false' },
-        { id: 'incoming', value: 'false' }
-      ])
-    }
   }
   const [createModalOpen, setCreateModalOpen] = useState(false)
 
@@ -734,6 +671,12 @@ const Example = (props: any) => {
         )
       },
       {
+        accessorKey: 'person.name',
+        header: 'Ship To',
+        maxSize: 120,
+        enableEditing: false
+      },
+      {
         accessorKey: 'purchase_link',
         header: 'URL',
         maxSize: 75,
@@ -977,8 +920,9 @@ const Example = (props: any) => {
             <Select labelId='demo-select-small-label' id='demo-select-small' value={tabActive} onChange={handleChange}>
               <MenuItem value={'all'}>All</MenuItem>
               <MenuItem value={'notracking'}>No Tracking</MenuItem>
-              <MenuItem value={'incoming'}>Incoming</MenuItem>
-              <MenuItem value={'delivered'}>Received</MenuItem>
+              <MenuItem value={'notmoving'}>Not Moving</MenuItem>
+              <MenuItem value={'intransit'}>In-Transit</MenuItem>
+              <MenuItem value={'delivered'}>Delivered</MenuItem>
             </Select>
           </>
         )}

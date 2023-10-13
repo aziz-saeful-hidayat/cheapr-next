@@ -54,6 +54,17 @@ import AutoCompletePerson from 'src/@core/components/autocomplete-person'
 
 import CloseIcon from '@mui/icons-material/Close'
 import PickChannel from '../inputs/channel'
+import {
+  BuyingOrder,
+  Channel,
+  Carrier,
+  Room,
+  CAProduct,
+  Person,
+  InventoryPayload,
+  InventoryItem,
+  Seller
+} from 'src/@core/types'
 
 type ItemOption = {
   pk: number
@@ -77,57 +88,6 @@ type ItemOption = {
   }
   total_cost: string
   shipping_cost: string
-}
-
-type Seller = {
-  pk: number
-  name: string
-}
-
-type Channel = {
-  pk: number
-  name: string
-  image: string
-}
-
-type Carrier = {
-  pk: number
-  name: string
-  image: string
-}
-type InventoryItem = {
-  [key: string]: any
-}
-type BuyingOrder = {
-  pk: number
-  order_id: string
-  order_date: string
-  delivery_date: string
-  channel: {
-    pk: number
-    name: string
-    image: string
-  }
-  carrier: {
-    pk: number
-    name: string
-    image: string
-  }
-  seller: {
-    pk: number
-    name: string
-  }
-  tracking_number: string
-  seller_name: string
-  purchase_link: string
-  channel_order_id: string
-  total_cost: number
-  shipping_cost: number
-  comment: string
-  inventoryitems: InventoryItem[]
-  num_items: number
-  total_sum: number
-  shipping_sum: number
 }
 
 interface CreateModalProps {

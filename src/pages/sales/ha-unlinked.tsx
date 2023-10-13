@@ -54,6 +54,20 @@ import { number } from 'yup'
 import { Close } from 'mdi-material-ui'
 import { styled } from '@mui/material/styles'
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip'
+import {
+  BuyingOrder,
+  Channel,
+  Carrier,
+  Room,
+  CAProduct,
+  Person,
+  InventoryPayload,
+  InventoryItem,
+  SellingOrder,
+  ItemOption,
+  ItemOption2,
+  Manager
+} from 'src/@core/types'
 
 type HistoricalData = {
   make: string
@@ -233,101 +247,6 @@ export const SubHistoryModal = ({ open, onClose, onSubmit, data }: SubHistoryMod
   )
 }
 
-type Channel = {
-  pk: number
-  name: string
-}
-type Manager = {
-  pk: number
-  name: string
-}
-type ItemOption = {
-  pk: number
-  name: string
-  serial: string
-  product: {
-    sku: string
-    make: string
-    model: string
-    mpn: string
-  }
-}
-type Room = {
-  pk: number
-  name: string
-  room_id: string
-}
-type InventoryPayload = {
-  buying: number
-  selling: number
-  product: number
-  status: string
-  serial: string
-  comment: string
-  room: number
-  total_cost: number
-  shipping_cost: number
-}
-type InventoryItem = {
-  [key: string]: any
-}
-const person = {
-  pk: 23,
-  name: 'Leigh Ann Peters',
-  phone: '+1 207-835-4259 ext. 30141',
-  email: null,
-  address: {
-    pk: 22,
-    street_1: '13517 STATESVILLE RD',
-    street_2: null,
-    zip: '28078-9047',
-    city: {
-      pk: 24,
-      name: 'HUNTERSVILLE',
-      state: {
-        pk: 13,
-        name: '',
-        short: 'NC',
-        country: {
-          pk: 1,
-          name: 'United States',
-          short: 'US'
-        }
-      }
-    }
-  }
-}
-type SellingOrder = {
-  pk: number
-  order_id: string
-  order_date: string
-  delivery_date: string
-  ship_date: string
-  channel: {
-    pk: number
-    name: string
-  }
-  subs_status: boolean
-  submited: boolean
-  channel_order_id: string
-  tracking_number: string
-  seller_name: string
-  sell_link: string
-  total_cost: number
-  shipping_cost: number
-  ss_shipping_cost: number
-  purchase_cost: number
-  gross_sales: number
-  channel_fee: number
-  profit: number
-  fulfillment: string
-  comment: string
-  status: string
-  delivery_status: string
-  sellingitems: InventoryItem[]
-  salesitems: InventoryItem[]
-  person: typeof person
-}
 type Payload = {
   pk?: number
   order_id?: string
@@ -1392,6 +1311,80 @@ const Example = (props: any) => {
         accessorKey: 'comment',
         header: 'COMMENT',
         size: 100
+      },
+      {
+        id: 'letter_tracking_status',
+        header: 'LTSTS',
+        maxSize: 40,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.salesitems
+              .map(sales => sales.letter_tracking)
+              .map((tracking, index) => {
+                if (tracking) {
+                  return (
+                    <Link
+                      href={`${tracking?.fullcarrier?.prefix}${tracking?.tracking_number}${tracking.fullcarrier?.suffix}`}
+                      target='_blank'
+                    >
+                      <Box
+                        key={index}
+                        sx={theme => ({
+                          backgroundColor:
+                            tracking.status == 'D'
+                              ? theme.palette.success.dark
+                              : tracking.status == 'T'
+                              ? theme.palette.warning.light
+                              : tracking.status == 'I'
+                              ? 'purple'
+                              : theme.palette.error.dark,
+                          borderRadius: '0.5rem',
+                          color: '#fff',
+                          width: 15,
+                          height: 15
+                        })}
+                      ></Box>
+                    </Link>
+                  )
+                } else {
+                  return (
+                    <Box
+                      key={index}
+                      sx={theme => ({
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: '#a9a9a9',
+                        borderRadius: '0.5rem',
+                        borderColor: '#000',
+                        color: '#fff',
+                        width: 12,
+                        height: 12
+                      })}
+                    >
+                      <Box
+                        sx={theme => ({
+                          backgroundColor: theme.palette.background.paper,
+                          borderRadius: '0.5rem',
+                          borderColor: '#000',
+                          color: '#fff',
+                          width: 9,
+                          height: 9
+                        })}
+                      ></Box>
+                    </Box>
+                  )
+                }
+              })}
+          </Box>
+        )
       }
     ],
     [channelData]

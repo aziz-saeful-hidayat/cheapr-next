@@ -51,78 +51,17 @@ import CreateNewSellerModal from 'src/@core/components/create-seller'
 import CreateNewPurchase from 'src/@core/components/create-purchase'
 
 import CloseIcon from '@mui/icons-material/Close'
+import {
+  BuyingOrder,
+  Channel,
+  Carrier,
+  Room,
+  CAProduct,
+  Person,
+  InventoryPayload,
+  InventoryItem
+} from 'src/@core/types'
 
-type Channel = {
-  pk: number
-  name: string
-  image: string
-}
-type Carrier = {
-  pk: number
-  name: string
-  image: string
-}
-type Room = {
-  pk: number
-  name: string
-  room_id: string
-}
-type InventoryPayload = {
-  buying: number
-  product: number
-  status: string
-  serial: string
-  comment: string
-  room: number
-  total_cost: number
-  shipping_cost: number
-}
-type InventoryItem = {
-  [key: string]: any
-}
-type CAProduct = {
-  pk: number
-  sku: string
-  mpn: string
-  make: string
-  model: string
-  asin: string
-}
-type Seller = {
-  pk: number
-  name: string
-}
-type BuyingOrder = {
-  pk: number
-  order_id: string
-  order_date: string
-  delivery_date: string
-  channel: {
-    pk: number
-    name: string
-    image: string
-  }
-  carrier: {
-    pk: number
-    name: string
-    image: string
-  }
-  seller: {
-    pk: number
-    name: string
-  }
-  tracking_number: string
-  seller_name: string
-  purchase_link: string
-  channel_order_id: string
-  total_cost: number
-  shipping_cost: number
-  comment: string
-  inventoryitems: InventoryItem[]
-  num_items: number
-  total_sum: number
-  shipping_sum: number
-}
 type Payload = {
   pk?: number
   order_id?: string
@@ -774,6 +713,12 @@ const Example = (props: any) => {
         )
       },
       {
+        accessorKey: 'person.name',
+        header: 'Ship To',
+        maxSize: 120,
+        enableEditing: false
+      },
+      {
         accessorKey: 'purchase_link',
         header: 'URL',
         maxSize: 75,
@@ -792,57 +737,6 @@ const Example = (props: any) => {
         )
       },
 
-      // {
-      //   accessorKey: 'delivery_date',
-      //   header: 'Received',
-      //   maxSize: 100,
-      //   muiTableBodyCellEditTextFieldProps: {
-      //     type: 'date'
-      //   },
-      //   Cell: ({ renderedCellValue, row }) =>
-      //     renderedCellValue ? (
-      //       <Box
-      //         sx={{
-      //           display: 'flex',
-      //           alignItems: 'center'
-      //         }}
-      //       >
-      //         <Box
-      //           sx={theme => ({
-      //             backgroundColor: theme.palette.success.dark,
-      //             borderRadius: '0.5rem',
-      //             color: '#fff',
-      //             width: 12,
-      //             height: 12,
-      //             marginLeft: 5
-      //           })}
-      //         ></Box>
-      //       </Box>
-      //     ) : (
-      //       <Box
-      //         sx={{
-      //           display: 'flex',
-      //           alignItems: 'center'
-      //         }}
-      //       >
-      //         <Box
-      //           sx={theme => ({
-      //             backgroundColor: theme.palette.error.dark,
-      //             borderRadius: '0.5rem',
-      //             color: '#fff',
-      //             width: 12,
-      //             height: 12,
-      //             marginLeft: 5
-      //           })}
-      //         ></Box>
-      //       </Box>
-      //     )
-      // },
-      // {
-      //   accessorKey: 'tracking_number',
-      //   header: 'Tracking',
-      //   maxSize: 175
-      // },
       {
         accessorKey: 'num_items',
         header: 'Item(s) Qty',

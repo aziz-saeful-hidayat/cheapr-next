@@ -52,87 +52,20 @@ import CloseIcon from '@mui/icons-material/Close'
 import HistoryIcon from '@mui/icons-material/History'
 import { styled } from '@mui/material/styles'
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip'
+import {
+  BuyingOrder,
+  Channel,
+  Carrier,
+  Room,
+  CAProduct,
+  Person,
+  InventoryPayload,
+  InventoryItem,
+  SellingOrder,
+  ItemOption2,
+  Manager
+} from 'src/@core/types'
 
-type Channel = {
-  pk: number
-  name: string
-}
-type Room = {
-  pk: number
-  name: string
-  room_id: string
-}
-type InventoryPayload = {
-  buying: number
-  selling: number
-  product: number
-  status: string
-  serial: string
-  comment: string
-  room: number
-  total_cost: number
-  shipping_cost: number
-}
-type InventoryItem = {
-  [key: string]: any
-}
-const person = {
-  pk: 23,
-  name: 'Leigh Ann Peters',
-  phone: '+1 207-835-4259 ext. 30141',
-  email: null,
-  history: 1,
-  address: {
-    pk: 22,
-    street_1: '13517 STATESVILLE RD',
-    street_2: null,
-    zip: '28078-9047',
-    city: {
-      pk: 24,
-      name: 'HUNTERSVILLE',
-      state: {
-        pk: 13,
-        name: '',
-        short: 'NC',
-        country: {
-          pk: 1,
-          name: 'United States',
-          short: 'US'
-        }
-      }
-    }
-  }
-}
-type SellingOrder = {
-  pk: number
-  order_id: string
-  order_date: string
-  delivery_date: string
-  ship_date: string
-  channel: {
-    pk: number
-    name: string
-  }
-  subs_status: boolean
-  channel_order_id: string
-  tracking_number: string
-  seller_name: string
-  sell_link: string
-  total_cost: number
-  shipping_cost: number
-  ss_shipping_cost: number
-  purchase_cost: number
-  gross_sales: number
-  channel_fee: number
-  profit: number
-  fulfillment: string
-  comment: string
-  status: string
-  delivery_status: string
-  sellingitems: InventoryItem[]
-  salesitems: InventoryItem[]
-  person: typeof person
-}
 type Payload = {
   pk?: number
   order_id?: string
@@ -147,29 +80,6 @@ type Payload = {
   sellingitems?: InventoryItem[]
 }
 
-type ItemOption = {
-  pk: number
-  buying: number
-  selling: number
-  product: {
-    pk: number
-    sku: string
-    mpn: string
-    make: string
-    model: string
-    asin: string
-  }
-  status: string
-  serial: string
-  comment: string
-  room: {
-    pk: number
-    name: string
-    room_id: string
-  }
-  total_cost: string
-  shipping_cost: string
-}
 type HistoricalData = {
   make: string
   model: string
@@ -348,7 +258,7 @@ export const AddItemModal = ({ open, columns, onClose, onSubmit, rowData, roomDa
     onClose()
   }
   const [isopen, setOpen] = useState(false)
-  const [options, setOptions] = useState<readonly ItemOption[]>([])
+  const [options, setOptions] = useState<readonly ItemOption2[]>([])
   const loading = open && options.length === 0
 
   return (
