@@ -645,8 +645,7 @@ const PurchaseDetailVerified = (props: any) => {
         }
       },
       {
-        accessorFn: row =>
-          formatterUSDStrip(parseFloat(row.total_cost?.toString()) + parseFloat(row.shipping_cost?.toString())), //accessorFn used to join multiple data into a single cell
+        accessorFn: row => formatterUSDStrip((row.total_cost ?? 0) + (row.shipping_cost ?? 0)), //accessorFn used to join multiple data into a single cell
         id: 'cost', //id is still required when using accessorFn instead of accessorKey
         header: 'Total Cost',
         maxSize: 100,
@@ -708,7 +707,7 @@ const PurchaseDetailVerified = (props: any) => {
         )
       },
       {
-        accessorKey: 'itemsales.tracking.fullcarrier.name',
+        accessorKey: 'tracking.fullcarrier.name',
         header: 'Carrier',
         size: 75,
         muiTableBodyCellEditTextFieldProps: {
@@ -753,14 +752,17 @@ const PurchaseDetailVerified = (props: any) => {
           )
       },
       {
-        accessorKey: 'itemsales.tracking.tracking_number',
+        accessorKey: 'tracking.tracking_number',
         header: 'Tracking',
         size: 100
       },
       {
-        accessorKey: 'itemsales.tracking.eta_date',
+        accessorKey: 'tracking.eta_date',
         header: 'ETA',
         size: 75,
+        muiTableBodyCellEditTextFieldProps: {
+          type: 'date'
+        },
         Cell: ({ renderedCellValue, row }) => (
           <Box
             sx={{
@@ -776,7 +778,7 @@ const PurchaseDetailVerified = (props: any) => {
         )
       },
       {
-        accessorKey: 'itemsales.tracking.status',
+        accessorKey: 'tracking.status',
         header: 'Status',
         size: 75,
         muiTableBodyCellEditTextFieldProps: {
@@ -1003,8 +1005,8 @@ const PurchaseDetailVerified = (props: any) => {
         })
     } else if (key === 'itemsales.tracking.fullcarrier.name') {
       payload['fullcarrier'] = value
-      if (cell.row.original.itemsales?.tracking?.pk) {
-        fetch(`https://cheapr.my.id/tracking/${cell.row.original.itemsales?.tracking?.pk}/`, {
+      if (cell.row.original.tracking?.pk) {
+        fetch(`https://cheapr.my.id/tracking/${cell.row.original.tracking?.pk}/`, {
           method: 'PATCH',
           headers: {
             Authorization: `Bearer ${session?.accessToken}`,
@@ -1031,7 +1033,7 @@ const PurchaseDetailVerified = (props: any) => {
           .then(response => response.json())
           .then(json => {
             if (json.pk) {
-              fetch(`https://cheapr.my.id/sales_items/${cell.row.original.itemsales.pk}/`, {
+              fetch(`https://cheapr.my.id/inventory_items/${cell.row.original.pk}/`, {
                 method: 'PATCH',
                 headers: {
                   Authorization: `Bearer ${session?.accessToken}`,
@@ -1049,9 +1051,9 @@ const PurchaseDetailVerified = (props: any) => {
             }
           })
       }
-    } else if (key === 'itemsales.tracking.tracking_number') {
+    } else if (key === 'tracking.tracking_number') {
       if (!value) {
-        fetch(`https://cheapr.my.id/sales_items/${cell.row.original.itemsales.pk}/`, {
+        fetch(`https://cheapr.my.id/inventory_items/${cell.row.original.pk}/`, {
           method: 'PATCH',
           headers: {
             Authorization: `Bearer ${session?.accessToken}`,
@@ -1088,7 +1090,7 @@ const PurchaseDetailVerified = (props: any) => {
                 .then(response => response.json())
                 .then(json => {
                   if (json.pk) {
-                    fetch(`https://cheapr.my.id/sales_items/${cell.row.original.itemsales.pk}/`, {
+                    fetch(`https://cheapr.my.id/inventory_items/${cell.row.original.pk}/`, {
                       method: 'PATCH',
                       headers: {
                         Authorization: `Bearer ${session?.accessToken}`,
@@ -1106,7 +1108,7 @@ const PurchaseDetailVerified = (props: any) => {
                   }
                 })
             } else {
-              fetch(`https://cheapr.my.id/sales_items/${cell.row.original.itemsales.pk}/`, {
+              fetch(`https://cheapr.my.id/inventory_items/${cell.row.original.pk}/`, {
                 method: 'PATCH',
                 headers: {
                   Authorization: `Bearer ${session?.accessToken}`,
@@ -1124,10 +1126,10 @@ const PurchaseDetailVerified = (props: any) => {
             }
           })
       }
-    } else if (key === 'itemsales.tracking.eta_date') {
+    } else if (key === 'tracking.eta_date') {
       payload['eta_date'] = value
       if (cell.row.original.itemsales?.tracking?.pk) {
-        fetch(`https://cheapr.my.id/tracking/${cell.row.original.itemsales?.tracking?.pk}/`, {
+        fetch(`https://cheapr.my.id/tracking/${cell.row.original.tracking?.pk}/`, {
           method: 'PATCH',
           headers: {
             Authorization: `Bearer ${session?.accessToken}`,
@@ -1153,7 +1155,7 @@ const PurchaseDetailVerified = (props: any) => {
           .then(response => response.json())
           .then(json => {
             if (json.pk) {
-              fetch(`https://cheapr.my.id/sales_items/${cell.row.original.itemsales.pk}/`, {
+              fetch(`https://cheapr.my.id/sales_items/${cell.row.original.pk}/`, {
                 method: 'PATCH',
                 headers: {
                   Authorization: `Bearer ${session?.accessToken}`,
@@ -1171,10 +1173,10 @@ const PurchaseDetailVerified = (props: any) => {
             }
           })
       }
-    } else if (key === 'itemsales.tracking.status') {
+    } else if (key === 'tracking.status') {
       payload['status'] = value
-      if (cell.row.original.itemsales?.tracking?.pk) {
-        fetch(`https://cheapr.my.id/tracking/${cell.row.original.itemsales?.tracking?.pk}/`, {
+      if (cell.row.original.tracking?.pk) {
+        fetch(`https://cheapr.my.id/tracking/${cell.row.original.tracking?.pk}/`, {
           method: 'PATCH',
           headers: {
             Authorization: `Bearer ${session?.accessToken}`,
