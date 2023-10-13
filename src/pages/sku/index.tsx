@@ -25,15 +25,7 @@ import { withAuth } from 'src/constants/HOCs'
 import Card from '@mui/material/Card'
 import { useSession, signIn, signOut, getSession } from 'next-auth/react'
 import CloseIcon from '@mui/icons-material/Close'
-
-type CAProduct = {
-  pk: number
-  sku: string
-  mpn: string
-  make: string
-  model: string
-  asin: string
-}
+import { CAProduct } from 'src/@core/types'
 
 type Payload = {
   pk?: number

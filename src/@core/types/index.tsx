@@ -29,6 +29,11 @@ export type Person = {
   history: number
   address: Address
 }
+
+export type Rating = {
+  pk: number
+  name: string
+}
 export type Channel = {
   pk: number
   name: string
@@ -173,4 +178,159 @@ export type SellingOrder = {
   salesitems: InventoryItem[]
   person: Person
   submited: boolean
+}
+export type Item = {
+  pk: number
+  item_id: string
+  title: string
+  buying: {
+    pk: number
+    order_id: string
+    order_date: string
+    delivery_date: null | string
+    channel: number
+    tracking_number: null | string
+    tracking: null | string
+    seller_name: null | string
+    seller: {
+      pk: number
+      name: string
+      platform: null | string
+      link: null | string
+    }
+    channel_order_id: string
+    purchase_link: string
+    total_cost: null | string
+    shipping_cost: null | string
+    comment: null | string
+    return_up_to_date: null | string
+    destination: null | string
+    sales: {
+      pk: number
+      order_id: null | string
+    }
+    verified: boolean
+    person: {
+      pk: number
+      name: string
+      phone: string
+      email: null | string
+      address: {
+        pk: number
+        street_1: string
+        street_2: null
+        zip: null | string
+        city: {
+          pk: number
+          name: string
+          state: {
+            pk: number
+            name: string
+            short: string
+            country: {
+              pk: number
+              name: string
+              short: string
+            }
+          }
+        }
+      }
+    }
+  }
+  selling: null | string
+  product: {
+    pk: number
+    sku: string
+    mpn: string
+    make: null | string
+    model: string
+    asin: string
+    in_database: boolean
+  }
+  rating: null | string
+  status: null | string
+  serial: null | string
+  comment: null | string
+  room: Room
+  total_cost: string
+  shipping_cost: null | string
+  all_cost: number
+  dropship: boolean
+  tracking: {
+    pk: number
+    tracking_number: string
+    carrier: null | string
+    fullcarrier: {
+      pk: number
+      name: string
+      image: string
+      prefix: string
+      suffix: string
+      suffix2: string
+    }
+    last_updated: null | string
+    activity_date: null | string
+    status: null | string
+    milestone_name: null | string
+    location: null | string
+    est_delivery: null | string
+    eta_date: null | string
+    delivery_date: null
+    address: null | string
+    src_address: null | string
+    person: {
+      pk: number
+      name: string
+      phone: string
+      email: null | string
+      address: {
+        pk: number
+        street_1: string
+        street_2: null | string
+        zip: string
+        city: {
+          pk: number
+          name: string
+          state: {
+            pk: number
+            name: string
+            short: string
+            country: {
+              pk: number
+              name: string
+              short: string
+            }
+          }
+        }
+      }
+    }
+  }
+  itemsales: {
+    pk: number
+    sku: {
+      pk: number
+      sku: string
+      mpn: string
+      make: string
+      model: string
+      asin: string
+      in_database: false
+    }
+    sub_sku: null | string
+    tracking: null | string
+    selling: {
+      pk: number
+      order_id: string
+      channel_order_id: string
+      seller_name: string
+      gross_sales: null | number
+      ss_shipping_cost: null | number
+      profit: number
+    }
+    manager: {
+      pk: number
+      name: string
+      user: null | number
+    }
+  }
 }

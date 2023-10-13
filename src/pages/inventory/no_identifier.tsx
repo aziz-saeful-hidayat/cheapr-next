@@ -50,78 +50,17 @@ import PickSellerModal from 'src/@core/components/pick-seller'
 import CreateNewSellerModal from 'src/@core/components/create-seller'
 import CloseIcon from '@mui/icons-material/Close'
 import CreateNewPurchase from 'src/@core/components/create-purchase'
+import {
+  BuyingOrder,
+  Channel,
+  Carrier,
+  Room,
+  CAProduct,
+  Person,
+  InventoryPayload,
+  InventoryItem
+} from 'src/@core/types'
 
-type Channel = {
-  pk: number
-  name: string
-  image: string
-}
-type Carrier = {
-  pk: number
-  name: string
-  image: string
-}
-type Room = {
-  pk: number
-  name: string
-  room_id: string
-}
-type InventoryPayload = {
-  buying: number
-  product: number
-  status: string
-  serial: string
-  comment: string
-  room: number
-  total_cost: number
-  shipping_cost: number
-}
-type InventoryItem = {
-  [key: string]: any
-}
-type CAProduct = {
-  pk: number
-  sku: string
-  mpn: string
-  make: string
-  model: string
-  asin: string
-}
-type Seller = {
-  pk: number
-  name: string
-}
-type BuyingOrder = {
-  pk: number
-  order_id: string
-  order_date: string
-  delivery_date: string
-  channel: {
-    pk: number
-    name: string
-    image: string
-  }
-  carrier: {
-    pk: number
-    name: string
-    image: string
-  }
-  seller: {
-    pk: number
-    name: string
-  }
-  tracking_number: string
-  seller_name: string
-  purchase_link: string
-  channel_order_id: string
-  total_cost: number
-  shipping_cost: number
-  comment: string
-  inventoryitems: InventoryItem[]
-  num_items: number
-  total_sum: number
-  shipping_sum: number
-}
 type Payload = {
   pk?: number
   order_id?: string

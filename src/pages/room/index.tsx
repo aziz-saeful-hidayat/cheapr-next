@@ -25,12 +25,7 @@ import { withAuth } from 'src/constants/HOCs'
 import { getSession } from 'next-auth/react'
 import Card from '@mui/material/Card'
 import CloseIcon from '@mui/icons-material/Close'
-
-type Room = {
-  pk: number
-  name: string
-  room_id: string
-}
+import { Room } from 'src/@core/types'
 
 type Payload = {
   pk?: number

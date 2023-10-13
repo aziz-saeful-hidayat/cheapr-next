@@ -42,30 +42,16 @@ import SalesDetail from 'src/@core/components/sales-detail'
 import { formatterUSDStrip } from 'src/constants/Utils'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import CloseIcon from '@mui/icons-material/Close'
-
-type Channel = {
-  pk: number
-  name: string
-}
-type Room = {
-  pk: number
-  name: string
-  room_id: string
-}
-type InventoryPayload = {
-  buying: number
-  selling: number
-  product: number
-  status: string
-  serial: string
-  comment: string
-  room: number
-  total_cost: number
-  shipping_cost: number
-}
-type InventoryItem = {
-  [key: string]: any
-}
+import {
+  BuyingOrder,
+  Channel,
+  Carrier,
+  Room,
+  CAProduct,
+  Person,
+  InventoryPayload,
+  InventoryItem
+} from 'src/@core/types'
 
 type ReturnToSeller = {
   pk: number

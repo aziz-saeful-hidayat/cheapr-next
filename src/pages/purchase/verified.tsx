@@ -898,15 +898,6 @@ const Example = (props: any) => {
         onSortingChange={setSorting}
         enableRowActions
         positionActionsColumn='last'
-        // renderRowActions={({ row }) => (
-        //   <Box sx={{ display: 'flex', width: 100 }}>
-        //     <Tooltip arrow placement='top' title='Delete'>
-        //       <IconButton color='error' onClick={() => handleDeleteRow(row)}>
-        //         <Delete />
-        //       </IconButton>
-        //     </Tooltip>
-        //   </Box>
-        // )}
         renderTopToolbarCustomActions={() => (
           <>
             {/* <Tooltip arrow title='Refresh Data'>
@@ -936,6 +927,16 @@ const Example = (props: any) => {
           showProgressBars: isFetching,
           sorting
         }}
+
+        // renderRowActions={({ row }) => (
+        //   <Box sx={{ display: 'flex', width: 100 }}>
+        //     <Tooltip arrow placement='top' title='Delete'>
+        //       <IconButton color='error' onClick={() => handleDeleteRow(row)}>
+        //         <Delete />
+        //       </IconButton>
+        //     </Tooltip>
+        //   </Box>
+        // )}
       />
       {/* <CreateNewAccountModal
         columns={columns}
