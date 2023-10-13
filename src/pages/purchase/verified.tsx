@@ -955,25 +955,15 @@ const Example = (props: any) => {
         onSortingChange={setSorting}
         enableRowActions
         positionActionsColumn='last'
-        renderRowActions={({ row }) => (
-          <Box sx={{ display: 'flex', width: 100 }}>
-            {/* <Tooltip arrow placement='top' title='Edit'>
-              <IconButton color='primary' onClick={() => table.setEditingRow(row)}>
-                <Edit />
-              </IconButton>
-            </Tooltip> */}
-            {/* <Tooltip arrow placement='top' title='Add Item'>
-              <IconButton color='primary' onClick={() => setAddModalOpen(row.original)}>
-                <Add />
-              </IconButton>
-            </Tooltip> */}
-            <Tooltip arrow placement='top' title='Delete'>
-              <IconButton color='error' onClick={() => handleDeleteRow(row)}>
-                <Delete />
-              </IconButton>
-            </Tooltip>
-          </Box>
-        )}
+        // renderRowActions={({ row }) => (
+        //   <Box sx={{ display: 'flex', width: 100 }}>
+        //     <Tooltip arrow placement='top' title='Delete'>
+        //       <IconButton color='error' onClick={() => handleDeleteRow(row)}>
+        //         <Delete />
+        //       </IconButton>
+        //     </Tooltip>
+        //   </Box>
+        // )}
         renderTopToolbarCustomActions={() => (
           <>
             {/* <Tooltip arrow title='Refresh Data'>
