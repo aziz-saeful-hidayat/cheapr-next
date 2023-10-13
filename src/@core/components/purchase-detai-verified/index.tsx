@@ -1003,7 +1003,7 @@ const PurchaseDetailVerified = (props: any) => {
             }
           }
         })
-    } else if (key === 'itemsales.tracking.fullcarrier.name') {
+    } else if (key === 'tracking.fullcarrier.name') {
       payload['fullcarrier'] = value
       if (cell.row.original.tracking?.pk) {
         fetch(`https://cheapr.my.id/tracking/${cell.row.original.tracking?.pk}/`, {
