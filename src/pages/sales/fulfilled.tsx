@@ -1606,6 +1606,7 @@ const Example = (props: any) => {
               <MenuItem value={'to_monitor'}>To Monitor</MenuItem>
               <MenuItem value={'delivered'}>Delivered</MenuItem>
               <MenuItem value={'canceled'}>Canceled</MenuItem>
+              <MenuItem value={'buffers'}>Buffers</MenuItem>
               <MenuItem value={'all'}>All</MenuItem>
 
               {/* <MenuItem value={'canceled'}>Canceled</MenuItem>
