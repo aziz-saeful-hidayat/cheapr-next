@@ -1313,6 +1313,48 @@ const Example = (props: any) => {
         size: 100
       },
       {
+        accessorKey: 'order_date',
+        header: 'DATE',
+        size: 70,
+        muiTableBodyCellEditTextFieldProps: {
+          type: 'date'
+        },
+        filterFn: 'between',
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            <span>{row.original.order_date ? moment(row.original.order_date).format('MM-DD-YY') : ''}</span>
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'ship_date',
+        header: 'SHIP BY',
+        size: 70,
+        muiTableBodyCellEditTextFieldProps: {
+          type: 'date'
+        },
+        filterFn: 'between',
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            <span>{row.original.ship_date ? moment(row.original.ship_date).format('MM-DD-YY') : ''}</span>
+          </Box>
+        )
+      },
+      {
         id: 'letter_tracking_status',
         header: 'LTSTS',
         maxSize: 40,
