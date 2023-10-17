@@ -564,7 +564,7 @@ const Example = (props: any) => {
   const [sorting, setSorting] = useState<MRT_SortingState>([])
   const [pagination, setPagination] = useState<MRT_PaginationState>({
     pageIndex: 0,
-    pageSize: 100
+    pageSize: 50
   })
   const [tabActive, setTabActive] = useState('to_monitor')
 
@@ -1502,7 +1502,7 @@ const Example = (props: any) => {
   useEffect(() => {
     setPagination({
       pageIndex: 0,
-      pageSize: 100
+      pageSize: 50
     })
   }, [sorting, globalFilter, columnFilters])
   useEffect(() => {
