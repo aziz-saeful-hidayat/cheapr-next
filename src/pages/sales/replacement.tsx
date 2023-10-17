@@ -1247,6 +1247,31 @@ const Example = (props: any) => {
         )
       },
       {
+        id: 'purchase_id',
+        header: 'P.O.#',
+        maxSize: 60,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.salesitems
+              .map(sales => sales.item)
+              .map((item, index) => {
+                if (item) {
+                  return <span key={index}>{item?.buying?.channel_order_id}</span>
+                } else {
+                  return <span key={index}>{` `}</span>
+                }
+              })}
+          </Box>
+        )
+      },
+      {
         accessorKey: 'purchase_cost',
 
         id: 'purchase_cost',
