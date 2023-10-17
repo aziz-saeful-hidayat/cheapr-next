@@ -654,7 +654,7 @@ const Example = (props: any) => {
   const [sorting, setSorting] = useState<MRT_SortingState>([])
   const [pagination, setPagination] = useState<MRT_PaginationState>({
     pageIndex: 0,
-    pageSize: 100
+    pageSize: 50
   })
   const [tabActive, setTabActive] = useState('all')
   const [refresh, setRefresh] = useState(0)
@@ -775,20 +775,7 @@ const Example = (props: any) => {
         }
       })
   }
-  const update = (idx: number, rowIdx: number, key: string, value: any) => {
-    const sellingitems_update = tableData[idx].sellingitems?.map((el, idx) => {
-      if (idx == rowIdx) {
-        const newEl = { ...el }
-        newEl[key] = value
 
-        return newEl
-      } else {
-        return el
-      }
-    })
-    tableData[idx].sellingitems = sellingitems_update
-    setTableData([...tableData])
-  }
   const reupdate = (order: number) => {
     fetch(`https://cheapr.my.id/unfulfilled_order/${order}/`, {
       // note we are going to /1
@@ -1481,7 +1468,7 @@ const Example = (props: any) => {
   useEffect(() => {
     setPagination({
       pageIndex: 0,
-      pageSize: 100
+      pageSize: 50
     })
   }, [sorting, globalFilter, columnFilters])
   useEffect(() => {

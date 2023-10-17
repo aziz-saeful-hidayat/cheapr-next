@@ -237,9 +237,7 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, pk, picked
           <Table aria-label='simple table'>
             <TableHead>
               <TableRow>
-                <TableCell>SB.#</TableCell>
-
-                <TableCell>ORDER</TableCell>
+                <TableCell>CHANNEL ORDER ID</TableCell>
                 <TableCell align='right'>CUSTOMER</TableCell>
                 <TableCell align='right'>ADDRESS</TableCell>
                 <TableCell align='right'>ZIP</TableCell>
@@ -257,9 +255,6 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, pk, picked
               </TableRow>
               {matchesData.best?.map(sales => (
                 <TableRow key={sales.pk}>
-                  <TableCell component='th' scope='row'>
-                    {sales.order_id}
-                  </TableCell>
                   <TableCell component='th' scope='row'>
                     {sales.channel_order_id}
                   </TableCell>
@@ -306,9 +301,6 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, pk, picked
 
               {matchesData.other?.map(sales => (
                 <TableRow key={sales.pk}>
-                  <TableCell component='th' scope='row'>
-                    {sales.order_id}
-                  </TableCell>
                   <TableCell component='th' scope='row'>
                     {sales.channel_order_id}
                   </TableCell>
