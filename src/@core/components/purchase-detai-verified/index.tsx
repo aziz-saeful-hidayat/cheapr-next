@@ -772,7 +772,7 @@ const PurchaseDetailVerified = (props: any) => {
             }}
           >
             {row.original.itemsales?.tracking?.eta_date
-              ? moment.tz(row.original?.itemsales?.tracking?.eta_date, 'US/Mountain').format('MM-DD-YY')
+              ? moment(row.original?.itemsales?.tracking?.eta_date).tz('America/Los_Angeles').format('MM-DD-YY')
               : ''}
           </Box>
         )

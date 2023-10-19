@@ -544,7 +544,9 @@ const Example = (props: any) => {
             }}
           >
             <span>
-              {renderedCellValue ? moment.tz(renderedCellValue?.toString(), 'US/Mountain').format('MM-DD-YY') : ''}
+              {renderedCellValue
+                ? moment(renderedCellValue?.toString()).tz('America/Los_Angeles').format('MM-DD-YY')
+                : ''}
             </span>
           </Box>
         )

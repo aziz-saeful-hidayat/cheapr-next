@@ -1164,7 +1164,9 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            {row.original.delivery_date ? moment.tz(row.original.delivery_date, 'US/Mountain').format('MM-DD-YY') : ''}
+            {row.original.delivery_date
+              ? moment(row.original.delivery_date).tz('America/Los_Angeles').format('MM-DD-YY')
+              : ''}
           </Box>
         ),
         enableEditing: false

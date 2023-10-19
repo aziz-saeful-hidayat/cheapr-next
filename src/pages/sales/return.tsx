@@ -897,7 +897,9 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            {row.original.delivery_date ? moment.tz(row.original.delivery_date, 'US/Mountain').format('MM-DD-YY') : ''}
+            {row.original.delivery_date
+              ? moment(row.original.delivery_date).tz('America/Los_Angeles').format('MM-DD-YY')
+              : ''}
           </Box>
         ),
         enableEditing: false
@@ -1354,7 +1356,9 @@ const Example = (props: any) => {
             }}
           >
             <span>
-              {row.original.order_date ? moment.tz(row.original.order_date, 'US/Mountain').format('MM-DD-YY') : ''}
+              {row.original.order_date
+                ? moment(row.original.order_date).tz('America/Los_Angeles').format('MM-DD-YY')
+                : ''}
             </span>
           </Box>
         )
@@ -1377,7 +1381,9 @@ const Example = (props: any) => {
             }}
           >
             <span>
-              {row.original.ship_date ? moment.tz(row.original.ship_date, 'US/Mountain').format('MM-DD-YY') : ''}
+              {row.original.ship_date
+                ? moment(row.original.ship_date).tz('America/Los_Angeles').format('MM-DD-YY')
+                : ''}
             </span>
           </Box>
         )
