@@ -47,7 +47,7 @@ import { useSession, signIn, signOut, getSession } from 'next-auth/react'
 import SalesDetail from 'src/@core/components/sales-detail'
 import { formatterUSDStrip } from 'src/constants/Utils'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import CloseIcon from '@mui/icons-material/Close'
 import { number } from 'yup'
 import { Close } from 'mdi-material-ui'
@@ -1370,7 +1370,7 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            <span>{row.original.ship_date ? moment(row.original.ship_date).format('MM-DD-YY') : ''}</span>
+            <span>{row.original.ship_date ? moment.tz(row.original.ship_date, "US/Mountain").format('MM-DD-YY') : ''}</span>
           </Box>
         )
       },

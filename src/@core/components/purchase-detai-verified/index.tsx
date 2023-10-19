@@ -63,7 +63,7 @@ import { CreateItemModal } from '../pick-sku'
 import { Close } from 'mdi-material-ui'
 import CloseIcon from '@mui/icons-material/Close'
 import PickMacthingSales from '../pick-matching-sales'
-import moment from 'moment'
+import moment from 'moment-timezone'
 
 type InventoryItem = {
   [key: string]: any
