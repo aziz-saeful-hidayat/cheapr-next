@@ -81,6 +81,11 @@ const navigation = (): VerticalNavItemsType => {
       icon: AccountCogOutline as unknown as ReactNode,
       path: '/vendors'
     },
+    {
+      title: 'Tabs',
+      icon: AccountCogOutline as unknown as ReactNode,
+      path: '/tabs'
+    },
     // {
     //   title: 'Report',
     //   icon: AccountCogOutline as unknown as ReactNode,
