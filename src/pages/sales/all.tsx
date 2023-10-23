@@ -608,6 +608,7 @@ const Example = (props: any) => {
         ordering = ordering + sort.id
       }
       fetchURL.searchParams.set('ordering', ordering)
+
       // fetchURL.searchParams.set('filter', tabActive)
 
       console.log(fetchURL.href)
