@@ -1392,7 +1392,7 @@ const PurchaseDetail = (props: any) => {
                 disabled={
                   !orderData?.destination ||
                   !orderData?.sales ||
-                  orderData?.salesitems.filter(s => s.item == null).length > 0
+                  orderData?.inventoryitems?.filter(s => s.itemsales == null).length > 0
                 }
               >
                 Verify
