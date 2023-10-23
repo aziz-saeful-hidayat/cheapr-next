@@ -1389,7 +1389,11 @@ const PurchaseDetail = (props: any) => {
                 color='primary'
                 onClick={() => handleVerify()}
                 variant='contained'
-                disabled={!orderData?.destination || !orderData?.sales}
+                disabled={
+                  !orderData?.destination ||
+                  !orderData?.sales ||
+                  orderData?.salesitems.filter(s => s.item == null).length > 0
+                }
               >
                 Verify
               </Button>

@@ -219,8 +219,6 @@ const Example = (props: any) => {
   }
 
   const handleDeleteRow = (row: number) => {
-    setRowDel(undefined)
-
     fetch(`https://cheapr.my.id/manager/${row}/`, {
       method: 'DELETE',
       headers: new Headers({
@@ -234,6 +232,7 @@ const Example = (props: any) => {
           setRefresh(r => r + 1)
         }
       })
+      .finally(() => setRowDel(undefined))
   }
 
   const handleSaveCell = (cell: MRT_Cell<Manager>, value: any) => {
@@ -371,8 +370,8 @@ const Example = (props: any) => {
       <DeleteModal
         open={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
-        onSubmit={() => typeof rowDel == 'number' && handleDeleteRow(rowDel)}
-        data={typeof rowDel == 'number' ? tableData[rowDel]['name'] : ''}
+        onSubmit={() => rowDel && handleDeleteRow(rowDel)}
+        data={rowDel && tableData.find(r => r.pk == rowDel)?.name}
       />
     </Card>
   )
