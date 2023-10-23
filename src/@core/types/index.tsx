@@ -47,7 +47,6 @@ export type Carrier = {
 export type Room = {
   pk: number
   name: string
-  room_id: string
 }
 export type InventoryPayload = {
   buying: number

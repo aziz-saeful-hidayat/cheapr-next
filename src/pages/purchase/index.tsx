@@ -29,6 +29,7 @@ import Unverified from './unverified'
 import Verified from './verified'
 import Replacement from './replacement'
 import Return from './return'
+import AllPurchase from './all'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -67,6 +68,15 @@ const Purchase = (props: any) => {
             sx={{ borderBottom: theme => `1px solid ${theme.palette.divider}` }}
           >
             <Tab
+              value='all'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <AccountOutline />
+                  <TabName>All</TabName>
+                </Box>
+              }
+            />
+            <Tab
               value='unverified'
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -75,6 +85,7 @@ const Purchase = (props: any) => {
                 </Box>
               }
             />
+
             <Tab
               value='verified'
               label={
@@ -112,7 +123,9 @@ const Purchase = (props: any) => {
               }
             /> */}
           </TabList>
-
+          <TabPanel sx={{ p: 0 }} value='all'>
+            <AllPurchase session={session} />
+          </TabPanel>
           <TabPanel sx={{ p: 0 }} value='unverified'>
             <Unverified session={session} />
           </TabPanel>

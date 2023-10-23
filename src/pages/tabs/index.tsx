@@ -142,6 +142,7 @@ const Example = (props: any) => {
   const { session } = props
   const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>([])
   const [globalFilter, setGlobalFilter] = useState('')
+  const [refresh, setRefresh] = useState(0)
   const [sorting, setSorting] = useState<MRT_SortingState>([])
   const [pagination, setPagination] = useState<MRT_PaginationState>({
     pageIndex: 0,
@@ -154,7 +155,8 @@ const Example = (props: any) => {
       globalFilter, //refetch when globalFilter changes
       pagination.pageIndex, //refetch when pagination.pageIndex changes
       pagination.pageSize, //refetch when pagination.pageSize changes
-      sorting //refetch when sorting changes
+      sorting, //refetch when sorting changes
+      refresh
     ],
     queryFn: async () => {
       const fetchURL = new URL('/manager/?ordering=id', 'https://cheapr.my.id')
@@ -218,9 +220,20 @@ const Example = (props: any) => {
 
   const handleDeleteRow = (row: number) => {
     setRowDel(undefined)
-    const newData: any = [...tableData]
-    newData.splice(row, 1)
-    setTableData([...newData])
+
+    fetch(`https://cheapr.my.id/manager/${row}/`, {
+      method: 'DELETE',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      })
+    })
+      .then(response => response.status)
+      .then(status => {
+        if (status == 204) {
+          setRefresh(r => r + 1)
+        }
+      })
   }
 
   const handleSaveCell = (cell: MRT_Cell<Manager>, value: any) => {
@@ -329,7 +342,7 @@ const Example = (props: any) => {
               <IconButton
                 color='error'
                 onClick={() => {
-                  setRowDel(row.index)
+                  setRowDel(row.original.pk)
                   setDeleteModalOpen(true)
                 }}
               >
