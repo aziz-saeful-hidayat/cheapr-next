@@ -609,7 +609,7 @@ const Example = (props: any) => {
       }
       fetchURL.searchParams.set('ordering', ordering)
 
-      // fetchURL.searchParams.set('filter', tabActive)
+      fetchURL.searchParams.set('filter', tabActive)
 
       console.log(fetchURL.href)
       const response = await fetch(fetchURL.href, {

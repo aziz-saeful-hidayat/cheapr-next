@@ -603,6 +603,55 @@ const Example = (props: any) => {
         )
       },
       {
+        id: 'get_by',
+        header: 'GET BY',
+        maxSize: 60,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.inventoryitems
+              .map(item => item?.itemsales?.selling)
+              .map((selling, index) => {
+                if (selling) {
+                  return (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '1rem'
+                      }}
+                    >
+                      <span>
+                        {selling?.delivery_date
+                          ? moment(selling?.delivery_date).tz('America/Los_Angeles').format('MM-DD-YY')
+                          : ''}
+                      </span>
+                    </Box>
+                  )
+                } else {
+                  return (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '1rem'
+                      }}
+                    >
+                      <span></span>
+                    </Box>
+                  )
+                }
+              })}
+          </Box>
+        )
+      },
+      {
         accessorKey: 'order_date',
         header: 'Date',
         maxSize: 100,

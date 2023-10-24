@@ -560,6 +560,55 @@ const Example = (props: any) => {
         )
       },
       {
+        id: 'get_by',
+        header: 'GET BY',
+        maxSize: 60,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.inventoryitems
+              .map(item => item?.itemsales?.selling)
+              .map((selling, index) => {
+                if (selling) {
+                  return (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '1rem'
+                      }}
+                    >
+                      <span>
+                        {selling?.delivery_date
+                          ? moment(selling?.delivery_date).tz('America/Los_Angeles').format('MM-DD-YY')
+                          : ''}
+                      </span>
+                    </Box>
+                  )
+                } else {
+                  return (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '1rem'
+                      }}
+                    >
+                      <span></span>
+                    </Box>
+                  )
+                }
+              })}
+          </Box>
+        )
+      },
+      {
         accessorKey: 'order_date',
         header: 'Date',
         maxSize: 100,
@@ -806,7 +855,7 @@ const Example = (props: any) => {
       },
       {
         accessorFn: row => (row.destination == 'H' ? 'HA' : row.destination == 'D' ? 'Dropship' : ''), //accessorFn used to join multiple data into a single cell
-        id: 'ha_sbo', //id is still required when using accessorFn instead of accessorKey
+        id: 'get_by', //id is still required when using accessorFn instead of accessorKey
         header: 'HA / Order ID',
         maxSize: 150,
         enableEditing: false,
