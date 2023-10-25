@@ -945,9 +945,11 @@ const PurchaseDetailVerified = (props: any) => {
       })
   }
   const handleDeleteRow = (row: MRT_Row<InventoryItem>) => {
-    if (!confirm(`Are you sure you want to delete Item #${row.index + 1} ${row.original.product.sku}`)) {
+    if (!confirm(`Are you sure you want to delete Item #${row.index + 1}`)) {
       return
     }
+    setisFetching(true)
+
     fetch(`https://cheapr.my.id/inventory_items/${row.original.pk}/`, {
       // note we are going to /1
       method: 'DELETE',
@@ -959,10 +961,11 @@ const PurchaseDetailVerified = (props: any) => {
       .then(response => response.status)
       .then(status => {
         if (status == 204) {
-          const newData: any = [...tableData]
-          newData.splice(row.index, 1)
-          setTableData([...newData])
+          setRefresh(r => r + 1)
         }
+      })
+      .finally(() => {
+        setisFetching(false)
       })
   }
   const handleSaveCell = (cell: MRT_Cell<InventoryItem>, value: any) => {
@@ -1191,6 +1194,23 @@ const PurchaseDetailVerified = (props: any) => {
             }
           })
       }
+    } else {
+      let payload = {}
+      payload[key] = value
+      fetch(`https://cheapr.my.id/inventory_items/${cell.row.original.pk}/`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      })
+        .then(response => response.json())
+        .then(json => {
+          if (json.pk) {
+            setRefresh(refresh + 1)
+          }
+        })
     }
   }
   const handleAddItem = (values: InventoryPayload) => {
@@ -1212,7 +1232,27 @@ const PurchaseDetailVerified = (props: any) => {
         }
       })
   }
-
+  const handleCopyItem = (pk: number) => {
+    setisFetching(true)
+    fetch(`https://cheapr.my.id/inventory_items/${pk}/copy_item/`, {
+      // note we are going to /1
+      method: 'POST',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      })
+    })
+      .then(response => response.json())
+      .then(json => {
+        if (json.status == 'copied') {
+          setRefresh(r => r + 1)
+        }
+      })
+      .catch(e => console.error(e))
+      .finally(() => {
+        setisFetching(false)
+      })
+  }
   type InventoryItem = {
     [key: string]: any
   }
@@ -1469,22 +1509,7 @@ const PurchaseDetailVerified = (props: any) => {
             renderRowActions={({ row, table }) => (
               <Box sx={{ display: 'flex' }}>
                 <Tooltip arrow placement='top' title='Duplicate'>
-                  <IconButton
-                    color='primary'
-                    onClick={() =>
-                      handleAddItem({
-                        buying: row.original.buying,
-                        selling: row.original.selling,
-                        product: row.original.product ? row.original.product.pk : null,
-                        status: row.original.status,
-                        serial: row.original.serial,
-                        comment: row.original.comment,
-                        room: row.original.room,
-                        total_cost: row.original.total_cost,
-                        shipping_cost: row.original.shipping_cost
-                      })
-                    }
-                  >
+                  <IconButton color='primary' onClick={() => handleCopyItem(row.original.pk)}>
                     <ContentCopy />
                   </IconButton>
                 </Tooltip>
