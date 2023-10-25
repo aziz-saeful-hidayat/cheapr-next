@@ -1195,7 +1195,7 @@ const PurchaseDetailVerified = (props: any) => {
           })
       }
     } else {
-      let payload = {}
+      let payload: any = {}
       payload[key] = value
       fetch(`https://cheapr.my.id/inventory_items/${cell.row.original.pk}/`, {
         method: 'PATCH',

@@ -855,7 +855,7 @@ const Example = (props: any) => {
       },
       {
         accessorFn: row => (row.destination == 'H' ? 'HA' : row.destination == 'D' ? 'Dropship' : ''), //accessorFn used to join multiple data into a single cell
-        id: 'get_by', //id is still required when using accessorFn instead of accessorKey
+        id: 'ha_sbo', //id is still required when using accessorFn instead of accessorKey
         header: 'HA / Order ID',
         maxSize: 150,
         enableEditing: false,
