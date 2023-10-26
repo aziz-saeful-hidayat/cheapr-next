@@ -31,6 +31,7 @@ import Replacement from './replacement'
 import Return from './return'
 import UnfulfilledBuffers from './unfulfilled-buffer'
 import HAUnlinked from './ha-unlinked'
+import AllSales from './all'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -54,7 +55,7 @@ const Sales = (props: any) => {
   const { session } = props
 
   // ** State
-  const [value, setValue] = useState<string>('unfulfilled')
+  const [value, setValue] = useState<string>('all')
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
@@ -68,6 +69,15 @@ const Sales = (props: any) => {
             aria-label='purchase tabs'
             sx={{ borderBottom: theme => `1px solid ${theme.palette.divider}` }}
           >
+            <Tab
+              value='all'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <AccountOutline />
+                  <TabName>All</TabName>
+                </Box>
+              }
+            />
             <Tab
               value='unfulfilled'
               label={
@@ -132,7 +142,9 @@ const Sales = (props: any) => {
               }
             /> */}
           </TabList>
-
+          <TabPanel sx={{ p: 0 }} value='all'>
+            <AllSales session={session} />
+          </TabPanel>
           <TabPanel sx={{ p: 0 }} value='unfulfilled'>
             <Unfullfilled session={session} />
           </TabPanel>

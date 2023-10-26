@@ -194,6 +194,7 @@ export const CreateItemModal = ({ open, columns, onClose, onSubmit, session }: C
                           fetch(`https://cheapr.my.id/caproduct/?sku=${e.target.value}`, {
                             // note we are going to /1
                             headers: {
+                              Authorization: `Bearer ${session?.accessToken}`,
                               'Content-Type': 'application/json'
                             }
                           })

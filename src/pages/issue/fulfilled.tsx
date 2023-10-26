@@ -27,7 +27,8 @@ import {
   TableBody,
   TextField,
   Autocomplete,
-  CircularProgress
+  CircularProgress,
+  Checkbox
 } from '@mui/material'
 import Chip from '@mui/material/Chip'
 import Typography from '@mui/material/Typography'
@@ -52,87 +53,22 @@ import CloseIcon from '@mui/icons-material/Close'
 import HistoryIcon from '@mui/icons-material/History'
 import { styled } from '@mui/material/styles'
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip'
+import {
+  BuyingOrder,
+  Channel,
+  Carrier,
+  Room,
+  CAProduct,
+  Person,
+  InventoryPayload,
+  InventoryItem,
+  SellingOrder,
+  ItemOption,
+  ItemOption2,
+  Manager
+} from 'src/@core/types'
+import AddSalesItemModal from 'src/@core/components/add-sales-item'
 
-type Channel = {
-  pk: number
-  name: string
-}
-type Room = {
-  pk: number
-  name: string
-  room_id: string
-}
-type InventoryPayload = {
-  buying: number
-  selling: number
-  product: number
-  status: string
-  serial: string
-  comment: string
-  room: number
-  total_cost: number
-  shipping_cost: number
-}
-type InventoryItem = {
-  [key: string]: any
-}
-const person = {
-  pk: 23,
-  name: 'Leigh Ann Peters',
-  phone: '+1 207-835-4259 ext. 30141',
-  email: null,
-  history: 1,
-  address: {
-    pk: 22,
-    street_1: '13517 STATESVILLE RD',
-    street_2: null,
-    zip: '28078-9047',
-    city: {
-      pk: 24,
-      name: 'HUNTERSVILLE',
-      state: {
-        pk: 13,
-        name: '',
-        short: 'NC',
-        country: {
-          pk: 1,
-          name: 'United States',
-          short: 'US'
-        }
-      }
-    }
-  }
-}
-type SellingOrder = {
-  pk: number
-  order_id: string
-  order_date: string
-  delivery_date: string
-  ship_date: string
-  channel: {
-    pk: number
-    name: string
-  }
-  subs_status: boolean
-  channel_order_id: string
-  tracking_number: string
-  seller_name: string
-  sell_link: string
-  total_cost: number
-  shipping_cost: number
-  ss_shipping_cost: number
-  purchase_cost: number
-  gross_sales: number
-  channel_fee: number
-  profit: number
-  fulfillment: string
-  comment: string
-  status: string
-  delivery_status: string
-  sellingitems: InventoryItem[]
-  salesitems: InventoryItem[]
-  person: typeof person
-}
 type Payload = {
   pk?: number
   order_id?: string
@@ -147,29 +83,6 @@ type Payload = {
   sellingitems?: InventoryItem[]
 }
 
-type ItemOption = {
-  pk: number
-  buying: number
-  selling: number
-  product: {
-    pk: number
-    sku: string
-    mpn: string
-    make: string
-    model: string
-    asin: string
-  }
-  status: string
-  serial: string
-  comment: string
-  room: {
-    pk: number
-    name: string
-    room_id: string
-  }
-  total_cost: string
-  shipping_cost: string
-}
 type HistoricalData = {
   make: string
   model: string
@@ -184,14 +97,6 @@ interface CreateModalProps {
   onSubmit: (values: SellingOrder) => void
   open: boolean
   channelData: any[]
-}
-interface AddItemProps {
-  columns: MRT_ColumnDef<InventoryPayload>[]
-  onClose: () => void
-  onSubmit: (values: InventoryPayload) => void
-  open: boolean
-  rowData: SellingOrder | undefined
-  roomData: Room[]
 }
 interface DeleteModalProps {
   onClose: () => void
@@ -477,143 +382,7 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channe
     </Dialog>
   )
 }
-export const AddItemModal = ({ open, columns, onClose, onSubmit, rowData, roomData }: AddItemProps) => {
-  const [values, setValues] = useState<any>(() =>
-    columns.reduce((acc, column) => {
-      acc[column.accessorKey ?? ''] = ''
 
-      return acc
-    }, {} as any)
-  )
-
-  const handleSubmit = () => {
-    //put your validation logic here
-    onSubmit({ ...values, selling: rowData?.pk })
-    onClose()
-  }
-  const [isopen, setOpen] = useState(false)
-  const [options, setOptions] = useState<readonly ItemOption[]>([])
-  const loading = open && options.length === 0
-
-  return (
-    <Dialog open={open}>
-      <DialogTitle textAlign='center'>Add Item</DialogTitle>
-      <IconButton
-        aria-label='close'
-        onClick={onClose}
-        sx={{
-          position: 'absolute',
-          right: 8,
-          top: 8,
-          color: theme => theme.palette.grey[500]
-        }}
-      >
-        <CloseIcon />
-      </IconButton>
-      <DialogContent>
-        <form onSubmit={e => e.preventDefault()}>
-          <Stack
-            sx={{
-              width: '100%',
-              minWidth: { xs: '300px', sm: '360px', md: '400px' },
-              gap: '1.5rem',
-              paddingTop: 3
-            }}
-          >
-            {columns.map(column =>
-              column.accessorKey === 'product' ? (
-                <Autocomplete
-                  key={column.accessorKey}
-                  id='asynchronous-demo'
-                  open={isopen}
-                  onOpen={() => {
-                    setOpen(true)
-                  }}
-                  onClose={() => {
-                    setOpen(false)
-                  }}
-                  onChange={(event, newValue) => {
-                    if (newValue) {
-                      setValues({
-                        ...values,
-                        product: newValue?.pk
-                      })
-                    }
-                  }}
-                  filterOptions={x => x}
-                  isOptionEqualToValue={(option, value) => option.product.sku === value.product.sku}
-                  getOptionLabel={option => `SKU: ${option.product.sku}      SERIAL: ${option.serial}`}
-                  options={options}
-                  loading={loading}
-                  renderInput={params => (
-                    <TextField
-                      {...params}
-                      onChange={e =>
-                        fetch(
-                          `https://cheapr.my.id/inventory_items/?inventory=true&product=${e.target.value}&ordering=serial`,
-                          {
-                            // note we are going to /1
-                            headers: {
-                              'Content-Type': 'application/json'
-                            }
-                          }
-                        )
-                          .then(response => response.json())
-                          .then(json => {
-                            setOptions(json.results)
-                          })
-                      }
-                      label='SKU'
-                      InputProps={{
-                        ...params.InputProps,
-                        endAdornment: (
-                          <React.Fragment>
-                            {loading ? <CircularProgress color='inherit' size={20} /> : null}
-                            {params.InputProps.endAdornment}
-                          </React.Fragment>
-                        )
-                      }}
-                    />
-                  )}
-                />
-              ) : column.accessorKey === 'room' ? (
-                <TextField
-                  key={column.accessorKey}
-                  label={column.header}
-                  name={column.accessorKey}
-                  onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
-                  select
-                >
-                  {roomData?.map(room => (
-                    <MenuItem key={room.pk} value={room.name}>
-                      {room.name}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              ) : (
-                <TextField
-                  key={column.accessorKey}
-                  label={column.header}
-                  name={column.accessorKey}
-                  onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
-                  type={
-                    column.accessorKey === 'total_cost' || column.accessorKey === 'shipping_cost' ? 'number' : 'text'
-                  }
-                />
-              )
-            )}
-          </Stack>
-        </form>
-      </DialogContent>
-      <DialogActions sx={{ p: '1.25rem' }}>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button color='primary' onClick={handleSubmit} variant='contained'>
-          Create
-        </Button>
-      </DialogActions>
-    </Dialog>
-  )
-}
 export const DeleteModal = ({ open, onClose, onSubmit, data }: DeleteModalProps) => {
   const handleSubmit = () => {
     //put your validation logic here
@@ -653,9 +422,10 @@ const Example = (props: any) => {
   const [sorting, setSorting] = useState<MRT_SortingState>([])
   const [pagination, setPagination] = useState<MRT_PaginationState>({
     pageIndex: 0,
-    pageSize: 100
+    pageSize: 50
   })
-  const [tabActive, setTabActive] = useState('to_monitor')
+  const [tabActive, setTabActive] = useState('all')
+  const [refresh, setRefresh] = useState(0)
 
   const { data, isError, isFetching, isLoading } = useQuery({
     queryKey: [
@@ -665,6 +435,7 @@ const Example = (props: any) => {
       pagination.pageIndex, //refetch when pagination.pageIndex changes
       pagination.pageSize, //refetch when pagination.pageSize changes
       sorting, //refetch when sorting changes
+      refresh,
       tabActive
     ],
     queryFn: async () => {
@@ -898,6 +669,23 @@ const Example = (props: any) => {
         }
       })
   }
+  const handleCheck = (event: React.ChangeEvent<HTMLInputElement>, pk: number) => {
+    fetch(`https://cheapr.my.id/selling_order/${pk}/`, {
+      method: 'PATCH',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify({ submited: event.target.checked })
+    })
+      .then(response => response.json())
+      .then(json => {
+        console.log(json)
+      })
+      .finally(() => {
+        setRefresh(r => r + 1)
+      })
+  }
 
   const columns = useMemo<MRT_ColumnDef<SellingOrder>[]>(
     () => [
@@ -974,6 +762,27 @@ const Example = (props: any) => {
               })}
           </Box>
         )
+      },
+      {
+        accessorKey: 'submited',
+        header: 'ADD',
+        maxSize: 50,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center'
+            }}
+          >
+            <Checkbox
+              checked={row.original.submited}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => handleCheck(event, row.original.pk)}
+              size='small'
+              inputProps={{ 'aria-label': 'controlled' }}
+            />
+          </Box>
+        ),
+        enableEditing: false
       },
       {
         accessorKey: 'delivery_date',
@@ -1339,6 +1148,31 @@ const Example = (props: any) => {
         )
       },
       {
+        id: 'purchase_id',
+        header: 'P.O.#',
+        maxSize: 60,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.salesitems
+              .map(sales => sales.item)
+              .map((item, index) => {
+                if (item) {
+                  return <span key={index}>{item?.buying?.channel_order_id}</span>
+                } else {
+                  return <span key={index}>{` `}</span>
+                }
+              })}
+          </Box>
+        )
+      },
+      {
         accessorKey: 'purchase_cost',
 
         id: 'purchase_cost',
@@ -1486,6 +1320,80 @@ const Example = (props: any) => {
           </Box>
         ),
         enableEditing: false
+      },
+      {
+        id: 'letter_tracking_status',
+        header: 'LTSTS',
+        maxSize: 40,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.salesitems
+              .map(sales => sales.letter_tracking)
+              .map((tracking, index) => {
+                if (tracking) {
+                  return (
+                    <Link
+                      href={`${tracking?.fullcarrier?.prefix}${tracking?.tracking_number}${tracking.fullcarrier?.suffix}`}
+                      target='_blank'
+                    >
+                      <Box
+                        key={index}
+                        sx={theme => ({
+                          backgroundColor:
+                            tracking.status == 'D'
+                              ? theme.palette.success.dark
+                              : tracking.status == 'T'
+                              ? theme.palette.warning.light
+                              : tracking.status == 'I'
+                              ? 'purple'
+                              : theme.palette.error.dark,
+                          borderRadius: '0.5rem',
+                          color: '#fff',
+                          width: 15,
+                          height: 15
+                        })}
+                      ></Box>
+                    </Link>
+                  )
+                } else {
+                  return (
+                    <Box
+                      key={index}
+                      sx={theme => ({
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: '#a9a9a9',
+                        borderRadius: '0.5rem',
+                        borderColor: '#000',
+                        color: '#fff',
+                        width: 12,
+                        height: 12
+                      })}
+                    >
+                      <Box
+                        sx={theme => ({
+                          backgroundColor: theme.palette.background.paper,
+                          borderRadius: '0.5rem',
+                          borderColor: '#000',
+                          color: '#fff',
+                          width: 9,
+                          height: 9
+                        })}
+                      ></Box>
+                    </Box>
+                  )
+                }
+              })}
+          </Box>
+        )
       }
     ],
     [channelData]
@@ -1503,7 +1411,7 @@ const Example = (props: any) => {
   useEffect(() => {
     setPagination({
       pageIndex: 0,
-      pageSize: 100
+      pageSize: 50
     })
   }, [sorting, globalFilter, columnFilters])
   useEffect(() => {
@@ -1590,6 +1498,7 @@ const Example = (props: any) => {
               <MenuItem value={'to_monitor'}>To Monitor</MenuItem>
               <MenuItem value={'delivered'}>Delivered</MenuItem>
               <MenuItem value={'canceled'}>Canceled</MenuItem>
+              <MenuItem value={'buffers'}>Buffers</MenuItem>
               <MenuItem value={'all'}>All</MenuItem>
 
               {/* <MenuItem value={'canceled'}>Canceled</MenuItem>
@@ -1620,7 +1529,8 @@ const Example = (props: any) => {
         onSubmit={handleCreateNewRow}
         channelData={channelData}
       />
-      <AddItemModal
+      <AddSalesItemModal
+        session={session}
         columns={columnsAddItem}
         open={addModalOpen !== undefined}
         onClose={() => setAddModalOpen(undefined)}

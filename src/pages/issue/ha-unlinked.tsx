@@ -11,6 +11,7 @@ import MaterialReactTable, {
 import {
   Box,
   Button,
+  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
@@ -53,6 +54,22 @@ import { number } from 'yup'
 import { Close } from 'mdi-material-ui'
 import { styled } from '@mui/material/styles'
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip'
+import {
+  BuyingOrder,
+  Channel,
+  Carrier,
+  Room,
+  CAProduct,
+  Person,
+  InventoryPayload,
+  InventoryItem,
+  SellingOrder,
+  ItemOption,
+  ItemOption2,
+  Manager
+} from 'src/@core/types'
+import { ExtendedSession } from '../api/auth/[...nextauth]'
+import AddSalesItemModal from 'src/@core/components/add-sales-item'
 
 type HistoricalData = {
   make: string
@@ -232,100 +249,6 @@ export const SubHistoryModal = ({ open, onClose, onSubmit, data }: SubHistoryMod
   )
 }
 
-type Channel = {
-  pk: number
-  name: string
-}
-type Manager = {
-  pk: number
-  name: string
-}
-type ItemOption = {
-  pk: number
-  name: string
-  serial: string
-  product: {
-    sku: string
-    make: string
-    model: string
-    mpn: string
-  }
-}
-type Room = {
-  pk: number
-  name: string
-  room_id: string
-}
-type InventoryPayload = {
-  buying: number
-  selling: number
-  product: number
-  status: string
-  serial: string
-  comment: string
-  room: number
-  total_cost: number
-  shipping_cost: number
-}
-type InventoryItem = {
-  [key: string]: any
-}
-const person = {
-  pk: 23,
-  name: 'Leigh Ann Peters',
-  phone: '+1 207-835-4259 ext. 30141',
-  email: null,
-  address: {
-    pk: 22,
-    street_1: '13517 STATESVILLE RD',
-    street_2: null,
-    zip: '28078-9047',
-    city: {
-      pk: 24,
-      name: 'HUNTERSVILLE',
-      state: {
-        pk: 13,
-        name: '',
-        short: 'NC',
-        country: {
-          pk: 1,
-          name: 'United States',
-          short: 'US'
-        }
-      }
-    }
-  }
-}
-type SellingOrder = {
-  pk: number
-  order_id: string
-  order_date: string
-  delivery_date: string
-  ship_date: string
-  channel: {
-    pk: number
-    name: string
-  }
-  subs_status: boolean
-  channel_order_id: string
-  tracking_number: string
-  seller_name: string
-  sell_link: string
-  total_cost: number
-  shipping_cost: number
-  ss_shipping_cost: number
-  purchase_cost: number
-  gross_sales: number
-  channel_fee: number
-  profit: number
-  fulfillment: string
-  comment: string
-  status: string
-  delivery_status: string
-  sellingitems: InventoryItem[]
-  salesitems: InventoryItem[]
-  person: typeof person
-}
 type Payload = {
   pk?: number
   order_id?: string
@@ -354,6 +277,7 @@ interface AddItemProps {
   open: boolean
   rowData: SellingOrder | undefined
   roomData: Room[]
+  session: ExtendedSession
 }
 interface ManagerOptionProps {
   session: any
@@ -478,7 +402,7 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channe
     </Dialog>
   )
 }
-export const AddItemModal = ({ open, columns, onClose, onSubmit, rowData, roomData }: AddItemProps) => {
+export const AddItemModal = ({ open, columns, onClose, onSubmit, rowData, roomData, session }: AddItemProps) => {
   const [values, setValues] = useState<any>(() =>
     columns.reduce((acc, column) => {
       acc[column.accessorKey ?? ''] = ''
@@ -555,6 +479,7 @@ export const AddItemModal = ({ open, columns, onClose, onSubmit, rowData, roomDa
                           {
                             // note we are going to /1
                             headers: {
+                              Authorization: `Bearer ${session?.accessToken}`,
                               'Content-Type': 'application/json'
                             }
                           }
@@ -735,9 +660,8 @@ const Example = (props: any) => {
   const [sorting, setSorting] = useState<MRT_SortingState>([])
   const [pagination, setPagination] = useState<MRT_PaginationState>({
     pageIndex: 0,
-    pageSize: 100
+    pageSize: 50
   })
-  const [tabActive, setTabActive] = useState('6')
   const [refresh, setRefresh] = useState(0)
 
   const { data, isError, isFetching, isLoading } = useQuery({
@@ -748,7 +672,6 @@ const Example = (props: any) => {
       pagination.pageIndex, //refetch when pagination.pageIndex changes
       pagination.pageSize, //refetch when pagination.pageSize changes
       sorting, //refetch when sorting changes
-      tabActive,
       refresh
     ],
 
@@ -781,7 +704,6 @@ const Example = (props: any) => {
       fetchURL.searchParams.set('haunlinked', 'true')
 
       fetchURL.searchParams.set('ordering', ordering)
-      fetchURL.searchParams.set('manager', tabActive == 'all' ? '' : tabActive)
 
       console.log(fetchURL.href)
       const response = await fetch(fetchURL.href, {
@@ -814,9 +736,6 @@ const Example = (props: any) => {
   const [historyData, setHistoryData] = useState<HistoricalData[]>([])
   const [custPk, setCustPk] = useState<number | undefined>()
 
-  const handleChange = (event: SelectChangeEvent) => {
-    setTabActive(event.target.value as string)
-  }
   const handleCreateNewRow = (values: SellingOrder) => {
     console.log(values)
     const channel = channelData.find(channel => channel.name == values['channel']['name'])
@@ -911,7 +830,23 @@ const Example = (props: any) => {
         }
       })
   }
-
+  const handleCheck = (event: React.ChangeEvent<HTMLInputElement>, pk: number) => {
+    fetch(`https://cheapr.my.id/selling_order/${pk}/`, {
+      method: 'PATCH',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify({ submited: event.target.checked })
+    })
+      .then(response => response.json())
+      .then(json => {
+        console.log(json)
+      })
+      .finally(() => {
+        setRefresh(r => r + 1)
+      })
+  }
   const handleDeleteRow = useCallback(
     (row: MRT_Row<SellingOrder>) => {
       if (!confirm(`Are you sure you want to delete ${row.original.order_id}`)) {
@@ -1081,72 +1016,22 @@ const Example = (props: any) => {
         )
       },
       {
-        id: 'asigne',
-        header: 'ASIGNEE',
+        accessorKey: 'submited',
+        header: 'ADD',
         maxSize: 50,
         Cell: ({ renderedCellValue, row }) => (
           <Box
             sx={{
               display: 'flex',
-              flexDirection: 'column'
+              alignItems: 'center'
             }}
           >
-            {row.original.salesitems.map((sales, index) => {
-              const manager = sales.manager
-              if (manager) {
-                return (
-                  <div key={index}>
-                    <Link
-                      href='#'
-                      onClick={() => {
-                        setSalesItemPk(sales.pk)
-                        setManagerModalOpen(true)
-                      }}
-                    >
-                      <span>{`${manager.name}`}</span>
-                    </Link>
-
-                    <Tooltip arrow placement='top' title='Remove'>
-                      <IconButton
-                        color='error'
-                        onClick={() => {
-                          fetch(`https://cheapr.my.id/sales_items/${sales.pk}/`, {
-                            method: 'PATCH',
-                            headers: new Headers({
-                              Authorization: `Bearer ${session?.accessToken}`,
-                              'Content-Type': 'application/json'
-                            }),
-                            body: JSON.stringify({ manager: null })
-                          })
-                            .then(response => response.json())
-                            .then(json => {
-                              console.log(json)
-                            })
-                            .finally(() => {
-                              setRefresh(ref => ref + 1)
-                            })
-                        }}
-                      >
-                        <Close />
-                      </IconButton>
-                    </Tooltip>
-                  </div>
-                )
-              } else {
-                return (
-                  <Link
-                    key={index}
-                    href='#'
-                    onClick={() => {
-                      setSalesItemPk(sales.pk)
-                      setManagerModalOpen(true)
-                    }}
-                  >
-                    <span>Assign</span>
-                  </Link>
-                )
-              }
-            })}
+            <Checkbox
+              checked={row.original.submited}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => handleCheck(event, row.original.pk)}
+              size='small'
+              inputProps={{ 'aria-label': 'controlled' }}
+            />
           </Box>
         ),
         enableEditing: false
@@ -1432,6 +1317,130 @@ const Example = (props: any) => {
         accessorKey: 'comment',
         header: 'COMMENT',
         size: 100
+      },
+      {
+        accessorKey: 'order_date',
+        header: 'DATE',
+        size: 70,
+        muiTableBodyCellEditTextFieldProps: {
+          type: 'date'
+        },
+        filterFn: 'between',
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            <span>
+              {row.original.order_date
+                ? moment(row.original.order_date).tz('America/Los_Angeles').format('MM-DD-YY')
+                : ''}
+            </span>
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'ship_date',
+        header: 'SHIP BY',
+        size: 70,
+        muiTableBodyCellEditTextFieldProps: {
+          type: 'date'
+        },
+        filterFn: 'between',
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            <span>
+              {row.original.ship_date
+                ? moment(row.original.ship_date).tz('America/Los_Angeles').format('MM-DD-YY')
+                : ''}
+            </span>
+          </Box>
+        )
+      },
+      {
+        id: 'letter_tracking_status',
+        header: 'LTSTS',
+        maxSize: 40,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.salesitems
+              .map(sales => sales.letter_tracking)
+              .map((tracking, index) => {
+                if (tracking) {
+                  return (
+                    <Link
+                      href={`${tracking?.fullcarrier?.prefix}${tracking?.tracking_number}${tracking.fullcarrier?.suffix}`}
+                      target='_blank'
+                    >
+                      <Box
+                        key={index}
+                        sx={theme => ({
+                          backgroundColor:
+                            tracking.status == 'D'
+                              ? theme.palette.success.dark
+                              : tracking.status == 'T'
+                              ? theme.palette.warning.light
+                              : tracking.status == 'I'
+                              ? 'purple'
+                              : theme.palette.error.dark,
+                          borderRadius: '0.5rem',
+                          color: '#fff',
+                          width: 15,
+                          height: 15
+                        })}
+                      ></Box>
+                    </Link>
+                  )
+                } else {
+                  return (
+                    <Box
+                      key={index}
+                      sx={theme => ({
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: '#a9a9a9',
+                        borderRadius: '0.5rem',
+                        borderColor: '#000',
+                        color: '#fff',
+                        width: 12,
+                        height: 12
+                      })}
+                    >
+                      <Box
+                        sx={theme => ({
+                          backgroundColor: theme.palette.background.paper,
+                          borderRadius: '0.5rem',
+                          borderColor: '#000',
+                          color: '#fff',
+                          width: 9,
+                          height: 9
+                        })}
+                      ></Box>
+                    </Box>
+                  )
+                }
+              })}
+          </Box>
+        )
       }
     ],
     [channelData]
@@ -1449,7 +1458,7 @@ const Example = (props: any) => {
   useEffect(() => {
     setPagination({
       pageIndex: 0,
-      pageSize: 100
+      pageSize: 50
     })
   }, [sorting, globalFilter, columnFilters])
   useEffect(() => {
@@ -1539,7 +1548,7 @@ const Example = (props: any) => {
             <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
               Add New Sales
             </Button>
-            <Select labelId='demo-select-small-label' id='demo-select-small' value={tabActive} onChange={handleChange}>
+            {/* <Select labelId='demo-select-small-label' id='demo-select-small' value={tabActive} onChange={handleChange}>
               <MenuItem value={'all'}>All</MenuItem>
               {managerData?.map(manager => (
                 <MenuItem key={manager.pk} value={manager.pk}>
@@ -1547,9 +1556,7 @@ const Example = (props: any) => {
                 </MenuItem>
               ))}
 
-              {/* <MenuItem value={'canceled'}>Canceled</MenuItem>
-              <MenuItem value={'to_pick'}>To Pick</MenuItem> */}
-            </Select>
+            </Select> */}
           </>
         )}
         renderBottomToolbarCustomActions={() => (
@@ -1575,7 +1582,9 @@ const Example = (props: any) => {
         onSubmit={handleCreateNewRow}
         channelData={channelData}
       />
-      <AddItemModal
+
+      <AddSalesItemModal
+        session={session}
         columns={columnsAddItem}
         open={addModalOpen !== undefined}
         onClose={() => setAddModalOpen(undefined)}

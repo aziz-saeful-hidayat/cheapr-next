@@ -1040,6 +1040,7 @@ const Example = (props: any) => {
         onClose={() => setDetailModalOpen(false)}
       />
       <PickSellerModal
+        session={session}
         open={pickSellerModalOpen}
         onClose={() => setPickSellerModalOpen(false)}
         onSubmit={handlePickSeller}

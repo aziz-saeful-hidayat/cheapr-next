@@ -14,6 +14,7 @@ import {
 } from '@mui/material'
 import { Add } from '@mui/icons-material'
 import CloseIcon from '@mui/icons-material/Close'
+import { ExtendedSession } from 'src/pages/api/auth/[...nextauth]'
 
 type Seller = {
   pk: number
@@ -29,9 +30,10 @@ interface PickSellerModalProps {
   onSubmit: (values: { seller: number }) => void
   open: boolean
   setCreateSellerModalOpen: (arg0: boolean) => void
+  session: ExtendedSession
 }
 
-const PickSellerModal = ({ open, onClose, onSubmit, setCreateSellerModalOpen }: PickSellerModalProps) => {
+const PickSellerModal = ({ open, onClose, onSubmit, setCreateSellerModalOpen, session }: PickSellerModalProps) => {
   const columnsPickSeller = useMemo<MRT_ColumnDef<Seller>[]>(
     () => [
       {
@@ -113,6 +115,7 @@ const PickSellerModal = ({ open, onClose, onSubmit, setCreateSellerModalOpen }: 
                     fetch(`https://cheapr.my.id/seller/?name=${e.target.value}`, {
                       // note we are going to /1
                       headers: {
+                        Authorization: `Bearer ${session?.accessToken}`,
                         'Content-Type': 'application/json'
                       }
                     })

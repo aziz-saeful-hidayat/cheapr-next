@@ -167,6 +167,7 @@ interface AddItemProps {
   open: boolean
   rowData: SalesItemsFull | undefined
   roomData: Room[]
+  session: any
 }
 interface DeleteModalProps {
   onClose: () => void
@@ -283,7 +284,7 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channe
     </Dialog>
   )
 }
-export const AddItemModal = ({ open, columns, onClose, onSubmit, rowData, roomData }: AddItemProps) => {
+export const AddItemModal = ({ open, columns, onClose, onSubmit, rowData, roomData, session }: AddItemProps) => {
   const [values, setValues] = useState<any>(() =>
     columns.reduce((acc, column) => {
       acc[column.accessorKey ?? ''] = ''
@@ -360,6 +361,7 @@ export const AddItemModal = ({ open, columns, onClose, onSubmit, rowData, roomDa
                           {
                             // note we are going to /1
                             headers: {
+                              Authorization: `Bearer ${session?.accessToken}`,
                               'Content-Type': 'application/json'
                             }
                           }

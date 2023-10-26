@@ -56,6 +56,7 @@ import {
   InventoryPayload,
   InventoryItem
 } from 'src/@core/types'
+import CreateNewPurchase from 'src/@core/components/create-purchase'
 
 type Payload = {
   pk?: number
@@ -328,6 +329,8 @@ const Example = (props: any) => {
   })
   const [tableData, setTableData] = useState<BuyingOrder[]>(() => data?.results ?? [])
   const [channelData, setChannelData] = useState<Channel[]>([])
+  const [carrierData, setCarrierData] = useState<Carrier[]>([])
+
   const [detail, setDetail] = useState<number | undefined>()
   const [detailModalOpen, setDetailModalOpen] = useState(false)
   const [buyingToEdit, setBuyingToEdit] = useState('')
@@ -908,6 +911,17 @@ const Example = (props: any) => {
       .then(json => {
         setChannelData(json.results)
       })
+    const fetchURLCarrier = new URL('/carrier/', 'https://cheapr.my.id')
+    fetch(fetchURLCarrier.href, {
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      })
+    })
+      .then(response => response.json())
+      .then(json => {
+        setCarrierData(json.results)
+      })
   }, [session])
 
   return (
@@ -957,9 +971,9 @@ const Example = (props: any) => {
               <RefreshIcon />
             </IconButton>
           </Tooltip> */}
-            {/* <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
+            <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
               Add New Purchase
-            </Button> */}
+            </Button>
             <Select labelId='demo-select-small-label' id='demo-select-small' value={tabActive} onChange={handleChange}>
               <MenuItem value={'all'}>All</MenuItem>
               <MenuItem value={'notracking'}>No Tracking</MenuItem>
@@ -991,13 +1005,15 @@ const Example = (props: any) => {
         //   </Box>
         // )}
       />
-      {/* <CreateNewAccountModal
+      <CreateNewPurchase
         columns={columns}
         open={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
         onSubmit={handleCreateNewRow}
         channelData={channelData}
-      /> */}
+        session={session}
+        carrierData={carrierData}
+      />
       <PurchaseDetailVerified
         session={session}
         pk={detail}
@@ -1005,6 +1021,7 @@ const Example = (props: any) => {
         onClose={() => setDetailModalOpen(false)}
       />
       <PickSellerModal
+        session={session}
         open={pickSellerModalOpen}
         onClose={() => setPickSellerModalOpen(false)}
         onSubmit={handlePickSeller}

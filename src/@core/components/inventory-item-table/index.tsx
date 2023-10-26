@@ -45,12 +45,14 @@ const Items = ({
   data,
   reupdate,
   idx,
-  update
+  update,
+  session
 }: {
   data: InventoryItem[]
   reupdate: (order: number) => void
   idx: number
   update: (idx: number, rowIdx: number, key: string, value: any) => void
+  session: any
 }) => {
   const handleSaveRow: MaterialReactTableProps<InventoryItem>['onEditingRowSave'] = async ({
     exitEditingMode,
@@ -63,6 +65,7 @@ const Items = ({
       // note we are going to /1
       method: 'PATCH',
       headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(values)
@@ -84,6 +87,7 @@ const Items = ({
       // note we are going to /1
       method: 'DELETE',
       headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json'
       }
     })
@@ -104,6 +108,7 @@ const Items = ({
     fetch(`https://cheapr.my.id/inventory_items/${cell.row.original.pk}/`, {
       method: 'PATCH',
       headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(payload)

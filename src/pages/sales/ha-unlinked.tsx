@@ -68,6 +68,8 @@ import {
   ItemOption2,
   Manager
 } from 'src/@core/types'
+import { ExtendedSession } from '../api/auth/[...nextauth]'
+import AddSalesItemModal from 'src/@core/components/add-sales-item'
 
 type HistoricalData = {
   make: string
@@ -275,6 +277,7 @@ interface AddItemProps {
   open: boolean
   rowData: SellingOrder | undefined
   roomData: Room[]
+  session: ExtendedSession
 }
 interface ManagerOptionProps {
   session: any
@@ -399,7 +402,7 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channe
     </Dialog>
   )
 }
-export const AddItemModal = ({ open, columns, onClose, onSubmit, rowData, roomData }: AddItemProps) => {
+export const AddItemModal = ({ open, columns, onClose, onSubmit, rowData, roomData, session }: AddItemProps) => {
   const [values, setValues] = useState<any>(() =>
     columns.reduce((acc, column) => {
       acc[column.accessorKey ?? ''] = ''
@@ -476,6 +479,7 @@ export const AddItemModal = ({ open, columns, onClose, onSubmit, rowData, roomDa
                           {
                             // note we are going to /1
                             headers: {
+                              Authorization: `Bearer ${session?.accessToken}`,
                               'Content-Type': 'application/json'
                             }
                           }
@@ -1578,7 +1582,9 @@ const Example = (props: any) => {
         onSubmit={handleCreateNewRow}
         channelData={channelData}
       />
-      <AddItemModal
+
+      <AddSalesItemModal
+        session={session}
         columns={columnsAddItem}
         open={addModalOpen !== undefined}
         onClose={() => setAddModalOpen(undefined)}

@@ -21,6 +21,7 @@ import {
 
 import CloseIcon from '@mui/icons-material/Close'
 import CrawlSB from '../inputs/crawl-sb'
+import { ExtendedSession } from 'src/pages/api/auth/[...nextauth]'
 
 type InventoryItem = {
   [key: string]: any
@@ -101,7 +102,7 @@ interface PickSalesModalProps {
   open: boolean
   pk: number
   picked: number | undefined
-  session: any
+  session: ExtendedSession
 }
 
 export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, pk, picked, session }: PickSalesModalProps) => {
