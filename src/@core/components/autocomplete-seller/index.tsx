@@ -78,6 +78,7 @@ const AutoCompleteSeller = ({ values, setValues, session }: AutoCompleteSellerPr
               fetch(`https://cheapr.my.id/seller/?name=${e.target.value}`, {
                 // note we are going to /1
                 headers: {
+                  Authorization: `Bearer ${session?.accessToken}`,
                   'Content-Type': 'application/json'
                 }
               })

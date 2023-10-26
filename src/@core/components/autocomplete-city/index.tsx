@@ -77,6 +77,7 @@ const AutoCompleteCity = ({ values, setValues, session }: AutoCompleteCityProps)
               fetch(`https://cheapr.my.id/city/?name=${e.target.value}`, {
                 // note we are going to /1
                 headers: {
+                  Authorization: `Bearer ${session?.accessToken}`,
                   'Content-Type': 'application/json'
                 }
               })

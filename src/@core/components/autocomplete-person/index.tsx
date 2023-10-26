@@ -99,6 +99,7 @@ const AutoCompletePerson = ({ values, setValues, session, placeholder }: AutoCom
               fetch(`https://cheapr.my.id/person/?name=${e.target.value}`, {
                 // note we are going to /1
                 headers: {
+                  Authorization: `Bearer ${session?.accessToken}`,
                   'Content-Type': 'application/json'
                 }
               })

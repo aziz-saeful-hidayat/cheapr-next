@@ -68,6 +68,7 @@ const AutoCompleteState = ({ values, setValues, session }: AutoCompleteStateProp
               fetch(`https://cheapr.my.id/state/?short=${e.target.value}`, {
                 // note we are going to /1
                 headers: {
+                  Authorization: `Bearer ${session?.accessToken}`,
                   'Content-Type': 'application/json'
                 }
               })
