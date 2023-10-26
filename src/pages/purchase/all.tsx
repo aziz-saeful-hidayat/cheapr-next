@@ -345,6 +345,7 @@ const Example = (props: any) => {
   const handleCreateNewRow = (values: BuyingOrder) => {
     console.log(values)
     const channel = channelData.find(channel => channel.name == values['channel']['name'])
+
     const new_obj = {
       ...values,
       channel: channel?.pk,
@@ -365,8 +366,7 @@ const Example = (props: any) => {
       .then(json => {
         console.log(json)
         if (json.pk) {
-          tableData.unshift({ ...json, channel: channel })
-          setTableData([...tableData])
+          setRefresh(refresh + 1)
         }
       })
   }
