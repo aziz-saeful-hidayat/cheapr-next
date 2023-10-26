@@ -1391,8 +1391,9 @@ const PurchaseDetail = (props: any) => {
                 variant='contained'
                 disabled={
                   !orderData?.destination ||
-                  !orderData?.sales ||
-                  orderData?.inventoryitems?.filter(s => s.itemsales == null).length > 0
+                  (orderData?.destination == 'D' && !orderData?.sales) ||
+                  (orderData?.destination == 'D' &&
+                    orderData?.inventoryitems?.filter(s => s.itemsales == null).length > 0)
                 }
               >
                 Verify

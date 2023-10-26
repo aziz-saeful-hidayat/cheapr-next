@@ -55,7 +55,7 @@ const Sales = (props: any) => {
   const { session } = props
 
   // ** State
-  const [value, setValue] = useState<string>('unfulfilled')
+  const [value, setValue] = useState<string>('all')
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)

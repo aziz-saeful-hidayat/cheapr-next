@@ -53,7 +53,7 @@ const Purchase = (props: any) => {
   const { session } = props
 
   // ** State
-  const [value, setValue] = useState<string>('unverified')
+  const [value, setValue] = useState<string>('all')
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)

@@ -227,6 +227,7 @@ interface CreateSellerProps {
   onClose: () => void
   onSubmit: (values: Seller) => void
   open: boolean
+  session: ExtendedSession
 }
 
 interface CreateSKUProps {
@@ -234,6 +235,7 @@ interface CreateSKUProps {
   onClose: () => void
   onSubmit: (values: CAProduct) => void
   open: boolean
+  session: ExtendedSession
 }
 
 interface PickSellerModalProps {
@@ -242,6 +244,7 @@ interface PickSellerModalProps {
   onSubmit: (values: { seller: number }) => void
   open: boolean
   setCreateSellerModalOpen: (arg0: boolean) => void
+  session: ExtendedSession
 }
 
 interface SubItemModalProps {
@@ -250,6 +253,7 @@ interface SubItemModalProps {
   onSubmit: (values: { sku: number }) => void
   open: boolean
   setCreateSKUModalOpen: (arg0: boolean) => void
+  session: ExtendedSession
 }
 
 const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
@@ -326,7 +330,7 @@ export const CreateNewSellerModal = ({ open, columns, onClose, onSubmit }: Creat
   )
 }
 
-export const CreateNewSKUModal = ({ open, columns, onClose, onSubmit }: CreateSKUProps) => {
+export const CreateNewSKUModal = ({ open, columns, onClose, onSubmit, session }: CreateSKUProps) => {
   const [values, setValues] = useState<any>(() =>
     columns.reduce((acc, column) => {
       acc[column.accessorKey ?? ''] = ''
@@ -392,6 +396,7 @@ export const CreateItemModal = ({
   onClose,
   onSubmit,
   channelData,
+  session,
   setCreateSKUModalOpen
 }: CreateModalProps) => {
   const [values, setValues] = useState<any>(() =>
@@ -468,6 +473,7 @@ export const CreateItemModal = ({
                         fetch(`https://cheapr.my.id/caproduct/?sku=${e.target.value}`, {
                           // note we are going to /1
                           headers: {
+                            Authorization: `Bearer ${session?.accessToken}`,
                             'Content-Type': 'application/json'
                           }
                         })
@@ -528,6 +534,7 @@ export const CreateDropshipModal = ({
   onSubmit,
   channelData,
   carrierData,
+  session,
   setCreateSellerModalOpen
 }: DropshipModalProps) => {
   const [values, setValues] = useState<any>(() =>
@@ -636,6 +643,7 @@ export const CreateDropshipModal = ({
                         fetch(`https://cheapr.my.id/seller/?name=${e.target.value}`, {
                           // note we are going to /1
                           headers: {
+                            Authorization: `Bearer ${session?.accessToken}`,
                             'Content-Type': 'application/json'
                           }
                         })
@@ -772,6 +780,7 @@ export const PickSellerModal = ({
   columns,
   onClose,
   onSubmit,
+  session,
   setCreateSellerModalOpen
 }: PickSellerModalProps) => {
   const [values, setValues] = useState<any>(() =>
@@ -846,6 +855,7 @@ export const PickSellerModal = ({
                     fetch(`https://cheapr.my.id/seller/?name=${e.target.value}`, {
                       // note we are going to /1
                       headers: {
+                        Authorization: `Bearer ${session?.accessToken}`,
                         'Content-Type': 'application/json'
                       }
                     })
@@ -979,7 +989,14 @@ export const AddItemModal = ({
   )
 }
 
-export const SubItemModal = ({ open, columns, onClose, onSubmit, setCreateSKUModalOpen }: SubItemModalProps) => {
+export const SubItemModal = ({
+  open,
+  columns,
+  onClose,
+  onSubmit,
+  session,
+  setCreateSKUModalOpen
+}: SubItemModalProps) => {
   const [values, setValues] = useState<any>(() =>
     columns.reduce((acc, column) => {
       acc[column.accessorKey ?? ''] = ''
@@ -1052,6 +1069,7 @@ export const SubItemModal = ({ open, columns, onClose, onSubmit, setCreateSKUMod
                     fetch(`https://cheapr.my.id/caproduct/?sku=${e.target.value}`, {
                       // note we are going to /1
                       headers: {
+                        Authorization: `Bearer ${session?.accessToken}`,
                         'Content-Type': 'application/json'
                       }
                     })
@@ -2514,6 +2532,7 @@ const SalesDetail = (props: any) => {
           onClose={() => setPickSellerModalOpen(false)}
           onSubmit={handlePickSeller}
           setCreateSellerModalOpen={setCreateSellerModalOpen}
+          session={session}
         />
         <SubItemModal
           columns={columnsPickSKU}
@@ -2521,6 +2540,7 @@ const SalesDetail = (props: any) => {
           onClose={() => setSubModalOpen(false)}
           onSubmit={handleSubItem}
           setCreateSKUModalOpen={setCreateSKUModalOpen}
+          session={session}
         />
         <CreateDropshipModal
           columns={columnsDropshipItem}
@@ -2538,12 +2558,14 @@ const SalesDetail = (props: any) => {
           columns={columnsNewSeller}
           open={createSellerModalOpen}
           onClose={() => setCreateSellerModalOpen(false)}
+          session={session}
           onSubmit={handleCreateSeller}
         />
         <CreateNewSKUModal
           columns={columnsNewSKU}
           open={createSKUModalOpen}
           onClose={() => setCreateSKUModalOpen(false)}
+          session={session}
           onSubmit={handleCreateSKU}
         />
         <Popover
