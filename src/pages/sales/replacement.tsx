@@ -1254,6 +1254,11 @@ const Example = (props: any) => {
         )
       },
       {
+        accessorKey: 'comment',
+        header: 'COMMENT',
+        size: 100
+      },
+      {
         accessorKey: 'channel.name',
         id: 'channel_name',
         header: 'CHANNEL',
