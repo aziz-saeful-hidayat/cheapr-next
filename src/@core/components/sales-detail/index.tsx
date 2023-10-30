@@ -1239,7 +1239,21 @@ const SalesDetail = (props: any) => {
         maxSize: 100,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) =>
-          row.original.dropship ? (
+          row.original.salesitem_replaced ? (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center'
+              }}
+            >
+              <Chip
+                sx={{
+                  fontSize: 10
+                }}
+                label='Replacement'
+              />
+            </Box>
+          ) : row.original.dropship ? (
             <Box
               sx={{
                 display: 'flex',
