@@ -83,7 +83,7 @@ const Sales = (props: any) => {
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <AccountOutline />
-                  <TabName>Unfulfilled</TabName>
+                  <TabName>NEW</TabName>
                 </Box>
               }
             />
@@ -92,7 +92,7 @@ const Sales = (props: any) => {
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <AccountOutline />
-                  <TabName>Unfulfilled (Buffer)</TabName>
+                  <TabName>NEW (Buffers)</TabName>
                 </Box>
               }
             />
@@ -101,7 +101,7 @@ const Sales = (props: any) => {
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <AccountOutline />
-                  <TabName>HA Unlinked</TabName>
+                  <TabName>HA (Unlinked)</TabName>
                 </Box>
               }
             />
@@ -119,7 +119,7 @@ const Sales = (props: any) => {
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <LockOpenOutline />
-                  <TabName>Replacements</TabName>
+                  <TabName>REPLACED</TabName>
                 </Box>
               }
             />
@@ -128,7 +128,7 @@ const Sales = (props: any) => {
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <LockOpenOutline />
-                  <TabName>Return & Refund</TabName>
+                  <TabName>REFUNDED</TabName>
                 </Box>
               }
             />

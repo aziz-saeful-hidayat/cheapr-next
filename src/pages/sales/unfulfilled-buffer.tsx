@@ -938,7 +938,7 @@ const Example = (props: any) => {
       },
       {
         id: 'make_mpn',
-        header: 'ITEM',
+        header: 'ITEM DETAIL',
         maxSize: 60,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
@@ -989,7 +989,7 @@ const Example = (props: any) => {
       },
       {
         id: 'mm',
-        header: 'M.M.',
+        header: 'ERP',
         maxSize: 60,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
@@ -1138,7 +1138,7 @@ const Example = (props: any) => {
       {
         accessorKey: 'person.name',
         accessorFn: row => row.person?.name?.substr(0, 15),
-        header: 'CUST',
+        header: 'CUSTOMER',
         size: 70,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
@@ -1155,7 +1155,7 @@ const Example = (props: any) => {
       },
       {
         accessorKey: 'person.phone',
-        header: 'CUST.CONT',
+        header: 'CONTACT',
         size: 70,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
@@ -1171,6 +1171,11 @@ const Example = (props: any) => {
         )
       },
       {
+        accessorKey: 'comment',
+        header: 'COMMENT',
+        size: 100
+      },
+      {
         accessorKey: 'seller_name',
         accessorFn: row => row.seller_name.substr(0, 15),
         header: 'STORE',
@@ -1180,7 +1185,7 @@ const Example = (props: any) => {
       {
         accessorKey: 'total_cost',
         id: 'total',
-        header: 'ITEM',
+        header: 'PRICE',
         size: 70,
         Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.total_cost)}</Box>,
         muiTableBodyCellEditTextFieldProps: {
@@ -1194,11 +1199,7 @@ const Example = (props: any) => {
           align: 'right'
         }
       },
-      {
-        accessorKey: 'comment',
-        header: 'COMMENT',
-        size: 100
-      },
+
       {
         accessorKey: 'order_date',
         header: 'DATE',

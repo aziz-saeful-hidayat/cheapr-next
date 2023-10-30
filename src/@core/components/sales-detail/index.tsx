@@ -2449,7 +2449,7 @@ const SalesDetail = (props: any) => {
     >
       <>
         <CardSales orderData={orderData} type={'sales'} tableData={tableData} onClose={onClose} />
-        <Card sx={{ padding: 3 }}>
+        <Card sx={{ padding: 3, bgcolor: orderData?.status == 'canceled' ? '#ffe3e3' : 'white' }}>
           <MaterialReactTable
             columns={columns}
             initialState={{ showColumnFilters: false, density: 'compact' }}

@@ -95,7 +95,7 @@ const CardSales = ({
     console.log(salesData)
   }, [orderData, tableData])
   return (
-    <Card sx={{ marginBottom: 5 }}>
+    <Card sx={{ marginBottom: 5, bgcolor: orderData?.status == 'canceled' ? '#ffe3e3' : 'white' }}>
       <CardContent sx={{ padding: theme => `${theme.spacing(3.25, 5.75, 6.25)} !important` }}>
         <Grid container spacing={20}>
           <Grid item xs={12} sm={2}>

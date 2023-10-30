@@ -22,6 +22,7 @@ import {
 import CloseIcon from '@mui/icons-material/Close'
 import CrawlSB from '../inputs/crawl-sb'
 import { ExtendedSession } from 'src/pages/api/auth/[...nextauth]'
+import { SalesItem } from '../purchase-detai-verified'
 
 type InventoryItem = {
   [key: string]: any
@@ -105,6 +106,93 @@ interface PickSalesModalProps {
   session: ExtendedSession
 }
 
+interface ConfirmationModalProps {
+  onClose: () => void
+  onSubmit: (salesItem: number) => void
+  open: boolean
+  pk: string | number
+  session: ExtendedSession
+}
+export const ConfirmationModal = ({ open, onClose, onSubmit, pk, session }: ConfirmationModalProps) => {
+  const [salesItemData, setSalesItemData] = useState<SalesItem[]>([])
+  const handleSubmit = (salesItem: number) => {
+    //put your validation logic here
+    onSubmit(salesItem)
+    onClose()
+  }
+  const fetchSalesItems = () => {
+    fetch(`https://cheapr.my.id/sales_items/?item=&no_item=false&selling=${pk}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(response => response.json())
+      .then(json => {
+        setSalesItemData(json.results)
+      })
+  }
+  useEffect(() => {
+    if (pk) {
+      fetchSalesItems()
+    }
+  }, [pk, session])
+  return (
+    <Dialog open={open}>
+      <DialogTitle textAlign='center'>
+        This Order has no unlinked sales item, do you want to send a replacement?
+      </DialogTitle>
+      <TableContainer component={Paper}>
+        <Table aria-label='simple table'>
+          <TableHead>
+            <TableRow>
+              <TableCell>SKU</TableCell>
+              <TableCell align='right'>ACTION</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {salesItemData.map(salesItem => (
+              <TableRow key={salesItem.pk}>
+                <TableCell component='th' scope='row'>
+                  {salesItem.sku.sku}
+                </TableCell>
+
+                <TableCell align='right'>
+                  <Chip
+                    sx={{
+                      fontSize: 10
+                    }}
+                    label='Replace'
+                    onClick={() => {
+                      handleSubmit(salesItem.pk)
+                    }}
+                  />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <IconButton
+        aria-label='close'
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: theme => theme.palette.grey[500]
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
+      <DialogActions sx={{ p: '1.25rem' }}>
+        <Button onClick={onClose}>Cancel</Button>
+      </DialogActions>
+    </Dialog>
+  )
+}
+
 export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, pk, picked, session }: PickSalesModalProps) => {
   const [isopen, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -113,6 +201,7 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, pk, picked
   const [choosed, setChoosed] = useState('')
   const [sbId, setSbId] = useState('')
   const [btnText, setBtnText] = useState('Crawl')
+  const [isConfirmOpen, setConfirmOpen] = useState(false)
 
   const [options, setOptions] = useState<SalesOrder[]>([])
   const fetchSbId = () => {
@@ -161,6 +250,25 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, pk, picked
   useEffect(() => {
     fetchPickSales()
   }, [pk, session])
+
+  const createReplacement = (salesItem: number) => {
+    if (salesItem) {
+      fetch(`https://cheapr.my.id/sales_items/${salesItem}/create_replacement/`, {
+        method: 'POST',
+        headers: new Headers({
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        })
+      })
+        .then(response => response.json())
+        .then(json => {
+          console.log(json)
+          if (json.status == 'OK') {
+            onSubmit(json.selling)
+          }
+        })
+    }
+  }
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Pick Sales</DialogTitle>
@@ -191,8 +299,13 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, pk, picked
           onChange={(event, newValue) => {
             console.log(newValue)
             if (newValue) {
-              setChoosed(newValue.pk.toString())
-              onSubmit(newValue.pk)
+              if (newValue.salesitems.filter(s => !s.item).length == 0) {
+                setChoosed(newValue.pk.toString())
+                setConfirmOpen(true)
+              } else {
+                setChoosed(newValue.pk.toString())
+                onSubmit(newValue.pk)
+              }
             }
           }}
           isOptionEqualToValue={(option, value) => option.pk === value.pk}
@@ -209,7 +322,7 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, pk, picked
             <TextField
               {...params}
               onChange={e =>
-                fetch(`https://cheapr.my.id/selling_order/?search=${e.target.value}&no_buying=true`, {
+                fetch(`https://cheapr.my.id/selling_order/?search=${e.target.value}`, {
                   // note we are going to /1
                   headers: {
                     Authorization: `Bearer ${session?.accessToken}`,
@@ -359,6 +472,13 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, pk, picked
       <DialogActions sx={{ p: '1.25rem' }}>
         <Button onClick={onClose}>Close</Button>
       </DialogActions>
+      <ConfirmationModal
+        session={session}
+        pk={choosed}
+        open={isConfirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        onSubmit={salesItem => createReplacement(salesItem)}
+      />
     </Dialog>
   )
 }
