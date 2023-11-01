@@ -22,7 +22,7 @@ import {
 import CloseIcon from '@mui/icons-material/Close'
 import CrawlSB from '../inputs/crawl-sb'
 import { ExtendedSession } from 'src/pages/api/auth/[...nextauth]'
-import { SalesItem } from '../purchase-detai-verified'
+import { SalesItem } from 'src/@core/types'
 
 type InventoryItem = {
   [key: string]: any
@@ -99,10 +99,11 @@ export type SalesOrder = {
 interface PickSalesModalProps {
   onClose: () => void
   onSubmit: (sales: number) => void
-  onReset: () => void
+  onReset: (sales: number) => void
+  onRefresh: () => void
   open: boolean
   pk: number
-  picked: number | undefined
+  picked: number[] | undefined
   session: ExtendedSession
 }
 
@@ -113,6 +114,12 @@ interface ConfirmationModalProps {
   pk: string | number
   session: ExtendedSession
 }
+
+interface ConfirmationCanceledModalProps {
+  onClose: () => void
+  open: boolean
+}
+
 export const ConfirmationModal = ({ open, onClose, onSubmit, pk, session }: ConfirmationModalProps) => {
   const [salesItemData, setSalesItemData] = useState<SalesItem[]>([])
   const handleSubmit = (salesItem: number) => {
@@ -193,7 +200,41 @@ export const ConfirmationModal = ({ open, onClose, onSubmit, pk, session }: Conf
   )
 }
 
-export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, pk, picked, session }: PickSalesModalProps) => {
+export const ConfirmationCanceledModal = ({ open, onClose }: ConfirmationCanceledModalProps) => {
+  return (
+    <Dialog open={open}>
+      <DialogTitle textAlign='center'>
+        This Order has been canceled, you can not link the purchase to this order?
+      </DialogTitle>
+      <IconButton
+        aria-label='close'
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: theme => theme.palette.grey[500]
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
+      <DialogActions sx={{ p: '1.25rem' }}>
+        <Button onClick={onClose}>Cancel</Button>
+      </DialogActions>
+    </Dialog>
+  )
+}
+
+export const PickMacthingSales = ({
+  open,
+  onClose,
+  onSubmit,
+  onReset,
+  pk,
+  picked,
+  session,
+  onRefresh
+}: PickSalesModalProps) => {
   const [isopen, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [loading2, setLoading2] = useState(false)
@@ -202,6 +243,7 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, pk, picked
   const [sbId, setSbId] = useState('')
   const [btnText, setBtnText] = useState('Crawl')
   const [isConfirmOpen, setConfirmOpen] = useState(false)
+  const [isConfirmCanceledOpen, setConfirmCanceledOpen] = useState(false)
 
   const [options, setOptions] = useState<SalesOrder[]>([])
   const fetchSbId = () => {
@@ -251,6 +293,43 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, pk, picked
     fetchPickSales()
   }, [pk, session])
 
+  const handlePickSelling = (sales: number) => {
+    fetch(`https://cheapr.my.id/buying_order/${pk}/create_selling/`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ sales: sales })
+    })
+      .then(response => response.json())
+      .then(json => {})
+      .finally(() => {
+        onRefresh()
+        onClose()
+      })
+  }
+  const handleRemoveSelling = (sales: number) => {
+    fetch(`https://cheapr.my.id/buying_order/${pk}/delete_selling/`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ sales: sales })
+    })
+      .then(response => response.json())
+      .then(json => {
+        if (json.pk) {
+          onRefresh()
+          onClose()
+        }
+      })
+      .finally(() => {
+        onRefresh()
+        onClose()
+      })
+  }
   const createReplacement = (salesItem: number) => {
     if (salesItem) {
       fetch(`https://cheapr.my.id/sales_items/${salesItem}/create_replacement/`, {
@@ -264,7 +343,7 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, pk, picked
         .then(json => {
           console.log(json)
           if (json.status == 'OK') {
-            onSubmit(json.selling)
+            handlePickSelling(json.selling)
           }
         })
     }
@@ -302,6 +381,8 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, pk, picked
               if (newValue.salesitems.filter(s => !s.item).length == 0) {
                 setChoosed(newValue.pk.toString())
                 setConfirmOpen(true)
+              } else if (newValue.status == 'canceled') {
+                setConfirmCanceledOpen(true)
               } else {
                 setChoosed(newValue.pk.toString())
                 onSubmit(newValue.pk)
@@ -380,14 +461,14 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, pk, picked
                   </TableCell>
                   <TableCell align='right'>{sales.person?.address?.zip}</TableCell>
                   <TableCell align='right'>
-                    {picked == sales.pk ? (
+                    {picked?.includes(sales.pk) ? (
                       <Chip
                         sx={{
                           fontSize: 10
                         }}
                         label='Remove'
                         onClick={() => {
-                          onReset()
+                          handleRemoveSelling(sales.pk)
                         }}
                       />
                     ) : (
@@ -397,7 +478,7 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, pk, picked
                         }}
                         label='Pick'
                         onClick={() => {
-                          onSubmit(sales.pk)
+                          handlePickSelling(sales.pk)
                         }}
                       />
                     )}
@@ -425,14 +506,14 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, pk, picked
                   </TableCell>
                   <TableCell align='right'>{sales.person?.address?.zip}</TableCell>
                   <TableCell align='right'>
-                    {picked == sales.pk ? (
+                    {picked?.includes(sales.pk) ? (
                       <Chip
                         sx={{
                           fontSize: 10
                         }}
                         label='Remove'
                         onClick={() => {
-                          onReset()
+                          handleRemoveSelling(sales.pk)
                         }}
                       />
                     ) : (
@@ -442,7 +523,7 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, pk, picked
                         }}
                         label='Pick'
                         onClick={() => {
-                          onSubmit(sales.pk)
+                          handlePickSelling(sales.pk)
                         }}
                       />
                     )}
@@ -479,6 +560,7 @@ export const PickMacthingSales = ({ open, onClose, onSubmit, onReset, pk, picked
         onClose={() => setConfirmOpen(false)}
         onSubmit={salesItem => createReplacement(salesItem)}
       />
+      <ConfirmationCanceledModal open={isConfirmCanceledOpen} onClose={() => setConfirmCanceledOpen(false)} />
     </Dialog>
   )
 }

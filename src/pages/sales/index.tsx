@@ -32,6 +32,7 @@ import Return from './return'
 import UnfulfilledBuffers from './unfulfilled-buffer'
 import HAUnlinked from './ha-unlinked'
 import AllSales from './all'
+import Canceled from './canceled'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -96,6 +97,16 @@ const Sales = (props: any) => {
                 </Box>
               }
             />
+
+            <Tab
+              value='fulfilled'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <LockOpenOutline />
+                  <TabName>SECURED</TabName>
+                </Box>
+              }
+            />
             <Tab
               value='ha-unlinked'
               label={
@@ -106,11 +117,11 @@ const Sales = (props: any) => {
               }
             />
             <Tab
-              value='fulfilled'
+              value='canceled'
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <LockOpenOutline />
-                  <TabName>Fulfilled</TabName>
+                  <TabName>CANCELED</TabName>
                 </Box>
               }
             />
@@ -156,6 +167,9 @@ const Sales = (props: any) => {
           </TabPanel>
           <TabPanel sx={{ p: 0 }} value='fulfilled'>
             <Fullfilled session={session} />
+          </TabPanel>
+          <TabPanel sx={{ p: 0 }} value='canceled'>
+            <Canceled session={session} />
           </TabPanel>
           <TabPanel sx={{ p: 0 }} value='replacement'>
             <Replacement session={session} />

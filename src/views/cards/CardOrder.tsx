@@ -13,10 +13,11 @@ import TrendingUp from 'mdi-material-ui/TrendingUp'
 import StarOutline from 'mdi-material-ui/StarOutline'
 import AccountOutline from 'mdi-material-ui/AccountOutline'
 import LockOpenOutline from 'mdi-material-ui/LockOpenOutline'
-import { BuyingOrder, SalesOrder } from 'src/pages/purchase/[purchaseId]'
+import { SalesOrder } from 'src/pages/purchase/[purchaseId]'
 import { formatterUSDStrip } from 'src/constants/Utils'
 import { IconButton } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
+import { BuyingOrder } from 'src/@core/types'
 
 // Styled Box component
 const StyledBox = styled(Box)<BoxProps>(({ theme }) => ({
@@ -30,7 +31,7 @@ const CardOrder = ({
   type,
   onClose
 }: {
-  orderData: BuyingOrder | SalesOrder | undefined
+  orderData: BuyingOrder | undefined
   type: 'buying' | 'sales'
   onClose?: () => void
 }) => {
@@ -181,7 +182,7 @@ const CardOrder = ({
               <StarOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
               <Typography variant='body2'>Num of Item: </Typography>
               <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
-                {type == 'buying' ? orderData?.inventoryitems?.length : orderData?.salesitems?.length} Item
+                {type == 'buying' && orderData?.inventoryitems?.length} Item
               </Typography>
             </Box>
             <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>

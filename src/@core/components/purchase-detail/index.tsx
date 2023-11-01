@@ -63,6 +63,7 @@ import { CreateItemModal } from '../pick-sku'
 import { Close } from 'mdi-material-ui'
 import CloseIcon from '@mui/icons-material/Close'
 import PickMacthingSales from '../pick-matching-sales'
+import { BuyingOrder, SalesItem } from 'src/@core/types'
 
 type InventoryItem = {
   [key: string]: any
@@ -153,56 +154,7 @@ const person = {
     }
   }
 }
-export type BuyingOrder = {
-  pk: number
-  order_id: string
-  order_date: string
-  delivery_date: string
-  channel: {
-    pk: number
-    name: string
-    image: string
-  }
-  seller: {
-    pk: number
-    name: string
-  }
-  tracking_number: string
-  seller_name: string
-  purchase_link: string
-  channel_order_id: string
-  total_cost: number
-  shipping_cost: number
-  comment: string
-  inventoryitems: InventoryItem[]
-  salesitems: InventoryItem[]
-  destination: string
-  sales: {
-    pk: number
-    order_id: string
-  }
-  person: typeof person
-}
 
-export type SalesItem = {
-  pk: number
-  selling: number
-  sku: {
-    pk: number
-    sku: string
-    mpn: string
-    make: string
-    model: string
-    asin: string
-  }
-  status: string
-  serial: string
-  comment: string
-  room: Room
-  rating: Rating
-  total_cost: string
-  shipping_cost: string
-}
 interface CreateModalProps {
   columns: MRT_ColumnDef<InventoryItem>[]
   onClose: () => void
@@ -434,11 +386,12 @@ const PurchaseDetail = (props: any) => {
   const [isFetching, setisFetching] = useState(false)
   const [isLoading, setisLoading] = useState(false)
 
-  const [orderData, setOrderData] = useState<BuyingOrder | SalesOrder>()
+  const [orderData, setOrderData] = useState<BuyingOrder>()
 
   const [tableData, setTableData] = useState<Item[]>([])
   const [roomData, setRoomData] = useState<Room[]>([])
   const [salesItemData, setSalesItemData] = useState<SalesItem[]>([])
+  const [matchesData, setMatchesData] = useState<{ best: SalesOrder[]; other: SalesOrder[] }>({ best: [], other: [] })
 
   const [ratingData, setRatingData] = useState<Rating[]>([])
   const [createModalOpen, setCreateModalOpen] = useState(false)
@@ -858,7 +811,7 @@ const PurchaseDetail = (props: any) => {
           select: true, //change to select for a dropdown
           children: salesItemData?.map(salesItem => (
             <MenuItem key={salesItem.pk} value={salesItem.pk}>
-              {salesItem.sku.sku}
+              {salesItem.sku.sku} - ({salesItem.selling.order_id})
             </MenuItem>
           ))
         },
@@ -946,14 +899,19 @@ const PurchaseDetail = (props: any) => {
       })
   }, [session, pk, modalOpen, refresh])
   useEffect(() => {
-    orderData?.sales?.pk
-      ? fetch(`https://cheapr.my.id/sales_items/?item=&no_item=true&selling=${orderData?.sales?.pk}`, {
-          method: 'get',
-          headers: new Headers({
-            Authorization: `Bearer ${session?.accessToken}`,
-            'Content-Type': 'application/json'
-          })
-        })
+    orderData?.selling_buying?.length && orderData?.selling_buying?.length > 0
+      ? fetch(
+          `https://cheapr.my.id/sales_items/?item=&no_item=true&selling=${orderData?.selling_buying
+            ?.map(sales => sales.sales.pk)
+            .join(',')}`,
+          {
+            method: 'get',
+            headers: new Headers({
+              Authorization: `Bearer ${session?.accessToken}`,
+              'Content-Type': 'application/json'
+            })
+          }
+        )
           .then(response => response.json())
           .then(json => {
             console.log(json)
@@ -1039,8 +997,6 @@ const PurchaseDetail = (props: any) => {
       })
         .then(response => response.json())
         .then(json => {
-          console.log(json)
-
           if (json.pk) {
             if (!cell.row.original.product) {
               fetch(`https://cheapr.my.id/inventory_items/${cell.row.original.pk}/`, {
@@ -1049,11 +1005,10 @@ const PurchaseDetail = (props: any) => {
                   Authorization: `Bearer ${session?.accessToken}`,
                   'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ product: json.sku })
+                body: JSON.stringify({ product: json.pk })
               })
                 .then(response => response.json())
                 .then(json => {
-                  console.log(json)
                   if (json.pk) {
                     setRefresh(refresh + 1)
                   }
@@ -1061,37 +1016,214 @@ const PurchaseDetail = (props: any) => {
             }
           }
         })
+    } else if (key === 'tracking.fullcarrier.name') {
+      payload['fullcarrier'] = value
+      if (cell.row.original.tracking?.pk) {
+        fetch(`https://cheapr.my.id/tracking/${cell.row.original.tracking?.pk}/`, {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        })
+          .then(response => response.json())
+          .then(json => {
+            console.log(json)
+            if (json.pk) {
+              setRefresh(refresh + 1)
+            }
+          })
+      } else {
+        fetch(`https://cheapr.my.id/tracking/`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        })
+          .then(response => response.json())
+          .then(json => {
+            if (json.pk) {
+              fetch(`https://cheapr.my.id/inventory_items/${cell.row.original.pk}/`, {
+                method: 'PATCH',
+                headers: {
+                  Authorization: `Bearer ${session?.accessToken}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ tracking: json.pk })
+              })
+                .then(response => response.json())
+                .then(json => {
+                  if (json.pk) {
+                    setRefresh(refresh + 1)
+                  }
+                })
+              setRefresh(refresh + 1)
+            }
+          })
+      }
+    } else if (key === 'tracking.tracking_number') {
+      if (!value) {
+        fetch(`https://cheapr.my.id/inventory_items/${cell.row.original.pk}/`, {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ tracking: null })
+        })
+          .then(response => response.json())
+          .then(json => {
+            if (json.pk) {
+              setRefresh(refresh + 1)
+            }
+          })
+      } else {
+        payload['tracking_number'] = value
+        fetch(`https://cheapr.my.id/tracking/?tracking_number=${value}`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json'
+          }
+        })
+          .then(response => response.json())
+          .then(json => {
+            if (json.count == 0) {
+              fetch(`https://cheapr.my.id/tracking/`, {
+                method: 'POST',
+                headers: {
+                  Authorization: `Bearer ${session?.accessToken}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+              })
+                .then(response => response.json())
+                .then(json => {
+                  if (json.pk) {
+                    fetch(`https://cheapr.my.id/inventory_items/${cell.row.original.pk}/`, {
+                      method: 'PATCH',
+                      headers: {
+                        Authorization: `Bearer ${session?.accessToken}`,
+                        'Content-Type': 'application/json'
+                      },
+                      body: JSON.stringify({ tracking: json.pk })
+                    })
+                      .then(response => response.json())
+                      .then(json => {
+                        if (json.pk) {
+                          setRefresh(refresh + 1)
+                        }
+                      })
+                    setRefresh(refresh + 1)
+                  }
+                })
+            } else {
+              fetch(`https://cheapr.my.id/inventory_items/${cell.row.original.pk}/`, {
+                method: 'PATCH',
+                headers: {
+                  Authorization: `Bearer ${session?.accessToken}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ tracking: json.results[0].pk })
+              })
+                .then(response => response.json())
+                .then(json => {
+                  if (json.pk) {
+                    setRefresh(refresh + 1)
+                  }
+                })
+              setRefresh(refresh + 1)
+            }
+          })
+      }
+    } else if (key === 'tracking.eta_date') {
+      payload['eta_date'] = value
+      if (cell.row.original.itemsales?.tracking?.pk) {
+        fetch(`https://cheapr.my.id/tracking/${cell.row.original.tracking?.pk}/`, {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        })
+          .then(response => response.json())
+          .then(json => {
+            if (json.pk) {
+              setRefresh(refresh + 1)
+            }
+          })
+      } else {
+        fetch(`https://cheapr.my.id/tracking/`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        })
+          .then(response => response.json())
+          .then(json => {
+            if (json.pk) {
+              fetch(`https://cheapr.my.id/sales_items/${cell.row.original.pk}/`, {
+                method: 'PATCH',
+                headers: {
+                  Authorization: `Bearer ${session?.accessToken}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ tracking: json.pk })
+              })
+                .then(response => response.json())
+                .then(json => {
+                  if (json.pk) {
+                    setRefresh(refresh + 1)
+                  }
+                })
+              setRefresh(refresh + 1)
+            }
+          })
+      }
+    } else if (key === 'tracking.status') {
+      payload['status'] = value
+      if (cell.row.original.tracking?.pk) {
+        fetch(`https://cheapr.my.id/tracking/${cell.row.original.tracking?.pk}/`, {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        })
+          .then(response => response.json())
+          .then(json => {
+            if (json.pk) {
+              setRefresh(refresh + 1)
+            }
+          })
+      }
+    } else {
+      let payload: any = {}
+      payload[key] = value
+      fetch(`https://cheapr.my.id/inventory_items/${cell.row.original.pk}/`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      })
+        .then(response => response.json())
+        .then(json => {
+          if (json.pk) {
+            setRefresh(refresh + 1)
+          }
+        })
     }
-    // if (key === 'room.name') {
-    //   const room = roomData.find(room => room.name == value)
-    //   payload['room'] = room?.pk
-    //   newData[cell.row.index]['room'] = room
-    // } else if (key === 'rating.name') {
-    //   const rating = ratingData.find(rating => rating.name == value)
-    //   payload['rating'] = rating?.pk
-    //   newData[cell.row.index]['rating'] = rating
-    // } else {
-    //   payload[key as keyof Payload] = value === '' ? null : value
-    //   newData[cell.row.index][cell.column.id as keyof InventoryItem] = value
-    // }
-
-    // newData[cell.row.index][cell.column.id as keyof Item] = value
-    // setTableData([...newData])
-    // console.log(cell.row.original.pk, key, value)
-    // fetch(`https://cheapr.my.id/inventory_items/${cell.row.original.pk}/`, {
-    //   method: 'PATCH',
-    //   headers: {
-    //     Authorization: `Bearer ${session?.accessToken}`,
-    //     'Content-Type': 'application/json'
-    //   },
-    //   body: JSON.stringify(payload)
-    // })
-    //   .then(response => response.json())
-    //   .then(json => {
-    //     if (json.pk) {
-    //     }
-    //   })
   }
+
   const handleAddItem = (values: InventoryPayload) => {
     fetch(`https://cheapr.my.id/inventory_items/`, {
       // note we are going to /1
@@ -1133,7 +1265,22 @@ const PurchaseDetail = (props: any) => {
   type InventoryItem = {
     [key: string]: any
   }
-
+  const fetchPickSales = () => {
+    fetch(`https://cheapr.my.id/buying_order/${pk}/find_matches/`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(response => response.json())
+      .then(json => {
+        setMatchesData(json)
+      })
+      .finally(() => {
+        setMatchSalesModalOpen(true)
+      })
+  }
   const handleSetSKU = (values: InventoryItem) => {
     console.log(values)
     console.log(`https://cheapr.my.id/inventory_items/${itemPk}/`)
@@ -1311,42 +1458,41 @@ const PurchaseDetail = (props: any) => {
                 {orderData?.destination == 'D' && (
                   <span>
                     SBO.#{'     '}
-                    <Link onClick={() => setMatchSalesModalOpen(true)}>
-                      {orderData?.sales ? `${orderData?.sales.order_id}` : 'Pick'}
-                    </Link>
-                    {orderData?.sales && (
-                      <Tooltip arrow placement='top' title='Remove'>
-                        <IconButton
-                          color='error'
-                          onClick={() => {
-                            const oldData = [...tableData]
-                            const newData: any = [...tableData]
-                            const payload: any = {}
+                    {orderData?.selling_buying.map(sales => (
+                      <>
+                        <Link onClick={fetchPickSales}> {sales.sales.order_id}</Link>{' '}
+                        <Tooltip arrow placement='top' title='Remove'>
+                          <IconButton
+                            color='error'
+                            onClick={() => {
+                              const payload: any = {}
 
-                            payload['sales'] = null
+                              payload['sales'] = sales.sales.pk
 
-                            const id = orderData.pk
-                            fetch(`https://cheapr.my.id/buying_order/${id}/`, {
-                              method: 'PATCH',
-                              headers: new Headers({
-                                Authorization: `Bearer ${session?.accessToken}`,
-                                'Content-Type': 'application/json'
-                              }),
-                              body: JSON.stringify(payload)
-                            })
-                              .then(response => response.json())
-                              .then(json => {
-                                console.log(json)
+                              const id = orderData.pk
+                              fetch(`https://cheapr.my.id/buying_order/${id}/delete_selling/`, {
+                                method: 'POST',
+                                headers: new Headers({
+                                  Authorization: `Bearer ${session?.accessToken}`,
+                                  'Content-Type': 'application/json'
+                                }),
+                                body: JSON.stringify(payload)
                               })
-                              .finally(() => {
-                                setRefresh(ref => ref + 1)
-                              })
-                          }}
-                        >
-                          <Close />
-                        </IconButton>
-                      </Tooltip>
-                    )}
+                                .then(response => response.json())
+                                .then(json => {
+                                  console.log(json)
+                                })
+                                .finally(() => {
+                                  setRefresh(ref => ref + 1)
+                                })
+                            }}
+                          >
+                            <Close />
+                          </IconButton>
+                        </Tooltip>
+                      </>
+                    ))}
+                    <Link onClick={fetchPickSales}>Add</Link>
                   </span>
                 )}
 
@@ -1427,14 +1573,15 @@ const PurchaseDetail = (props: any) => {
         <PickMacthingSales
           open={matchSalesModalOpen}
           onClose={() => setMatchSalesModalOpen(false)}
-          onReset={() => {
-            fetch(`https://cheapr.my.id/buying_order/${pk}/`, {
-              method: 'PATCH',
+          onRefresh={() => setRefresh(r => r + 1)}
+          onReset={(sales: number) => {
+            fetch(`https://cheapr.my.id/buying_order/${pk}/delete_selling/`, {
+              method: 'POST',
               headers: {
                 Authorization: `Bearer ${session?.accessToken}`,
                 'Content-Type': 'application/json'
               },
-              body: JSON.stringify({ sales: null })
+              body: JSON.stringify({ sales: sales })
             })
               .then(response => response.json())
               .then(json => {
@@ -1447,8 +1594,8 @@ const PurchaseDetail = (props: any) => {
               })
           }}
           onSubmit={(sales: number) => {
-            fetch(`https://cheapr.my.id/buying_order/${pk}/`, {
-              method: 'PATCH',
+            fetch(`https://cheapr.my.id/buying_order/${pk}/create_selling/`, {
+              method: 'POST',
               headers: {
                 Authorization: `Bearer ${session?.accessToken}`,
                 'Content-Type': 'application/json'
@@ -1456,19 +1603,14 @@ const PurchaseDetail = (props: any) => {
               body: JSON.stringify({ sales: sales })
             })
               .then(response => response.json())
-              .then(json => {
-                if (json.pk) {
-                  setRefresh(refresh + 1)
-                  setMatchSalesModalOpen(false)
-                }
-              })
+              .then(json => {})
               .finally(() => {
-                setRefresh(refresh + 1)
+                setRefresh(r => r + 1)
                 setMatchSalesModalOpen(false)
               })
           }}
           pk={pk}
-          picked={orderData?.sales?.pk}
+          picked={orderData?.selling_buying?.map(sales => sales.sales.pk)}
           session={session}
         />
         <CreateNewAccountModal

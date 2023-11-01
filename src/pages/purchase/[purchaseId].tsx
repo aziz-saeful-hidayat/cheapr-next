@@ -38,6 +38,7 @@ import { ExtendedSession } from '../api/auth/[...nextauth]'
 import { formatterUSDStrip } from 'src/constants/Utils'
 import CardOrder from 'src/views/cards/CardOrder'
 import CloseIcon from '@mui/icons-material/Close'
+import { BuyingOrder, SellingBuying } from 'src/@core/types'
 
 type InventoryItem = {
   [key: string]: any
@@ -102,31 +103,6 @@ type Item = {
   shipping_cost: number
 }
 
-export type BuyingOrder = {
-  pk: number
-  order_id: string
-  order_date: string
-  delivery_date: string
-  channel: {
-    pk: number
-    name: string
-    image: string
-  }
-  seller: {
-    pk: number
-    name: string
-  }
-  tracking_number: string
-  seller_name: string
-  purchase_link: string
-  channel_order_id: string
-  total_cost: number
-  shipping_cost: number
-  comment: string
-  inventoryitems: InventoryItem[]
-  salesitems: InventoryItem[]
-  person: typeof person
-}
 const person = {
   pk: 23,
   name: 'Leigh Ann Peters',
@@ -191,6 +167,7 @@ export type SalesOrder = {
     pk: number
     order_id: string
   }
+  selling_buying: SellingBuying[]
 }
 
 interface CreateModalProps {

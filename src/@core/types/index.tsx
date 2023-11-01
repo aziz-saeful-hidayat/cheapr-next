@@ -106,7 +106,13 @@ export type BuyingOrder = {
   total_sum: number
   shipping_sum: number
   person: Person
-  destination: 'D' | 'H' | null
+  destination: string
+  sales: {
+    pk: number
+    order_id: string
+    delivery_date: string
+  }
+  selling_buying: SellingBuying[]
 }
 
 export type Manager = {
@@ -332,4 +338,62 @@ export type Item = {
       user: null | number
     }
   }
+}
+
+export type SellingBuying = {
+  pk: number
+  sales: {
+    pk: number
+    order_id: string
+  }
+  purchase: {
+    pk: number
+    order_id: string
+    channel_order_id: string
+  }
+}
+export type SalesItem = {
+  pk: number
+  selling: {
+    pk: number
+    order_id: string
+    display_ref: string
+    order_date: string
+    delivery_date: string
+    ship_date: string
+    channel: {
+      pk: number
+      name: string
+      image: string
+    }
+    seller_name: string
+    purchase_items: number
+    inbound_shipping: number
+    purchase_cost: number
+    gross_sales: number
+    profit: number
+    all_cost: number
+    channel_order_id: string
+    sell_link: string
+    total_cost: string
+    shipping_cost: string
+    ss_shipping_cost: string
+    channel_fee: string
+    submited: boolean
+  }
+  sku: {
+    pk: number
+    sku: string
+    mpn: string
+    make: string
+    model: string
+    asin: string
+  }
+  status: string
+  serial: string
+  comment: string
+  room: Room
+  rating: Rating
+  total_cost: string
+  shipping_cost: string
 }
