@@ -38,8 +38,9 @@ import { useRouter } from 'next/router'
 import { formatterUSDStrip } from 'src/constants/Utils'
 import CardOrder from 'src/views/cards/CardOrder'
 import { ExtendedSession } from 'src/pages/api/auth/[...nextauth]'
-import { BuyingOrder, SalesOrder } from 'src/pages/purchase/[purchaseId]'
 import CloseIcon from '@mui/icons-material/Close'
+import { BuyingOrder } from 'src/@core/types'
+import { SalesOrder } from 'src/pages/purchase/[purchaseId]'
 
 type InventoryItem = {
   [key: string]: any
@@ -321,7 +322,7 @@ const InventoryDetail = (props: any) => {
   const [isError, setisError] = useState(false)
   const [isFetching, setisFetching] = useState(false)
   const [isLoading, setisLoading] = useState(false)
-  const [orderData, setOrderData] = useState<BuyingOrder | SalesOrder>()
+  const [orderData, setOrderData] = useState<BuyingOrder>()
 
   const [tableData, setTableData] = useState<Item[]>([])
   const [roomData, setRoomData] = useState<Room[]>([])

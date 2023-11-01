@@ -39,6 +39,7 @@ import { formatterUSDStrip } from 'src/constants/Utils'
 import CardOrder from 'src/views/cards/CardOrder'
 import { SalesOrder } from '../purchase/[purchaseId]'
 import CloseIcon from '@mui/icons-material/Close'
+import { BuyingOrder } from 'src/@core/types'
 
 type InventoryItem = {
   [key: string]: any
@@ -394,7 +395,7 @@ const Example = (props: any) => {
     },
     keepPreviousData: true
   })
-  const [orderData, setOrderData] = useState<SalesOrder>()
+  const [orderData, setOrderData] = useState<BuyingOrder>()
 
   const [tableData, setTableData] = useState<Item[]>([])
   const [roomData, setRoomData] = useState<Room[]>([])
