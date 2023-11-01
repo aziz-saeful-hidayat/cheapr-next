@@ -5,11 +5,12 @@ import { ReactNode } from 'react'
 import { ThemeColor } from 'src/@core/layouts/types'
 
 export type CardStatsVerticalProps = {
+  link?: string
   title: string
   stats: string
   icon: ReactNode
-  subtitle: string
+  subtitle?: string
   color?: ThemeColor
-  trendNumber: string
+  trendNumber?: string
   trend?: 'positive' | 'negative'
 }

@@ -22,7 +22,13 @@ const TrophyImg = styled('img')({
   position: 'absolute'
 })
 
-const Trophy = (props: any) => {
+const Trophy = (props: {
+  data: {
+    open: { count: number; data: { all_cost: number; sales_shipping: number; outbound_shipping: number } }
+    buffer: { count: number; data: { all_cost: number; sales_shipping: number; outbound_shipping: number } }
+    unverified: { direct: number; ebay: number }
+  }
+}) => {
   const { data } = props
   // ** Hook
   const theme = useTheme()
@@ -34,18 +40,10 @@ const Trophy = (props: any) => {
       <CardContent>
         <Typography variant='h6'>Good Job! 🥳</Typography>
         <Typography variant='body2' sx={{ letterSpacing: '0.25px' }}>
-          Total purchased items yesterday
+          {data?.open?.count} Open Orders
         </Typography>
         <Typography variant='h5' sx={{ my: 4, color: 'primary.main' }}>
-          {formatterUSDStrip(
-            data.reduce((total: number, obj: any) => {
-              if (obj.yesterday_sum) {
-                return parseFloat(obj.yesterday_sum) + total
-              } else {
-                return total
-              }
-            }, 0)
-          )}
+          {formatterUSDStrip(data?.open?.data?.all_cost)}
         </Typography>
         <Button size='small' variant='contained'>
           View Orders

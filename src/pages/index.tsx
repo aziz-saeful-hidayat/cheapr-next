@@ -27,10 +27,15 @@ import SalesByCountries from 'src/views/dashboard/SalesByCountries'
 import { withAuth } from '../constants/HOCs'
 import { useSession, signIn, signOut, getSession } from 'next-auth/react'
 import TableBrand from 'src/views/dashboard/TableBrand'
+import { formatterUSDStrip } from 'src/constants/Utils'
 
 const Dashboard = (props: any) => {
   const { session } = props
-  const [dashboardData, setDashboardData] = useState([])
+  const [dashboardData, setDashboardData] = useState({
+    open: { count: 0, data: { all_cost: 0.0, sales_shipping: 0.0, outbound_shipping: 0.0 } },
+    buffer: { count: 0, data: { all_cost: 0.0, sales_shipping: 0.0, outbound_shipping: 0.0 } },
+    unverified: { direct: 0, ebay: 0 }
+  })
   useEffect(() => {
     const fetchURL = new URL('/get_dashboard_data', 'https://cheapr.my.id')
     fetch(fetchURL.href, {
@@ -41,7 +46,7 @@ const Dashboard = (props: any) => {
     })
       .then(response => response.json())
       .then(json => {
-        setDashboardData(json.data)
+        setDashboardData(json)
         console.log(json)
       })
   }, [session])
@@ -53,18 +58,18 @@ const Dashboard = (props: any) => {
             <Grid container spacing={6}>
               <Grid item xs={3}>
                 <CardStatisticsVerticalComponent
-                  stats='$25.6k'
+                  stats={formatterUSDStrip(dashboardData?.open?.data?.all_cost)}
                   icon={<Poll />}
                   color='success'
                   trendNumber='+42%'
-                  title='Total Order'
+                  title={`${dashboardData?.open?.count} Open Orders`}
                   subtitle='Weekly Profit'
                 />
               </Grid>
               <Grid item xs={3}>
                 <CardStatisticsVerticalComponent
-                  stats='$78'
-                  title='Total Revenue'
+                  stats={formatterUSDStrip(dashboardData?.buffer?.data?.all_cost)}
+                  title={`${dashboardData?.buffer?.count} Open Orders (Buffers)`}
                   trend='negative'
                   color='secondary'
                   trendNumber='-15%'
@@ -77,7 +82,7 @@ const Dashboard = (props: any) => {
                   stats='862'
                   trend='negative'
                   trendNumber='-18%'
-                  title='Total Profit'
+                  title={`eBay: ${dashboardData?.unverified?.ebay} Direct: ${dashboardData?.unverified?.direct}`}
                   subtitle='Yearly Project'
                   icon={<BriefcaseVariantOutline />}
                 />

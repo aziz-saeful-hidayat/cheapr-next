@@ -23,6 +23,7 @@ import { ThemeColor } from 'src/@core/layouts/types'
 import { formatterUSDStrip } from 'src/constants/Utils'
 
 interface DataType {
+  link: string
   stats: string
   title: string
   color: ThemeColor
@@ -55,52 +56,42 @@ const renderStats = (salesData: DataType[]) => {
   ))
 }
 
-const StatisticsCard = (props: any) => {
+const StatisticsCard = (props: {
+  data: {
+    open: { count: number; data: { all_cost: number; sales_shipping: number; outbound_shipping: number } }
+    buffer: { count: number; data: { all_cost: number; sales_shipping: number; outbound_shipping: number } }
+    unverified: { direct: number; ebay: number }
+  }
+}) => {
   const { data } = props
   const salesData: DataType[] = [
     {
-      stats: formatterUSDStrip(
-        data.reduce((total: number, obj: any) => {
-          if (obj.last30_sum) {
-            return parseFloat(obj.last30_sum) + total
-          } else {
-            return total
-          }
-        }, 0)
-      ),
-      title: 'Total Order',
+      stats: formatterUSDStrip(data?.open?.data?.all_cost),
+      title: `${data?.open?.count} Open Orders`,
       color: 'primary',
-      icon: <TrendingUp sx={{ fontSize: '1.75rem' }} />
+      icon: <TrendingUp sx={{ fontSize: '1.75rem' }} />,
+      link: '/sales/'
     },
     {
-      stats: data.reduce((total: number, obj: any) => {
-        if (obj.last30_order_sum) {
-          return obj.last30_order_sum + total
-        } else {
-          return total
-        }
-      }, 0),
-      title: 'Total Revenue',
+      stats: formatterUSDStrip(data?.buffer?.data?.all_cost),
+      title: `${data?.buffer?.count} Open Orders (Buffers)`,
       color: 'success',
-      icon: <AccountOutline sx={{ fontSize: '1.75rem' }} />
+      icon: <AccountOutline sx={{ fontSize: '1.75rem' }} />,
+      link: '/sales/'
     },
     {
-      stats: data.reduce((total: number, obj: any) => {
-        if (obj.last30_item_sum) {
-          return obj.last30_item_sum + total
-        } else {
-          return total
-        }
-      }, 0),
+      stats: `eBay: ${data?.unverified?.ebay} Direct: ${data?.unverified?.direct}`,
       color: 'warning',
-      title: 'Total Profit',
-      icon: <CellphoneLink sx={{ fontSize: '1.75rem' }} />
+      title: `Unverified Purchase`,
+      icon: <CellphoneLink sx={{ fontSize: '1.75rem' }} />,
+      link: '/purchase/'
     },
     {
       stats: '$88k',
       color: 'info',
-      title: 'Profit Margin',
-      icon: <CurrencyUsd sx={{ fontSize: '1.75rem' }} />
+      title: `Total Order`,
+      icon: <CurrencyUsd sx={{ fontSize: '1.75rem' }} />,
+      link: '/'
     }
   ]
 
