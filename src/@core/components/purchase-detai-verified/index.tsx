@@ -591,7 +591,10 @@ const PurchaseDetailVerified = (props: any) => {
           select: true, //change to select for a dropdown
           children: salesItemData?.map(salesItem => (
             <MenuItem key={salesItem.pk} value={salesItem.pk}>
-              {salesItem.sku.sku} - ({salesItem.selling.order_id})
+              {salesItem.sku.sku}
+              {orderData?.selling_buying?.map(sales => sales.sales.pk).length &&
+                orderData?.selling_buying?.map(sales => sales.sales.pk).length > 1 &&
+                ` (${salesItem.selling.order_id})`}
             </MenuItem>
           ))
         },
