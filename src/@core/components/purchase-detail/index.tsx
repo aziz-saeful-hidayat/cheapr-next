@@ -811,7 +811,7 @@ const PurchaseDetail = (props: any) => {
           select: true, //change to select for a dropdown
           children: salesItemData?.map(salesItem => (
             <MenuItem key={salesItem.pk} value={salesItem.pk}>
-              {salesItem.sku.sku}
+              {salesItem.sku ? salesItem.sku?.sku : 'No SKU'}
               {orderData?.selling_buying?.map(sales => sales.sales.pk).length &&
                 orderData?.selling_buying?.map(sales => sales.sales.pk).length > 1 &&
                 ` (${salesItem.selling.order_id})`}
@@ -820,7 +820,13 @@ const PurchaseDetail = (props: any) => {
         },
         Cell: ({ renderedCellValue, row }) => (
           <Box component='span'>
-            <span>{renderedCellValue}</span>
+            <span>
+              {row.original.itemsales
+                ? row.original.itemsales?.sku
+                  ? row.original.itemsales?.sku?.sku
+                  : `No SKU`
+                : ''}
+            </span>
             {row.original.itemsales && (
               <Tooltip arrow placement='top' title='Remove'>
                 <IconButton
@@ -1540,7 +1546,7 @@ const PurchaseDetail = (props: any) => {
                 variant='contained'
                 disabled={
                   !orderData?.destination ||
-                  (orderData?.destination == 'D' && !orderData?.sales) ||
+                  (orderData?.destination == 'D' && orderData?.selling_buying?.length == 0) ||
                   (orderData?.destination == 'D' &&
                     orderData?.inventoryitems?.filter(s => s.itemsales == null).length > 0)
                 }
