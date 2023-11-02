@@ -1231,6 +1231,7 @@ const PurchaseDetail = (props: any) => {
           }
         })
     }
+    setRefresh(refresh + 1)
   }
 
   const handleAddItem = (values: InventoryPayload) => {
