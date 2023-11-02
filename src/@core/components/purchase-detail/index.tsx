@@ -1022,6 +1022,9 @@ const PurchaseDetail = (props: any) => {
                     setRefresh(refresh + 1)
                   }
                 })
+                .finally(() => {
+                  setRefresh(refresh + 1)
+                })
             }
           }
         })
@@ -1042,6 +1045,9 @@ const PurchaseDetail = (props: any) => {
             if (json.pk) {
               setRefresh(refresh + 1)
             }
+          })
+          .finally(() => {
+            setRefresh(refresh + 1)
           })
       } else {
         fetch(`https://cheapr.my.id/tracking/`, {
@@ -1069,7 +1075,9 @@ const PurchaseDetail = (props: any) => {
                     setRefresh(refresh + 1)
                   }
                 })
-              setRefresh(refresh + 1)
+                .finally(() => {
+                  setRefresh(refresh + 1)
+                })
             }
           })
       }
@@ -1088,6 +1096,9 @@ const PurchaseDetail = (props: any) => {
             if (json.pk) {
               setRefresh(refresh + 1)
             }
+          })
+          .finally(() => {
+            setRefresh(refresh + 1)
           })
       } else {
         payload['tracking_number'] = value
@@ -1123,11 +1134,13 @@ const PurchaseDetail = (props: any) => {
                       .then(response => response.json())
                       .then(json => {
                         if (json.pk) {
-                          setRefresh(refresh + 1)
                         }
                       })
-                    setRefresh(refresh + 1)
+                      .finally(() => {})
                   }
+                })
+                .finally(() => {
+                  setRefresh(refresh + 1)
                 })
             } else {
               fetch(`https://cheapr.my.id/inventory_items/${cell.row.original.pk}/`, {
@@ -1144,7 +1157,9 @@ const PurchaseDetail = (props: any) => {
                     setRefresh(refresh + 1)
                   }
                 })
-              setRefresh(refresh + 1)
+                .finally(() => {
+                  setRefresh(refresh + 1)
+                })
             }
           })
       }
@@ -1231,7 +1246,6 @@ const PurchaseDetail = (props: any) => {
           }
         })
     }
-    setRefresh(refresh + 1)
   }
 
   const handleAddItem = (values: InventoryPayload) => {

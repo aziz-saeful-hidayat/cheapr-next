@@ -934,8 +934,10 @@ const PurchaseDetailVerified = (props: any) => {
                 .then(response => response.json())
                 .then(json => {
                   if (json.pk) {
-                    setRefresh(refresh + 1)
                   }
+                })
+                .finally(() => {
+                  setRefresh(r => r + 1)
                 })
             }
           }
@@ -955,8 +957,10 @@ const PurchaseDetailVerified = (props: any) => {
           .then(json => {
             console.log(json)
             if (json.pk) {
-              setRefresh(refresh + 1)
             }
+          })
+          .finally(() => {
+            setRefresh(r => r + 1)
           })
       } else {
         fetch(`https://cheapr.my.id/tracking/`, {
@@ -981,10 +985,11 @@ const PurchaseDetailVerified = (props: any) => {
                 .then(response => response.json())
                 .then(json => {
                   if (json.pk) {
-                    setRefresh(refresh + 1)
                   }
                 })
-              setRefresh(refresh + 1)
+                .finally(() => {
+                  setRefresh(r => r + 1)
+                })
             }
           })
       }
@@ -1001,8 +1006,10 @@ const PurchaseDetailVerified = (props: any) => {
           .then(response => response.json())
           .then(json => {
             if (json.pk) {
-              setRefresh(refresh + 1)
             }
+          })
+          .finally(() => {
+            setRefresh(r => r + 1)
           })
       } else {
         payload['tracking_number'] = value
@@ -1038,11 +1045,13 @@ const PurchaseDetailVerified = (props: any) => {
                       .then(response => response.json())
                       .then(json => {
                         if (json.pk) {
-                          setRefresh(refresh + 1)
                         }
                       })
-                    setRefresh(refresh + 1)
+                      .finally(() => {})
                   }
+                })
+                .finally(() => {
+                  setRefresh(r => r + 1)
                 })
             } else {
               fetch(`https://cheapr.my.id/inventory_items/${cell.row.original.pk}/`, {
@@ -1056,10 +1065,11 @@ const PurchaseDetailVerified = (props: any) => {
                 .then(response => response.json())
                 .then(json => {
                   if (json.pk) {
-                    setRefresh(refresh + 1)
                   }
                 })
-              setRefresh(refresh + 1)
+                .finally(() => {
+                  setRefresh(r => r + 1)
+                })
             }
           })
       }
@@ -1077,8 +1087,10 @@ const PurchaseDetailVerified = (props: any) => {
           .then(response => response.json())
           .then(json => {
             if (json.pk) {
-              setRefresh(refresh + 1)
             }
+          })
+          .finally(() => {
+            setRefresh(r => r + 1)
           })
       } else {
         fetch(`https://cheapr.my.id/tracking/`, {
@@ -1103,11 +1115,13 @@ const PurchaseDetailVerified = (props: any) => {
                 .then(response => response.json())
                 .then(json => {
                   if (json.pk) {
-                    setRefresh(refresh + 1)
                   }
                 })
-              setRefresh(refresh + 1)
+              setRefresh(r => r + 1)
             }
+          })
+          .finally(() => {
+            setRefresh(r => r + 1)
           })
       }
     } else if (key === 'tracking.status') {
@@ -1124,8 +1138,10 @@ const PurchaseDetailVerified = (props: any) => {
           .then(response => response.json())
           .then(json => {
             if (json.pk) {
-              setRefresh(refresh + 1)
             }
+          })
+          .finally(() => {
+            setRefresh(r => r + 1)
           })
       }
     } else {
@@ -1142,8 +1158,10 @@ const PurchaseDetailVerified = (props: any) => {
         .then(response => response.json())
         .then(json => {
           if (json.pk) {
-            setRefresh(refresh + 1)
           }
+        })
+        .finally(() => {
+          setRefresh(r => r + 1)
         })
     }
   }
