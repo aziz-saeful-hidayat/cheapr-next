@@ -1019,11 +1019,10 @@ const PurchaseDetail = (props: any) => {
                 .then(response => response.json())
                 .then(json => {
                   if (json.pk) {
-                    setRefresh(refresh + 1)
                   }
                 })
                 .finally(() => {
-                  setRefresh(refresh + 1)
+                  setRefresh(r => r + 1)
                 })
             }
           }
@@ -1043,11 +1042,10 @@ const PurchaseDetail = (props: any) => {
           .then(json => {
             console.log(json)
             if (json.pk) {
-              setRefresh(refresh + 1)
             }
           })
           .finally(() => {
-            setRefresh(refresh + 1)
+            setRefresh(r => r + 1)
           })
       } else {
         fetch(`https://cheapr.my.id/tracking/`, {
@@ -1072,11 +1070,10 @@ const PurchaseDetail = (props: any) => {
                 .then(response => response.json())
                 .then(json => {
                   if (json.pk) {
-                    setRefresh(refresh + 1)
                   }
                 })
                 .finally(() => {
-                  setRefresh(refresh + 1)
+                  setRefresh(r => r + 1)
                 })
             }
           })
@@ -1094,11 +1091,10 @@ const PurchaseDetail = (props: any) => {
           .then(response => response.json())
           .then(json => {
             if (json.pk) {
-              setRefresh(refresh + 1)
             }
           })
           .finally(() => {
-            setRefresh(refresh + 1)
+            setRefresh(r => r + 1)
           })
       } else {
         payload['tracking_number'] = value
@@ -1140,7 +1136,7 @@ const PurchaseDetail = (props: any) => {
                   }
                 })
                 .finally(() => {
-                  setRefresh(refresh + 1)
+                  setRefresh(r => r + 1)
                 })
             } else {
               fetch(`https://cheapr.my.id/inventory_items/${cell.row.original.pk}/`, {
@@ -1154,11 +1150,10 @@ const PurchaseDetail = (props: any) => {
                 .then(response => response.json())
                 .then(json => {
                   if (json.pk) {
-                    setRefresh(refresh + 1)
                   }
                 })
                 .finally(() => {
-                  setRefresh(refresh + 1)
+                  setRefresh(r => r + 1)
                 })
             }
           })
@@ -1177,8 +1172,10 @@ const PurchaseDetail = (props: any) => {
           .then(response => response.json())
           .then(json => {
             if (json.pk) {
-              setRefresh(refresh + 1)
             }
+          })
+          .finally(() => {
+            setRefresh(r => r + 1)
           })
       } else {
         fetch(`https://cheapr.my.id/tracking/`, {
@@ -1203,11 +1200,13 @@ const PurchaseDetail = (props: any) => {
                 .then(response => response.json())
                 .then(json => {
                   if (json.pk) {
-                    setRefresh(refresh + 1)
                   }
                 })
-              setRefresh(refresh + 1)
+              setRefresh(r => r + 1)
             }
+          })
+          .finally(() => {
+            setRefresh(r => r + 1)
           })
       }
     } else if (key === 'tracking.status') {
@@ -1224,8 +1223,10 @@ const PurchaseDetail = (props: any) => {
           .then(response => response.json())
           .then(json => {
             if (json.pk) {
-              setRefresh(refresh + 1)
             }
+          })
+          .finally(() => {
+            setRefresh(r => r + 1)
           })
       }
     } else {
@@ -1242,8 +1243,10 @@ const PurchaseDetail = (props: any) => {
         .then(response => response.json())
         .then(json => {
           if (json.pk) {
-            setRefresh(refresh + 1)
           }
+        })
+        .finally(() => {
+          setRefresh(r => r + 1)
         })
     }
   }
@@ -1322,7 +1325,7 @@ const PurchaseDetail = (props: any) => {
         console.log(json)
         if (json.pk) {
           setCreateSKUModalOpen(false) //required to exit editing mode
-          setRefresh(refresh + 1)
+          setRefresh(r => r + 1)
         }
       })
   }
@@ -1338,11 +1341,11 @@ const PurchaseDetail = (props: any) => {
       .then(response => response.json())
       .then(json => {
         if (json.pk) {
-          setRefresh(refresh + 1)
+          setRefresh(r => r + 1)
         }
       })
       .finally(() => {
-        setRefresh(refresh + 1)
+        setRefresh(r => r + 1)
       })
   }
 
@@ -1359,7 +1362,7 @@ const PurchaseDetail = (props: any) => {
       .then(response => response.status)
       .then(status => {
         if (status == 200) {
-          setRefresh(refresh + 1)
+          setRefresh(r => r + 1)
           onClose()
         }
       })
@@ -1598,41 +1601,6 @@ const PurchaseDetail = (props: any) => {
           open={matchSalesModalOpen}
           onClose={() => setMatchSalesModalOpen(false)}
           onRefresh={() => setRefresh(r => r + 1)}
-          onReset={(sales: number) => {
-            fetch(`https://cheapr.my.id/buying_order/${pk}/delete_selling/`, {
-              method: 'POST',
-              headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({ sales: sales })
-            })
-              .then(response => response.json())
-              .then(json => {
-                if (json.pk) {
-                  setRefresh(refresh + 1)
-                }
-              })
-              .finally(() => {
-                setRefresh(refresh + 1)
-              })
-          }}
-          onSubmit={(sales: number) => {
-            fetch(`https://cheapr.my.id/buying_order/${pk}/create_selling/`, {
-              method: 'POST',
-              headers: {
-                Authorization: `Bearer ${session?.accessToken}`,
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({ sales: sales })
-            })
-              .then(response => response.json())
-              .then(json => {})
-              .finally(() => {
-                setRefresh(r => r + 1)
-                setMatchSalesModalOpen(false)
-              })
-          }}
           pk={pk}
           picked={orderData?.selling_buying?.map(sales => sales.sales.pk)}
           session={session}

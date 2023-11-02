@@ -98,8 +98,6 @@ export type SalesOrder = {
 }
 interface PickSalesModalProps {
   onClose: () => void
-  onSubmit: (sales: number) => void
-  onReset: (sales: number) => void
   onRefresh: () => void
   open: boolean
   pk: number
@@ -225,16 +223,7 @@ export const ConfirmationCanceledModal = ({ open, onClose }: ConfirmationCancele
   )
 }
 
-export const PickMacthingSales = ({
-  open,
-  onClose,
-  onSubmit,
-  onReset,
-  pk,
-  picked,
-  session,
-  onRefresh
-}: PickSalesModalProps) => {
+export const PickMacthingSales = ({ open, onClose, pk, picked, session, onRefresh }: PickSalesModalProps) => {
   const [isopen, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [loading2, setLoading2] = useState(false)
@@ -294,13 +283,13 @@ export const PickMacthingSales = ({
   }, [pk, session])
 
   const handlePickSelling = (sales: number) => {
-    fetch(`https://cheapr.my.id/buying_order/${pk}/create_selling/`, {
+    fetch(`https://cheapr.my.id/create_selling_buying/`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ sales: sales })
+      body: JSON.stringify({ sales: sales, purchase: pk })
     })
       .then(response => response.json())
       .then(json => {})
@@ -310,19 +299,17 @@ export const PickMacthingSales = ({
       })
   }
   const handleRemoveSelling = (sales: number) => {
-    fetch(`https://cheapr.my.id/buying_order/${pk}/delete_selling/`, {
+    fetch(`https://cheapr.my.id/delete_selling_buying/`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ sales: sales })
+      body: JSON.stringify({ sales: sales, purchase: pk })
     })
       .then(response => response.json())
       .then(json => {
         if (json.pk) {
-          onRefresh()
-          onClose()
         }
       })
       .finally(() => {
@@ -385,7 +372,7 @@ export const PickMacthingSales = ({
                 setConfirmCanceledOpen(true)
               } else {
                 setChoosed(newValue.pk.toString())
-                onSubmit(newValue.pk)
+                handlePickSelling(newValue.pk)
               }
             }
           }}
