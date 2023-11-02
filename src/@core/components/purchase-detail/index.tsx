@@ -996,6 +996,7 @@ const PurchaseDetail = (props: any) => {
     payload[key] = value
     console.log(key, value)
     if (key === 'itemsales.sku.sku') {
+      console.log(cell.row.original.pk)
       fetch(`https://cheapr.my.id/sales_items/${value}/`, {
         method: 'PATCH',
         headers: {
@@ -1014,7 +1015,7 @@ const PurchaseDetail = (props: any) => {
                   Authorization: `Bearer ${session?.accessToken}`,
                   'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ product: json.pk })
+                body: JSON.stringify({ product: json.sku })
               })
                 .then(response => response.json())
                 .then(json => {
@@ -1026,6 +1027,9 @@ const PurchaseDetail = (props: any) => {
                 })
             }
           }
+        })
+        .finally(() => {
+          setRefresh(r => r + 1)
         })
     } else if (key === 'tracking.fullcarrier.name') {
       payload['fullcarrier'] = value
