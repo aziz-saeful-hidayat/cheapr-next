@@ -33,6 +33,7 @@ import UnfulfilledBuffers from './unfulfilled-buffer'
 import HAUnlinked from './ha-unlinked'
 import AllSales from './all'
 import Canceled from './canceled'
+import { useRouter } from 'next/router'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -52,11 +53,25 @@ const TabName = styled('span')(({ theme }) => ({
   }
 }))
 
+const AllTabs = [
+  'all',
+  'unfulfilled',
+  'unfulfilled-buffers',
+  'fulfilled',
+  'ha-unlinked',
+  'canceled',
+  'replacement',
+  'return'
+]
+
 const Sales = (props: any) => {
   const { session } = props
 
   // ** State
-  const [value, setValue] = useState<string>('all')
+  const { query } = useRouter()
+  const [value, setValue] = useState<string>(
+    typeof query.tab == 'string' && AllTabs.includes(query.tab) ? query.tab : 'all'
+  )
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)

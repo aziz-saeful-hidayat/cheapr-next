@@ -32,8 +32,8 @@ import { formatterUSDStrip } from 'src/constants/Utils'
 const Dashboard = (props: any) => {
   const { session } = props
   const [dashboardData, setDashboardData] = useState({
-    open: { count: 0, data: { all_cost: 0.0, sales_shipping: 0.0, outbound_shipping: 0.0 } },
-    buffer: { count: 0, data: { all_cost: 0.0, sales_shipping: 0.0, outbound_shipping: 0.0 } },
+    open: { count: 0, data: { all_cost: 0.0, sales_shipping: 0.0, outbound_shipping: 0.0, counter: 0 } },
+    buffer: { count: 0, data: { all_cost: 0.0, sales_shipping: 0.0, outbound_shipping: 0.0, counter: 0 } },
     unverified: { direct: 0, ebay: 0 }
   })
   useEffect(() => {
@@ -62,19 +62,21 @@ const Dashboard = (props: any) => {
                   icon={<Poll />}
                   color='success'
                   trendNumber='+42%'
-                  title={`${dashboardData?.open?.count} Open Orders`}
+                  title={`${dashboardData?.open?.data?.counter} Open Orders`}
                   subtitle='Weekly Profit'
+                  link={'/sales/?tab=unfulfilled'}
                 />
               </Grid>
               <Grid item xs={3}>
                 <CardStatisticsVerticalComponent
                   stats={formatterUSDStrip(dashboardData?.buffer?.data?.all_cost)}
-                  title={`${dashboardData?.buffer?.count} Open Orders (Buffers)`}
+                  title={`${dashboardData?.buffer?.data?.counter} Open Orders (Buffers)`}
                   trend='negative'
                   color='secondary'
                   trendNumber='-15%'
                   subtitle='Past Month'
                   icon={<CurrencyUsd />}
+                  link={'/sales/?tab=unfulfilled-buffers'}
                 />
               </Grid>
               <Grid item xs={3}>
@@ -85,6 +87,7 @@ const Dashboard = (props: any) => {
                   title={`eBay: ${dashboardData?.unverified?.ebay} Direct: ${dashboardData?.unverified?.direct}`}
                   subtitle='Yearly Project'
                   icon={<BriefcaseVariantOutline />}
+                  link={'/purchase/?tab=unverified'}
                 />
               </Grid>
               <Grid item xs={3}>
@@ -96,6 +99,7 @@ const Dashboard = (props: any) => {
                   subtitle='Last Week'
                   title='Profit Margin'
                   icon={<HelpCircleOutline />}
+                  link={'#'}
                 />
               </Grid>
             </Grid>

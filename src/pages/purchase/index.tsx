@@ -30,6 +30,7 @@ import Verified from './verified'
 import Replacement from './replacement'
 import Return from './return'
 import AllPurchase from './all'
+import { useRouter } from 'next/router'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -49,11 +50,16 @@ const TabName = styled('span')(({ theme }) => ({
   }
 }))
 
+const AllTabs = ['all', 'unverified', 'verified', 'replacement', 'return']
+
 const Purchase = (props: any) => {
   const { session } = props
 
   // ** State
-  const [value, setValue] = useState<string>('all')
+  const { query } = useRouter()
+  const [value, setValue] = useState<string>(
+    typeof query.tab == 'string' && AllTabs.includes(query.tab) ? query.tab : 'all'
+  )
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)

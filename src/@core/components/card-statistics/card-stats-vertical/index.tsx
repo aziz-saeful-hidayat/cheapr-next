@@ -11,46 +11,52 @@ import DotsVertical from 'mdi-material-ui/DotsVertical'
 
 // ** Types Imports
 import { CardStatsVerticalProps } from 'src/@core/components/card-statistics/types'
-import { CardActionArea, Link } from '@mui/material'
+import { CardActionArea } from '@mui/material'
+import { useRouter } from 'next/router'
+import Link from 'next/link'
 
 const CardStatsVertical = (props: CardStatsVerticalProps) => {
   // ** Props
   const { title, color, icon, stats, link } = props
-
+  const router = useRouter()
   return (
-    <Card>
-      <CardActionArea href={link ? link : ''}>
-        <CardContent>
-          <Box sx={{ display: 'flex', marginBottom: 5.5, alignItems: 'flex-start', justifyContent: 'space-between' }}>
-            <Avatar sx={{ boxShadow: 3, marginRight: 4, color: 'common.white', backgroundColor: `${color}.main` }}>
-              {icon}
-            </Avatar>
-            <IconButton
-              size='small'
-              aria-label='settings'
-              className='card-more-options'
-              sx={{ color: 'text.secondary' }}
+    <Link href={link}>
+      <Card>
+        <CardActionArea>
+          <CardContent>
+            <Box sx={{ display: 'flex', marginBottom: 5.5, alignItems: 'flex-start', justifyContent: 'space-between' }}>
+              <Avatar sx={{ boxShadow: 3, marginRight: 4, color: 'common.white', backgroundColor: `${color}.main` }}>
+                {icon}
+              </Avatar>
+              <IconButton
+                size='small'
+                aria-label='settings'
+                className='card-more-options'
+                sx={{ color: 'text.secondary' }}
+              >
+                <DotsVertical />
+              </IconButton>
+            </Box>
+            <Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>{title}</Typography>
+            <Box
+              sx={{ marginTop: 1.5, display: 'flex', flexWrap: 'wrap', marginBottom: 1.5, alignItems: 'flex-start' }}
             >
-              <DotsVertical />
-            </IconButton>
-          </Box>
-          <Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>{title}</Typography>
-          <Box sx={{ marginTop: 1.5, display: 'flex', flexWrap: 'wrap', marginBottom: 1.5, alignItems: 'flex-start' }}>
-            <Typography variant='h6' sx={{ mr: 2 }}>
-              {stats}
-            </Typography>
-            {/* <Typography
+              <Typography variant='h6' sx={{ mr: 2 }}>
+                {stats}
+              </Typography>
+              {/* <Typography
             component='sup'
             variant='caption'
             sx={{ color: trend === 'positive' ? 'success.main' : 'error.main' }}
           >
             {trendNumber}
           </Typography> */}
-          </Box>
-          {/* <Typography variant='caption'>{subtitle}</Typography> */}
-        </CardContent>
-      </CardActionArea>
-    </Card>
+            </Box>
+            {/* <Typography variant='caption'>{subtitle}</Typography> */}
+          </CardContent>
+        </CardActionArea>
+      </Card>
+    </Link>
   )
 }
 
