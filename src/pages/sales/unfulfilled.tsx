@@ -959,18 +959,11 @@ const Example = (props: any) => {
                   <HtmlTooltip
                     title={
                       <React.Fragment>
-                        {sales.model_match.length == 0 && <Typography color='inherit'>Not in Inventory</Typography>}
-                        {sales.model_match
-                          .filter((model: any) => model.mpn == 'Exact')
-                          .map((model: any, index: number) => (
-                            <Typography color='inherit' key={index}>{`${model.mpn} (${model.count})`}</Typography>
-                          ))}
-
-                        {sales.model_match
-                          .filter((model: any) => model.mpn != 'Exact')
-                          .map((model: any, index: number) => (
-                            <Typography color='inherit' key={index}>{`${model.mpn} (${model.count})`}</Typography>
-                          ))}
+                        {sales.title == null ? (
+                          <Typography color='inherit'>No Title</Typography>
+                        ) : (
+                          <Typography color='inherit'>{sales.title}</Typography>
+                        )}
                       </React.Fragment>
                     }
                   >
