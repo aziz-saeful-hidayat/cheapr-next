@@ -28,13 +28,14 @@ import { withAuth } from '../constants/HOCs'
 import { useSession, signIn, signOut, getSession } from 'next-auth/react'
 import TableBrand from 'src/views/dashboard/TableBrand'
 import { formatterUSDStrip } from 'src/constants/Utils'
+import TableMissing from 'src/views/dashboard/TableMissing'
 
 const Dashboard = (props: any) => {
   const { session } = props
   const [dashboardData, setDashboardData] = useState({
     open: { count: 0, data: { all_cost: 0.0, sales_shipping: 0.0, outbound_shipping: 0.0, counter: 0 } },
     buffer: { count: 0, data: { all_cost: 0.0, sales_shipping: 0.0, outbound_shipping: 0.0, counter: 0 } },
-    unverified: { direct: 0, ebay: 0 }
+    unverified: { direct: 0, ebay: 0, all: 0 }
   })
   useEffect(() => {
     const fetchURL = new URL('/get_dashboard_data', 'https://cheapr.my.id')
@@ -70,7 +71,7 @@ const Dashboard = (props: any) => {
               <Grid item xs={3}>
                 <CardStatisticsVerticalComponent
                   stats={formatterUSDStrip(dashboardData?.buffer?.data?.all_cost)}
-                  title={`${dashboardData?.buffer?.data?.counter} Open Orders (Buffers)`}
+                  title={`${dashboardData?.buffer?.data?.counter} Open (Buffers)`}
                   trend='negative'
                   color='secondary'
                   trendNumber='-15%'
@@ -81,10 +82,10 @@ const Dashboard = (props: any) => {
               </Grid>
               <Grid item xs={3}>
                 <CardStatisticsVerticalComponent
-                  stats='862'
+                  stats={`Purchases: ${dashboardData?.unverified?.all}`}
                   trend='negative'
                   trendNumber='-18%'
-                  title={`eBay: ${dashboardData?.unverified?.ebay} Direct: ${dashboardData?.unverified?.direct}`}
+                  title={`Unverified / Unlinked`}
                   subtitle='Yearly Project'
                   icon={<BriefcaseVariantOutline />}
                   link={'/purchase/?tab=unverified'}
@@ -107,11 +108,11 @@ const Dashboard = (props: any) => {
           <Grid item xs={12} md={4}>
             <Trophy data={dashboardData} />
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={12} lg={8}>
             {/* <SalesByCountries /> */}
-            <TableBrand />
+            <TableMissing session={session} />
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={6} lg={4}>
             <WeeklyOverview />
           </Grid>
 
