@@ -1064,7 +1064,8 @@ const Example = (props: any) => {
             <HtmlTooltip
               title={
                 <React.Fragment>
-                  {row.original.erp_data && <Typography color='inherit'>{row.original.erp_data?.data}</Typography>}
+                  {row.original.erp_data &&
+                    row.original.erp_data?.data?.split('\n').map(el => <Typography color='inherit'>{el}</Typography>)}
                 </React.Fragment>
               }
             >
