@@ -26,7 +26,7 @@ const Trophy = (props: {
   data: {
     open: { count: number; data: { all_cost: number; sales_shipping: number; outbound_shipping: number } }
     buffer: { count: number; data: { all_cost: number; sales_shipping: number; outbound_shipping: number } }
-    unverified: { direct: number; ebay: number }
+    unverified: { direct: number; ebay: number; all: number }
   }
 }) => {
   const { data } = props

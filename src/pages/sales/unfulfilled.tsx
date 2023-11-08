@@ -1065,7 +1065,11 @@ const Example = (props: any) => {
               title={
                 <React.Fragment>
                   {row.original.erp_data &&
-                    row.original.erp_data?.data?.split('\n').map(el => <Typography color='inherit'>{el}</Typography>)}
+                    row.original.erp_data?.data?.split('\n').map((el, index) => (
+                      <Typography color='inherit' key={`${index}-${el}`}>
+                        {el}
+                      </Typography>
+                    ))}
                 </React.Fragment>
               }
             >
