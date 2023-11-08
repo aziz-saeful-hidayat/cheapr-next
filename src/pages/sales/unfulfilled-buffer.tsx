@@ -543,6 +543,16 @@ const Example = (props: any) => {
           console.log(filter)
           fetchURL.searchParams.set('order_date_after', Array.isArray(filter.value) ? filter.value[0] : '')
           fetchURL.searchParams.set('order_date_before', Array.isArray(filter.value) ? filter.value[1] : '')
+        } else if (filter.id == 'delivery_date') {
+          console.log(filter)
+          fetchURL.searchParams.set(
+            'delivery_date_after',
+            typeof filter.value === 'string' ? moment(filter.value).add(7, 'hours').toISOString() : ''
+          )
+          fetchURL.searchParams.set(
+            'delivery_date_before',
+            typeof filter.value === 'string' ? moment(filter.value).add(1, 'days').add(7, 'hours').toISOString() : ''
+          )
         } else {
           fetchURL.searchParams.set(filter.id.split('.')[0], typeof filter.value === 'string' ? filter.value : '')
         }
@@ -1032,6 +1042,31 @@ const Example = (props: any) => {
                 return <span key={index}>{` `}</span>
               }
             })}
+          </Box>
+        )
+      },
+      {
+        id: 'mm2',
+        header: 'ERP2',
+        maxSize: 60,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            <HtmlTooltip
+              title={
+                <React.Fragment>
+                  {row.original.erp_data && <Typography color='inherit'>{row.original.erp_data?.data}</Typography>}
+                </React.Fragment>
+              }
+            >
+              {row.original.erp_data ? <span>Show</span> : <span></span>}
+            </HtmlTooltip>
           </Box>
         )
       },

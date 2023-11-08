@@ -153,6 +153,12 @@ export type ItemOption2 = {
   total_cost: string
   shipping_cost: string
 }
+
+export type ERPData = {
+  selling: number
+  data: string
+}
+
 export type SellingOrder = {
   pk: number
   order_id: string
@@ -183,6 +189,7 @@ export type SellingOrder = {
   salesitems: InventoryItem[]
   person: Person
   submited: boolean
+  erp_data: ERPData
 }
 export type Item = {
   pk: number

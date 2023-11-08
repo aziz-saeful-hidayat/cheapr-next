@@ -96,6 +96,7 @@ const TableMissing = ({ session }: TableMissingProps) => {
           <TableHead>
             <TableRow>
               <TableCell>Status</TableCell>
+              <TableCell>Get By</TableCell>
               <TableCell>Order ID</TableCell>
               <TableCell>Store</TableCell>
               <TableCell>Carrier</TableCell>
@@ -178,6 +179,8 @@ const TableMissing = ({ session }: TableMissingProps) => {
                       })}
                   </Box>
                 </TableCell>
+                <TableCell>{moment(row.delivery_date).tz('America/Los_Angeles').format('MM-DD-YY')}</TableCell>
+
                 <TableCell>{row.channel_order_id}</TableCell>
                 <TableCell>{row.seller_name}</TableCell>
                 <TableCell>
