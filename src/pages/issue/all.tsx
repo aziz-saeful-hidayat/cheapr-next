@@ -62,12 +62,14 @@ import {
   Person,
   InventoryPayload,
   InventoryItem,
-  SellingOrder,
+  OpenIssue,
   ItemOption,
   ItemOption2,
-  Manager
+  CustomerService,
+  SellingOrder
 } from 'src/@core/types'
 import AddSalesItemModal from 'src/@core/components/add-sales-item'
+import { ExtendedSession } from '../api/auth/[...nextauth]'
 
 type Payload = {
   pk?: number
@@ -92,18 +94,19 @@ type HistoricalData = {
   order_id: string[]
 }
 interface CreateModalProps {
-  columns: MRT_ColumnDef<SellingOrder>[]
+  columns: MRT_ColumnDef<OpenIssue>[]
   onClose: () => void
-  onSubmit: (values: SellingOrder) => void
+  onSubmit: (values: OpenIssue) => void
   open: boolean
   channelData: any[]
+  session: ExtendedSession
 }
 interface AddItemProps {
   columns: MRT_ColumnDef<InventoryPayload>[]
   onClose: () => void
   onSubmit: (values: InventoryPayload) => void
   open: boolean
-  rowData: SellingOrder | undefined
+  rowData: OpenIssue | undefined
   roomData: Room[]
 }
 interface DeleteModalProps {
@@ -119,6 +122,7 @@ interface CustHistoryModalProps {
   pk?: number
   session: any
 }
+
 interface SubHistoryModalProps {
   onClose: () => void
   onSubmit: () => void
@@ -126,6 +130,7 @@ interface SubHistoryModalProps {
   data: HistoricalData[]
   session: any
 }
+
 const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} placement='right-start' />
 ))(({ theme }) => ({
@@ -136,152 +141,8 @@ const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
     border: '1px solid #dadde9'
   }
 }))
-export const CustHistoryModal = ({ open, onClose, onSubmit, pk, session }: CustHistoryModalProps) => {
-  const handleSubmit = () => {
-    //put your validation logic here
-    onClose()
-    onSubmit()
-  }
-  const [data, setData] = useState<SellingOrder[]>([])
-  useEffect(() => {
-    if (pk) {
-      const fetchURL = `https://cheapr.my.id/selling_order/?person=${pk}`
-      console.log(fetchURL)
-      fetch(fetchURL, {
-        method: 'get',
-        headers: new Headers({
-          Authorization: `Bearer ${session?.accessToken}`,
-          'Content-Type': 'application/json'
-        })
-      })
-        .then(response => response.json())
-        .then(json => {
-          setData(json.results)
-        })
-    }
-  }, [pk])
 
-  return (
-    <Dialog open={open}>
-      <DialogTitle textAlign='center'>Customer Order History</DialogTitle>
-      <IconButton
-        aria-label='close'
-        onClick={onClose}
-        sx={{
-          position: 'absolute',
-          right: 8,
-          top: 8,
-          color: theme => theme.palette.grey[500]
-        }}
-      >
-        <CloseIcon />
-      </IconButton>
-      <Box sx={{ width: 600, bgcolor: 'background.paper' }}>
-        <TableContainer component={Paper}>
-          <Table aria-label='simple table'>
-            <TableHead>
-              <TableRow>
-                <TableCell>ORDER</TableCell>
-                <TableCell align='right'>ITEM</TableCell>
-                <TableCell align='right'>CARRIER</TableCell>
-                <TableCell>TRACKING</TableCell>
-                <TableCell align='right'>STATUS</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {data.map(sales => (
-                <TableRow key={sales.pk}>
-                  <TableCell component='th' scope='row'>
-                    {sales.channel_order_id}
-                  </TableCell>
-                  <TableCell align='right'>
-                    {sales.salesitems.map((item, index) => (
-                      <span key={index}>{`${item.sku.make ? `${item.sku.make} | ` : ''}${
-                        item.sku.model ? `${item.sku.model} | ` : ''
-                      }${item.sku.mpn ? `${item.sku.mpn}` : ''}`}</span>
-                    ))}
-                  </TableCell>
-                  <TableCell align='right'>
-                    {sales.salesitems.map((item, index) => (
-                      <span key={index}>{item.tracking?.fullcarrier.name}</span>
-                    ))}
-                  </TableCell>
-                  <TableCell align='right'>
-                    {sales.salesitems.map((item, index) => (
-                      <span key={index}>{item.tracking?.tracking_number}</span>
-                    ))}
-                  </TableCell>
-                  <TableCell align='right'>
-                    {sales.salesitems.map((item, index) => (
-                      <span key={index}>{item.tracking?.status}</span>
-                    ))}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
-      <DialogActions sx={{ p: '1.25rem' }}>
-        <Button onClick={onClose}>Close</Button>
-      </DialogActions>
-    </Dialog>
-  )
-}
-
-export const SubHistoryModal = ({ open, onClose, onSubmit, data }: SubHistoryModalProps) => {
-  const handleSubmit = () => {
-    //put your validation logic here
-    onClose()
-    onSubmit()
-  }
-
-  return (
-    <Dialog open={open}>
-      <DialogTitle textAlign='center'>Sub Order History</DialogTitle>
-      <IconButton
-        aria-label='close'
-        onClick={onClose}
-        sx={{
-          position: 'absolute',
-          right: 8,
-          top: 8,
-          color: theme => theme.palette.grey[500]
-        }}
-      >
-        <CloseIcon />
-      </IconButton>
-      <Box sx={{ width: 300, bgcolor: 'background.paper' }}>
-        <TableContainer component={Paper}>
-          <Table aria-label='simple table'>
-            <TableHead>
-              <TableRow>
-                <TableCell>Item</TableCell>
-                <TableCell align='right'>Count</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {data.map(sales => (
-                <TableRow key={sales.mpn}>
-                  <TableCell component='th' scope='row'>
-                    {sales.make ? `${sales.make} | ` : ''} {sales.model ? `${sales.model} | ` : ''} {sales.mpn}
-                  </TableCell>
-                  <TableCell component='th' scope='row' align='right'>
-                    {`(${sales.count})`}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
-      <DialogActions sx={{ p: '1.25rem' }}>
-        <Button onClick={onClose}>Close</Button>
-      </DialogActions>
-    </Dialog>
-  )
-}
-export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channelData }: CreateModalProps) => {
+export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channelData, session }: CreateModalProps) => {
   const [values, setValues] = useState<any>(() =>
     columns.reduce((acc, column) => {
       acc[column.accessorKey ?? ''] = ''
@@ -289,7 +150,28 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channe
       return acc
     }, {} as any)
   )
+  const [isopen, setOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [choosed, setChoosed] = useState<number>()
+  const [options, setOptions] = useState<SellingOrder[]>([])
 
+  const handleOpenIssue = (sales: number | undefined) => {
+    if (sales) {
+      fetch(`https://cheapr.my.id/open_issue/`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ sales: sales })
+      })
+        .then(response => response.json())
+        .then(json => {})
+        .finally(() => {
+          onClose()
+        })
+    }
+  }
   const handleSubmit = () => {
     //put your validation logic here
     onSubmit(values)
@@ -298,7 +180,7 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channe
 
   return (
     <Dialog open={open}>
-      <DialogTitle textAlign='center'>Create New Selling Order</DialogTitle>
+      <DialogTitle textAlign='center'>Create New Open Issue</DialogTitle>
       <IconButton
         aria-label='close'
         onClick={onClose}
@@ -321,69 +203,77 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channe
               paddingTop: 3
             }}
           >
-            <LocalizationProvider dateAdapter={AdapterDayjs} key={'order_date'}>
-              <DatePicker
-                onChange={value => setValues({ ...values, order_date: value ? value.format('YYYY-MM-DD') : null })}
-                label={'Order Date'}
-                value={values.order_date != '' ? dayjs(values.order_date) : null}
-              />
-            </LocalizationProvider>
-            <TextField
-              value={values.channel?.name}
-              key={'channel.name'}
-              name={'Channel'}
-              label='Channel'
-              select
-              onChange={e => setValues({ ...values, channel: { name: e.target.value } })}
-            >
-              {channelData?.map(channel => (
-                <MenuItem
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '1rem'
+            <Autocomplete
+              id='search-sales'
+              sx={{ margin: 10 }}
+              open={isopen}
+              onOpen={() => {
+                setOpen(true)
+              }}
+              onClose={() => {
+                setOpen(false)
+              }}
+              onChange={(event, newValue) => {
+                console.log(newValue)
+                if (newValue) {
+                  setChoosed(newValue.pk)
+
+                  // if (newValue.salesitems.filter(s => !s.item).length == 0) {
+                  //   setChoosed(newValue.pk.toString())
+                  //   setConfirmOpen(true)
+                  // } else if (newValue.status == 'canceled') {
+                  //   setConfirmCanceledOpen(true)
+                  // } else {
+                  //   setChoosed(newValue.pk.toString())
+                  //   handleOpenIssue(newValue.pk)
+                  // }
+                }
+              }}
+              isOptionEqualToValue={(option, value) => option.pk === value.pk}
+              getOptionLabel={option =>
+                `${option.order_id} ${option.channel_order_id ? option.channel_order_id : '------'} ${
+                  option.person?.name ? option.person?.name : '------'
+                } ${option.person?.address?.street_1 ? option.person?.address?.street_1 : '------'} ${
+                  option.person?.address?.zip ? option.person?.address?.zip : '------'
+                } ${option.person?.address?.zip ? option.person?.address?.zip : '------'}`
+              }
+              options={options}
+              loading={loading}
+              renderInput={params => (
+                <TextField
+                  {...params}
+                  onChange={e =>
+                    fetch(`https://cheapr.my.id/selling_order/?search=${e.target.value}`, {
+                      // note we are going to /1
+                      headers: {
+                        Authorization: `Bearer ${session?.accessToken}`,
+                        'Content-Type': 'application/json'
+                      }
+                    })
+                      .then(response => response.json())
+                      .then(json => {
+                        setOptions(json.results)
+                      })
+                  }
+                  label='Search Sales'
+                  InputProps={{
+                    ...params.InputProps,
+                    endAdornment: (
+                      <React.Fragment>
+                        {loading ? <CircularProgress color='inherit' size={20} /> : null}
+                        {params.InputProps.endAdornment}
+                      </React.Fragment>
+                    )
                   }}
-                  key={channel.pk}
-                  value={channel.name}
-                >
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem'
-                    }}
-                  >
-                    <img alt='avatar' height={25} src={channel.image} loading='lazy' style={{ borderRadius: '50%' }} />
-                    {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
-                    <span>{channel.name}</span>
-                  </Box>
-                </MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              key={'seller_name'}
-              label={'Seller Name'}
-              name={'seller_name'}
-              onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
-            />
-            <TextField
-              key={'channel_order_id'}
-              label={'Channel Order ID'}
-              name={'channel_order_id'}
-              onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
-            />
-            <TextField
-              key={'tracking_number'}
-              label={'Tracking Number'}
-              name={'tracking_number'}
-              onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
+                />
+              )}
             />
           </Stack>
         </form>
       </DialogContent>
       <DialogActions sx={{ p: '1.25rem' }}>
         <Button onClick={onClose}>Cancel</Button>
-        <Button color='primary' onClick={handleSubmit} variant='contained'>
+        <Button color='primary' onClick={() => handleOpenIssue(choosed)} variant='contained'>
           Create
         </Button>
       </DialogActions>
@@ -423,6 +313,18 @@ export const DeleteModal = ({ open, onClose, onSubmit, data }: DeleteModalProps)
   )
 }
 
+const statusOptions: any[] = [
+  { key: 'N', name: 'New', color: 'error' },
+  { key: 'W', name: 'Working', color: 'warning' },
+  { key: 'R', name: 'Resolved', color: 'success' },
+  { key: 'G', name: 'Gave Up', color: 'default' }
+]
+
+const appealedOptions: any[] = [
+  { key: 'Y', name: 'Yes', color: 'green' },
+  { key: 'N', name: 'No', color: 'red' },
+  { key: null, name: 'Unknown', color: 'default' }
+]
 const Example = (props: any) => {
   const { session } = props
   const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>([])
@@ -447,7 +349,7 @@ const Example = (props: any) => {
       tabActive
     ],
     queryFn: async () => {
-      const fetchURL = new URL('/selling_order/', 'https://cheapr.my.id')
+      const fetchURL = new URL('/open_issue/', 'https://cheapr.my.id')
       fetchURL.searchParams.set('limit', `${pagination.pageSize}`)
       fetchURL.searchParams.set('offset', `${pagination.pageIndex * pagination.pageSize}`)
       for (let f = 0; f < columnFilters.length; f++) {
@@ -474,7 +376,7 @@ const Example = (props: any) => {
       }
       fetchURL.searchParams.set('ordering', ordering)
 
-      fetchURL.searchParams.set('filter', tabActive)
+      fetchURL.searchParams.set('status', tabActive != 'all' ? tabActive : '')
 
       console.log(fetchURL.href)
       const response = await fetch(fetchURL.href, {
@@ -490,29 +392,31 @@ const Example = (props: any) => {
     },
     keepPreviousData: true
   })
-  const [tableData, setTableData] = useState<SellingOrder[]>(() => data?.results ?? [])
-  const [channelData, setChannelData] = useState<Channel[]>([])
+  const [tableData, setTableData] = useState<OpenIssue[]>(() => data?.results ?? [])
+  const [csData, setCsData] = useState<CustomerService[]>([])
+
   const [roomData, setRoomData] = useState<Room[]>([])
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
-  const [addModalOpen, setAddModalOpen] = useState<SellingOrder>()
+  const [addModalOpen, setAddModalOpen] = useState<OpenIssue>()
   const [detail, setDetail] = useState<number | undefined>()
   const [detailModalOpen, setDetailModalOpen] = useState(false)
-  const [custHistoryModalOpen, setCustHistoryModalOpen] = useState(false)
-  const [subHistoryModalOpen, setSubHistoryModalOpen] = useState(false)
-  const [historyData, setHistoryData] = useState<HistoricalData[]>([])
-
   const [custPk, setCustPk] = useState<number | undefined>()
 
   const handleChange = (event: SelectChangeEvent) => {
     setTabActive(event.target.value as string)
   }
-  const handleCreateNewRow = (values: SellingOrder) => {
+  const handleCreateNewRow = (values: OpenIssue) => {
     console.log(values)
-    const channel = channelData.find(channel => channel.name == values['channel']['name'])
-    const new_obj = { ...values, channel: channel?.pk }
+    let new_obj: any = { ...values }
+
+    if (values['cs']) {
+      const cs = csData.find(cs => cs.name == values['cs']['name'])
+      new_obj = { ...values, cs: cs?.pk }
+    }
+
     console.log(new_obj)
-    fetch(`https://cheapr.my.id/selling_order/`, {
+    fetch(`https://cheapr.my.id/open_issue/`, {
       // note we are going to /1
       method: 'POST',
       headers: new Headers({
@@ -531,20 +435,6 @@ const Example = (props: any) => {
       })
   }
 
-  const update = (idx: number, rowIdx: number, key: string, value: any) => {
-    const sellingitems_update = tableData[idx].sellingitems?.map((el, idx) => {
-      if (idx == rowIdx) {
-        const newEl = { ...el }
-        newEl[key] = value
-
-        return newEl
-      } else {
-        return el
-      }
-    })
-    tableData[idx].sellingitems = sellingitems_update
-    setTableData([...tableData])
-  }
   const reupdate = (order: number) => {
     fetch(`https://cheapr.my.id/selling_order/${order}/`, {
       // note we are going to /1
@@ -585,40 +475,17 @@ const Example = (props: any) => {
       })
   }
 
-  const handleDeleteRow = useCallback(
-    (row: MRT_Row<SellingOrder>) => {
-      if (!confirm(`Are you sure you want to delete ${row.original.order_id}`)) {
-        return
-      }
-      fetch(`https://cheapr.my.id/selling_order/${row.original.pk}/`, {
-        // note we are going to /1
-        method: 'DELETE',
-        headers: new Headers({
-          Authorization: `Bearer ${session?.accessToken}`,
-          'Content-Type': 'application/json'
-        })
-      })
-        .then(response => response.status)
-        .then(status => {
-          if (status == 204) {
-            tableData.splice(row.index, 1)
-            setTableData([...tableData])
-          }
-        })
-    },
-    [tableData, session]
-  )
-  const handleSaveRow: MaterialReactTableProps<SellingOrder>['onEditingRowSave'] = async ({
+  const handleSaveRow: MaterialReactTableProps<OpenIssue>['onEditingRowSave'] = async ({
     exitEditingMode,
     row,
     values
   }) => {
-    const channel = channelData.find(channel => channel.name == values['channel.name'])
+    const cs = csData.find(cs => cs.name == values['cs']['name'])
     for (const key in values) {
       if (values.hasOwnProperty(key)) {
-        if (key == 'channel.name') {
-          values['channel'] = channel?.pk
-          delete values['channel.name']
+        if (key == 'cs.name') {
+          values['cs'] = cs?.pk
+          delete values['cs.name']
         }
       }
     }
@@ -634,7 +501,7 @@ const Example = (props: any) => {
       .then(response => response.json())
       .then(json => {
         if (json['pk'] !== values.pk) {
-          tableData[row.index] = { ...json, channel: channel, sellingitems: row.original.sellingitems }
+          tableData[row.index] = { ...json, cs: cs }
 
           setTableData([...tableData])
           exitEditingMode() //required to exit editing mode
@@ -642,25 +509,25 @@ const Example = (props: any) => {
       })
   }
 
-  const handleSaveCell = (cell: MRT_Cell<SellingOrder>, value: any) => {
+  const handleSaveCell = (cell: MRT_Cell<OpenIssue>, value: any) => {
     const key = cell.column.id
-    const channel = channelData.find(channel => channel.name == value)
+    const cs = csData.find(cs => cs.name == value)
     console.log(key, value)
     const oldData = [...tableData]
     const newData: any = [...tableData]
-    const payload: Payload = {}
-    if (key === 'channel.name') {
-      payload['channel'] = channel?.pk
-      newData[cell.row.index]['channel'] = channel
+    const payload: any = {}
+    if (key === 'cs.name') {
+      payload['cs'] = cs?.pk
+      newData[cell.row.index]['cs'] = cs
     } else {
       payload[key as keyof Payload] = value
-      newData[cell.row.index][cell.column.id as keyof SellingOrder] = value
+      newData[cell.row.index][cell.column.id as keyof OpenIssue] = value
     }
     const pk = newData[cell.row.index]['pk']
 
     setTableData([...newData])
     console.log(payload)
-    fetch(`https://cheapr.my.id/selling_order/${pk}/`, {
+    fetch(`https://cheapr.my.id/open_issue/${pk}/`, {
       method: 'PATCH',
       headers: new Headers({
         Authorization: `Bearer ${session?.accessToken}`,
@@ -676,643 +543,30 @@ const Example = (props: any) => {
         }
       })
   }
-  const handleCheck = (event: React.ChangeEvent<HTMLInputElement>, pk: number) => {
-    fetch(`https://cheapr.my.id/selling_order/${pk}/`, {
-      method: 'PATCH',
-      headers: new Headers({
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json'
-      }),
-      body: JSON.stringify({ submited: event.target.checked })
-    })
-      .then(response => response.json())
-      .then(json => {
-        console.log(json)
-      })
-      .finally(() => {
-        setRefresh(r => r + 1)
-      })
-  }
 
-  const columns = useMemo<MRT_ColumnDef<SellingOrder>[]>(
+  const columns = useMemo<MRT_ColumnDef<OpenIssue>[]>(
     () => [
       {
-        accessorKey: 'delivery_status',
-        header: 'STS',
+        accessorKey: 'status',
+        header: 'STATUS',
         maxSize: 40,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
-            }}
-          >
-            {row.original.salesitems
-              .map(sales => sales.tracking)
-              .map((tracking, index) => {
-                if (tracking) {
-                  return (
-                    <Link
-                      href={`${tracking?.fullcarrier?.prefix}${tracking?.tracking_number}${tracking.fullcarrier?.suffix}`}
-                      target='_blank'
-                    >
-                      <Box
-                        key={index}
-                        sx={theme => ({
-                          backgroundColor:
-                            tracking.status == 'D'
-                              ? theme.palette.success.dark
-                              : tracking.status == 'T'
-                              ? theme.palette.warning.light
-                              : tracking.status == 'I'
-                              ? 'purple'
-                              : theme.palette.error.dark,
-                          borderRadius: '0.5rem',
-                          color: '#fff',
-                          width: 15,
-                          height: 15
-                        })}
-                      ></Box>
-                    </Link>
-                  )
-                } else {
-                  return (
-                    <Box
-                      key={index}
-                      sx={theme => ({
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        backgroundColor: '#a9a9a9',
-                        borderRadius: '0.5rem',
-                        borderColor: '#000',
-                        color: '#fff',
-                        width: 12,
-                        height: 12
-                      })}
-                    >
-                      <Box
-                        sx={theme => ({
-                          backgroundColor: theme.palette.background.paper,
-                          borderRadius: '0.5rem',
-                          borderColor: '#000',
-                          color: '#fff',
-                          width: 9,
-                          height: 9
-                        })}
-                      ></Box>
-                    </Box>
-                  )
-                }
-              })}
-          </Box>
-        )
-      },
-      {
-        accessorKey: 'submited',
-        header: 'ADD',
-        maxSize: 50,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center'
-            }}
-          >
-            <Checkbox
-              checked={row.original.submited}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) => handleCheck(event, row.original.pk)}
-              size='small'
-              inputProps={{ 'aria-label': 'controlled' }}
-            />
-          </Box>
-        ),
-        enableEditing: false
-      },
-      {
-        accessorKey: 'delivery_date',
-        header: 'GET BY',
-        maxSize: 50,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            {row.original.delivery_date
-              ? moment(row.original.delivery_date).tz('America/Los_Angeles').format('MM-DD-YY')
-              : ''}
-          </Box>
-        ),
-        enableEditing: false
-      },
-      {
-        id: 'make_mpn',
-        header: 'ITEM',
-        maxSize: 60,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
-            }}
-          >
-            {row.original.salesitems.map((sales, index) => {
-              const sku = sales.sku
-              if (sku) {
-                return (
-                  <HtmlTooltip
-                    title={
-                      <React.Fragment>
-                        {sales.model_match.length == 0 && <Typography color='inherit'>Not in Inventory</Typography>}
-                        {sales.model_match
-                          .filter((model: any) => model.mpn == 'Exact')
-                          .map((model: any, index: number) => (
-                            <Typography color='inherit' key={index}>{`${model.mpn} (${model.count})`}</Typography>
-                          ))}
-
-                        {sales.model_match
-                          .filter((model: any) => model.mpn != 'Exact')
-                          .map((model: any, index: number) => (
-                            <Typography color='inherit' key={index}>{`${model.mpn} (${model.count})`}</Typography>
-                          ))}
-                      </React.Fragment>
-                    }
-                  >
-                    {sku.mpn ? (
-                      <span key={index}>{`${sku.make ? `${sku.make} | ` : ''}${sku.model ? `${sku.model} | ` : ''}${
-                        sku.mpn ? `${sku.mpn}` : ''
-                      }`}</span>
-                    ) : (
-                      <span key={index}>{sku.sku}</span>
-                    )}
-                  </HtmlTooltip>
-                )
-              } else {
-                return <span key={index}>{` `}</span>
-              }
-            })}
-          </Box>
-        )
-      },
-      {
-        id: 'mm',
-        header: 'M.M.',
-        maxSize: 60,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
-            }}
-          >
-            {row.original.salesitems.map((sales, index) => {
-              const sku = sales.sku
-              if (sku) {
-                return (
-                  <HtmlTooltip
-                    title={
-                      <React.Fragment>
-                        {sales.model_match.length == 0 && <Typography color='inherit'>Not in Inventory</Typography>}
-                        {sales.model_match
-                          .filter((model: any) => model.mpn == 'Exact')
-                          .map((model: any, index: number) => (
-                            <Typography
-                              color={model.count > 0 ? 'inherit' : 'grey'}
-                              key={index}
-                            >{`${model.mpn} (${model.count})`}</Typography>
-                          ))}
-
-                        {sales.model_match
-                          .filter((model: any) => model.mpn != 'Exact')
-                          .map((model: any, index: number) => (
-                            <Typography
-                              color={model.count > 0 ? 'inherit' : 'grey'}
-                              key={index}
-                            >{`${model.mpn} (${model.count})`}</Typography>
-                          ))}
-                      </React.Fragment>
-                    }
-                  >
-                    {sales.model_match.length > 0 ? (
-                      <span>{sales.model_match.reduce((total: number, obj: any) => obj.count + total, 0)}</span>
-                    ) : (
-                      <span></span>
-                    )}
-                  </HtmlTooltip>
-                )
-              } else {
-                return <span key={index}>{` `}</span>
-              }
-            })}
-          </Box>
-        )
-      },
-      {
-        id: 'historical',
-        header: 'HISTORICAL',
-        maxSize: 60,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
-            }}
-          >
-            {row.original.salesitems.map((sales, index) => {
-              const sku = sales.sku
-              if (sku) {
-                return (
-                  <Link
-                    href='#'
-                    onClick={() => {
-                      setHistoryData(sales.historical)
-                      setSubHistoryModalOpen(true)
-                    }}
-                  >
-                    {sales.historical.length > 0 ? <span>Click</span> : <span></span>}{' '}
-                  </Link>
-                )
-              } else {
-                return <span key={index}>{` `}</span>
-              }
-            })}
-          </Box>
-        )
-      },
-      {
-        accessorKey: 'channel_order_id',
-        header: 'ORDER',
-        size: 70,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            <Link
-              href='#'
-              onClick={() => {
-                setDetail(row.original.pk)
-                setDetailModalOpen(true)
-              }}
-            >
-              <span>{renderedCellValue}</span>
-            </Link>
-          </Box>
-        )
-      },
-      {
-        accessorKey: 'person.name',
-        accessorFn: row => row.person?.name?.substr(0, 15),
-        header: 'CUST',
-        size: 70,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            {row.original.person.history > 0 ? (
-              <Link
-                href='#'
-                onClick={() => {
-                  setCustPk(row.original.person.pk)
-                  setCustHistoryModalOpen(true)
-                }}
-              >
-                <span>{renderedCellValue}</span>
-              </Link>
-            ) : (
-              <span>{renderedCellValue}</span>
-            )}
-          </Box>
-        )
-      },
-      {
-        accessorKey: 'person.phone',
-        header: 'CUST.CONT',
-        size: 70,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            <span>{renderedCellValue}</span>
-          </Box>
-        )
-      },
-      {
-        accessorKey: 'seller_name',
-        accessorFn: row => row.seller_name.substr(0, 15),
-        header: 'STORE',
-        size: 75,
-        enableEditing: false
-      },
-      {
-        accessorKey: 'total_cost',
-        id: 'total',
-        header: 'ITEM',
-        size: 70,
-        Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.total_cost)}</Box>,
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        },
-        enableEditing: false,
-        muiTableBodyCellProps: {
-          align: 'right'
-        },
-        muiTableHeadCellProps: {
-          align: 'right'
-        }
-      },
-      {
-        accessorKey: 'shipping_cost',
-        id: 'shipping_cost',
-        header: 'SHIP',
-        size: 70,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSDStrip(row.original.shipping_cost)}</Box>
-        ),
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        },
-        muiTableBodyCellProps: {
-          align: 'right'
-        },
-        muiTableHeadCellProps: {
-          align: 'right'
-        }
-      },
-      {
-        accessorKey: 'channel_fee',
-        id: 'channel_fee',
-        header: 'FEES',
-        size: 70,
-        Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.channel_fee)}</Box>,
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        },
-        muiTableBodyCellProps: {
-          align: 'right'
-        },
-        muiTableHeadCellProps: {
-          align: 'right'
-        }
-      },
-      {
-        accessorKey: 'gross_sales',
-        id: 'gross_sales',
-        header: 'NET SALE',
-        size: 70,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.gross_sales)}</Box>,
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        },
-        muiTableBodyCellProps: {
-          align: 'right'
-        },
-        muiTableHeadCellProps: {
-          align: 'right'
-        }
-      },
-      {
-        id: 'type',
-        header: 'TYPE',
-        maxSize: 60,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
-            }}
-          >
-            {row.original.salesitems
-              .map(sales => sales.item)
-              .map((item, index) => {
-                if (item) {
-                  return <span key={index}>{item.buying?.destination == 'D' ? 'DS' : 'HA'}</span>
-                } else {
-                  return <span key={index}>{` `}</span>
-                }
-              })}
-          </Box>
-        )
-      },
-      {
-        id: 'vendor',
-        header: 'VENDOR',
-        maxSize: 60,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
-            }}
-          >
-            {row.original.salesitems
-              .map(sales => sales.item)
-              .map((item, index) => {
-                if (item) {
-                  return (
-                    <Link
-                      href={`https://order.ebay.com/ord/show?orderId=${item.buying.channel_order_id}#/`}
-                      target='_blank'
-                    >
-                      {item?.buying?.seller?.name}
-                    </Link>
-                  )
-                } else {
-                  return <span key={index}>{` `}</span>
-                }
-              })}
-          </Box>
-        )
-      },
-      {
-        id: 'purchase_id',
-        header: 'P.O.#',
-        maxSize: 60,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
-            }}
-          >
-            {row.original.salesitems
-              .map(sales => sales.item)
-              .map((item, index) => {
-                if (item) {
-                  return <span key={index}>{item?.buying?.channel_order_id}</span>
-                } else {
-                  return <span key={index}>{` `}</span>
-                }
-              })}
-          </Box>
-        )
-      },
-      {
-        accessorKey: 'purchase_cost',
-
-        id: 'purchase_cost',
-        header: 'TTL.COST',
-        size: 70,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSDStrip(row.original.purchase_cost)}</Box>
-        ),
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        },
-        muiTableBodyCellProps: {
-          align: 'right'
-        },
-        muiTableHeadCellProps: {
-          align: 'right'
-        }
-      },
-      {
-        accessorKey: 'ss_shipping_cost',
-
-        id: 'ss_shipping_cost',
-        header: 'IB.SHIP',
-        size: 70,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSDStrip(row.original.ss_shipping_cost)}</Box>
-        ),
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        },
-        muiTableBodyCellProps: {
-          align: 'right'
-        },
-        muiTableHeadCellProps: {
-          align: 'right'
-        }
-      },
-      {
-        accessorKey: 'profit',
-        id: 'profit',
-        header: 'MRGN',
-        size: 70,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.profit)}</Box>,
-        muiTableBodyCellProps: ({ cell, table }) => {
-          if (cell.row.original.profit < 0) {
-            return {
-              align: 'right',
-              sx: { backgroundColor: '#ffcccb', color: '#4e0100' }
-            }
-          } else {
-            return {
-              align: 'right'
-            }
-          }
-        },
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'number'
-        },
-        muiTableHeadCellProps: {
-          align: 'right'
-        }
-      },
-      {
-        accessorKey: 'order_date',
-        header: 'DATE',
-        size: 70,
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'date'
-        },
-        filterFn: 'between',
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            <span>
-              {row.original.order_date
-                ? moment(row.original.order_date).tz('America/Los_Angeles').format('MM-DD-YY')
-                : ''}
-            </span>
-          </Box>
-        )
-      },
-      {
-        accessorKey: 'ship_date',
-        header: 'SHIP BY',
-        size: 70,
-        muiTableBodyCellEditTextFieldProps: {
-          type: 'date'
-        },
-        filterFn: 'between',
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            <span>
-              {row.original.ship_date
-                ? moment(row.original.ship_date).tz('America/Los_Angeles').format('MM-DD-YY')
-                : ''}
-            </span>
-          </Box>
-        )
-      },
-      {
-        accessorKey: 'channel.name',
-        id: 'channel_name',
-        header: 'CHANNEL',
-        size: 100,
         muiTableBodyCellEditTextFieldProps: {
           select: true, //change to select for a dropdown
-          children: channelData?.map(channel => (
-            <MenuItem key={channel.pk} value={channel.name}>
-              {channel.name}
+          children: statusOptions?.map(status => (
+            <MenuItem key={status.key} value={status.key}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
+              >
+                {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
+                <span>{status.name}</span>
+              </Box>
             </MenuItem>
           ))
         },
-        enableEditing: false
-      },
-      {
-        accessorKey: 'order_id',
-        header: 'SB.#',
-        maxSize: 50,
         Cell: ({ renderedCellValue, row }) => (
           <Box
             sx={{
@@ -1321,17 +575,91 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            <Link href={`https://app.sellbrite.com/orders?query=${row.original.order_id}`} target='_blank'>
-              {renderedCellValue}
-            </Link>
+            {row.original?.status ? (
+              <Chip
+                sx={{
+                  fontSize: 12
+                }}
+                label={statusOptions.find(e => e.key == renderedCellValue)?.name}
+                color={statusOptions.find(e => e.key == renderedCellValue)?.color}
+              />
+            ) : null}
           </Box>
-        ),
+        )
+      },
+      {
+        accessorKey: 'sales.channel_order_id',
+        header: 'ORDER',
+        maxSize: 50,
         enableEditing: false
       },
       {
-        id: 'letter_tracking_status',
-        header: 'LTSTS',
-        maxSize: 40,
+        accessorKey: 'sales.seller_name',
+        header: 'STORE',
+        maxSize: 50,
+        enableEditing: false
+      },
+      {
+        accessorKey: 'sales.order_date',
+        header: 'DATE',
+        maxSize: 60,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            {row.original.sales?.order_date
+              ? moment(row.original?.sales?.order_date).tz('America/Los_Angeles').format('MM.DD')
+              : ''}
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'sales.ship_date',
+        header: 'SHIPBY',
+        maxSize: 60,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            {row.original.sales?.ship_date
+              ? moment(row.original?.sales?.ship_date).tz('America/Los_Angeles').format('MM.DD')
+              : ''}
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'sales.delivery_date',
+        header: 'GETBY',
+        maxSize: 60,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            {row.original.sales?.delivery_date
+              ? moment(row.original?.sales?.delivery_date).tz('America/Los_Angeles').format('MM.DD')
+              : ''}
+          </Box>
+        )
+      },
+      {
+        id: 'lt_tn',
+        header: 'LTTN',
+        size: 150,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
           <Box
@@ -1341,69 +669,309 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            {row.original.salesitems
-              .map(sales => sales.letter_tracking)
-              .map((tracking, index) => {
-                if (tracking) {
-                  return (
-                    <Link
-                      href={`${tracking?.fullcarrier?.prefix}${tracking?.tracking_number}${tracking.fullcarrier?.suffix}`}
-                      target='_blank'
-                    >
-                      <Box
-                        key={index}
-                        sx={theme => ({
-                          backgroundColor:
-                            tracking.status == 'D'
-                              ? theme.palette.success.dark
-                              : tracking.status == 'T'
-                              ? theme.palette.warning.light
-                              : tracking.status == 'I'
-                              ? 'purple'
-                              : theme.palette.error.dark,
-                          borderRadius: '0.5rem',
-                          color: '#fff',
-                          width: 15,
-                          height: 15
-                        })}
-                      ></Box>
-                    </Link>
-                  )
-                } else {
-                  return (
-                    <Box
-                      key={index}
-                      sx={theme => ({
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        backgroundColor: '#a9a9a9',
-                        borderRadius: '0.5rem',
-                        borderColor: '#000',
-                        color: '#fff',
-                        width: 12,
-                        height: 12
-                      })}
-                    >
-                      <Box
-                        sx={theme => ({
-                          backgroundColor: theme.palette.background.paper,
-                          borderRadius: '0.5rem',
-                          borderColor: '#000',
-                          color: '#fff',
-                          width: 9,
-                          height: 9
-                        })}
-                      ></Box>
-                    </Box>
-                  )
-                }
-              })}
+            {row.original.sales.salesitems.map((sales, index) => {
+              const tracking = sales.letter_tracking
+              if (tracking) {
+                return <Typography color='inherit'>{tracking.tracking_number}</Typography>
+              } else {
+                return <span key={index}>{` `}</span>
+              }
+            })}
           </Box>
         )
+      },
+      {
+        id: 'lt_eta',
+        header: 'LTETA',
+        maxSize: 60,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.sales.salesitems.map((sales, index) => {
+              const tracking = sales.letter_tracking
+              if (tracking) {
+                return (
+                  <Typography
+                    color={
+                      tracking.status == 'D'
+                        ? 'green'
+                        : tracking.status == 'T'
+                        ? 'yellow'
+                        : tracking.status == 'N'
+                        ? 'red'
+                        : 'purple'
+                    }
+                  >
+                    {tracking?.eta_date
+                      ? moment(tracking?.eta_date).tz('America/Los_Angeles').format('MM.DD')
+                      : tracking.status}
+                  </Typography>
+                )
+              } else {
+                return <span key={index}>{` `}</span>
+              }
+            })}
+          </Box>
+        )
+      },
+      {
+        id: 'ac_tn',
+        header: 'ACTN',
+        size: 150,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.sales.salesitems.map((sales, index) => {
+              const tracking = sales.tracking
+              if (tracking) {
+                return <Typography color='inherit'>{tracking.tracking_number}</Typography>
+              } else {
+                return <span key={index}>{` `}</span>
+              }
+            })}
+          </Box>
+        )
+      },
+      {
+        id: 'ac_eta',
+        header: 'ACETA',
+        maxSize: 60,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.sales.salesitems.map((sales, index) => {
+              const tracking = sales.tracking
+              if (tracking) {
+                return (
+                  <Typography
+                    color={
+                      tracking.status == 'D'
+                        ? 'green'
+                        : tracking.status == 'T'
+                        ? 'yellow'
+                        : tracking.status == 'N'
+                        ? 'red'
+                        : 'purple'
+                    }
+                  >
+                    {tracking?.eta_date
+                      ? moment(tracking?.eta_date).tz('America/Los_Angeles').format('MM.DD')
+                      : tracking.status}
+                  </Typography>
+                )
+              } else {
+                return <span key={index}>{` `}</span>
+              }
+            })}
+          </Box>
+        )
+      },
+      {
+        id: 'buffer',
+        header: 'BUFFER',
+        maxSize: 60,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.sales.salesitems.map((sales, index) => {
+              const sku = sales?.sku
+              if (sku && sku.sku && typeof sku.sku == 'string') {
+                if (sku.sku.includes('BUFFERS') || sku.sku.includes('BOOK') || sku.sku.includes('INGRAM')) {
+                  return <Typography color='inherit'>BUFFER</Typography>
+                } else {
+                  return <span key={index}>{` `}</span>
+                }
+              } else {
+                return <span key={index}>{` `}</span>
+              }
+            })}
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'sales.person.name',
+        header: 'CUSTOMER',
+        size: 100,
+        enableEditing: false
+      },
+      {
+        accessorKey: 'sales.person.phone',
+        header: 'CONTACT',
+        size: 100,
+        enableEditing: false
+      },
+      {
+        accessorKey: 'az',
+        header: 'AZ',
+        size: 50,
+        enableEditing: false
+      },
+      {
+        accessorKey: 'fb',
+        header: 'FB',
+        size: 50,
+        enableEditing: false
+      },
+      {
+        accessorKey: 'cb',
+        header: 'CB',
+        size: 50,
+        enableEditing: false
+      },
+      {
+        accessorKey: 'cs_comment',
+        header: 'CUSTOMER COMMENTS',
+        size: 70,
+        enableEditing: false
+      },
+      {
+        accessorKey: 'date',
+        header: 'DATE',
+        maxSize: 60,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            {row.original.date ? moment(row.original?.date).tz('America/Los_Angeles').format('MM.DD') : ''}
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'apl_by',
+        header: 'APL.BY',
+        maxSize: 60,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            {row.original.apl_by ? moment(row.original?.apl_by).tz('America/Los_Angeles').format('MM.DD') : ''}
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'appealed',
+        header: 'APPEALED',
+        maxSize: 60,
+        muiTableBodyCellEditTextFieldProps: {
+          select: true, //change to select for a dropdown
+          children: appealedOptions?.map(status => (
+            <MenuItem key={status.key} value={status.key}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
+              >
+                {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
+                <span>{status.name}</span>
+              </Box>
+            </MenuItem>
+          ))
+        },
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            {row.original?.status ? (
+              <Chip
+                sx={{
+                  fontSize: 12
+                }}
+                label={appealedOptions.find(e => e.key == renderedCellValue)?.name}
+                color={appealedOptions.find(e => e.key == renderedCellValue)?.color}
+              />
+            ) : null}
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'fall_off',
+        header: 'FALL OFF',
+        maxSize: 60,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            {row.original.fall_off ? moment(row.original?.fall_off).tz('America/Los_Angeles').format('MM.DD') : ''}
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'case_id',
+        header: 'CASE.ID',
+        maxSize: 60,
+        enableEditing: false
+      },
+      {
+        accessorKey: 'cs.name',
+        header: 'ASSIGNEE',
+        maxSize: 60,
+        enableEditing: false
+      },
+      {
+        accessorKey: 'steps_done',
+        header: 'STEPS DONE',
+        maxSize: 60,
+        enableEditing: false
+      },
+      {
+        accessorKey: 'next_step',
+        header: 'NEXT STEPS',
+        maxSize: 60,
+        enableEditing: false
+      },
+      {
+        accessorKey: 'legal_comment',
+        header: 'LEGAL COMMENTS',
+        maxSize: 60,
+        enableEditing: false
       }
     ],
-    [channelData]
+    [csData]
   )
   const columnsAddItem = useMemo<MRT_ColumnDef<InventoryPayload>[]>(
     () => [
@@ -1425,7 +993,7 @@ const Example = (props: any) => {
     setTableData(data?.results ?? [])
   }, [data])
   useEffect(() => {
-    const fetchURL = new URL('/channel/', 'https://cheapr.my.id')
+    const fetchURL = new URL('/customer_service/', 'https://cheapr.my.id')
     fetch(fetchURL.href, {
       method: 'get',
       headers: new Headers({
@@ -1435,19 +1003,7 @@ const Example = (props: any) => {
     })
       .then(response => response.json())
       .then(json => {
-        setChannelData(json.results)
-      })
-    const fetchURLRoom = new URL('/room/', 'https://cheapr.my.id')
-    fetch(fetchURLRoom.href, {
-      method: 'get',
-      headers: new Headers({
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json'
-      })
-    })
-      .then(response => response.json())
-      .then(json => {
-        setRoomData(json.results)
+        setCsData(json.results)
       })
   }, [session])
 
@@ -1465,6 +1021,43 @@ const Example = (props: any) => {
         }}
         enableEditing
         enableColumnActions={false}
+        enableRowActions
+        renderRowActions={({ row }) => (
+          <Box sx={{ display: 'flex', gap: '1rem' }}>
+            {/* <Tooltip arrow placement='left' title='Edit'>
+              <IconButton onClick={() => table.setEditingRow(row)}>
+                <Edit />
+              </IconButton>
+            </Tooltip> */}
+            <Tooltip arrow placement='right' title='Delete'>
+              <IconButton
+                color='error'
+                onClick={() => {
+                  if (
+                    !confirm(`Are you sure you want to delete this issue #${row.original?.sales?.channel_order_id}`)
+                  ) {
+                    return
+                  }
+                  fetch(`https://cheapr.my.id/open_issue/${row.original.pk}/`, {
+                    method: 'DELETE',
+                    headers: new Headers({
+                      Authorization: `Bearer ${session?.accessToken}`,
+                      'Content-Type': 'application/json'
+                    })
+                  })
+                    .then(response => response.status)
+                    .then(status => {
+                      if (status == 204) {
+                      }
+                    })
+                    .finally(() => setRefresh(r => r + 1))
+                }}
+              >
+                <Delete />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        )}
         editingMode='cell'
         muiTableBodyCellEditTextFieldProps={({ cell }) => ({
           //onBlur is more efficient, but could use onChange instead
@@ -1494,18 +1087,13 @@ const Example = (props: any) => {
         renderTopToolbarCustomActions={() => (
           <>
             <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
-              Add New Sales
+              Add New Issue
             </Button>
             <Select labelId='demo-select-small-label' id='demo-select-small' value={tabActive} onChange={handleChange}>
-              <MenuItem value={'in_transit'}>In-Transit</MenuItem>
-              <MenuItem value={'not_moving'}>Not Moving</MenuItem>
-              <MenuItem value={'have_issue'}>Have Issue</MenuItem>
-              <MenuItem value={'no_tracking'}>No-Tracking</MenuItem>
-              <MenuItem value={'potential_delay'}>Potential Delay</MenuItem>
-              <MenuItem value={'to_monitor'}>To Monitor</MenuItem>
-              <MenuItem value={'delivered'}>Delivered</MenuItem>
-              <MenuItem value={'canceled'}>Canceled</MenuItem>
-              <MenuItem value={'buffers'}>Buffers</MenuItem>
+              <MenuItem value={'N'}>New</MenuItem>
+              <MenuItem value={'W'}>Working</MenuItem>
+              <MenuItem value={'R'}>Resolved</MenuItem>
+              <MenuItem value={'G'}>Gave Up</MenuItem>
               <MenuItem value={'all'}>All</MenuItem>
 
               {/* <MenuItem value={'canceled'}>Canceled</MenuItem>
@@ -1534,34 +1122,8 @@ const Example = (props: any) => {
         open={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
         onSubmit={handleCreateNewRow}
-        channelData={channelData}
-      />
-      <AddSalesItemModal
+        channelData={csData}
         session={session}
-        columns={columnsAddItem}
-        open={addModalOpen !== undefined}
-        onClose={() => setAddModalOpen(undefined)}
-        onSubmit={handleAddItem}
-        rowData={addModalOpen}
-        roomData={roomData}
-      />
-      <CustHistoryModal
-        session={session}
-        pk={custPk}
-        open={custHistoryModalOpen}
-        onSubmit={() => {
-          console.log('ok')
-        }}
-        onClose={() => setCustHistoryModalOpen(false)}
-      />
-      <SubHistoryModal
-        session={session}
-        data={historyData}
-        open={subHistoryModalOpen}
-        onSubmit={() => {
-          console.log('ok')
-        }}
-        onClose={() => setSubHistoryModalOpen(false)}
       />
       <SalesDetail
         session={session}

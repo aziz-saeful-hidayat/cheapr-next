@@ -1389,46 +1389,45 @@ const PurchaseDetailVerified = (props: any) => {
                   <FormControlLabel value='H' control={<Radio />} label='HOUSE' />
                   <FormControlLabel value='D' control={<Radio />} label='DROPSHIP' sx={{ marginLeft: 50 }} />
                 </RadioGroup>
-                {orderData?.destination == 'D' && (
-                  <span>
-                    SBO.#{'     '}
-                    {orderData?.selling_buying.map(sales => (
-                      <>
-                        <Link onClick={fetchPickSales}> {sales.sales.order_id}</Link>{' '}
-                        <Tooltip arrow placement='top' title='Remove'>
-                          <IconButton
-                            color='error'
-                            onClick={() => {
-                              const payload: any = {}
+                <span>
+                  SBO.#{'     '}
+                  {orderData?.selling_buying.map(sales => (
+                    <>
+                      <Link onClick={fetchPickSales}> {sales.sales.order_id}</Link>{' '}
+                      <Tooltip arrow placement='top' title='Remove'>
+                        <IconButton
+                          color='error'
+                          onClick={() => {
+                            const payload: any = {}
 
-                              payload['sales'] = sales.sales.pk
+                            payload['sales'] = sales.sales.pk
 
-                              const id = orderData.pk
-                              fetch(`https://cheapr.my.id/buying_order/${id}/delete_selling/`, {
-                                method: 'POST',
-                                headers: new Headers({
-                                  Authorization: `Bearer ${session?.accessToken}`,
-                                  'Content-Type': 'application/json'
-                                }),
-                                body: JSON.stringify(payload)
+                            const id = orderData.pk
+                            fetch(`https://cheapr.my.id/buying_order/${id}/delete_selling/`, {
+                              method: 'POST',
+                              headers: new Headers({
+                                Authorization: `Bearer ${session?.accessToken}`,
+                                'Content-Type': 'application/json'
+                              }),
+                              body: JSON.stringify(payload)
+                            })
+                              .then(response => response.json())
+                              .then(json => {
+                                console.log(json)
                               })
-                                .then(response => response.json())
-                                .then(json => {
-                                  console.log(json)
-                                })
-                                .finally(() => {
-                                  setRefresh(ref => ref + 1)
-                                })
-                            }}
-                          >
-                            <Close />
-                          </IconButton>
-                        </Tooltip>
-                      </>
-                    ))}
-                    <Link onClick={fetchPickSales}>Add</Link>
-                  </span>
-                )}
+                              .finally(() => {
+                                setRefresh(ref => ref + 1)
+                              })
+                          }}
+                        >
+                          <Close />
+                        </IconButton>
+                      </Tooltip>
+                    </>
+                  ))}
+                  <Link onClick={fetchPickSales}>Add</Link>
+                </span>
+
                 {/* {orderData?.destination == 'D' ? (
                   <>
                     <TextField

@@ -10,6 +10,10 @@ import TableCell from '@mui/material/TableCell'
 import Typography from '@mui/material/Typography'
 import TableContainer from '@mui/material/TableContainer'
 import Link from '@mui/material/Link'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+import dayjs from 'dayjs'
 
 // ** Types Imports
 import { ThemeColor } from 'src/@core/layouts/types'
@@ -26,8 +30,10 @@ interface TableArrivedProps {
 
 const TableArrived = ({ session }: TableArrivedProps) => {
   const [data, setData] = useState<BuyingOrder[]>([])
+  const [arrived, setArrived] = useState(moment(Date.now()).format('YYYY-MM-DD'))
+
   useEffect(() => {
-    fetch('https://cheapr.my.id/selling_order/?limit=50&filter=missing_get_by', {
+    fetch(`https://cheapr.my.id/buying_order/?arrived=${arrived}`, {
       headers: new Headers({
         Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json'
@@ -38,7 +44,7 @@ const TableArrived = ({ session }: TableArrivedProps) => {
         setData(json.results)
         console.log(json.results)
       })
-  }, [session])
+  }, [session, arrived])
   return (
     <Card
       sx={{
@@ -46,17 +52,25 @@ const TableArrived = ({ session }: TableArrivedProps) => {
       }}
     >
       <CardHeader
-        title={`Buffers Missing Get By Today ${moment
-          .utc(Date.now())
-          .tz('America/Denver')
-          .format('MM/DD/YYYY')} - To Be Cancelled`}
+        title={`Buying Order Delivered by ${moment(arrived).format('MM/DD/YYYY')} - To Be Checked`}
         titleTypographyProps={{ sx: { lineHeight: '1.2 !important', letterSpacing: '0.31px !important' } }}
+        subheader={
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              sx={{ marginTop: 5 }}
+              onChange={value => setArrived(value ? value.format('YYYY-MM-DD') : '')}
+              label={'Pick Date'}
+              value={arrived ? dayjs(arrived) : null}
+            />
+          </LocalizationProvider>
+        }
         action={
           <IconButton size='small' aria-label='settings' className='card-more-options' sx={{ color: 'text.secondary' }}>
             <DotsVertical />
           </IconButton>
         }
       />
+
       <TableContainer>
         <Table aria-label='table in dashboard'>
           <TableHead>

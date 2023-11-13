@@ -16,8 +16,9 @@ import LockOpenOutline from 'mdi-material-ui/LockOpenOutline'
 import { SalesOrder } from 'src/pages/purchase/[purchaseId]'
 import { formatterUSDStrip } from 'src/constants/Utils'
 import { useEffect, useState } from 'react'
-import { IconButton } from '@mui/material'
+import { Chip, FormControl, IconButton, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
+import { ExtendedSession } from 'src/pages/api/auth/[...nextauth]'
 
 type Room = {
   pk: number
@@ -60,12 +61,16 @@ const CardSales = ({
   orderData,
   type,
   tableData,
-  onClose
+  onClose,
+  session,
+  setRefresh
 }: {
   orderData: SalesOrder | undefined
   type: 'sales'
   tableData: Item[]
   onClose: () => void
+  setRefresh: () => void
+  session: ExtendedSession
 }) => {
   const [salesData, setSalesData] = useState<any>({
     sales_items: 0,
@@ -126,11 +131,45 @@ const CardSales = ({
               {orderData?.order_date.slice(0, 10)}
             </Typography>
           </Grid>
-          <Grid item xs={12} sm={2}>
+          {/* <Grid item xs={12} sm={1}>
             <Typography variant='h6'>Status: </Typography>
             <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
               {orderData?.status}
             </Typography>
+          </Grid> */}
+          <Grid item xs={12} sm={2}>
+            <Typography variant='h6'>Status: </Typography>
+
+            <FormControl sx={{ mt: 1, minWidth: 50 }} size='small'>
+              <Select
+                value={orderData?.status ? orderData?.status : ''}
+                autoWidth
+                onChange={(event: SelectChangeEvent) => {
+                  if (
+                    !confirm(
+                      `Are you sure you want to change this Order #${orderData?.pk} to ${event.target.value as string}`
+                    )
+                  ) {
+                    return
+                  }
+                  fetch(`https://cheapr.my.id/selling_order/${orderData?.pk}/`, {
+                    // note we are going to /1
+                    method: 'PATCH',
+                    headers: {
+                      Authorization: `Bearer ${session?.accessToken}`,
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status: event.target.value as string })
+                  }).finally(() => setRefresh())
+                }}
+              >
+                <MenuItem value={'open'}>Open</MenuItem>
+                <MenuItem value={'canceled'}>Canceled</MenuItem>
+                <MenuItem value={'completed'}>Completed</MenuItem>
+                <MenuItem value={'replaced'}>Replaced</MenuItem>
+                <MenuItem value={'refunded'}>Refunded</MenuItem>
+              </Select>
+            </FormControl>
           </Grid>
         </Grid>
 

@@ -25,12 +25,7 @@ import 'react-datepicker/dist/react-datepicker.css'
 
 import { withAuth } from '../../constants/HOCs'
 import { getSession } from 'next-auth/react'
-import Unfullfilled from './unfulfilled'
-import Fullfilled from './fulfilled'
-import Replacement from './replacement'
-import Return from './return'
-import UnfulfilledBuffers from './unfulfilled-buffer'
-import HAUnlinked from './ha-unlinked'
+
 import AllSales from './all'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
@@ -78,90 +73,9 @@ const Sales = (props: any) => {
                 </Box>
               }
             />
-            <Tab
-              value='unfulfilled'
-              label={
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <AccountOutline />
-                  <TabName>Unfulfilled</TabName>
-                </Box>
-              }
-            />
-            <Tab
-              value='unfulfilled-buffers'
-              label={
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <AccountOutline />
-                  <TabName>Unfulfilled (Buffer)</TabName>
-                </Box>
-              }
-            />
-            <Tab
-              value='ha-unlinked'
-              label={
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <AccountOutline />
-                  <TabName>HA Unlinked</TabName>
-                </Box>
-              }
-            />
-            <Tab
-              value='fulfilled'
-              label={
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <LockOpenOutline />
-                  <TabName>Fulfilled</TabName>
-                </Box>
-              }
-            />
-            <Tab
-              value='replacement'
-              label={
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <LockOpenOutline />
-                  <TabName>Replacements</TabName>
-                </Box>
-              }
-            />
-            <Tab
-              value='return'
-              label={
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <LockOpenOutline />
-                  <TabName>Return & Refund</TabName>
-                </Box>
-              }
-            />
-            {/* <Tab
-              value='info'
-              label={
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <InformationOutline />
-                  <TabName>Info</TabName>
-                </Box>
-              }
-            /> */}
           </TabList>
           <TabPanel sx={{ p: 0 }} value='all'>
             <AllSales session={session} />
-          </TabPanel>
-          <TabPanel sx={{ p: 0 }} value='unfulfilled'>
-            <Unfullfilled session={session} />
-          </TabPanel>
-          <TabPanel sx={{ p: 0 }} value='unfulfilled-buffers'>
-            <UnfulfilledBuffers session={session} />
-          </TabPanel>
-          <TabPanel sx={{ p: 0 }} value='ha-unlinked'>
-            <HAUnlinked session={session} />
-          </TabPanel>
-          <TabPanel sx={{ p: 0 }} value='fulfilled'>
-            <Fullfilled session={session} />
-          </TabPanel>
-          <TabPanel sx={{ p: 0 }} value='replacement'>
-            <Replacement session={session} />
-          </TabPanel>
-          <TabPanel sx={{ p: 0 }} value='return'>
-            <Return session={session} />
           </TabPanel>
         </TabContext>
       </Card>

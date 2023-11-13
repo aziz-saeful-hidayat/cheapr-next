@@ -119,6 +119,12 @@ export type Manager = {
   pk: number
   name: string
 }
+
+export type CustomerService = {
+  pk: number
+  name: string
+}
+
 export type ItemOption = {
   pk: number
   name: string
@@ -157,6 +163,49 @@ export type ItemOption2 = {
 export type ERPData = {
   selling: number
   data: string
+}
+
+export type OpenIssue = {
+  pk: number
+  status: string
+  az: boolean
+  fb: boolean
+  cb: boolean
+  cs_comment: string
+  date: string
+  apl_by: string
+  appealed: boolean
+  fall_off: string
+  case_id: string
+  steps_done: string
+  next_step: string
+  legal_comment: string
+  cs: CustomerService
+  sales: {
+    pk: number
+    channel_order_id: string
+    seller_name: string
+    order_date: string
+    ship_date: string
+    delivery_date: string
+    salesitems: {
+      pk: number
+      tracking: {
+        pk: number
+        tracking_number: string
+        eta_date: string
+        status: string
+      }
+      letter_tracking: {
+        pk: number
+        tracking_number: string
+        eta_date: string
+        status: string
+      }
+      sku: CAProduct
+    }[]
+    person: Person
+  }
 }
 
 export type SellingOrder = {

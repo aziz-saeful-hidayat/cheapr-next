@@ -2462,7 +2462,14 @@ const SalesDetail = (props: any) => {
       sx={{ padding: 10, overflow: 'scroll' }}
     >
       <>
-        <CardSales orderData={orderData} type={'sales'} tableData={tableData} onClose={onClose} />
+        <CardSales
+          orderData={orderData}
+          type={'sales'}
+          tableData={tableData}
+          onClose={onClose}
+          session={session}
+          setRefresh={() => setRefresh(r => r + 1)}
+        />
         <Card sx={{ padding: 3, bgcolor: orderData?.status == 'canceled' ? '#ffe3e3' : 'white' }}>
           <MaterialReactTable
             columns={columns}

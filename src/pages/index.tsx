@@ -29,6 +29,7 @@ import { useSession, signIn, signOut, getSession } from 'next-auth/react'
 import TableBrand from 'src/views/dashboard/TableBrand'
 import { formatterUSDStrip } from 'src/constants/Utils'
 import TableMissing from 'src/views/dashboard/TableMissing'
+import TableArrived from 'src/views/dashboard/TableArrived'
 
 const Dashboard = (props: any) => {
   const { session } = props
@@ -115,7 +116,10 @@ const Dashboard = (props: any) => {
           <Grid item xs={12} md={6} lg={4}>
             <WeeklyOverview />
           </Grid>
-
+          <Grid item xs={12} md={12} lg={8}>
+            {/* <SalesByCountries /> */}
+            <TableArrived session={session} />
+          </Grid>
           <Grid item xs={12} md={12} lg={8}>
             <DepositWithdraw />
           </Grid>
