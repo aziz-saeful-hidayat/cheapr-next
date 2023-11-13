@@ -242,7 +242,7 @@ const Example = (props: any) => {
     if (event.target.value == 'all') {
       setColumnFilters([])
     } else if (event.target.value == 'buffer') {
-      setColumnFilters([{ id: 'buffer', value: true }])
+      setColumnFilters([{ id: 'buffer', value: 'true' }])
     } else {
       setColumnFilters([{ id: 'room', value: event.target.value }])
     }
