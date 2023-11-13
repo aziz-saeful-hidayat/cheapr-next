@@ -241,6 +241,8 @@ const Example = (props: any) => {
     setTabActive(event.target.value as string)
     if (event.target.value == 'all') {
       setColumnFilters([])
+    } else if (event.target.value == 'buffer') {
+      setColumnFilters([{ id: 'buffer', value: true }])
     } else {
       setColumnFilters([{ id: 'room', value: event.target.value }])
     }
@@ -356,19 +358,7 @@ const Example = (props: any) => {
         size: 75
       },
       {
-        accessorKey: 'buying.order_date',
-        header: 'R.DATE',
-        enableEditing: false,
-        size: 75
-      },
-      {
-        accessorKey: 'buying.order_date',
-        header: 'RET.WIN',
-        enableEditing: false,
-        size: 75
-      },
-      {
-        accessorKey: 'buying.order_date',
+        accessorKey: 'buying.return_up_to_date',
         header: 'RET.WIN',
         enableEditing: false,
         size: 75
@@ -593,8 +583,10 @@ const Example = (props: any) => {
             <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
               Create New Item
             </Button>
-            <Select labelId='demo-select-small-label' id='demo-select-small' value={tabActive} onChange={handleChange}>
+            <Select labelId='room-label' id='room-small' value={tabActive} onChange={handleChange}>
               <MenuItem value={'all'}>All</MenuItem>
+              <MenuItem value={'buffer'}>Books and Buffer</MenuItem>
+
               {roomData?.map(room => (
                 <MenuItem value={room.name} key={`menu-${room.pk}`}>
                   {room.name}
