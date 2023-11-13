@@ -166,7 +166,6 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channe
         body: JSON.stringify({ sales: sales })
       })
         .then(response => response.json())
-        .then(json => {})
         .finally(() => {
           onClose()
         })
