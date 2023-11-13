@@ -100,6 +100,7 @@ interface CreateModalProps {
   open: boolean
   channelData: any[]
   session: ExtendedSession
+  reload: () => void
 }
 interface AddItemProps {
   columns: MRT_ColumnDef<InventoryPayload>[]
@@ -142,7 +143,15 @@ const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
   }
 }))
 
-export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channelData, session }: CreateModalProps) => {
+export const CreateNewAccountModal = ({
+  open,
+  columns,
+  onClose,
+  onSubmit,
+  channelData,
+  session,
+  reload
+}: CreateModalProps) => {
   const [values, setValues] = useState<any>(() =>
     columns.reduce((acc, column) => {
       acc[column.accessorKey ?? ''] = ''
@@ -168,6 +177,7 @@ export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channe
         .then(response => response.json())
         .finally(() => {
           onClose()
+          reload()
         })
     }
   }
@@ -1123,6 +1133,7 @@ const Example = (props: any) => {
         onSubmit={handleCreateNewRow}
         channelData={csData}
         session={session}
+        reload={() => setRefresh(r => r + 1)}
       />
       <SalesDetail
         session={session}
