@@ -359,6 +359,7 @@ const Example = (props: any) => {
     ],
     queryFn: async () => {
       const fetchURL = new URL('/open_issue/', 'https://cheapr.my.id')
+      fetchURL.searchParams.set('status', `W`)
       fetchURL.searchParams.set('limit', `${pagination.pageSize}`)
       fetchURL.searchParams.set('offset', `${pagination.pageIndex * pagination.pageSize}`)
       for (let f = 0; f < columnFilters.length; f++) {
@@ -1225,10 +1226,10 @@ const Example = (props: any) => {
 
 const queryClient = new QueryClient()
 
-const AllIssues = (props: any) => (
+const WorkingIssues = (props: any) => (
   <QueryClientProvider client={queryClient}>
     <Example {...props} />
   </QueryClientProvider>
 )
 
-export default AllIssues
+export default WorkingIssues

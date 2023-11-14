@@ -27,6 +27,11 @@ import { withAuth } from '../../constants/HOCs'
 import { getSession } from 'next-auth/react'
 
 import AllSales from './all'
+import AllIssues from './all'
+import NewIssues from './new'
+import WorkingIssues from './working'
+import ResolvedIssues from './resolved'
+import GaveUpIssues from './gaveup'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -73,9 +78,57 @@ const Sales = (props: any) => {
                 </Box>
               }
             />
+            <Tab
+              value='N'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <AccountOutline />
+                  <TabName>New</TabName>
+                </Box>
+              }
+            />
+            <Tab
+              value='W'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <AccountOutline />
+                  <TabName>Working</TabName>
+                </Box>
+              }
+            />
+            <Tab
+              value='R'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <AccountOutline />
+                  <TabName>Resolved</TabName>
+                </Box>
+              }
+            />
+            <Tab
+              value='G'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <AccountOutline />
+                  <TabName>Gave Up</TabName>
+                </Box>
+              }
+            />
           </TabList>
           <TabPanel sx={{ p: 0 }} value='all'>
-            <AllSales session={session} />
+            <AllIssues session={session} />
+          </TabPanel>
+          <TabPanel sx={{ p: 0 }} value='N'>
+            <NewIssues session={session} />
+          </TabPanel>
+          <TabPanel sx={{ p: 0 }} value='W'>
+            <WorkingIssues session={session} />
+          </TabPanel>
+          <TabPanel sx={{ p: 0 }} value='R'>
+            <ResolvedIssues session={session} />
+          </TabPanel>
+          <TabPanel sx={{ p: 0 }} value='G'>
+            <GaveUpIssues session={session} />
           </TabPanel>
         </TabContext>
       </Card>

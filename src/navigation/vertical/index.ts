@@ -58,7 +58,7 @@ const navigation = (): VerticalNavItemsType => {
       path: '/purchase'
     },
     {
-      title: 'Open Issues',
+      title: 'CS Issues',
       icon: Table as unknown as ReactNode,
       path: '/issue'
     },
