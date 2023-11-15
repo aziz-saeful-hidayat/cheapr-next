@@ -658,7 +658,7 @@ const PurchaseDetailVerified = (props: any) => {
           ))
         },
         Cell: ({ renderedCellValue, row }) =>
-          row.original.itemsales?.tracking?.fullcarrier ? (
+          row.original.tracking?.fullcarrier ? (
             <Box
               sx={{
                 display: 'flex',
@@ -669,7 +669,7 @@ const PurchaseDetailVerified = (props: any) => {
               <img
                 alt='avatar'
                 height={25}
-                src={row.original.itemsales?.tracking?.fullcarrier.image}
+                src={row.original.tracking?.fullcarrier.image}
                 loading='lazy'
                 style={{ borderRadius: '50%' }}
               />
@@ -700,8 +700,8 @@ const PurchaseDetailVerified = (props: any) => {
               gap: '1rem'
             }}
           >
-            {row.original.itemsales?.tracking?.eta_date
-              ? moment(row.original?.itemsales?.tracking?.eta_date).tz('America/Los_Angeles').format('MM-DD-YY')
+            {row.original.tracking?.eta_date
+              ? moment(row.original?.tracking?.eta_date).tz('America/Los_Angeles').format('MM-DD-YY')
               : ''}
           </Box>
         )
@@ -735,13 +735,13 @@ const PurchaseDetailVerified = (props: any) => {
               gap: '1rem'
             }}
           >
-            {row.original.itemsales?.tracking?.status ? (
+            {row.original.tracking?.status ? (
               <Chip
                 sx={{
                   fontSize: 12
                 }}
-                label={statusOptions.find(e => e.key == renderedCellValue)?.name}
-                color={statusOptions.find(e => e.key == renderedCellValue)?.color}
+                label={statusOptions.find(e => e.key == row.original.tracking?.status)?.name}
+                color={statusOptions.find(e => e.key == row.original.tracking?.status)?.color}
               />
             ) : null}
           </Box>
