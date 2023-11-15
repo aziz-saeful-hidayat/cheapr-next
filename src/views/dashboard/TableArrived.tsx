@@ -29,7 +29,7 @@ interface TableArrivedProps {
 }
 
 const TableArrived = ({ session }: TableArrivedProps) => {
-  const [data, setData] = useState<BuyingOrder[]>([])
+  const [buying, setBuying] = useState<BuyingOrder[]>([])
   const [arrived, setArrived] = useState(moment(Date.now()).format('YYYY-MM-DD'))
 
   useEffect(() => {
@@ -41,7 +41,7 @@ const TableArrived = ({ session }: TableArrivedProps) => {
     })
       .then(response => response.json())
       .then(json => {
-        setData(json.results)
+        setBuying(json.results)
         console.log(json.results)
       })
   }, [session, arrived])
@@ -52,7 +52,7 @@ const TableArrived = ({ session }: TableArrivedProps) => {
       }}
     >
       <CardHeader
-        title={`Buying Order Delivered by ${moment(arrived).format('MM/DD/YYYY')} - To Be Checked`}
+        title={`HA Purchase Delivered by ${moment(arrived).format('MM/DD/YYYY')} - To Be Checked`}
         titleTypographyProps={{ sx: { lineHeight: '1.2 !important', letterSpacing: '0.31px !important' } }}
         subheader={
           <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -77,19 +77,14 @@ const TableArrived = ({ session }: TableArrivedProps) => {
             <TableRow>
               <TableCell>Status</TableCell>
               <TableCell>Order ID</TableCell>
-              <TableCell>Store</TableCell>
-              <TableCell>Carrier</TableCell>
-              <TableCell>Tracking</TableCell>
-              <TableCell>ETA</TableCell>
+              <TableCell>Channel</TableCell>
+              <TableCell>Sales ID</TableCell>
+              <TableCell>Get By</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {data?.map((row: BuyingOrder) => (
-              <TableRow
-                hover
-                key={row.order_id}
-                sx={{ '&:last-of-type td, &:last-of-type th': { border: 0 }, height: 35 }}
-              >
+            {buying?.map((row: BuyingOrder) => (
+              <TableRow hover key={row.pk} sx={{ '&:last-of-type td, &:last-of-type th': { border: 0 }, height: 35 }}>
                 <TableCell sx={{ py: theme => `${theme.spacing(0.5)} !important` }}>
                   <Box
                     sx={{
@@ -158,8 +153,9 @@ const TableArrived = ({ session }: TableArrivedProps) => {
                       })}
                   </Box>
                 </TableCell>
+
                 <TableCell>{row.channel_order_id}</TableCell>
-                <TableCell>{row.seller_name}</TableCell>
+                <TableCell>{row.channel.name}</TableCell>
                 <TableCell>
                   <Box
                     sx={{
@@ -169,10 +165,10 @@ const TableArrived = ({ session }: TableArrivedProps) => {
                     }}
                   >
                     {row.inventoryitems
-                      .map(item => item.tracking)
-                      .map((tracking, index) => {
-                        if (tracking) {
-                          return <Typography color='inherit'>{tracking?.fullcarrier?.name}</Typography>
+                      .map(item => item.itemsales)
+                      .map((salesitem, index) => {
+                        if (salesitem) {
+                          return <Typography color='inherit'>{salesitem?.selling?.channel_order_id}</Typography>
                         } else {
                           return <Typography color='inherit'></Typography>
                         }
@@ -188,31 +184,12 @@ const TableArrived = ({ session }: TableArrivedProps) => {
                     }}
                   >
                     {row.inventoryitems
-                      .map(item => item.tracking)
-                      .map((tracking, index) => {
-                        if (tracking) {
-                          return <Typography color='inherit'>{tracking?.tracking_number}</Typography>
-                        } else {
-                          return <Typography color='inherit'></Typography>
-                        }
-                      })}
-                  </Box>
-                </TableCell>
-                <TableCell>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '1rem'
-                    }}
-                  >
-                    {row.inventoryitems
-                      .map(item => item.tracking)
-                      .map((tracking, index) => {
-                        if (tracking) {
+                      .map(item => item.itemsales)
+                      .map((salesitem, index) => {
+                        if (salesitem) {
                           return (
                             <Typography color='inherit'>
-                              {moment(tracking?.eta_date).tz('America/Los_Angeles').format('MM-DD-YY')}
+                              {moment(salesitem?.selling?.delivery_date).format('MM-DD-YY')}
                             </Typography>
                           )
                         } else {

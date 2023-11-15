@@ -59,7 +59,7 @@ interface TableMissingProps {
 }
 
 const TableMissing = ({ session }: TableMissingProps) => {
-  const [data, setData] = useState<SellingOrder[]>([])
+  const [sales, setSales] = useState<SellingOrder[]>([])
   useEffect(() => {
     fetch('https://cheapr.my.id/selling_order/?limit=50&filter=missing_get_by', {
       headers: new Headers({
@@ -69,7 +69,7 @@ const TableMissing = ({ session }: TableMissingProps) => {
     })
       .then(response => response.json())
       .then(json => {
-        setData(json.results)
+        setSales(json.results)
         console.log(json.results)
       })
   }, [session])
@@ -105,7 +105,7 @@ const TableMissing = ({ session }: TableMissingProps) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {data?.map((row: SellingOrder) => (
+            {sales?.map((row: SellingOrder) => (
               <TableRow
                 hover
                 key={row.order_id}
