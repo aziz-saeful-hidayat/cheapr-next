@@ -38,7 +38,8 @@ import {
   TableCell,
   Paper,
   TableBody,
-  Chip
+  Chip,
+  FormControl
 } from '@mui/material'
 import InboxIcon from '@mui/icons-material/Inbox'
 import DraftsIcon from '@mui/icons-material/Drafts'
@@ -1468,25 +1469,35 @@ const PurchaseDetail = (props: any) => {
                 <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
                   Add Item
                 </Button>
-                <RadioGroup
-                  row
-                  aria-labelledby='demo-row-radio-buttons-group-label'
-                  name='row-radio-buttons-group'
-                  value={orderData?.destination}
-                  onChange={e => {
-                    if (orderData) {
-                      setOrderData({ ...orderData, destination: e.target.value })
-                      handleUpdateDestination(e.target.value)
-                      if (e.target.value == 'D') {
-                        setMatchSalesModalOpen(true)
+                <FormControl>
+                  <RadioGroup
+                    row
+                    aria-labelledby='demo-row-radio-buttons-group-label'
+                    name='row-radio-buttons-group'
+                    value={orderData?.destination}
+                    onChange={e => {
+                      if (orderData) {
+                        setOrderData({ ...orderData, destination: e.target.value })
+                        handleUpdateDestination(e.target.value)
+                        if (e.target.value == 'D') {
+                          setMatchSalesModalOpen(true)
+                        }
                       }
-                    }
-                  }}
-                >
-                  <FormControlLabel value='H' control={<Radio />} label='HOUSE' />
-                  <FormControlLabel value='D' control={<Radio />} label='DROPSHIP' sx={{ marginLeft: 50 }} />
-                </RadioGroup>
-
+                    }}
+                  >
+                    <FormControlLabel
+                      value='H'
+                      control={<Radio checked={orderData?.destination === 'H'} />}
+                      label='HOUSE'
+                    />
+                    <FormControlLabel
+                      value='D'
+                      control={<Radio checked={orderData?.destination === 'D'} />}
+                      label='DROPSHIP'
+                      sx={{ marginLeft: 50 }}
+                    />
+                  </RadioGroup>
+                </FormControl>
                 <span>
                   SBO.#{'     '}
                   {orderData?.selling_buying.map(sales => (

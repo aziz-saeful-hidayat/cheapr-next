@@ -21,13 +21,24 @@ import CardHeader from '@mui/material/CardHeader'
 import IconButton from '@mui/material/IconButton'
 import DotsVertical from 'mdi-material-ui/DotsVertical'
 import moment from 'moment-timezone'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { BuyingOrder, SellingOrder } from 'src/@core/types'
+import { styled } from '@mui/material/styles'
+import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip'
 
 interface TableArrivedProps {
   session: any
 }
-
+const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
+  <Tooltip {...props} classes={{ popper: className }} placement='right-start' />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: '#f5f5f9',
+    color: 'rgba(0, 0, 0, 0.87)',
+    maxWidth: 400,
+    border: '1px solid #dadde9'
+  }
+}))
 const TableArrived = ({ session }: TableArrivedProps) => {
   const [buying, setBuying] = useState<BuyingOrder[]>([])
   const [arrived, setArrived] = useState(moment(Date.now()).format('YYYY-MM-DD'))
@@ -52,154 +63,188 @@ const TableArrived = ({ session }: TableArrivedProps) => {
       }}
     >
       <CardHeader
-        title={`HA Purchase Delivered by ${moment(arrived).format('MM/DD/YYYY')} - To Be Checked`}
+        title={`Items Purchased to Fill Orders but coming house first`}
         titleTypographyProps={{ sx: { lineHeight: '1.2 !important', letterSpacing: '0.31px !important' } }}
-        subheader={
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DatePicker
-              sx={{ marginTop: 5 }}
-              onChange={value => setArrived(value ? value.format('YYYY-MM-DD') : '')}
-              label={'Pick Date'}
-              value={arrived ? dayjs(arrived) : null}
-            />
-          </LocalizationProvider>
-        }
         action={
           <IconButton size='small' aria-label='settings' className='card-more-options' sx={{ color: 'text.secondary' }}>
             <DotsVertical />
           </IconButton>
         }
       />
-
+      <Typography sx={{ fontWeight: 600, fontSize: '0.875rem', marginLeft: 5 }}>
+        Arriving today: {moment(arrived).format('MM/DD')}
+      </Typography>
       <TableContainer>
         <Table aria-label='table in dashboard'>
           <TableHead>
             <TableRow>
               <TableCell>Status</TableCell>
-              <TableCell>Order ID</TableCell>
-              <TableCell>Channel</TableCell>
-              <TableCell>Sales ID</TableCell>
               <TableCell>Get By</TableCell>
+              <TableCell>Order ID</TableCell>
+              <TableCell>Item Detail</TableCell>
+              <TableCell>Store</TableCell>
+              <TableCell>P.O.#</TableCell>
+              <TableCell>Vendor</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {buying?.map((row: BuyingOrder) => (
-              <TableRow hover key={row.pk} sx={{ '&:last-of-type td, &:last-of-type th': { border: 0 }, height: 35 }}>
-                <TableCell sx={{ py: theme => `${theme.spacing(0.5)} !important` }}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '1rem'
-                    }}
-                  >
-                    {row.inventoryitems
-                      .map(item => item.tracking)
-                      .map((tracking, index) => {
-                        if (tracking) {
-                          return (
-                            <Link
-                              href={`${tracking?.fullcarrier?.prefix}${tracking?.tracking_number}${tracking.fullcarrier?.suffix}`}
-                              target='_blank'
-                            >
+            {buying
+              ?.filter(b => b?.inventoryitems?.find(e => e?.tracking?.eta_date == moment(arrived).format('YYYY-MM-DD')))
+              ?.map((row: BuyingOrder) => (
+                <TableRow hover key={row.pk} sx={{ '&:last-of-type td, &:last-of-type th': { border: 0 }, height: 35 }}>
+                  <TableCell sx={{ py: theme => `${theme.spacing(0.5)} !important` }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '1rem'
+                      }}
+                    >
+                      {row.inventoryitems
+                        .map(item => item.tracking)
+                        .map((tracking, index) => {
+                          if (tracking) {
+                            return (
+                              <Link
+                                href={`${tracking?.fullcarrier?.prefix}${tracking?.tracking_number}${tracking.fullcarrier?.suffix}`}
+                                target='_blank'
+                              >
+                                <Box
+                                  key={index}
+                                  sx={theme => ({
+                                    backgroundColor:
+                                      tracking.status == 'D'
+                                        ? theme.palette.success.dark
+                                        : tracking.status == 'T'
+                                        ? theme.palette.warning.light
+                                        : tracking.status == 'I'
+                                        ? 'purple'
+                                        : theme.palette.error.dark,
+                                    borderRadius: '0.5rem',
+                                    color: '#fff',
+                                    width: 15,
+                                    height: 15
+                                  })}
+                                ></Box>
+                              </Link>
+                            )
+                          } else {
+                            return (
                               <Box
                                 key={index}
                                 sx={theme => ({
-                                  backgroundColor:
-                                    tracking.status == 'D'
-                                      ? theme.palette.success.dark
-                                      : tracking.status == 'T'
-                                      ? theme.palette.warning.light
-                                      : tracking.status == 'I'
-                                      ? 'purple'
-                                      : theme.palette.error.dark,
-                                  borderRadius: '0.5rem',
-                                  color: '#fff',
-                                  width: 15,
-                                  height: 15
-                                })}
-                              ></Box>
-                            </Link>
-                          )
-                        } else {
-                          return (
-                            <Box
-                              key={index}
-                              sx={theme => ({
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                backgroundColor: '#a9a9a9',
-                                borderRadius: '0.5rem',
-                                borderColor: '#000',
-                                color: '#fff',
-                                width: 12,
-                                height: 12
-                              })}
-                            >
-                              <Box
-                                sx={theme => ({
-                                  backgroundColor: theme.palette.background.paper,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  backgroundColor: '#a9a9a9',
                                   borderRadius: '0.5rem',
                                   borderColor: '#000',
                                   color: '#fff',
-                                  width: 9,
-                                  height: 9
+                                  width: 12,
+                                  height: 12
                                 })}
-                              ></Box>
-                            </Box>
-                          )
-                        }
-                      })}
-                  </Box>
-                </TableCell>
-
-                <TableCell>{row.channel_order_id}</TableCell>
-                <TableCell>{row.channel.name}</TableCell>
-                <TableCell>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '1rem'
-                    }}
-                  >
-                    {row.inventoryitems
-                      .map(item => item.itemsales)
-                      .map((salesitem, index) => {
-                        if (salesitem) {
-                          return <Typography color='inherit'>{salesitem?.selling?.channel_order_id}</Typography>
-                        } else {
-                          return <Typography color='inherit'></Typography>
-                        }
-                      })}
-                  </Box>
-                </TableCell>
-                <TableCell>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '1rem'
-                    }}
-                  >
-                    {row.inventoryitems
-                      .map(item => item.itemsales)
-                      .map((salesitem, index) => {
-                        if (salesitem) {
+                              >
+                                <Box
+                                  sx={theme => ({
+                                    backgroundColor: theme.palette.background.paper,
+                                    borderRadius: '0.5rem',
+                                    borderColor: '#000',
+                                    color: '#fff',
+                                    width: 9,
+                                    height: 9
+                                  })}
+                                ></Box>
+                              </Box>
+                            )
+                          }
+                        })}
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '1rem'
+                      }}
+                    >
+                      {row.inventoryitems
+                        .map(item => item.itemsales)
+                        .map((salesitem, index) => {
+                          if (salesitem) {
+                            return (
+                              <Typography color='inherit'>
+                                {moment(salesitem?.selling?.delivery_date).format('MM-DD-YY')}
+                              </Typography>
+                            )
+                          } else {
+                            return <Typography color='inherit'></Typography>
+                          }
+                        })}
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '1rem'
+                      }}
+                    >
+                      {row.inventoryitems
+                        .map(item => item.itemsales)
+                        .map((salesitem, index) => {
+                          if (salesitem) {
+                            return <Typography color='inherit'>{salesitem?.selling?.channel_order_id}</Typography>
+                          } else {
+                            return <Typography color='inherit'></Typography>
+                          }
+                        })}
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '1rem'
+                      }}
+                    >
+                      {row.inventoryitems.map((item, index) => {
+                        const sku = item.sku
+                        if (sku) {
                           return (
-                            <Typography color='inherit'>
-                              {moment(salesitem?.selling?.delivery_date).format('MM-DD-YY')}
-                            </Typography>
+                            <HtmlTooltip
+                              title={
+                                <React.Fragment>
+                                  {item.title == null ? (
+                                    <Typography color='inherit'>No Title</Typography>
+                                  ) : (
+                                    <Typography color='inherit'>{item.title}</Typography>
+                                  )}
+                                </React.Fragment>
+                              }
+                            >
+                              {sku.mpn ? (
+                                <span key={index}>{`${sku.make ? `${sku.make} | ` : ''}${
+                                  sku.model ? `${sku.model} | ` : ''
+                                }${sku.mpn ? `${sku.mpn}` : ''}`}</span>
+                              ) : (
+                                <span key={index}>{sku.sku}</span>
+                              )}
+                            </HtmlTooltip>
                           )
                         } else {
-                          return <Typography color='inherit'></Typography>
+                          return <span key={index}>{` `}</span>
                         }
                       })}
-                  </Box>
-                </TableCell>
+                    </Box>
+                  </TableCell>
+                  <TableCell>{row.channel.name}</TableCell>
+                  <TableCell>{row.channel_order_id}</TableCell>
+                  <TableCell>{row.seller_name}</TableCell>
 
-                {/* <TableCell>
+                  {/* <TableCell>
                   <Chip
                     label={row.status}
                     color={statusObj[row.status].color}
@@ -211,8 +256,196 @@ const TableArrived = ({ session }: TableArrivedProps) => {
                     }}
                   />
                 </TableCell> */}
-              </TableRow>
-            ))}
+                </TableRow>
+              ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <Typography sx={{ fontWeight: 600, fontSize: '0.875rem', marginLeft: 5 }}>Arriving after today</Typography>
+      <TableContainer>
+        <Table aria-label='table in dashboard'>
+          <TableHead>
+            <TableRow>
+              <TableCell>Status</TableCell>
+              <TableCell>Get By</TableCell>
+              <TableCell>Order ID</TableCell>
+              <TableCell>Item Detail</TableCell>
+              <TableCell>Store</TableCell>
+              <TableCell>P.O.#</TableCell>
+              <TableCell>Vendor</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {buying
+              ?.filter(b => b?.inventoryitems?.find(e => e?.tracking?.eta_date != moment(arrived).format('YYYY-MM-DD')))
+              .map((row: BuyingOrder) => (
+                <TableRow hover key={row.pk} sx={{ '&:last-of-type td, &:last-of-type th': { border: 0 }, height: 35 }}>
+                  <TableCell sx={{ py: theme => `${theme.spacing(0.5)} !important` }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '1rem'
+                      }}
+                    >
+                      {row.inventoryitems
+                        .map(item => item.tracking)
+                        .map((tracking, index) => {
+                          if (tracking) {
+                            return (
+                              <Link
+                                href={`${tracking?.fullcarrier?.prefix}${tracking?.tracking_number}${tracking.fullcarrier?.suffix}`}
+                                target='_blank'
+                              >
+                                <Box
+                                  key={index}
+                                  sx={theme => ({
+                                    backgroundColor:
+                                      tracking.status == 'D'
+                                        ? theme.palette.success.dark
+                                        : tracking.status == 'T'
+                                        ? theme.palette.warning.light
+                                        : tracking.status == 'I'
+                                        ? 'purple'
+                                        : theme.palette.error.dark,
+                                    borderRadius: '0.5rem',
+                                    color: '#fff',
+                                    width: 15,
+                                    height: 15
+                                  })}
+                                ></Box>
+                              </Link>
+                            )
+                          } else {
+                            return (
+                              <Box
+                                key={index}
+                                sx={theme => ({
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  backgroundColor: '#a9a9a9',
+                                  borderRadius: '0.5rem',
+                                  borderColor: '#000',
+                                  color: '#fff',
+                                  width: 12,
+                                  height: 12
+                                })}
+                              >
+                                <Box
+                                  sx={theme => ({
+                                    backgroundColor: theme.palette.background.paper,
+                                    borderRadius: '0.5rem',
+                                    borderColor: '#000',
+                                    color: '#fff',
+                                    width: 9,
+                                    height: 9
+                                  })}
+                                ></Box>
+                              </Box>
+                            )
+                          }
+                        })}
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '1rem'
+                      }}
+                    >
+                      {row.inventoryitems
+                        .map(item => item.itemsales)
+                        .map((salesitem, index) => {
+                          if (salesitem) {
+                            return (
+                              <Typography color='inherit'>
+                                {moment(salesitem?.selling?.delivery_date).format('MM-DD-YY')}
+                              </Typography>
+                            )
+                          } else {
+                            return <Typography color='inherit'></Typography>
+                          }
+                        })}
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '1rem'
+                      }}
+                    >
+                      {row.inventoryitems
+                        .map(item => item.itemsales)
+                        .map((salesitem, index) => {
+                          if (salesitem) {
+                            return <Typography color='inherit'>{salesitem?.selling?.channel_order_id}</Typography>
+                          } else {
+                            return <Typography color='inherit'></Typography>
+                          }
+                        })}
+                    </Box>
+                  </TableCell>
+                  <TableCell>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '1rem'
+                      }}
+                    >
+                      {row.inventoryitems.map((item, index) => {
+                        const sku = item.sku
+                        if (sku) {
+                          return (
+                            <HtmlTooltip
+                              title={
+                                <React.Fragment>
+                                  {item.title == null ? (
+                                    <Typography color='inherit'>No Title</Typography>
+                                  ) : (
+                                    <Typography color='inherit'>{item.title}</Typography>
+                                  )}
+                                </React.Fragment>
+                              }
+                            >
+                              {sku.mpn ? (
+                                <span key={index}>{`${sku.make ? `${sku.make} | ` : ''}${
+                                  sku.model ? `${sku.model} | ` : ''
+                                }${sku.mpn ? `${sku.mpn}` : ''}`}</span>
+                              ) : (
+                                <span key={index}>{sku.sku}</span>
+                              )}
+                            </HtmlTooltip>
+                          )
+                        } else {
+                          return <span key={index}>{` `}</span>
+                        }
+                      })}
+                    </Box>
+                  </TableCell>
+                  <TableCell>{row.channel.name}</TableCell>
+                  <TableCell>{row.channel_order_id}</TableCell>
+                  <TableCell>{row.seller_name}</TableCell>
+
+                  {/* <TableCell>
+                  <Chip
+                    label={row.status}
+                    color={statusObj[row.status].color}
+                    sx={{
+                      height: 24,
+                      fontSize: '0.75rem',
+                      textTransform: 'capitalize',
+                      '& .MuiChip-label': { fontWeight: 500 }
+                    }}
+                  />
+                </TableCell> */}
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </TableContainer>
