@@ -1728,7 +1728,8 @@ const SalesDetail = (props: any) => {
                 sub_sku: item.sub_sku,
                 inventory: item.inventory,
                 item_null: item.item == null,
-                tracking: item.tracking
+                tracking: item.tracking,
+                letter_tracking: item.letter_tracking
               }
             })
           )
