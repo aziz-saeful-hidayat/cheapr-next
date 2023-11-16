@@ -673,7 +673,7 @@ const Example = (props: any) => {
       },
       {
         id: 'lt_tn',
-        header: 'LTTN',
+        header: 'Letter Tracking',
         size: 150,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
@@ -684,7 +684,7 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            {row.original.sales.salesitems.map((sales, index) => {
+            {row.original.sales?.salesitems?.map((sales, index) => {
               const tracking = sales.letter_tracking
               if (tracking) {
                 return (
@@ -701,7 +701,7 @@ const Example = (props: any) => {
       },
       {
         id: 'lt_eta',
-        header: 'LTETA',
+        header: 'ETA',
         maxSize: 60,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
@@ -712,7 +712,7 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            {row.original.sales.salesitems.map((sales, index) => {
+            {row.original.sales?.salesitems?.map((sales, index) => {
               const tracking = sales.letter_tracking
               if (tracking) {
                 return (
@@ -742,7 +742,7 @@ const Example = (props: any) => {
       },
       {
         id: 'ac_tn',
-        header: 'ACTN',
+        header: 'Actual Tracking',
         size: 150,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
