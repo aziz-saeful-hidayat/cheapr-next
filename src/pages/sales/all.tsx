@@ -1510,7 +1510,7 @@ const Example = (props: any) => {
   const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({})
 
   useEffect(() => {
-    console.info({ rowSelection }) //read your managed row selection state
+    console.log({ rowSelection }) //read your managed row selection state
     // console.info(table.getState().rowSelection); //alternate way to get the row selection state
   }, [rowSelection])
 
@@ -1526,7 +1526,9 @@ const Example = (props: any) => {
       body: JSON.stringify(values)
     })
       .then(response => response.json())
-      .then(json => {})
+      .then(json => {
+        console.log(json)
+      })
       .finally(() => setRowSelection({}))
   }
 
