@@ -6,7 +6,8 @@ import MaterialReactTable, {
   type MRT_PaginationState,
   type MRT_SortingState,
   MaterialReactTableProps,
-  MRT_Cell
+  MRT_Cell,
+  type MRT_RowSelectionState
 } from 'material-react-table'
 import {
   Box,
@@ -68,6 +69,7 @@ import {
   Manager
 } from 'src/@core/types'
 import AddSalesItemModal from 'src/@core/components/add-sales-item'
+import CreateNewTracking from 'src/@core/components/create-tracking'
 
 type Payload = {
   pk?: number
@@ -504,8 +506,11 @@ const Example = (props: any) => {
   const [tableData, setTableData] = useState<SellingOrder[]>(() => data?.results ?? [])
   const [channelData, setChannelData] = useState<Channel[]>([])
   const [roomData, setRoomData] = useState<Room[]>([])
+  const [carrierData, setCarrierData] = useState<Carrier[]>([])
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
+  const [createTrackingModalOpen, setCreateTrackingModalOpen] = useState(false)
+
   const [addModalOpen, setAddModalOpen] = useState<SellingOrder>()
   const [detail, setDetail] = useState<number | undefined>()
   const [detailModalOpen, setDetailModalOpen] = useState(false)
@@ -1489,8 +1494,41 @@ const Example = (props: any) => {
       .then(json => {
         setRoomData(json.results)
       })
+    const fetchURLCarrier = new URL('/carrier/', 'https://cheapr.my.id')
+    fetch(fetchURLCarrier.href, {
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      })
+    })
+      .then(response => response.json())
+      .then(json => {
+        setCarrierData(json.results)
+      })
   }, [session])
 
+  const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({})
+
+  useEffect(() => {
+    console.info({ rowSelection }) //read your managed row selection state
+    // console.info(table.getState().rowSelection); //alternate way to get the row selection state
+  }, [rowSelection])
+
+  const bulkEditTracking = (pk: number) => {
+    const values = { tracking: pk, sales: Object.keys(rowSelection) }
+    console.log(values)
+    fetch(`https://cheapr.my.id/bulk_edit_tracking/`, {
+      method: 'POST',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify(values)
+    })
+      .then(response => response.json())
+      .then(json => {})
+      .finally(() => setRowSelection({}))
+  }
   return (
     <Card sx={{ padding: 3 }}>
       <MaterialReactTable
@@ -1520,6 +1558,8 @@ const Example = (props: any) => {
         onEditingRowSave={handleSaveRow}
         enableStickyHeader
         enableStickyFooter
+        enableRowSelection
+        onRowSelectionChange={setRowSelection}
         manualFiltering
         manualPagination
         manualSorting
@@ -1536,11 +1576,18 @@ const Example = (props: any) => {
         onPaginationChange={setPagination}
         onSortingChange={setSorting}
         positionActionsColumn='last'
+        getRowId={row => row.pk.toString()}
         renderTopToolbarCustomActions={() => (
           <>
-            <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
-              Add New Sales
-            </Button>
+            {Object.keys(rowSelection).length > 0 ? (
+              <Button color='success' onClick={() => setCreateModalOpen(true)} variant='contained'>
+                Add Bulk Tracking
+              </Button>
+            ) : (
+              <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
+                Add New Sales
+              </Button>
+            )}
             <Select labelId='demo-select-small-label' id='demo-select-small' value={tabActive} onChange={handleChange}>
               <MenuItem value={'in_transit'}>In-Transit</MenuItem>
               <MenuItem value={'not_moving'}>Not Moving</MenuItem>
@@ -1571,7 +1618,8 @@ const Example = (props: any) => {
           pagination,
           showAlertBanner: isError,
           showProgressBars: isFetching,
-          sorting
+          sorting,
+          rowSelection
         }}
       />
       <CreateNewAccountModal
@@ -1613,6 +1661,13 @@ const Example = (props: any) => {
         pk={detail}
         modalOpen={detailModalOpen}
         onClose={() => setDetailModalOpen(false)}
+      />
+      <CreateNewTracking
+        open={createTrackingModalOpen}
+        onClose={() => setCreateTrackingModalOpen(false)}
+        session={session}
+        carrierData={carrierData}
+        bulkEditTracking={bulkEditTracking}
       />
     </Card>
   )

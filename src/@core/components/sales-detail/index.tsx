@@ -1935,6 +1935,8 @@ const SalesDetail = (props: any) => {
               .then(response => response.json())
               .then(json => {
                 if (json.pk) {
+                  console.log(`https://cheapr.my.id/sales_items/${cell.row.original.salesitem_pk}/`)
+
                   fetch(`https://cheapr.my.id/sales_items/${cell.row.original.salesitem_pk}/`, {
                     method: 'PATCH',
                     headers: {
@@ -1945,6 +1947,8 @@ const SalesDetail = (props: any) => {
                   })
                     .then(response => response.json())
                     .then(json => {
+                      console.log(`https://cheapr.my.id/sales_items/${cell.row.original.salesitem_pk}/`)
+
                       if (json.pk) {
                         setRefresh(refresh + 1)
                       }
