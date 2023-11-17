@@ -89,7 +89,6 @@ const Sales = (props: any) => {
               value='all'
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <AccountOutline />
                   <TabName>All</TabName>
                 </Box>
               }
@@ -98,7 +97,6 @@ const Sales = (props: any) => {
               value='unfulfilled'
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <AccountOutline />
                   <TabName>NEW</TabName>
                 </Box>
               }
@@ -107,7 +105,6 @@ const Sales = (props: any) => {
               value='unfulfilled-buffers'
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <AccountOutline />
                   <TabName>NEW (Buffers)</TabName>
                 </Box>
               }
@@ -117,7 +114,6 @@ const Sales = (props: any) => {
               value='fulfilled'
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <LockOpenOutline />
                   <TabName>SECURED</TabName>
                 </Box>
               }
@@ -126,7 +122,6 @@ const Sales = (props: any) => {
               value='ha-unlinked'
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <AccountOutline />
                   <TabName>HA (Unlinked)</TabName>
                 </Box>
               }
@@ -135,7 +130,6 @@ const Sales = (props: any) => {
               value='canceled'
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <LockOpenOutline />
                   <TabName>CANCELED</TabName>
                 </Box>
               }
@@ -144,7 +138,6 @@ const Sales = (props: any) => {
               value='replacement'
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <LockOpenOutline />
                   <TabName>REPLACED</TabName>
                 </Box>
               }
@@ -153,7 +146,6 @@ const Sales = (props: any) => {
               value='return'
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <LockOpenOutline />
                   <TabName>REFUNDED</TabName>
                 </Box>
               }
