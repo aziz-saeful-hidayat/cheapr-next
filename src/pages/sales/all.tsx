@@ -1529,6 +1529,7 @@ const Example = (props: any) => {
       .then(json => {})
       .finally(() => setRowSelection({}))
   }
+
   return (
     <Card sx={{ padding: 3 }}>
       <MaterialReactTable
