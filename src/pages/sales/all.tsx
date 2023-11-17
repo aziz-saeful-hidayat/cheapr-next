@@ -1579,7 +1579,7 @@ const Example = (props: any) => {
         onPaginationChange={setPagination}
         onSortingChange={setSorting}
         positionActionsColumn='last'
-        getRowId={row => row.pk.toString()}
+        getRowId={row => row?.pk?.toString()}
         renderTopToolbarCustomActions={() => (
           <>
             {Object.keys(rowSelection).length > 0 ? (
