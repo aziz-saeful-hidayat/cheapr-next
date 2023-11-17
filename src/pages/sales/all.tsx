@@ -1583,11 +1583,11 @@ const Example = (props: any) => {
         renderTopToolbarCustomActions={() => (
           <>
             {Object.keys(rowSelection).length > 0 ? (
-              <Button color='success' onClick={() => setCreateModalOpen(true)} variant='contained'>
+              <Button color='success' onClick={() => setCreateTrackingModalOpen(true)} variant='contained'>
                 Add Bulk Tracking
               </Button>
             ) : (
-              <Button color='primary' onClick={() => setCreateTrackingModalOpen(true)} variant='contained'>
+              <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
                 Add New Sales
               </Button>
             )}
