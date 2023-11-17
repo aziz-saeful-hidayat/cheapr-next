@@ -1587,7 +1587,7 @@ const Example = (props: any) => {
                 Add Bulk Tracking
               </Button>
             ) : (
-              <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
+              <Button color='primary' onClick={() => setCreateTrackingModalOpen(true)} variant='contained'>
                 Add New Sales
               </Button>
             )}
