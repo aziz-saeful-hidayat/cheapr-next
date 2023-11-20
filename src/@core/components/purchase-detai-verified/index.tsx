@@ -1357,6 +1357,7 @@ const PurchaseDetailVerified = (props: any) => {
             enableRowActions
             enableColumnActions={false}
             positionActionsColumn='first'
+            onPaginationChange={setPagination}
             renderBottomToolbarCustomActions={() => (
               <Button color='primary' onClick={() => handleUnverify()} variant='contained'>
                 Unverify

@@ -387,6 +387,7 @@ const Example = (props: any) => {
       fetchURL.searchParams.set('ordering', ordering)
 
       fetchURL.searchParams.set('cs', tabActive != 'all' ? tabActive : '')
+      fetchURL.searchParams.set('fall_off_after', moment(Date.now()).format('YYYY-MM-DD'))
 
       console.log(fetchURL.href)
       const response = await fetch(fetchURL.href, {
@@ -771,7 +772,7 @@ const Example = (props: any) => {
       },
       {
         id: 'ac_eta',
-        header: 'ACETA',
+        header: 'ETA',
         maxSize: 60,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (

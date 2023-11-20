@@ -32,6 +32,7 @@ import NewIssues from './new'
 import WorkingIssues from './working'
 import ResolvedIssues from './resolved'
 import GaveUpIssues from './gaveup'
+import FallOffIssues from './fall-off'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -114,6 +115,15 @@ const Sales = (props: any) => {
                 </Box>
               }
             />
+            <Tab
+              value='F'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <AccountOutline />
+                  <TabName>Fall Off</TabName>
+                </Box>
+              }
+            />
           </TabList>
           <TabPanel sx={{ p: 0 }} value='all'>
             <AllIssues session={session} />
@@ -129,6 +139,9 @@ const Sales = (props: any) => {
           </TabPanel>
           <TabPanel sx={{ p: 0 }} value='G'>
             <GaveUpIssues session={session} />
+          </TabPanel>
+          <TabPanel sx={{ p: 0 }} value='F'>
+            <FallOffIssues session={session} />
           </TabPanel>
         </TabContext>
       </Card>

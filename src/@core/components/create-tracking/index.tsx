@@ -130,7 +130,6 @@ const CreateNewTracking = ({ open, onClose, session, carrierData, bulkEditTracki
               key={'tracking_number'}
               name={'Tracking Number'}
               label='Tracking Number'
-              select
               onChange={e => setValues({ ...values, tracking_number: e.target.value })}
             ></TextField>
             <TextField

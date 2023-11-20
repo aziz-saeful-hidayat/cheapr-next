@@ -1144,55 +1144,6 @@ export const DeleteModal = ({ open, onClose, onSubmit, data }: DeleteModalProps)
 }
 const SalesDetail = (props: any) => {
   const { session, pk, modalOpen, onClose } = props
-  // const { data, isError, isFetching, isLoading } = useQuery({
-  //   queryKey: [
-  //     'table-data',
-  //     columnFilters, //refetch when columnFilters changes
-  //     globalFilter, //refetch when globalFilter changes
-  //     pagination.pageIndex, //refetch when pagination.pageIndex changes
-  //     pagination.pageSize, //refetch when pagination.pageSize changes
-  //     sorting //refetch when sorting changes
-  //   ],
-  //   queryFn: async () => {
-  //     const fetchURL = new URL('/inventory_items/', 'https://cheapr.my.id')
-  //     fetchURL.searchParams.set('limit', `${pagination.pageSize}`)
-  //     fetchURL.searchParams.set('offset', `${pagination.pageIndex * pagination.pageSize}`)
-  //     fetchURL.searchParams.set('selling_pk', typeof purchaseId == 'string' ? purchaseId : '')
-  //     for (let f = 0; f < columnFilters.length; f++) {
-  //       const filter = columnFilters[f]
-  //       if (filter.id == 'product.sku') {
-  //         fetchURL.searchParams.set('product', typeof filter.value === 'string' ? filter.value : '')
-  //       } else {
-  //         fetchURL.searchParams.set(filter.id, typeof filter.value === 'string' ? filter.value : '')
-  //       }
-  //     }
-  //     fetchURL.searchParams.set('search', globalFilter ?? '')
-  //     let ordering = ''
-  //     for (let s = 0; s < sorting.length; s++) {
-  //       const sort = sorting[s]
-  //       if (s !== 0) {
-  //         ordering = ordering + ','
-  //       }
-  //       if (sort.desc) {
-  //         ordering = ordering + '-'
-  //       }
-  //       ordering = ordering + sort.id
-  //     }
-  //     fetchURL.searchParams.set('ordering', ordering)
-  //     console.log(fetchURL.href)
-  //     const response = await fetch(fetchURL.href, {
-  //       method: 'get',
-  //       headers: new Headers({
-  //         Authorization: `Bearer ${session?.accessToken}`,
-  //         'Content-Type': 'application/json'
-  //       })
-  //     })
-  //     const json = await response.json()
-
-  //     return json
-  //   },
-  //   keepPreviousData: true
-  // })
   const [orderData, setOrderData] = useState<SalesOrder>()
   const statusOptions: any[] = [
     { key: 'D', name: 'Delivered', color: 'success' },
@@ -1728,7 +1679,7 @@ const SalesDetail = (props: any) => {
                 sub_sku: item.sub_sku,
                 inventory: item.inventory,
                 item_null: item.item == null,
-                tracking: item.tracking,
+                // tracking: item.tracking,
                 letter_tracking: item.letter_tracking
               }
             })
@@ -1737,11 +1688,7 @@ const SalesDetail = (props: any) => {
       })
       .finally(() => setIsFetching(false))
   }, [session, pk, modalOpen, refresh])
-  // useEffect(() => {
-  //   if (modalOpen == false) {
-  //     setTableData([])
-  //   }
-  // }, [modalOpen])
+
   const handleSaveRow: MaterialReactTableProps<InventoryItem>['onEditingRowSave'] = async ({
     exitEditingMode,
     row,

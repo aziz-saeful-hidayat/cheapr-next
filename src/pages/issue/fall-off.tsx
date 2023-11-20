@@ -359,7 +359,6 @@ const Example = (props: any) => {
     ],
     queryFn: async () => {
       const fetchURL = new URL('/open_issue/', 'https://cheapr.my.id')
-      fetchURL.searchParams.set('status', `G`)
       fetchURL.searchParams.set('limit', `${pagination.pageSize}`)
       fetchURL.searchParams.set('offset', `${pagination.pageIndex * pagination.pageSize}`)
       for (let f = 0; f < columnFilters.length; f++) {
@@ -387,8 +386,8 @@ const Example = (props: any) => {
       fetchURL.searchParams.set('ordering', ordering)
 
       fetchURL.searchParams.set('cs', tabActive != 'all' ? tabActive : '')
-      fetchURL.searchParams.set('fall_off_after', moment(Date.now()).format('YYYY-MM-DD'))
-
+      fetchURL.searchParams.set('ordering', ordering)
+      fetchURL.searchParams.set('fall_off_before', moment(Date.now()).format('YYYY-MM-DD'))
       console.log(fetchURL.href)
       const response = await fetch(fetchURL.href, {
         method: 'get',
@@ -675,7 +674,7 @@ const Example = (props: any) => {
       },
       {
         id: 'lt_tn',
-        header: 'LTTN',
+        header: 'Letter Tracking',
         size: 150,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
@@ -686,7 +685,7 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            {row.original.sales.salesitems.map((sales, index) => {
+            {row.original.sales?.salesitems?.map((sales, index) => {
               const tracking = sales.letter_tracking
               if (tracking) {
                 return (
@@ -703,7 +702,7 @@ const Example = (props: any) => {
       },
       {
         id: 'lt_eta',
-        header: 'LTETA',
+        header: 'ETA',
         maxSize: 60,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
@@ -714,7 +713,7 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            {row.original.sales.salesitems.map((sales, index) => {
+            {row.original.sales?.salesitems?.map((sales, index) => {
               const tracking = sales.letter_tracking
               if (tracking) {
                 return (
@@ -744,7 +743,7 @@ const Example = (props: any) => {
       },
       {
         id: 'ac_tn',
-        header: 'ACTN',
+        header: 'ACTUAL TRACKING',
         size: 150,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
@@ -1227,10 +1226,10 @@ const Example = (props: any) => {
 
 const queryClient = new QueryClient()
 
-const GaveUpIssues = (props: any) => (
+const FallOffIssues = (props: any) => (
   <QueryClientProvider client={queryClient}>
     <Example {...props} />
   </QueryClientProvider>
 )
 
-export default GaveUpIssues
+export default FallOffIssues

@@ -1446,6 +1446,7 @@ const PurchaseDetail = (props: any) => {
             enableEditing
             editingMode='cell'
             onEditingRowSave={handleSaveRow}
+            onPaginationChange={setPagination}
             muiTableBodyCellEditTextFieldProps={({ cell }) => ({
               //onBlur is more efficient, but could use onChange instead
               onBlur: event => {
