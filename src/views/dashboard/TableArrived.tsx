@@ -71,9 +71,6 @@ const TableArrived = ({ session }: TableArrivedProps) => {
           </IconButton>
         }
       />
-      <Typography sx={{ fontWeight: 600, fontSize: '0.875rem', marginLeft: 5 }}>
-        Arriving today: {moment(arrived).format('MM/DD')}
-      </Typography>
       <TableContainer>
         <Table aria-label='table in dashboard'>
           <TableHead>
@@ -87,7 +84,13 @@ const TableArrived = ({ session }: TableArrivedProps) => {
               <TableCell>Vendor</TableCell>
             </TableRow>
           </TableHead>
+
           <TableBody>
+            <TableRow>
+              <Typography sx={{ fontWeight: 600, fontSize: '0.875rem', marginLeft: 5, marginY: 2 }}>
+                Arriving today: {moment(arrived).format('MM/DD')}
+              </Typography>
+            </TableRow>
             {buying
               ?.filter(b => b?.inventoryitems?.find(e => e?.tracking?.eta_date == moment(arrived).format('YYYY-MM-DD')))
               ?.map((row: BuyingOrder) => (
@@ -258,24 +261,11 @@ const TableArrived = ({ session }: TableArrivedProps) => {
                 </TableCell> */}
                 </TableRow>
               ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <Typography sx={{ fontWeight: 600, fontSize: '0.875rem', marginLeft: 5 }}>Arriving after today</Typography>
-      <TableContainer>
-        <Table aria-label='table in dashboard'>
-          <TableHead>
             <TableRow>
-              <TableCell>Status</TableCell>
-              <TableCell>Get By</TableCell>
-              <TableCell>Order ID</TableCell>
-              <TableCell>Item Detail</TableCell>
-              <TableCell>Store</TableCell>
-              <TableCell>P.O.#</TableCell>
-              <TableCell>Vendor</TableCell>
+              <Typography sx={{ fontWeight: 600, fontSize: '0.875rem', marginLeft: 5, marginY: 2 }}>
+                Arriving after today
+              </Typography>
             </TableRow>
-          </TableHead>
-          <TableBody>
             {buying
               ?.filter(b => b?.inventoryitems?.find(e => e?.tracking?.eta_date != moment(arrived).format('YYYY-MM-DD')))
               .map((row: BuyingOrder) => (
