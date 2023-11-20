@@ -1350,9 +1350,6 @@ const PurchaseDetailVerified = (props: any) => {
                 handleSaveCell(cell, event.target.value)
               }
             })}
-            manualFiltering
-            manualPagination
-            manualSorting
             data={tableData}
             enableRowActions
             enableColumnActions={false}

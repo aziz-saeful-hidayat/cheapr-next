@@ -381,6 +381,7 @@ const PurchaseDetail = (props: any) => {
     pageIndex: 0,
     pageSize: 100
   })
+  
   const [refresh, setRefresh] = useState(0)
   const [isError, setisError] = useState(false)
 
@@ -992,8 +993,6 @@ const PurchaseDetail = (props: any) => {
     const key = cell.column.id
     const rowIdx = cell.row.index
     const payload: InventoryItem = {}
-    const oldData = [...tableData]
-    const newData: any = [...tableData]
     payload[key] = value
     console.log(key, value)
     if (key === 'itemsales.sku.sku') {
@@ -1453,9 +1452,6 @@ const PurchaseDetail = (props: any) => {
                 handleSaveCell(cell, event.target.value)
               }
             })}
-            manualFiltering
-            manualPagination
-            manualSorting
             data={tableData}
             enableRowActions
             enableColumnActions={false}
