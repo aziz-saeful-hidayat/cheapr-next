@@ -431,7 +431,6 @@ const Example = (props: any) => {
     pageIndex: 0,
     pageSize: 50
   })
-  const [tabActive, setTabActive] = useState('to_monitor')
 
   const { data, isError, isFetching, isLoading } = useQuery({
     queryKey: [
@@ -440,8 +439,7 @@ const Example = (props: any) => {
       globalFilter, //refetch when globalFilter changes
       pagination.pageIndex, //refetch when pagination.pageIndex changes
       pagination.pageSize, //refetch when pagination.pageSize changes
-      sorting, //refetch when sorting changes
-      tabActive
+      sorting //refetch when sorting changes
     ],
     queryFn: async () => {
       const fetchURL = new URL('/selling_order/', 'https://cheapr.my.id')
@@ -480,7 +478,6 @@ const Example = (props: any) => {
         ordering = ordering + sort.id
       }
       fetchURL.searchParams.set('ordering', ordering)
-      fetchURL.searchParams.set('filter', tabActive)
       fetchURL.searchParams.set('replacement', 'true')
 
       console.log(fetchURL.href)
@@ -1494,20 +1491,6 @@ const Example = (props: any) => {
             <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
               Add New Sales
             </Button>
-            <Select labelId='demo-select-small-label' id='demo-select-small' value={tabActive} onChange={handleChange}>
-              <MenuItem value={'in_transit'}>In-Transit</MenuItem>
-              <MenuItem value={'not_moving'}>Not Moving</MenuItem>
-              <MenuItem value={'have_issue'}>Have Issue</MenuItem>
-              <MenuItem value={'no_tracking'}>No-Tracking</MenuItem>
-              <MenuItem value={'potential_delay'}>Potential Delay</MenuItem>
-              <MenuItem value={'to_monitor'}>To Monitor</MenuItem>
-              <MenuItem value={'delivered'}>Delivered</MenuItem>
-              <MenuItem value={'canceled'}>Canceled</MenuItem>
-              <MenuItem value={'all'}>All</MenuItem>
-
-              {/* <MenuItem value={'canceled'}>Canceled</MenuItem>
-              <MenuItem value={'to_pick'}>To Pick</MenuItem> */}
-            </Select>
           </>
         )}
         renderBottomToolbarCustomActions={() => (
