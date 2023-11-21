@@ -1515,7 +1515,7 @@ const Example = (props: any) => {
   }, [rowSelection])
 
   const bulkEditTracking = (pk: number) => {
-    const values = { tracking: pk, sales: Object.keys(rowSelection) }
+    const values = { tracking: pk, sales: Object.keys(rowSelection).map(key => parseInt(key)) }
     console.log(values)
     fetch(`https://cheapr.my.id/bulk_edit_tracking/`, {
       method: 'POST',

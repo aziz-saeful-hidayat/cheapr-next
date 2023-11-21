@@ -508,9 +508,6 @@ const Example = (props: any) => {
 
   const [custPk, setCustPk] = useState<number | undefined>()
 
-  const handleChange = (event: SelectChangeEvent) => {
-    setTabActive(event.target.value as string)
-  }
   const handleCreateNewRow = (values: SellingOrder) => {
     console.log(values)
     const channel = channelData.find(channel => channel.name == values['channel']['name'])
