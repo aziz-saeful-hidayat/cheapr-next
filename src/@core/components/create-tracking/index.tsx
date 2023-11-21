@@ -55,7 +55,7 @@ interface CreateTrackingProps {
 const CreateNewTracking = ({ open, onClose, session, carrierData, bulkEditTracking }: CreateTrackingProps) => {
   const handleCreateTracking = (values: Tracking) => {
     console.log(values)
-    fetch(`https://cheapr.my.id/seller/`, {
+    fetch(`https://cheapr.my.id/tracking/`, {
       method: 'POST',
       headers: new Headers({
         Authorization: `Bearer ${session?.accessToken}`,
