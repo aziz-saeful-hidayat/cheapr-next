@@ -55,22 +55,40 @@ interface CreateTrackingProps {
 const CreateNewTracking = ({ open, onClose, session, carrierData, bulkEditTracking }: CreateTrackingProps) => {
   const handleCreateTracking = (values: Tracking) => {
     console.log(values)
-    fetch(`https://cheapr.my.id/tracking/`, {
-      method: 'POST',
+    fetch(`https://cheapr.my.id/tracking/?tracking_number=${values.tracking_number}`, {
+      method: 'GET',
       headers: new Headers({
         Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json'
-      }),
-      body: JSON.stringify(values)
+      })
     })
       .then(response => response.json())
       .then(json => {
         console.log(json)
-        if (json.pk) {
-          bulkEditTracking(json.pk)
+        if (json.count > 0) {
+          bulkEditTracking(json.results[0].pk)
+        } else {
+          fetch(`https://cheapr.my.id/tracking/`, {
+            method: 'POST',
+            headers: new Headers({
+              Authorization: `Bearer ${session?.accessToken}`,
+              'Content-Type': 'application/json'
+            }),
+            body: JSON.stringify(values)
+          })
+            .then(response => response.json())
+            .then(json => {
+              console.log(json)
+              if (json.pk) {
+                bulkEditTracking(json.pk)
+              }
+            })
         }
       })
-      .finally(() => onClose())
+      .finally(() => {
+        setValues({ tracking_number: '' })
+        onClose()
+      })
   }
   const columnsNewTracking = useMemo<MRT_ColumnDef<Tracking>[]>(
     () => [
@@ -133,12 +151,12 @@ const CreateNewTracking = ({ open, onClose, session, carrierData, bulkEditTracki
               onChange={e => setValues({ ...values, tracking_number: e.target.value })}
             ></TextField>
             <TextField
-              value={carrierData.find(e => e.pk == values.carrier)?.name}
-              key={'carrier.name'}
+              value={carrierData.find(e => e.pk == values.fullcarrier)?.name}
+              key={'fullcarrier.name'}
               name={'Carrier'}
               label='Carrier'
               select
-              onChange={e => setValues({ ...values, carrier: e.target.value })}
+              onChange={e => setValues({ ...values, fullcarrier: e.target.value })}
             >
               {carrierData?.map(carrier => (
                 <MenuItem

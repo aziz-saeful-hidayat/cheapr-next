@@ -165,6 +165,7 @@ export const CreateNewAccountModal = ({
   const [options, setOptions] = useState<SellingOrder[]>([])
 
   const handleOpenIssue = (sales: number | undefined) => {
+    console.log(sales)
     if (sales) {
       fetch(`https://cheapr.my.id/open_issue/`, {
         method: 'POST',
@@ -175,6 +176,7 @@ export const CreateNewAccountModal = ({
         body: JSON.stringify({ sales: sales })
       })
         .then(response => response.json())
+        .then(json => console.log(json))
         .finally(() => {
           onClose()
           reload()
@@ -386,7 +388,6 @@ const Example = (props: any) => {
       fetchURL.searchParams.set('ordering', ordering)
 
       fetchURL.searchParams.set('cs', tabActive != 'all' ? tabActive : '')
-      fetchURL.searchParams.set('fall_off_after', moment(Date.now()).format('YYYY-MM-DD'))
 
       console.log(fetchURL.href)
       const response = await fetch(fetchURL.href, {
@@ -674,7 +675,7 @@ const Example = (props: any) => {
       },
       {
         id: 'lt_tn',
-        header: 'Letter Tracking',
+        header: 'LETTER TRACKING',
         size: 150,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
@@ -896,7 +897,9 @@ const Example = (props: any) => {
       {
         accessorKey: 'cs_comment',
         header: 'CUSTOMER COMMENTS',
-        size: 70
+        minSize: 100, //min size enforced during resizing
+        maxSize: 150, //max size enforced during resizing
+        size: 150 //medium column,
       },
       {
         accessorKey: 'date',
