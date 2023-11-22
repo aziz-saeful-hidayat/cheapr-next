@@ -787,22 +787,28 @@ const Example = (props: any) => {
               const tracking = sales.tracking
               if (tracking) {
                 return (
-                  <Typography
-                    color={
-                      tracking.status == 'D'
-                        ? 'green'
-                        : tracking.status == 'T'
-                        ? 'yellow'
-                        : tracking.status == 'N'
-                        ? 'red'
-                        : 'purple'
-                    }
-                    key={index}
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor:
+                        tracking.status == 'D'
+                          ? 'green'
+                          : tracking.status == 'T'
+                          ? 'yellow'
+                          : tracking.status == 'N'
+                          ? 'red'
+                          : 'purple'
+                    }}
                   >
-                    {tracking?.eta_date
-                      ? moment(tracking?.eta_date).tz('America/Los_Angeles').format('MM.DD')
-                      : tracking.status}
-                  </Typography>
+                    <Typography color={'white'} key={index} sx={{ fontWeight: 500 }}>
+                      {tracking?.eta_date
+                        ? moment(tracking?.eta_date).tz('America/Los_Angeles').format('MM.DD')
+                        : tracking.status}
+                    </Typography>
+                  </Box>
                 )
               } else {
                 return <span key={index}>{` `}</span>

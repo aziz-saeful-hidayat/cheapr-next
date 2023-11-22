@@ -857,64 +857,66 @@ const Example = (props: any) => {
           </Box>
         )
       },
-      {
-        id: 'mm',
-        header: 'ERP',
-        maxSize: 60,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
-            }}
-          >
-            {row.original.salesitems.map((sales, index) => {
-              const sku = sales.sku
-              if (sku) {
-                return (
-                  <HtmlTooltip
-                    title={
-                      <React.Fragment>
-                        {sales.model_match.length == 0 && <Typography color='inherit'>Not in Inventory</Typography>}
-                        {sales.model_match
-                          .filter((model: any) => model.mpn == 'Exact')
-                          .map((model: any, index: number) => (
-                            <Typography
-                              color={model.count > 0 ? 'inherit' : 'grey'}
-                              key={index}
-                            >{`${model.mpn} (${model.count})`}</Typography>
-                          ))}
 
-                        {sales.model_match
-                          .filter((model: any) => model.mpn != 'Exact')
-                          .map((model: any, index: number) => (
-                            <Typography
-                              color={model.count > 0 ? 'inherit' : 'grey'}
-                              key={index}
-                            >{`${model.mpn} (${model.count})`}</Typography>
-                          ))}
-                      </React.Fragment>
-                    }
-                  >
-                    {sales.model_match.length > 0 ? (
-                      <span>{sales.model_match.reduce((total: number, obj: any) => obj.count + total, 0)}</span>
-                    ) : (
-                      <span></span>
-                    )}
-                  </HtmlTooltip>
-                )
-              } else {
-                return <span key={index}>{` `}</span>
-              }
-            })}
-          </Box>
-        )
-      },
+      // {
+      //   id: 'mm',
+      //   header: 'ERP',
+      //   maxSize: 60,
+      //   enableEditing: false,
+      //   Cell: ({ renderedCellValue, row }) => (
+      //     <Box
+      //       sx={{
+      //         display: 'flex',
+      //         flexDirection: 'column',
+      //         gap: '1rem'
+      //       }}
+      //     >
+      //       {row.original.salesitems.map((sales, index) => {
+      //         const sku = sales.sku
+      //         if (sku) {
+      //           return (
+      //             <HtmlTooltip
+      //               title={
+      //                 <React.Fragment>
+      //                   {sales.model_match.length == 0 && <Typography color='inherit'>Not in Inventory</Typography>}
+      //                   {sales.model_match
+      //                     .filter((model: any) => model.mpn == 'Exact')
+      //                     .map((model: any, index: number) => (
+      //                       <Typography
+      //                         color={model.count > 0 ? 'inherit' : 'grey'}
+      //                         key={index}
+      //                       >{`${model.mpn} (${model.count})`}</Typography>
+      //                     ))}
+
+      //                   {sales.model_match
+      //                     .filter((model: any) => model.mpn != 'Exact')
+      //                     .map((model: any, index: number) => (
+      //                       <Typography
+      //                         color={model.count > 0 ? 'inherit' : 'grey'}
+      //                         key={index}
+      //                       >{`${model.mpn} (${model.count})`}</Typography>
+      //                     ))}
+      //                 </React.Fragment>
+      //               }
+      //             >
+      //               {sales.model_match.length > 0 ? (
+      //                 <span>{sales.model_match.reduce((total: number, obj: any) => obj.count + total, 0)}</span>
+      //               ) : (
+      //                 <span></span>
+      //               )}
+      //             </HtmlTooltip>
+      //           )
+      //         } else {
+      //           return <span key={index}>{` `}</span>
+      //         }
+      //       })}
+      //     </Box>
+      //   )
+      // },
+
       {
         id: 'mm2',
-        header: 'ERP2',
+        header: 'ERP',
         maxSize: 60,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
