@@ -377,11 +377,6 @@ const PurchaseDetail = (props: any) => {
   const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>([])
   const [globalFilter, setGlobalFilter] = useState('')
   const [sorting, setSorting] = useState<MRT_SortingState>([])
-  const [pagination, setPagination] = useState<MRT_PaginationState>({
-    pageIndex: 0,
-    pageSize: 100
-  })
-  
   const [refresh, setRefresh] = useState(0)
   const [isError, setisError] = useState(false)
 
@@ -930,12 +925,7 @@ const PurchaseDetail = (props: any) => {
           })
       : setSalesItemData([])
   }, [orderData, refresh])
-  useEffect(() => {
-    setPagination({
-      pageIndex: 0,
-      pageSize: 100
-    })
-  }, [sorting, globalFilter, columnFilters])
+
   useEffect(() => {
     if (modalOpen == false) {
       setTableData([])
@@ -1445,7 +1435,6 @@ const PurchaseDetail = (props: any) => {
             enableEditing
             editingMode='cell'
             onEditingRowSave={handleSaveRow}
-            onPaginationChange={setPagination}
             muiTableBodyCellEditTextFieldProps={({ cell }) => ({
               //onBlur is more efficient, but could use onChange instead
               onBlur: event => {
@@ -1454,6 +1443,8 @@ const PurchaseDetail = (props: any) => {
             })}
             data={tableData}
             enableRowActions
+            enableRowNumbers={true}
+            enablePagination={false}
             enableColumnActions={false}
             positionActionsColumn='first'
             renderTopToolbarCustomActions={() => (
@@ -1601,7 +1592,6 @@ const PurchaseDetail = (props: any) => {
               columnFilters,
               globalFilter,
               isLoading,
-              pagination,
               showAlertBanner: isError,
               showProgressBars: isFetching,
               sorting

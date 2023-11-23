@@ -1353,6 +1353,8 @@ const PurchaseDetailVerified = (props: any) => {
             data={tableData}
             enableRowActions
             enableColumnActions={false}
+            enableRowNumbers={true}
+            enablePagination={false}
             positionActionsColumn='first'
             onPaginationChange={setPagination}
             renderBottomToolbarCustomActions={() => (
@@ -1490,7 +1492,6 @@ const PurchaseDetailVerified = (props: any) => {
               columnFilters,
               globalFilter,
               isLoading,
-              pagination,
               showAlertBanner: isError,
               showProgressBars: isFetching,
               sorting
