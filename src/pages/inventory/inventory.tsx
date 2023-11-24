@@ -14,6 +14,7 @@ import {
   DialogContent,
   DialogTitle,
   IconButton,
+  Link,
   MenuItem,
   Stack,
   TextField,
@@ -40,6 +41,7 @@ import {
   Rating,
   Item
 } from 'src/@core/types'
+import PurchaseDetailVerified from 'src/@core/components/purchase-detai-verified'
 
 type Payload = {
   pk?: number
@@ -231,7 +233,8 @@ const Example = (props: any) => {
   const [ratingData, setRatingData] = useState<Rating[]>([])
   const [channelData, setChannelData] = useState<Channel[]>([])
   const [managerData, setManagerData] = useState<Manager[]>([])
-
+  const [detail, setDetail] = useState<number | undefined>()
+  const [detailModalOpen, setDetailModalOpen] = useState(false)
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [rowDel, setRowDel] = useState<number>()
@@ -389,7 +392,18 @@ const Example = (props: any) => {
       {
         accessorKey: 'buying.channel_order_id',
         header: 'P.O',
-        size: 75
+        size: 75,
+        Cell: ({ row }) => (
+          <Link
+            href='#'
+            onClick={() => {
+              setDetail(row.original.buying.pk)
+              setDetailModalOpen(true)
+            }}
+          >
+            {row.original.buying.channel_order_id}
+          </Link>
+        )
       },
       {
         accessorKey: 'buying.seller.name',
@@ -654,6 +668,12 @@ const Example = (props: any) => {
         onClose={() => setDeleteModalOpen(false)}
         onSubmit={() => typeof rowDel == 'number' && handleDeleteRow(rowDel)}
         data={typeof rowDel == 'number' ? tableData[rowDel]['serial'] : ''}
+      />
+      <PurchaseDetailVerified
+        session={session}
+        pk={detail}
+        modalOpen={detailModalOpen}
+        onClose={() => setDetailModalOpen(false)}
       />
     </Card>
   )

@@ -977,19 +977,15 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            {row.original.person.history > 0 ? (
-              <Link
-                href='#'
-                onClick={() => {
-                  setCustPk(row.original.person.pk)
-                  setCustHistoryModalOpen(true)
-                }}
-              >
-                <span>{renderedCellValue}</span>
-              </Link>
-            ) : (
+            <Link
+              href='#'
+              onClick={() => {
+                setCustPk(row.original.person.pk)
+                setCustHistoryModalOpen(true)
+              }}
+            >
               <span>{renderedCellValue}</span>
-            )}
+            </Link>
           </Box>
         )
       },

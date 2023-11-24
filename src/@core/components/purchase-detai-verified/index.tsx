@@ -1403,7 +1403,7 @@ const PurchaseDetailVerified = (props: any) => {
                 </FormControl>
                 <span>
                   SBO.#{'     '}
-                  {orderData?.selling_buying.map(sales => (
+                  {orderData?.selling_buying?.map(sales => (
                     <>
                       <Link onClick={fetchPickSales}> {sales.sales.order_id}</Link>{' '}
                       <Tooltip arrow placement='top' title='Remove'>

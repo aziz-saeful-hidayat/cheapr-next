@@ -1030,8 +1030,7 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            {row.original.person.history > 0 ? (
-              <Link
+            <Link
                 href='#'
                 onClick={() => {
                   setCustPk(row.original.person.pk)
@@ -1040,9 +1039,6 @@ const Example = (props: any) => {
               >
                 <span>{renderedCellValue}</span>
               </Link>
-            ) : (
-              <span>{renderedCellValue}</span>
-            )}
           </Box>
         )
       },
