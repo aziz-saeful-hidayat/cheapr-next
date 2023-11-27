@@ -34,6 +34,8 @@ import { GlobalDataContextConsumer, GlobalDataProvider } from 'src/@core/context
 import Backdrop from '@mui/material/Backdrop'
 import CircularProgress from '@mui/material/CircularProgress'
 import Typography from '@mui/material/Typography'
+import { LocalizationProvider } from '@mui/x-date-pickers'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
 // ** Extend App Props with Emotion
 type ExtendedAppProps = AppProps & {
@@ -68,49 +70,51 @@ const App = (props: ExtendedAppProps) => {
   const getLayout = Component.getLayout ?? (page => <UserLayout>{page}</UserLayout>)
 
   return (
-    <SessionProvider session={session}>
-      <CacheProvider value={emotionCache}>
-        <Head>
-          <title>{`${themeConfig.templateName} - Inventory Management`}</title>
-          <meta name='description' content={`${themeConfig.templateName} – Inventory Management`} />
-          <meta name='keywords' content='Inventory Management' />
-          <meta name='viewport' content='initial-scale=1, width=device-width' />
-        </Head>
-        <GlobalDataProvider>
-          <SettingsProvider>
-            <SettingsConsumer>
-              {({ settings }) => {
-                return (
-                  <ThemeComponent settings={settings}>
-                    <GlobalDataContextConsumer>
-                      {({ globalData, saveGlobalData }) => (
-                        <Backdrop
-                          sx={{
-                            color: '#fff',
-                            zIndex: theme => theme.zIndex.drawer + 1,
-                            display: 'flex',
-                            flexDirection: 'column'
-                          }}
-                          open={globalData.isLoading}
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <SessionProvider session={session}>
+        <CacheProvider value={emotionCache}>
+          <Head>
+            <title>{`${themeConfig.templateName} - Inventory Management`}</title>
+            <meta name='description' content={`${themeConfig.templateName} – Inventory Management`} />
+            <meta name='keywords' content='Inventory Management' />
+            <meta name='viewport' content='initial-scale=1, width=device-width' />
+          </Head>
+          <GlobalDataProvider>
+            <SettingsProvider>
+              <SettingsConsumer>
+                {({ settings }) => {
+                  return (
+                    <ThemeComponent settings={settings}>
+                      <GlobalDataContextConsumer>
+                        {({ globalData, saveGlobalData }) => (
+                          <Backdrop
+                            sx={{
+                              color: '#fff',
+                              zIndex: theme => theme.zIndex.drawer + 1,
+                              display: 'flex',
+                              flexDirection: 'column'
+                            }}
+                            open={globalData.isLoading}
 
-                          // onClick={() => saveGlobalData({ ...globalData, isLoading: false })}
-                        >
-                          <CircularProgress color='inherit' />
-                          <Typography variant='body2' sx={{ fontSize: '0.8rem', color: 'inherit', marginTop: 5 }}>
-                            {globalData.textLoading}
-                          </Typography>
-                        </Backdrop>
-                      )}
-                    </GlobalDataContextConsumer>
-                    {getLayout(<Component {...pageProps} />)}
-                  </ThemeComponent>
-                )
-              }}
-            </SettingsConsumer>
-          </SettingsProvider>
-        </GlobalDataProvider>
-      </CacheProvider>
-    </SessionProvider>
+                            // onClick={() => saveGlobalData({ ...globalData, isLoading: false })}
+                          >
+                            <CircularProgress color='inherit' />
+                            <Typography variant='body2' sx={{ fontSize: '0.8rem', color: 'inherit', marginTop: 5 }}>
+                              {globalData.textLoading}
+                            </Typography>
+                          </Backdrop>
+                        )}
+                      </GlobalDataContextConsumer>
+                      {getLayout(<Component {...pageProps} />)}
+                    </ThemeComponent>
+                  )
+                }}
+              </SettingsConsumer>
+            </SettingsProvider>
+          </GlobalDataProvider>
+        </CacheProvider>
+      </SessionProvider>
+    </LocalizationProvider>
   )
 }
 

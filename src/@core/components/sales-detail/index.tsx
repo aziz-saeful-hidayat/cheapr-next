@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react'
-import MaterialReactTable, {
+import {
+  MaterialReactTable,
   type MRT_ColumnDef,
   type MRT_Cell,
   type MRT_ColumnFiltersState,
   type MRT_PaginationState,
   type MRT_SortingState,
-  MaterialReactTableProps,
+  MRT_TableOptions,
   MRT_Row
 } from 'material-react-table'
 import Chip from '@mui/material/Chip'
@@ -1218,45 +1219,20 @@ const SalesDetail = (props: any) => {
                 label='Dropship'
               />
             </Box>
-          ) : row.original.item_null ? (
-            row.original.inventory ? (
-              <>
-                <Chip
-                  sx={{
-                    fontSize: 10
-                  }}
-                  label='Pick Item'
-                  onClick={() => {
-                    setItemToEdit(row.original.salesitem_pk)
-                    setMpnToAdd(row.original.sub_sku ? row.original.sub_sku.mpn : row.original.sku.mpn)
-                    setAddModalOpen(true)
-                  }}
-                />
-                <Chip
-                  sx={{
-                    fontSize: 10
-                  }}
-                  label='Use Dropship'
-                  onClick={() => {
-                    setItemToEdit(row.original.salesitem_pk)
-                    setMpnToAdd(row.original.sub_sku ? row.original.sub_sku.mpn : row.original.sku.mpn)
-                    setDropshipModalOpen(true)
-                  }}
-                />
-              </>
-            ) : (
+          ) : row.original.inventory ? (
+            <>
               <Chip
                 sx={{
                   fontSize: 10
                 }}
-                label='Use Dropship'
+                label='Pick Item'
                 onClick={() => {
                   setItemToEdit(row.original.salesitem_pk)
                   setMpnToAdd(row.original.sub_sku ? row.original.sub_sku.mpn : row.original.sku.mpn)
-                  setDropshipModalOpen(true)
+                  setAddModalOpen(true)
                 }}
               />
-            )
+            </>
           ) : (
             <div>
               <Box
@@ -1402,7 +1378,7 @@ const SalesDetail = (props: any) => {
         accessorKey: 'buying.order_date',
         header: 'Purchase Date',
         size: 75,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           type: 'date'
         },
         enableEditing: row => !row.original.item_null
@@ -1432,7 +1408,7 @@ const SalesDetail = (props: any) => {
         accessorKey: 'tracking.fullcarrier.name',
         header: 'Carrier',
         size: 100,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: carrierData?.map(carrier => (
             <MenuItem key={carrier.pk} value={carrier.pk}>
@@ -1494,7 +1470,7 @@ const SalesDetail = (props: any) => {
         accessorKey: 'tracking.eta_date',
         header: 'ETA',
         size: 120,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           type: 'date'
         }
       },
@@ -1502,7 +1478,7 @@ const SalesDetail = (props: any) => {
         accessorKey: 'tracking.status',
         header: 'Status',
         size: 100,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: statusOptions?.map(status => (
             <MenuItem key={status.key} value={status.key}>
@@ -1543,7 +1519,7 @@ const SalesDetail = (props: any) => {
         accessorKey: 'letter_tracking.fullcarrier.name',
         header: 'LT Carrier',
         size: 100,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: carrierData?.map(carrier => (
             <MenuItem key={carrier.pk} value={carrier.pk}>
@@ -1689,7 +1665,7 @@ const SalesDetail = (props: any) => {
       .finally(() => setIsFetching(false))
   }, [session, pk, modalOpen, refresh])
 
-  const handleSaveRow: MaterialReactTableProps<InventoryItem>['onEditingRowSave'] = async ({
+  const handleSaveRow: MRT_TableOptions<InventoryItem>['onEditingRowSave'] = async ({
     exitEditingMode,
     row,
     values
@@ -2429,9 +2405,9 @@ const SalesDetail = (props: any) => {
             enableEditing={true}
             // enableRowNumbers
 
-            editingMode='cell'
+            editDisplayMode='cell'
             onEditingRowSave={handleSaveRow}
-            muiTableBodyCellEditTextFieldProps={({ cell }) => ({
+            muiEditTextFieldProps={({ cell }) => ({
               //onBlur is more efficient, but could use onChange instead
               onBlur: event => {
                 handleSaveCell(cell, event.target.value)

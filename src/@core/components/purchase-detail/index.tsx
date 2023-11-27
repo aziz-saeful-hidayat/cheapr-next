@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import MaterialReactTable, {
+import {
+  MaterialReactTable,
   type MRT_ColumnDef,
   type MRT_Cell,
   type MRT_ColumnFiltersState,
   type MRT_PaginationState,
   type MRT_SortingState,
-  MaterialReactTableProps,
+  MRT_TableOptions,
   MRT_Row
 } from 'material-react-table'
 import {
@@ -553,7 +554,7 @@ const PurchaseDetail = (props: any) => {
       //   accessorKey: 'room.name',
       //   header: 'Room',
       //   size: 200,
-      //   muiTableBodyCellEditTextFieldProps: {
+      //   muiEditTextFieldProps: {
       //     select: true, //change to select for a dropdown
       //     children: roomData?.map(room => (
       //       <MenuItem key={room.pk} value={room.name}>
@@ -566,7 +567,7 @@ const PurchaseDetail = (props: any) => {
       //   accessorKey: 'rating.name',
       //   header: 'Rating',
       //   maxSize: 70,
-      //   muiTableBodyCellEditTextFieldProps: {
+      //   muiEditTextFieldProps: {
       //     select: true, //change to select for a dropdown
       //     children: ratingData?.map(rating => (
       //       <MenuItem key={rating.pk} value={rating.name}>
@@ -804,7 +805,7 @@ const PurchaseDetail = (props: any) => {
         accessorKey: 'itemsales.sku.sku',
         header: 'Order SKU',
         size: 200,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: salesItemData?.map(salesItem => (
             <MenuItem key={salesItem.pk} value={salesItem.pk}>
@@ -931,7 +932,7 @@ const PurchaseDetail = (props: any) => {
       setTableData([])
     }
   }, [modalOpen])
-  const handleSaveRow: MaterialReactTableProps<InventoryItem>['onEditingRowSave'] = async ({
+  const handleSaveRow: MRT_TableOptions<InventoryItem>['onEditingRowSave'] = async ({
     exitEditingMode,
     row,
     values
@@ -1392,7 +1393,7 @@ const PurchaseDetail = (props: any) => {
         accessorKey: 'total_cost',
         header: 'Item Price',
         size: 70,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           type: 'number'
         }
       },
@@ -1400,7 +1401,7 @@ const PurchaseDetail = (props: any) => {
         accessorKey: 'shipping_cost',
         header: 'IB.Ship (if our label)',
         size: 70,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           type: 'number'
         }
       }
@@ -1433,9 +1434,9 @@ const PurchaseDetail = (props: any) => {
             enableDensityToggle={false}
             initialState={{ showColumnFilters: false, density: 'compact' }}
             enableEditing
-            editingMode='cell'
+            editDisplayMode='cell'
             onEditingRowSave={handleSaveRow}
-            muiTableBodyCellEditTextFieldProps={({ cell }) => ({
+            muiEditTextFieldProps={({ cell }) => ({
               //onBlur is more efficient, but could use onChange instead
               onBlur: event => {
                 handleSaveCell(cell, event.target.value)

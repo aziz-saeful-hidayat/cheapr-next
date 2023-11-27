@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react'
-import MaterialReactTable, {
+import {
+  MaterialReactTable,
   type MRT_ColumnDef,
   type MRT_Row,
   type MRT_ColumnFiltersState,
   type MRT_PaginationState,
   type MRT_SortingState,
-  MaterialReactTableProps,
+  MRT_TableOptions,
   MRT_Cell
 } from 'material-react-table'
 import {
@@ -486,11 +487,7 @@ const Example = (props: any) => {
       })
   }
 
-  const handleSaveRow: MaterialReactTableProps<OpenIssue>['onEditingRowSave'] = async ({
-    exitEditingMode,
-    row,
-    values
-  }) => {
+  const handleSaveRow: MRT_TableOptions<OpenIssue>['onEditingRowSave'] = async ({ exitEditingMode, row, values }) => {
     const cs = csData.find(cs => cs.name == values['cs']['name'])
     for (const key in values) {
       if (values.hasOwnProperty(key)) {
@@ -560,7 +557,7 @@ const Example = (props: any) => {
         accessorKey: 'status',
         header: 'STATUS',
         maxSize: 40,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: statusOptions?.map(status => (
             <MenuItem key={status.key} value={status.key}>
@@ -675,7 +672,7 @@ const Example = (props: any) => {
       },
       {
         id: 'lt_tn',
-        header: 'LTTN',
+        header: 'LETTER TRACKING',
         size: 150,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
@@ -703,7 +700,7 @@ const Example = (props: any) => {
       },
       {
         id: 'lt_eta',
-        header: 'LTETA',
+        header: 'ETA',
         maxSize: 60,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
@@ -744,7 +741,7 @@ const Example = (props: any) => {
       },
       {
         id: 'ac_tn',
-        header: 'ACTN',
+        header: 'ACTUAL TRACKING',
         size: 150,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
@@ -903,7 +900,7 @@ const Example = (props: any) => {
         accessorKey: 'date',
         header: 'DATE',
         maxSize: 60,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           type: 'date'
         },
         Cell: ({ renderedCellValue, row }) => (
@@ -922,7 +919,7 @@ const Example = (props: any) => {
         accessorKey: 'apl_by',
         header: 'APL.BY',
         maxSize: 60,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           type: 'date'
         },
         Cell: ({ renderedCellValue, row }) => (
@@ -941,7 +938,7 @@ const Example = (props: any) => {
         accessorKey: 'appealed',
         header: 'APPEALED',
         maxSize: 60,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: appealedOptions?.map(status => (
             <MenuItem key={status.key} value={status.key}>
@@ -986,7 +983,7 @@ const Example = (props: any) => {
         accessorKey: 'fall_off',
         header: 'FALL OFF',
         maxSize: 60,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           type: 'date'
         },
         Cell: ({ renderedCellValue, row }) => (
@@ -1010,7 +1007,7 @@ const Example = (props: any) => {
         accessorKey: 'cs.name',
         header: 'ASSIGNEE',
         maxSize: 60,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: csData?.map(cs => (
             <MenuItem key={cs.pk} value={cs.name}>
@@ -1146,8 +1143,8 @@ const Example = (props: any) => {
             </Tooltip>
           </Box>
         )}
-        editingMode='cell'
-        muiTableBodyCellEditTextFieldProps={({ cell }) => ({
+        editDisplayMode='cell'
+        muiEditTextFieldProps={({ cell }) => ({
           //onBlur is more efficient, but could use onChange instead
           onBlur: event => {
             handleSaveCell(cell, event.target.value)

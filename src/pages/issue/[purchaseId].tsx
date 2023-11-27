@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import MaterialReactTable, {
+import {
+  MaterialReactTable,
   type MRT_ColumnDef,
   type MRT_Cell,
   type MRT_ColumnFiltersState,
   type MRT_PaginationState,
   type MRT_SortingState,
-  MaterialReactTableProps,
+  MRT_TableOptions,
   MRT_Row
 } from 'material-react-table'
 import {
@@ -483,7 +484,7 @@ const Example = (props: any) => {
         accessorKey: 'room.name',
         header: 'Room',
         size: 200,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: roomData?.map(room => (
             <MenuItem key={room.pk} value={room.name}>
@@ -496,7 +497,7 @@ const Example = (props: any) => {
         accessorKey: 'rating.name',
         header: 'Rating',
         maxSize: 70,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: ratingData?.map(rating => (
             <MenuItem key={rating.pk} value={rating.name}>
@@ -608,7 +609,7 @@ const Example = (props: any) => {
   useEffect(() => {
     data?.results && setTableData(data?.results ?? [])
   }, [data])
-  const handleSaveRow: MaterialReactTableProps<InventoryItem>['onEditingRowSave'] = async ({
+  const handleSaveRow: MRT_TableOptions<InventoryItem>['onEditingRowSave'] = async ({
     exitEditingMode,
     row,
     values
@@ -731,7 +732,7 @@ const Example = (props: any) => {
         accessorKey: 'total_cost',
         header: 'Total',
         size: 70,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           type: 'number'
         }
       },
@@ -739,7 +740,7 @@ const Example = (props: any) => {
         accessorKey: 'shipping_cost',
         header: 'Shipping',
         size: 70,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           type: 'number'
         }
       },
@@ -772,9 +773,9 @@ const Example = (props: any) => {
           initialState={{ showColumnFilters: false }}
           enableEditing
           enableRowNumbers
-          editingMode='cell'
+          editDisplayMode='cell'
           onEditingRowSave={handleSaveRow}
-          muiTableBodyCellEditTextFieldProps={({ cell }) => ({
+          muiEditTextFieldProps={({ cell }) => ({
             //onBlur is more efficient, but could use onChange instead
             onBlur: event => {
               handleSaveCell(cell, event.target.value)

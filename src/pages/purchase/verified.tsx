@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react'
-import MaterialReactTable, {
+import {
+  MaterialReactTable,
   type MRT_ColumnDef,
   type MRT_Row,
   type MRT_ColumnFiltersState,
   type MRT_PaginationState,
   type MRT_SortingState,
-  MaterialReactTableProps,
+  MRT_TableOptions,
   MRT_Cell
 } from 'material-react-table'
 import {
@@ -393,11 +394,7 @@ const Example = (props: any) => {
     [tableData, session]
   )
 
-  const handleSaveRow: MaterialReactTableProps<BuyingOrder>['onEditingRowSave'] = async ({
-    exitEditingMode,
-    row,
-    values
-  }) => {
+  const handleSaveRow: MRT_TableOptions<BuyingOrder>['onEditingRowSave'] = async ({ exitEditingMode, row, values }) => {
     const channel = channelData.find(channel => channel.name == values['channel.name'])
     for (const key in values) {
       if (values.hasOwnProperty(key)) {
@@ -612,7 +609,7 @@ const Example = (props: any) => {
         accessorKey: 'order_date',
         header: 'Date',
         maxSize: 100,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           type: 'date'
         },
         Cell: ({ renderedCellValue, row }) => (
@@ -635,7 +632,7 @@ const Example = (props: any) => {
         accessorKey: 'channel.name',
         header: 'Source',
         maxSize: 100,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: channelData?.map(channel => (
             <MenuItem key={channel.pk} value={channel.name}>
@@ -752,7 +749,7 @@ const Example = (props: any) => {
       //   accessorKey: 'delivery_date',
       //   header: 'Received',
       //   maxSize: 100,
-      //   muiTableBodyCellEditTextFieldProps: {
+      //   muiEditTextFieldProps: {
       //     type: 'date'
       //   },
       //   Cell: ({ renderedCellValue, row }) =>
@@ -918,8 +915,8 @@ const Example = (props: any) => {
         // enableDensityToggle={false}
         initialState={{ showColumnFilters: false, density: 'compact' }}
         enableEditing
-        editingMode='cell'
-        muiTableBodyCellEditTextFieldProps={({ cell }) => ({
+        editDisplayMode='cell'
+        muiEditTextFieldProps={({ cell }) => ({
           //onBlur is more efficient, but could use onChange instead
           onBlur: event => {
             handleSaveCell(cell, event.target.value)

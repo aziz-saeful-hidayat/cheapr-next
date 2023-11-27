@@ -1,10 +1,5 @@
 import React, { useMemo } from 'react'
-import MaterialReactTable, {
-  type MRT_ColumnDef,
-  type MRT_Row,
-  MaterialReactTableProps,
-  MRT_Cell
-} from 'material-react-table'
+import { MaterialReactTable, type MRT_ColumnDef, type MRT_Row, MRT_TableOptions, MRT_Cell } from 'material-react-table'
 import { Box, IconButton, Tooltip } from '@mui/material'
 
 //Date Picker Imports
@@ -99,7 +94,7 @@ const Items = ({
         accessorKey: 'total_cost',
         header: 'Total',
         size: 70,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           type: 'number'
         }
       },
@@ -107,7 +102,7 @@ const Items = ({
         accessorKey: 'shipping_cost',
         header: 'Shipping',
         size: 70,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           type: 'number'
         }
       },

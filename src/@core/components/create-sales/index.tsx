@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react'
-import MaterialReactTable, {
+import {
+  MaterialReactTable,
   type MRT_ColumnDef,
   type MRT_Row,
   type MRT_ColumnFiltersState,
   type MRT_PaginationState,
   type MRT_SortingState,
-  MaterialReactTableProps,
+  MRT_TableOptions,
   MRT_Cell
 } from 'material-react-table'
 import {

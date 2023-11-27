@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import MaterialReactTable, {
+import {
+  MaterialReactTable,
   type MRT_ColumnDef,
   type MRT_Cell,
   type MRT_ColumnFiltersState,
   type MRT_PaginationState,
   type MRT_SortingState,
-  MaterialReactTableProps,
+  MRT_TableOptions,
   MRT_Row
 } from 'material-react-table'
 import {
@@ -588,7 +589,7 @@ const PurchaseDetailVerified = (props: any) => {
         accessorKey: 'itemsales.sku.sku',
         header: 'Order SKU',
         size: 200,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: salesItemData?.map(salesItem => (
             <MenuItem key={salesItem.pk} value={salesItem.pk}>
@@ -640,7 +641,7 @@ const PurchaseDetailVerified = (props: any) => {
         accessorKey: 'tracking.fullcarrier.name',
         header: 'Carrier',
         size: 75,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: carrierData?.map(carrier => (
             <MenuItem key={carrier.pk} value={carrier.pk}>
@@ -690,7 +691,7 @@ const PurchaseDetailVerified = (props: any) => {
         accessorKey: 'tracking.eta_date',
         header: 'ETA',
         size: 75,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           type: 'date'
         },
         Cell: ({ renderedCellValue, row }) => (
@@ -711,7 +712,7 @@ const PurchaseDetailVerified = (props: any) => {
         accessorKey: 'tracking.status',
         header: 'Status',
         size: 75,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: statusOptions?.map(status => (
             <MenuItem key={status.key} value={status.key}>
@@ -855,7 +856,7 @@ const PurchaseDetailVerified = (props: any) => {
       setTableData([])
     }
   }, [modalOpen])
-  const handleSaveRow: MaterialReactTableProps<InventoryItem>['onEditingRowSave'] = async ({
+  const handleSaveRow: MRT_TableOptions<InventoryItem>['onEditingRowSave'] = async ({
     exitEditingMode,
     row,
     values
@@ -1301,7 +1302,7 @@ const PurchaseDetailVerified = (props: any) => {
         accessorKey: 'total_cost',
         header: 'Item Price',
         size: 70,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           type: 'number'
         }
       },
@@ -1309,7 +1310,7 @@ const PurchaseDetailVerified = (props: any) => {
         accessorKey: 'shipping_cost',
         header: 'IB.Ship (if our label)',
         size: 70,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           type: 'number'
         }
       }
@@ -1342,9 +1343,9 @@ const PurchaseDetailVerified = (props: any) => {
             enableDensityToggle={false}
             initialState={{ showColumnFilters: false, density: 'compact' }}
             enableEditing
-            editingMode='cell'
+            editDisplayMode='cell'
             onEditingRowSave={handleSaveRow}
-            muiTableBodyCellEditTextFieldProps={({ cell }) => ({
+            muiEditTextFieldProps={({ cell }) => ({
               //onBlur is more efficient, but could use onChange instead
               onBlur: event => {
                 handleSaveCell(cell, event.target.value)

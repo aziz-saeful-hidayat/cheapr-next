@@ -1,10 +1,5 @@
 import React, { useMemo } from 'react'
-import MaterialReactTable, {
-  type MRT_ColumnDef,
-  type MRT_Row,
-  MaterialReactTableProps,
-  MRT_Cell
-} from 'material-react-table'
+import { MaterialReactTable, type MRT_ColumnDef, type MRT_Row, MRT_TableOptions, MRT_Cell } from 'material-react-table'
 import { Box, IconButton, Tooltip } from '@mui/material'
 
 //Date Picker Imports
@@ -59,7 +54,7 @@ const Items = ({
   handleAddItem: (values: InventoryPayload) => void
 }) => {
   const { data: session }: { data: ExtendedSession | null } = useSession()
-  const handleSaveRow: MaterialReactTableProps<InventoryItem>['onEditingRowSave'] = async ({
+  const handleSaveRow: MRT_TableOptions<InventoryItem>['onEditingRowSave'] = async ({
     exitEditingMode,
     row,
     values
@@ -143,7 +138,7 @@ const Items = ({
         accessorKey: 'total_cost',
         header: 'Total',
         size: 70,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           type: 'number'
         }
       },
@@ -151,7 +146,7 @@ const Items = ({
         accessorKey: 'shipping_cost',
         header: 'Shipping',
         size: 70,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           type: 'number'
         }
       },
@@ -173,9 +168,9 @@ const Items = ({
       enableBottomToolbar={false}
       initialState={{ showColumnFilters: false }}
       enableEditing
-      editingMode='cell'
+      editDisplayMode='cell'
       onEditingRowSave={handleSaveRow}
-      muiTableBodyCellEditTextFieldProps={({ cell }) => ({
+      muiEditTextFieldProps={({ cell }) => ({
         //onBlur is more efficient, but could use onChange instead
         onBlur: event => {
           handleSaveCell(cell, event.target.value)

@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react'
-import MaterialReactTable, {
+import {
+  MaterialReactTable,
   type MRT_ColumnDef,
   type MRT_Row,
   type MRT_ColumnFiltersState,
   type MRT_PaginationState,
   type MRT_SortingState,
-  MaterialReactTableProps,
+  MRT_TableOptions,
   MRT_Cell
 } from 'material-react-table'
 import {
@@ -623,7 +624,7 @@ const Example = (props: any) => {
     },
     [tableData, session]
   )
-  const handleSaveRow: MaterialReactTableProps<SalesItemsFull>['onEditingRowSave'] = async ({
+  const handleSaveRow: MRT_TableOptions<SalesItemsFull>['onEditingRowSave'] = async ({
     exitEditingMode,
     row,
     values
@@ -734,7 +735,7 @@ const Example = (props: any) => {
         accessorKey: 'manager.name',
         header: 'Sub-By',
         maxSize: 100,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: managerData?.map(manager => (
             <MenuItem key={manager.pk} value={manager.name}>
@@ -789,7 +790,7 @@ const Example = (props: any) => {
         Cell: ({ renderedCellValue, row }) => (
           <Box component='span'>{formatterUSDStrip(row.original.selling.total_cost)}</Box>
         ),
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           type: 'number'
         },
         enableEditing: false,
@@ -808,7 +809,7 @@ const Example = (props: any) => {
         Cell: ({ renderedCellValue, row }) => (
           <Box component='span'>{formatterUSDStrip(row.original.selling.shipping_cost)}</Box>
         ),
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           type: 'number'
         },
         enableEditing: false,
@@ -827,7 +828,7 @@ const Example = (props: any) => {
         Cell: ({ renderedCellValue, row }) => (
           <Box component='span'>{formatterUSDStrip(row.original.selling.channel_fee)}</Box>
         ),
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           type: 'number'
         },
         enableEditing: false,
@@ -846,7 +847,7 @@ const Example = (props: any) => {
         Cell: ({ renderedCellValue, row }) => (
           <Box component='span'>{formatterUSDStrip(row.original.selling.gross_sales)}</Box>
         ),
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           type: 'number'
         },
         enableEditing: false,
@@ -865,7 +866,7 @@ const Example = (props: any) => {
         Cell: ({ renderedCellValue, row }) => (
           <Box component='span'>{formatterUSDStrip(row.original.selling.purchase_items)}</Box>
         ),
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           type: 'number'
         },
         enableEditing: false,
@@ -884,7 +885,7 @@ const Example = (props: any) => {
         Cell: ({ renderedCellValue, row }) => (
           <Box component='span'>{formatterUSDStrip(row.original.selling.inbound_shipping)}</Box>
         ),
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           type: 'number'
         },
         enableEditing: false,
@@ -903,7 +904,7 @@ const Example = (props: any) => {
         Cell: ({ renderedCellValue, row }) => (
           <Box component='span'>{formatterUSDStrip(row.original.selling.purchase_cost)}</Box>
         ),
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           type: 'number'
         },
         enableEditing: false,
@@ -922,7 +923,7 @@ const Example = (props: any) => {
         Cell: ({ renderedCellValue, row }) => (
           <Box component='span'>{formatterUSDStrip(row.original.selling.profit)}</Box>
         ),
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           type: 'number'
         },
         enableEditing: false,
@@ -979,7 +980,7 @@ const Example = (props: any) => {
         accessorFn: row => row.selling.order_date.substr(0, 10),
         header: 'Date',
         maxSize: 100,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           type: 'date'
         },
         filterFn: 'between',
@@ -990,7 +991,7 @@ const Example = (props: any) => {
         id: 'channel_name',
         header: 'Channel',
         maxSize: 100,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: channelData?.map(channel => (
             <MenuItem key={channel.pk} value={channel.name}>
@@ -1010,7 +1011,7 @@ const Example = (props: any) => {
         accessorKey: 'status',
         header: 'Status',
         size: 100,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: statusOptions?.map(status => (
             <MenuItem key={status.key} value={status.key}>
@@ -1121,8 +1122,8 @@ const Example = (props: any) => {
         }}
         enableEditing
         enableColumnActions={false}
-        editingMode='cell'
-        muiTableBodyCellEditTextFieldProps={({ cell }) => ({
+        editDisplayMode='cell'
+        muiEditTextFieldProps={({ cell }) => ({
           //onBlur is more efficient, but could use onChange instead
           onBlur: event => {
             handleSaveCell(cell, event.target.value)

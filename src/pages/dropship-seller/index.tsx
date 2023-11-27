@@ -1,6 +1,7 @@
 import Typography from '@mui/material/Typography'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import MaterialReactTable, {
+import {
+  MaterialReactTable,
   type MRT_ColumnDef,
   type MRT_Cell,
   type MRT_ColumnFiltersState,
@@ -313,8 +314,8 @@ const Example = (props: any) => {
         data={tableData} //data is undefined on first render
         initialState={{ showColumnFilters: true, density: 'compact' }}
         enableEditing
-        editingMode='cell'
-        muiTableBodyCellEditTextFieldProps={({ cell }) => ({
+        editDisplayMode='cell'
+        muiEditTextFieldProps={({ cell }) => ({
           //onBlur is more efficient, but could use onChange instead
           onBlur: event => {
             handleSaveCell(cell, event.target.value)

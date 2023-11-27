@@ -360,7 +360,7 @@ const Example = (props: any) => {
     ],
     queryFn: async () => {
       const fetchURL = new URL('/open_issue/', 'https://cheapr.my.id')
-      fetchURL.searchParams.set('status', `G`)
+      fetchURL.searchParams.set('status', `N`)
       fetchURL.searchParams.set('limit', `${pagination.pageSize}`)
       fetchURL.searchParams.set('offset', `${pagination.pageIndex * pagination.pageSize}`)
       for (let f = 0; f < columnFilters.length; f++) {
@@ -672,7 +672,7 @@ const Example = (props: any) => {
       },
       {
         id: 'lt_tn',
-        header: 'LETTER TRACKING',
+        header: 'LTTN',
         size: 150,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
@@ -700,7 +700,7 @@ const Example = (props: any) => {
       },
       {
         id: 'lt_eta',
-        header: 'ETA',
+        header: 'LTETA',
         maxSize: 60,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
@@ -741,7 +741,7 @@ const Example = (props: any) => {
       },
       {
         id: 'ac_tn',
-        header: 'ACTUAL TRACKING',
+        header: 'ACTN',
         size: 150,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
@@ -1224,10 +1224,10 @@ const Example = (props: any) => {
 
 const queryClient = new QueryClient()
 
-const GaveUpIssues = (props: any) => (
+const NewLeads = (props: any) => (
   <QueryClientProvider client={queryClient}>
     <Example {...props} />
   </QueryClientProvider>
 )
 
-export default GaveUpIssues
+export default NewLeads

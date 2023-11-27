@@ -67,7 +67,11 @@ const navigation = (): VerticalNavItemsType => {
       icon: Table as unknown as ReactNode,
       path: '/inventory'
     },
-    
+    {
+      title: 'Leads',
+      icon: Table as unknown as ReactNode,
+      path: '/leads'
+    },
     {
       sectionTitle: 'SETTINGS'
     },

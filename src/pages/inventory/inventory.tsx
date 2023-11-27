@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import MaterialReactTable, {
+import {
+  MaterialReactTable,
   type MRT_ColumnDef,
   type MRT_Cell,
   type MRT_ColumnFiltersState,
@@ -370,7 +371,7 @@ const Example = (props: any) => {
         id: 'source',
         header: 'Source',
         size: 75,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: channelData?.map(channel => (
             <MenuItem key={channel.pk} value={channel.name}>
@@ -414,7 +415,7 @@ const Example = (props: any) => {
         accessorKey: 'room.name',
         header: 'LOC',
         size: 75,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: roomData?.map(room => (
             <MenuItem key={room.pk} value={room.name}>
@@ -434,7 +435,7 @@ const Example = (props: any) => {
           ['Holding Area', 'Approval'].includes(row.itemsales?.manager?.name) ? '' : row.itemsales?.manager?.name,
         header: 'PURCHASER',
         size: 75,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: managerData?.map(manager => (
             <MenuItem key={manager.pk} value={manager.name}>
@@ -580,8 +581,8 @@ const Example = (props: any) => {
         data={tableData} //data is undefined on first render
         initialState={{ showColumnFilters: false, density: 'compact' }}
         enableEditing
-        editingMode='cell'
-        muiTableBodyCellEditTextFieldProps={({ cell }) => ({
+        editDisplayMode='cell'
+        muiEditTextFieldProps={({ cell }) => ({
           //onBlur is more efficient, but could use onChange instead
           onBlur: event => {
             handleSaveCell(cell, event.target.value)

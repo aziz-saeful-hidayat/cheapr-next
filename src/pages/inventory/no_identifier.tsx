@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import MaterialReactTable, {
+import {
+  MaterialReactTable,
   type MRT_ColumnDef,
   type MRT_Cell,
   type MRT_ColumnFiltersState,
@@ -14,6 +15,7 @@ import {
   DialogContent,
   DialogTitle,
   IconButton,
+  Link,
   MenuItem,
   Stack,
   TextField,
@@ -232,6 +234,8 @@ const Example = (props: any) => {
   const [ratingData, setRatingData] = useState<Rating[]>([])
   const [channelData, setChannelData] = useState<Channel[]>([])
   const [managerData, setManagerData] = useState<Manager[]>([])
+  const [detail, setDetail] = useState<number | undefined>()
+  const [detailModalOpen, setDetailModalOpen] = useState(false)
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
@@ -368,7 +372,7 @@ const Example = (props: any) => {
         id: 'source',
         header: 'Source',
         size: 75,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: channelData?.map(channel => (
             <MenuItem key={channel.pk} value={channel.name}>
@@ -390,7 +394,18 @@ const Example = (props: any) => {
       {
         accessorKey: 'buying.channel_order_id',
         header: 'P.O',
-        size: 75
+        size: 75,
+        Cell: ({ row }) => (
+          <Link
+            href='#'
+            onClick={() => {
+              setDetail(row.original.buying.pk)
+              setDetailModalOpen(true)
+            }}
+          >
+            {row.original.buying.channel_order_id}
+          </Link>
+        )
       },
       {
         accessorKey: 'buying.seller.name',
@@ -401,7 +416,7 @@ const Example = (props: any) => {
         accessorKey: 'room.name',
         header: 'LOC',
         size: 75,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: roomData?.map(room => (
             <MenuItem key={room.pk} value={room.name}>
@@ -421,7 +436,7 @@ const Example = (props: any) => {
           ['Holding Area', 'Approval'].includes(row.itemsales?.manager?.name) ? '' : row.itemsales?.manager?.name,
         header: 'PURCHASER',
         size: 75,
-        muiTableBodyCellEditTextFieldProps: {
+        muiEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: managerData?.map(manager => (
             <MenuItem key={manager.pk} value={manager.name}>
@@ -567,8 +582,8 @@ const Example = (props: any) => {
         data={tableData} //data is undefined on first render
         initialState={{ showColumnFilters: false, density: 'compact' }}
         enableEditing
-        editingMode='cell'
-        muiTableBodyCellEditTextFieldProps={({ cell }) => ({
+        editDisplayMode='cell'
+        muiEditTextFieldProps={({ cell }) => ({
           //onBlur is more efficient, but could use onChange instead
           onBlur: event => {
             handleSaveCell(cell, event.target.value)
