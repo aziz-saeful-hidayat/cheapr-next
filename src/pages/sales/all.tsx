@@ -455,19 +455,29 @@ const Example = (props: any) => {
       fetchURL.searchParams.set('offset', `${pagination.pageIndex * pagination.pageSize}`)
       for (let f = 0; f < columnFilters.length; f++) {
         const filter = columnFilters[f]
-        if (filter.id == 'order_date') {
-          console.log(filter)
-          fetchURL.searchParams.set('order_date_after', Array.isArray(filter.value) ? filter.value[0] : '')
-          fetchURL.searchParams.set('order_date_before', Array.isArray(filter.value) ? filter.value[1] : '')
-        } else if (filter.id == 'delivery_date') {
+        if (filter.id == 'delivery_date') {
           console.log(filter)
           fetchURL.searchParams.set(
             'delivery_date_after',
-            Array.isArray(filter?.value) ? moment(filter?.value[0]).add(7, 'hours').toISOString() : ''
+            filter?.value ? moment(filter?.value).add(-1, 'days').format() : ''
+          )
+          fetchURL.searchParams.set('delivery_date_before', filter?.value ? moment(filter?.value).format() : '')
+        } else if (filter.id == 'ship_date') {
+          console.log(filter)
+          fetchURL.searchParams.set(
+            'ship_date_after',
+            filter?.value ? moment(filter?.value).add(8, 'hours').toISOString() : ''
           )
           fetchURL.searchParams.set(
-            'delivery_date_before',
-            Array.isArray(filter?.value) ? moment(filter?.value[1]).add(1, 'days').add(7, 'hours').toISOString() : ''
+            'ship_date_before',
+            filter?.value ? moment(filter?.value).add(1, 'days').add(8, 'hours').toISOString() : ''
+          )
+        } else if (filter.id == 'order_date') {
+          console.log(filter)
+          fetchURL.searchParams.set('order_date_after', filter?.value ? moment(filter?.value).format('YYYY-MM-DD') : '')
+          fetchURL.searchParams.set(
+            'order_date_before',
+            filter?.value ? moment(filter?.value).add(1, 'days').format('YYYY-MM-DD') : ''
           )
         } else {
           console.log(filter)
@@ -813,7 +823,7 @@ const Example = (props: any) => {
         accessorKey: 'delivery_date',
         header: 'GET BY',
         maxSize: 75,
-        filterVariant: 'date-range',
+        filterVariant: 'date',
         Cell: ({ renderedCellValue, row }) => (
           <Box
             sx={{
@@ -1090,8 +1100,8 @@ const Example = (props: any) => {
         muiTableHeadCellProps: {
           align: 'right'
         },
-        filterVariant: 'range-slider',
-        filterFn: 'betweenInclusive' // default (or between)
+        filterVariant: 'text',
+        filterFn: 'greaterThanOrEqualTo' // default (or between)
       },
       {
         accessorKey: 'shipping_cost',
@@ -1298,7 +1308,7 @@ const Example = (props: any) => {
         muiEditTextFieldProps: {
           type: 'date'
         },
-        filterFn: 'between',
+        filterVariant: 'date',
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
           <Box
@@ -1320,10 +1330,10 @@ const Example = (props: any) => {
         accessorKey: 'ship_date',
         header: 'SHIP BY',
         size: 70,
+        filterVariant: 'date',
         muiEditTextFieldProps: {
           type: 'date'
         },
-        filterFn: 'between',
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
           <Box
