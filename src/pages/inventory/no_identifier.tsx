@@ -42,6 +42,7 @@ import {
   Rating,
   Item
 } from 'src/@core/types'
+import PurchaseDetailVerified from 'src/@core/components/purchase-detai-verified'
 
 type Payload = {
   pk?: number
@@ -672,6 +673,12 @@ const Example = (props: any) => {
         onClose={() => setDeleteModalOpen(false)}
         onSubmit={() => typeof rowDel == 'number' && handleDeleteRow(rowDel)}
         data={typeof rowDel == 'number' ? tableData[rowDel]['serial'] : ''}
+      />
+      <PurchaseDetailVerified
+        session={session}
+        pk={detail}
+        modalOpen={detailModalOpen}
+        onClose={() => setDetailModalOpen(false)}
       />
     </Card>
   )
