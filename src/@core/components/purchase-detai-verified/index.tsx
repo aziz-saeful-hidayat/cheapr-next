@@ -754,7 +754,7 @@ const PurchaseDetailVerified = (props: any) => {
   )
 
   const fetchPickSales = () => {
-    fetch(`https://cheapr.my.id/buying_order/${pk}/find_matches/`, {
+    fetch(`https://cheapr.my.id/all_buying_order/${pk}/find_matches/`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${session?.accessToken}`,
@@ -811,7 +811,7 @@ const PurchaseDetailVerified = (props: any) => {
     if (!modalOpen) {
       return
     }
-    fetch(`https://cheapr.my.id/buying_order/${pk}/`, {
+    fetch(`https://cheapr.my.id/all_buying_order/${pk}/`, {
       method: 'get',
       headers: new Headers({
         Authorization: `Bearer ${session?.accessToken}`,
@@ -1236,7 +1236,7 @@ const PurchaseDetailVerified = (props: any) => {
       })
   }
   const handleUnverify = () => {
-    fetch(`https://cheapr.my.id/buying_order/${pk}/`, {
+    fetch(`https://cheapr.my.id/all_buying_order/${pk}/`, {
       // note we are going to /1
       method: 'PATCH',
       headers: new Headers({
@@ -1254,7 +1254,7 @@ const PurchaseDetailVerified = (props: any) => {
       })
   }
   const handleUpdateDestination = (values: string | null) => {
-    fetch(`https://cheapr.my.id/buying_order/${pk}/`, {
+    fetch(`https://cheapr.my.id/all_buying_order/${pk}/`, {
       method: 'PATCH',
       headers: {
         Authorization: `Bearer ${session?.accessToken}`,
@@ -1416,7 +1416,7 @@ const PurchaseDetailVerified = (props: any) => {
                             payload['sales'] = sales.sales.pk
 
                             const id = orderData.pk
-                            fetch(`https://cheapr.my.id/buying_order/${id}/delete_selling/`, {
+                            fetch(`https://cheapr.my.id/all_buying_order/${id}/delete_selling/`, {
                               method: 'POST',
                               headers: new Headers({
                                 Authorization: `Bearer ${session?.accessToken}`,
@@ -1449,7 +1449,7 @@ const PurchaseDetailVerified = (props: any) => {
                       name='SBO.#:'
                       onChange={e => console.log(e)}
                       onFocus={() => {
-                        fetch(`https://cheapr.my.id/buying_order/${pk}/find_matches/`, {
+                        fetch(`https://cheapr.my.id/all_buying_order/${pk}/find_matches/`, {
                           method: 'GET',
                           headers: {
                             Authorization: `Bearer ${session?.accessToken}`,

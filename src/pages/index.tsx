@@ -30,6 +30,7 @@ import TableBrand from 'src/views/dashboard/TableBrand'
 import { formatterUSDStrip } from 'src/constants/Utils'
 import TableMissing from 'src/views/dashboard/TableMissing'
 import TableArrived from 'src/views/dashboard/TableArrived'
+import ReturnRate from 'src/views/dashboard/ReturnRate'
 
 const Dashboard = (props: any) => {
   const { session } = props
@@ -114,7 +115,7 @@ const Dashboard = (props: any) => {
             <TableMissing session={session} />
           </Grid>
           <Grid item xs={12} md={6} lg={4}>
-            <WeeklyOverview />
+            <ReturnRate />
           </Grid>
           <Grid item xs={12} md={12} lg={8}>
             {/* <SalesByCountries /> */}

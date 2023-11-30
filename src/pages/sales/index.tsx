@@ -28,7 +28,9 @@ import { getSession } from 'next-auth/react'
 import Unfullfilled from './unfulfilled'
 import Fullfilled from './fulfilled'
 import Replacement from './replacement'
-import Return from './return'
+import ReturnSales from './return'
+import Refund from './refund'
+
 import UnfulfilledBuffers from './unfulfilled-buffer'
 import HAUnlinked from './ha-unlinked'
 import AllSales from './all'
@@ -143,10 +145,18 @@ const Sales = (props: any) => {
               }
             />
             <Tab
-              value='return'
+              value='refund'
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <TabName>REFUNDED</TabName>
+                </Box>
+              }
+            />
+            <Tab
+              value='return'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <TabName>RETURNED</TabName>
                 </Box>
               }
             />
@@ -169,9 +179,6 @@ const Sales = (props: any) => {
           <TabPanel sx={{ p: 0 }} value='unfulfilled-buffers'>
             <UnfulfilledBuffers session={session} />
           </TabPanel>
-          <TabPanel sx={{ p: 0 }} value='ha-unlinked'>
-            <HAUnlinked session={session} />
-          </TabPanel>
           <TabPanel sx={{ p: 0 }} value='fulfilled'>
             <Fullfilled session={session} />
           </TabPanel>
@@ -181,8 +188,14 @@ const Sales = (props: any) => {
           <TabPanel sx={{ p: 0 }} value='replacement'>
             <Replacement session={session} />
           </TabPanel>
+          <TabPanel sx={{ p: 0 }} value='refund'>
+            <Refund session={session} />
+          </TabPanel>
           <TabPanel sx={{ p: 0 }} value='return'>
-            <Return session={session} />
+            <ReturnSales session={session} />
+          </TabPanel>
+          <TabPanel sx={{ p: 0 }} value='ha-unlinked'>
+            <HAUnlinked session={session} />
           </TabPanel>
         </TabContext>
       </Card>
