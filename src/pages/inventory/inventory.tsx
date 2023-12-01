@@ -386,7 +386,7 @@ const Example = (props: any) => {
               alignItems: 'center'
             }}
           >
-            <span>{channelData.find(c => c.pk == row.original.buying.channel)?.name}</span>
+            <span>{channelData?.find(c => c.pk == row.original.buying.channel)?.name}</span>
           </Box>
         )
       },
@@ -402,7 +402,9 @@ const Example = (props: any) => {
               setDetailModalOpen(true)
             }}
           >
-            {row.original.buying.channel_order_id}
+            {row.original.buying?.channel_order_id
+              ? row.original.buying?.channel_order_id
+              : row.original.buying?.order_id}
           </Link>
         )
       },
