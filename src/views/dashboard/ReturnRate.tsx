@@ -14,67 +14,44 @@ import DotsVertical from 'mdi-material-ui/DotsVertical'
 
 // ** Types
 import { ThemeColor } from 'src/@core/layouts/types'
+import { useState, useEffect } from 'react'
 
-interface DataType {
-  title: string
-  imgSrc: string
-  amount: string
-  amount7: string
-  amount14: string
-  subtitle: string
-  progress: number
-  color: ThemeColor
-  imgHeight: number
+type DataType = {
+  pk: number
+  name: string
+  link: string
+  channel: {
+    pk: number
+    name: string
+    image: string
+  }
+  last_30_days_orders: number
+  last_14_days_orders: number
+  last_7_days_orders: number
+  last_30_days_return_orders: number
+  last_14_days_return_orders: number
+  last_7_days_return_orders: number
 }
 
-const data: DataType[] = [
-  {
-    progress: 75,
-    imgHeight: 20,
-    title: 'FlyFishing',
-    color: 'primary',
-    amount: '0/0 (0%)',
-    amount7: '0/0 (0%)',
-    amount14: '0/0 (0%)',
-    subtitle: 'Vuejs, React & HTML',
-    imgSrc: 'https://storage.googleapis.com/cheapr/channel/6F7GTRJXC7QTESEG.png'
-  },
-  {
-    progress: 75,
-    imgHeight: 20,
-    title: 'FlyFishing CA',
-    color: 'primary',
-    amount: '0/0 (0%)',
-    amount7: '0/0 (0%)',
-    amount14: '0/0 (0%)',
-    subtitle: 'Vuejs, React & HTML',
-    imgSrc: 'https://storage.googleapis.com/cheapr/channel/6F7GTRJXC7QTESEG.png'
-  },
-  {
-    progress: 75,
-    imgHeight: 20,
-    title: 'C&H',
-    color: 'primary',
-    amount: '0/0 (0%)',
-    amount7: '0/0 (0%)',
-    amount14: '0/0 (0%)',
-    subtitle: 'Vuejs, React & HTML',
-    imgSrc: 'https://storage.googleapis.com/cheapr/channel/6F7GTRJXC7QTESEG.png'
-  },
-  {
-    progress: 75,
-    imgHeight: 20,
-    title: 'C&H CA',
-    color: 'primary',
-    amount: '0/0 (0%)',
-    amount7: '0/0 (0%)',
-    amount14: '0/0 (0%)',
-    subtitle: 'Vuejs, React & HTML',
-    imgSrc: 'https://storage.googleapis.com/cheapr/channel/6F7GTRJXC7QTESEG.png'
-  }
-]
+interface ReturnRateProps {
+  session: any
+}
+const ReturnRate = ({ session }: ReturnRateProps) => {
+  const [data, setData] = useState<DataType[]>([])
 
-const ReturnRate = () => {
+  useEffect(() => {
+    fetch(`https://cheapr.my.id/get_return_rate`, {
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      })
+    })
+      .then(response => response.json())
+      .then(json => {
+        setData(json.data)
+        console.log(json.data)
+      })
+  }, [session])
   return (
     <Card>
       <CardHeader
@@ -148,24 +125,24 @@ const ReturnRate = () => {
         {data.map((item: DataType, index: number) => {
           return (
             <Box
-              key={item.title}
+              key={item.pk}
               sx={{
                 display: 'flex',
                 alignItems: 'center',
                 ...(index !== data.length - 1 ? { mb: 3 } : {})
               }}
             >
-              <Avatar
+              {/* <Avatar
                 variant='rounded'
                 sx={{
                   mr: 3,
-                  width: 40,
-                  height: 40,
+                  width: 20,
+                  height: 20,
                   backgroundColor: theme => `rgba(${theme.palette.customColors.main}, 0.04)`
                 }}
               >
-                <img src={item.imgSrc} alt={item.title} height={item.imgHeight} />
-              </Avatar>
+                <img src={item.channel?.image} alt={item.channel?.name} height={20} />
+              </Avatar> */}
               <Box
                 sx={{
                   width: '100%',
@@ -177,26 +154,41 @@ const ReturnRate = () => {
               >
                 <Box sx={{ marginRight: 2, display: 'flex', flexDirection: 'column', width: 85 }}>
                   <Typography variant='body2' sx={{ fontWeight: 600, color: 'text.primary' }}>
-                    {item.title}
+                    {item.name}
                   </Typography>
                   {/* <Typography variant='caption'>{item.subtitle}</Typography> */}
                 </Box>
 
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                   <Typography variant='body2' sx={{ fontWeight: 600, color: 'text.primary' }}>
-                    {item.amount7}
+                    {item.last_7_days_return_orders}/{item.last_7_days_orders} (
+                    {(item.last_7_days_return_orders && item.last_7_days_orders
+                      ? (item.last_7_days_return_orders / item.last_7_days_orders) * 100
+                      : 0
+                    ).toFixed(1)}
+                    %)
                   </Typography>
                   {/* <LinearProgress color={item.color} value={item.progress} variant='determinate' /> */}
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                   <Typography variant='body2' sx={{ fontWeight: 600, color: 'text.primary' }}>
-                    {item.amount14}
+                    {item.last_14_days_return_orders}/{item.last_14_days_orders} (
+                    {(item.last_14_days_return_orders && item.last_14_days_orders
+                      ? (item.last_14_days_return_orders / item.last_14_days_orders) * 100
+                      : 0
+                    ).toFixed(1)}
+                    %)
                   </Typography>
                   {/* <LinearProgress color={item.color} value={item.progress} variant='determinate' /> */}
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                   <Typography variant='body2' sx={{ fontWeight: 600, color: 'text.primary' }}>
-                    {item.amount}
+                    {item.last_30_days_return_orders}/{item.last_30_days_orders} (
+                    {(item.last_30_days_return_orders && item.last_30_days_orders
+                      ? (item.last_30_days_return_orders / item.last_30_days_orders) * 100
+                      : 0
+                    ).toFixed(1)}
+                    %)
                   </Typography>
                   {/* <LinearProgress color={item.color} value={item.progress} variant='determinate' /> */}
                 </Box>

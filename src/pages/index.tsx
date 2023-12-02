@@ -115,7 +115,7 @@ const Dashboard = (props: any) => {
             <TableMissing session={session} />
           </Grid>
           <Grid item xs={12} md={6} lg={4}>
-            <ReturnRate />
+            <ReturnRate session={session} />
           </Grid>
           <Grid item xs={12} md={12} lg={8}>
             {/* <SalesByCountries /> */}
