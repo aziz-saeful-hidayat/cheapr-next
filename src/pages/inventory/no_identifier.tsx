@@ -602,8 +602,6 @@ const Example = (props: any) => {
             </Button>
             <Select labelId='room-label' id='room-small' value={tabActive} onChange={handleChange}>
               <MenuItem value={'all'}>All</MenuItem>
-              <MenuItem value={'buffer'}>Books and Buffer</MenuItem>
-
               {roomData?.map(room => (
                 <MenuItem value={room.name} key={`menu-${room.pk}`}>
                   {room.name}

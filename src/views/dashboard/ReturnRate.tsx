@@ -153,14 +153,14 @@ const ReturnRate = ({ session }: ReturnRateProps) => {
                 }}
               >
                 <Box sx={{ marginRight: 2, display: 'flex', flexDirection: 'column', width: 85 }}>
-                  <Typography variant='body2' sx={{ fontWeight: 600, color: 'text.primary' }}>
+                  <Typography variant='body2' sx={{ fontWeight: 400, color: 'text.primary' }}>
                     {item.name}
                   </Typography>
                   {/* <Typography variant='caption'>{item.subtitle}</Typography> */}
                 </Box>
 
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Typography variant='body2' sx={{ fontWeight: 600, color: 'text.primary' }}>
+                  <Typography variant='body2' sx={{ fontWeight: 400, color: 'text.primary' }}>
                     {item.last_7_days_return_orders}/{item.last_7_days_orders} (
                     {(item.last_7_days_return_orders && item.last_7_days_orders
                       ? (item.last_7_days_return_orders / item.last_7_days_orders) * 100
@@ -171,7 +171,7 @@ const ReturnRate = ({ session }: ReturnRateProps) => {
                   {/* <LinearProgress color={item.color} value={item.progress} variant='determinate' /> */}
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Typography variant='body2' sx={{ fontWeight: 600, color: 'text.primary' }}>
+                  <Typography variant='body2' sx={{ fontWeight: 400, color: 'text.primary' }}>
                     {item.last_14_days_return_orders}/{item.last_14_days_orders} (
                     {(item.last_14_days_return_orders && item.last_14_days_orders
                       ? (item.last_14_days_return_orders / item.last_14_days_orders) * 100
