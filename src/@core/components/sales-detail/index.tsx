@@ -1198,27 +1198,32 @@ const SalesDetail = (props: any) => {
                 alignItems: 'center'
               }}
             >
-              <Chip
-                sx={{
-                  fontSize: 10
-                }}
-                label='Replacement'
-              />
+              <Typography variant='inherit'>Replacement</Typography>
             </Box>
-          ) : row.original.dropship ? (
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center'
-              }}
-            >
-              <Chip
+          ) : row.original.buying?.destination == 'D' ? (
+            <div>
+              <Box
                 sx={{
-                  fontSize: 10
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem'
                 }}
-                label='Dropship'
-              />
-            </Box>
+              >
+                <Typography variant='inherit'>Dropship</Typography>
+              </Box>
+            </div>
+          ) : row.original.buying?.destination == 'H' ? (
+            <div>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem'
+                }}
+              >
+                <Typography variant='inherit'>Inventory</Typography>
+              </Box>
+            </div>
           ) : row.original.inventory ? (
             <>
               <Chip
@@ -1246,7 +1251,7 @@ const SalesDetail = (props: any) => {
                   sx={{
                     fontSize: 10
                   }}
-                  label='Inventory'
+                  label='No Action'
                 />
               </Box>
             </div>
@@ -1649,7 +1654,7 @@ const SalesDetail = (props: any) => {
           setTableData(
             json?.salesitems.map((item: any) => {
               return {
-                // ...item.item,
+                ...item.item,
                 salesitem_pk: item.pk,
                 sku: item.sku,
                 sub_sku: item.sub_sku,
