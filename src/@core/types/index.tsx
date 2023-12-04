@@ -43,6 +43,9 @@ export type Carrier = {
   pk: number
   name: string
   image: string
+  prefix: string
+  suffix: string
+  suffix2: string
 }
 export type Room = {
   pk: number
@@ -160,6 +163,23 @@ export type ItemOption2 = {
   shipping_cost: string
 }
 
+export type Tracking = {
+  pk: number
+  tracking_number: string
+  carrier: null | string
+  fullcarrier: Carrier
+  last_updated: null | string
+  activity_date: null | string
+  status: null | string
+  milestone_name: null | string
+  location: null | string
+  est_delivery: null | string
+  eta_date: null | string
+  delivery_date: null
+  address: null | string
+  src_address: null | string
+  person: Person
+}
 export type ERPData = {
   selling: number
   data: string
@@ -190,18 +210,8 @@ export type OpenIssue = {
     delivery_date: string
     salesitems: {
       pk: number
-      tracking: {
-        pk: number
-        tracking_number: string
-        eta_date: string
-        status: string
-      }
-      letter_tracking: {
-        pk: number
-        tracking_number: string
-        eta_date: string
-        status: string
-      }
+      tracking: Tracking
+      letter_tracking: Tracking
       sku: CAProduct
     }[]
     person: Person
@@ -251,7 +261,7 @@ export type Item = {
     delivery_date: null | string
     channel: number
     tracking_number: null | string
-    tracking: null | string
+    tracking: null | Tracking
     seller_name: null | string
     seller: {
       pk: number
@@ -452,4 +462,14 @@ export type SalesItem = {
   rating: Rating
   total_cost: string
   shipping_cost: string
+}
+
+export type ReturnSales = {
+  pk: number
+  sales: SellingOrder
+  status: string
+  comment: string
+  label: string
+  tracking: Tracking
+  date: string
 }

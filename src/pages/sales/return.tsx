@@ -63,7 +63,7 @@ import {
   Person,
   InventoryPayload,
   InventoryItem,
-  OpenIssue,
+  ReturnSales,
   ItemOption,
   ItemOption2,
   CustomerService,
@@ -95,9 +95,9 @@ type HistoricalData = {
   order_id: string[]
 }
 interface CreateModalProps {
-  columns: MRT_ColumnDef<OpenIssue>[]
+  columns: MRT_ColumnDef<ReturnSales>[]
   onClose: () => void
-  onSubmit: (values: OpenIssue) => void
+  onSubmit: (values: ReturnSales) => void
   open: boolean
   channelData: any[]
   session: ExtendedSession
@@ -108,7 +108,7 @@ interface AddItemProps {
   onClose: () => void
   onSubmit: (values: InventoryPayload) => void
   open: boolean
-  rowData: OpenIssue | undefined
+  rowData: ReturnSales | undefined
   roomData: Room[]
 }
 interface DeleteModalProps {
@@ -165,7 +165,7 @@ export const CreateNewAccountModal = ({
   const [choosed, setChoosed] = useState<number>()
   const [options, setOptions] = useState<SellingOrder[]>([])
 
-  const handleOpenIssue = (sales: number | undefined) => {
+  const handleReturnSales = (sales: number | undefined) => {
     console.log(sales)
     if (sales) {
       fetch(`https://cheapr.my.id/return_sales/`, {
@@ -237,7 +237,7 @@ export const CreateNewAccountModal = ({
                   //   setConfirmCanceledOpen(true)
                   // } else {
                   //   setChoosed(newValue.pk.toString())
-                  //   handleOpenIssue(newValue.pk)
+                  //   handleReturnSales(newValue.pk)
                   // }
                 }
               }}
@@ -285,7 +285,7 @@ export const CreateNewAccountModal = ({
       </DialogContent>
       <DialogActions sx={{ p: '1.25rem' }}>
         <Button onClick={onClose}>Cancel</Button>
-        <Button color='primary' onClick={() => handleOpenIssue(choosed)} variant='contained'>
+        <Button color='primary' onClick={() => handleReturnSales(choosed)} variant='contained'>
           Create
         </Button>
       </DialogActions>
@@ -332,6 +332,12 @@ const statusOptions: any[] = [
   { key: 'I', name: 'Issue', color: 'default' }
 ]
 
+const trackingStatusOptions: any[] = [
+  { key: 'D', name: 'Delivered', color: 'success' },
+  { key: 'T', name: 'Transit', color: 'warning' },
+  { key: 'I', name: 'Issue', color: 'error' },
+  { key: 'N', name: 'Not Started', color: 'default' }
+]
 const appealedOptions: any[] = [
   { key: true, name: 'Yes', color: 'success' },
   { key: false, name: 'No', color: 'error' },
@@ -348,6 +354,7 @@ const Example = (props: any) => {
   })
   const [tabActive, setTabActive] = useState('all')
   const [refresh, setRefresh] = useState(0)
+  const [carrierData, setCarrierData] = useState<Carrier[]>([])
 
   const { data, isError, isFetching, isLoading } = useQuery({
     queryKey: [
@@ -404,13 +411,13 @@ const Example = (props: any) => {
     },
     keepPreviousData: true
   })
-  const [tableData, setTableData] = useState<OpenIssue[]>(() => data?.results ?? [])
+  const [tableData, setTableData] = useState<ReturnSales[]>(() => data?.results ?? [])
   const [csData, setCsData] = useState<CustomerService[]>([])
 
   const [roomData, setRoomData] = useState<Room[]>([])
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
-  const [addModalOpen, setAddModalOpen] = useState<OpenIssue>()
+  const [addModalOpen, setAddModalOpen] = useState<ReturnSales>()
   const [detail, setDetail] = useState<number | undefined>()
   const [detailModalOpen, setDetailModalOpen] = useState(false)
   const [custPk, setCustPk] = useState<number | undefined>()
@@ -418,15 +425,9 @@ const Example = (props: any) => {
   const handleChange = (event: SelectChangeEvent) => {
     setTabActive(event.target.value as string)
   }
-  const handleCreateNewRow = (values: OpenIssue) => {
+  const handleCreateNewRow = (values: ReturnSales) => {
     console.log(values)
     let new_obj: any = { ...values }
-
-    if (values['cs']) {
-      const cs = csData.find(cs => cs.name == values['cs']['name'])
-      new_obj = { ...values, cs: cs?.pk }
-    }
-
     console.log(new_obj)
     fetch(`https://cheapr.my.id/return_sales/`, {
       // note we are going to /1
@@ -487,7 +488,7 @@ const Example = (props: any) => {
       })
   }
 
-  const handleSaveRow: MRT_TableOptions<OpenIssue>['onEditingRowSave'] = async ({ exitEditingMode, row, values }) => {
+  const handleSaveRow: MRT_TableOptions<ReturnSales>['onEditingRowSave'] = async ({ exitEditingMode, row, values }) => {
     const cs = csData.find(cs => cs.name == values['cs']['name'])
     for (const key in values) {
       if (values.hasOwnProperty(key)) {
@@ -517,19 +518,188 @@ const Example = (props: any) => {
       })
   }
 
-  const handleSaveCell = (cell: MRT_Cell<OpenIssue>, value: any) => {
+  const handleSaveCell = (cell: MRT_Cell<ReturnSales>, value: any) => {
     const key = cell.column.id
     const cs = csData.find(cs => cs.name == value)
     console.log(key, value)
     const oldData = [...tableData]
     const newData: any = [...tableData]
     const payload: any = {}
-    if (key === 'cs.name') {
-      payload['cs'] = cs?.pk
-      newData[cell.row.index]['cs'] = cs
+    if (key === 'tracking.fullcarrier.name') {
+      payload['fullcarrier'] = value
+      if (cell.row.original.tracking?.pk) {
+        fetch(`https://cheapr.my.id/tracking/${cell.row.original.tracking?.pk}/`, {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        })
+          .then(response => response.json())
+          .then(json => {
+            if (json.pk) {
+              setRefresh(refresh + 1)
+            }
+          })
+      } else {
+        fetch(`https://cheapr.my.id/tracking/`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        })
+          .then(response => response.json())
+          .then(json => {
+            if (json.pk) {
+              fetch(`https://cheapr.my.id/return_sales/${cell.row.original.pk}/`, {
+                method: 'PATCH',
+                headers: {
+                  Authorization: `Bearer ${session?.accessToken}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ tracking: json.pk })
+              })
+                .then(response => response.json())
+                .then(json => {
+                  if (json.pk) {
+                    setRefresh(refresh + 1)
+                  }
+                })
+              setRefresh(refresh + 1)
+            }
+          })
+      }
+    } else if (key === 'tracking.tracking_number') {
+      payload['tracking_number'] = value
+      fetch(`https://cheapr.my.id/tracking/?tracking_number=${value}`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        }
+      })
+        .then(response => response.json())
+        .then(json => {
+          if (json.count == 0) {
+            fetch(`https://cheapr.my.id/tracking/`, {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(payload)
+            })
+              .then(response => response.json())
+              .then(json => {
+                if (json.pk) {
+                  console.log(`https://cheapr.my.id/return_sales/${cell.row.original.pk}/`)
+
+                  fetch(`https://cheapr.my.id/return_sales/${cell.row.original.pk}/`, {
+                    method: 'PATCH',
+                    headers: {
+                      Authorization: `Bearer ${session?.accessToken}`,
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ tracking: json.pk })
+                  })
+                    .then(response => response.json())
+                    .then(json => {
+                      if (json.pk) {
+                        setRefresh(refresh + 1)
+                      }
+                    })
+                  setRefresh(refresh + 1)
+                }
+              })
+          } else {
+            fetch(`https://cheapr.my.id/return_sales/${cell.row.original.pk}/`, {
+              method: 'PATCH',
+              headers: {
+                Authorization: `Bearer ${session?.accessToken}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ tracking: json.results[0].pk })
+            })
+              .then(response => response.json())
+              .then(json => {
+                if (json.pk) {
+                  setRefresh(refresh + 1)
+                }
+              })
+            setRefresh(refresh + 1)
+          }
+        })
+    } else if (key === 'tracking.eta_date') {
+      payload['eta_date'] = value
+      if (cell.row.original.tracking?.pk) {
+        fetch(`https://cheapr.my.id/tracking/${cell.row.original.tracking?.pk}/`, {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        })
+          .then(response => response.json())
+          .then(json => {
+            if (json.pk) {
+              setRefresh(refresh + 1)
+            }
+          })
+      } else {
+        fetch(`https://cheapr.my.id/tracking/`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        })
+          .then(response => response.json())
+          .then(json => {
+            if (json.pk) {
+              fetch(`https://cheapr.my.id/return_sales/${cell.row.original.pk}/`, {
+                method: 'PATCH',
+                headers: {
+                  Authorization: `Bearer ${session?.accessToken}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ tracking: json.pk })
+              })
+                .then(response => response.json())
+                .then(json => {
+                  if (json.pk) {
+                    setRefresh(refresh + 1)
+                  }
+                })
+              setRefresh(refresh + 1)
+            }
+          })
+      }
+    } else if (key === 'tracking.status') {
+      payload['status'] = value
+      if (cell.row.original.tracking?.pk) {
+        fetch(`https://cheapr.my.id/tracking/${cell.row.original.tracking?.pk}/`, {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${session?.accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        })
+          .then(response => response.json())
+          .then(json => {
+            if (json.pk) {
+              setRefresh(refresh + 1)
+            }
+          })
+      }
     } else {
       payload[key as keyof Payload] = value
-      newData[cell.row.index][cell.column.id as keyof OpenIssue] = value
+      newData[cell.row.index][cell.column.id as keyof ReturnSales] = value
     }
     const pk = newData[cell.row.index]['pk']
 
@@ -551,7 +721,7 @@ const Example = (props: any) => {
       .finally(() => setRefresh(r => r + 1))
   }
 
-  const columns = useMemo<MRT_ColumnDef<OpenIssue>[]>(
+  const columns = useMemo<MRT_ColumnDef<ReturnSales>[]>(
     () => [
       {
         accessorKey: 'status',
@@ -649,7 +819,13 @@ const Example = (props: any) => {
         header: 'LABEL',
         minSize: 100, //min size enforced during resizing
         maxSize: 150, //max size enforced during resizing
-        size: 150 //medium column,
+        size: 150, //medium column,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{renderedCellValue && formatterUSDStrip(row.original.label)}</Box>
+        ),
+        muiEditTextFieldProps: {
+          type: 'number'
+        }
       },
       {
         accessorKey: 'comment',
@@ -657,6 +833,117 @@ const Example = (props: any) => {
         minSize: 100, //min size enforced during resizing
         maxSize: 150, //max size enforced during resizing
         size: 150 //medium column,
+      },
+      {
+        accessorKey: 'tracking.fullcarrier.name',
+        header: 'Carrier',
+        size: 100,
+        muiEditTextFieldProps: {
+          select: true, //change to select for a dropdown
+          children: carrierData?.map(carrier => (
+            <MenuItem key={carrier.pk} value={carrier.pk}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
+              >
+                <img alt='avatar' height={25} src={carrier.image} loading='lazy' style={{ borderRadius: '50%' }} />
+                {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
+                <span>{carrier.name}</span>
+              </Box>
+            </MenuItem>
+          ))
+        },
+        Cell: ({ renderedCellValue, row }) =>
+          row.original.tracking?.fullcarrier ? (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
+            >
+              <img
+                alt='avatar'
+                height={25}
+                src={row.original.tracking?.fullcarrier.image}
+                loading='lazy'
+                style={{ borderRadius: '50%' }}
+              />
+              {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
+              <span>{renderedCellValue}</span>
+            </Box>
+          ) : (
+            <></>
+          )
+      },
+      {
+        accessorKey: 'tracking.tracking_number',
+        header: 'Tracking',
+        size: 100,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>
+            <Link
+              target='_blank'
+              rel='noreferrer'
+              href={`${row.original.tracking?.fullcarrier?.prefix}${row.original.tracking?.tracking_number}${row.original.tracking?.fullcarrier?.suffix}`}
+              underline='hover'
+            >
+              {row.original.tracking?.tracking_number}
+            </Link>
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'tracking.eta_date',
+        header: 'ETA',
+        size: 120,
+        muiEditTextFieldProps: {
+          type: 'date'
+        }
+      },
+      {
+        accessorKey: 'tracking.status',
+        header: 'Status',
+        size: 100,
+        muiEditTextFieldProps: {
+          select: true, //change to select for a dropdown
+          children: trackingStatusOptions?.map(status => (
+            <MenuItem key={status.key} value={status.key}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
+              >
+                {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
+                <span>{status.name}</span>
+              </Box>
+            </MenuItem>
+          ))
+        },
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            {row.original.tracking?.status ? (
+              <Chip
+                sx={{
+                  fontSize: 12
+                }}
+                label={trackingStatusOptions.find(e => e.key == renderedCellValue)?.name}
+                color={trackingStatusOptions.find(e => e.key == renderedCellValue)?.color}
+              />
+            ) : null}
+          </Box>
+        )
       }
     ],
     [csData, tableData]
@@ -692,6 +979,18 @@ const Example = (props: any) => {
       .then(response => response.json())
       .then(json => {
         setCsData(json.results)
+      })
+    const fetchCarrierURL = new URL('/carrier/', 'https://cheapr.my.id')
+    fetch(fetchCarrierURL.href, {
+      method: 'get',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      })
+    })
+      .then(response => response.json())
+      .then(json => {
+        setCarrierData(json.results)
       })
   }, [session])
 
