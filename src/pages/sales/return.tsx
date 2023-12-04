@@ -427,7 +427,7 @@ const Example = (props: any) => {
   }
   const handleCreateNewRow = (values: ReturnSales) => {
     console.log(values)
-    let new_obj: any = { ...values }
+    const new_obj: any = { ...values }
     console.log(new_obj)
     fetch(`https://cheapr.my.id/return_sales/`, {
       // note we are going to /1
