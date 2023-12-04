@@ -300,7 +300,7 @@ const Example = (props: any) => {
         }
       }
       fetchURL.searchParams.set('search', globalFilter ?? '')
-      fetchURL.searchParams.set('ebay_wrong_format', `False`)
+      fetchURL.searchParams.set('ebay_wrong_format', `True`)
 
       let ordering = ''
       for (let s = 0; s < sorting.length; s++) {
@@ -1037,10 +1037,10 @@ const Example = (props: any) => {
 
 const queryClient = new QueryClient()
 
-const AllPurchase = (props: any) => (
+const ChangedPurchase = (props: any) => (
   <QueryClientProvider client={queryClient}>
     <Example {...props} />
   </QueryClientProvider>
 )
 
-export default AllPurchase
+export default ChangedPurchase

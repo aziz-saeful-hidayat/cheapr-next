@@ -316,6 +316,8 @@ const Example = (props: any) => {
       }
       fetchURL.searchParams.set('ordering', ordering)
       fetchURL.searchParams.set('verified', 'False')
+      fetchURL.searchParams.set('ebay_wrong_format', `False`)
+
       console.log(fetchURL.href)
       const response = await fetch(fetchURL.href, {
         method: 'get',

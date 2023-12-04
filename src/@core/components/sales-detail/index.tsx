@@ -1251,7 +1251,7 @@ const SalesDetail = (props: any) => {
                   sx={{
                     fontSize: 10
                   }}
-                  label='No Action'
+                  label='No Inventory'
                 />
               </Box>
             </div>

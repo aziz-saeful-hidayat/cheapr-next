@@ -31,6 +31,7 @@ import Replacement from './replacement'
 import Return from './return'
 import AllPurchase from './all'
 import { useRouter } from 'next/router'
+import ChangedPurchase from './changed'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -119,6 +120,15 @@ const Purchase = (props: any) => {
                 </Box>
               }
             />
+            <Tab
+              value='changed'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <LockOpenOutline />
+                  <TabName>ID CHANGED</TabName>
+                </Box>
+              }
+            />
             {/* <Tab
               value='info'
               label={
@@ -143,6 +153,9 @@ const Purchase = (props: any) => {
           </TabPanel>
           <TabPanel sx={{ p: 0 }} value='return'>
             <Return session={session} />
+          </TabPanel>
+          <TabPanel sx={{ p: 0 }} value='changed'>
+            <ChangedPurchase session={session} />
           </TabPanel>
           {/* <TabPanel sx={{ p: 0 }} value='info'>
             <TabInfo />
