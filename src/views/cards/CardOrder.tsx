@@ -105,7 +105,7 @@ const CardOrder = ({
                 }}
               >
                 <MenuItem value={'Active'}>Active</MenuItem>
-                <MenuItem value={'Canceled'}>Canceled</MenuItem>
+                <MenuItem value={'Cancelled'}>Canceled</MenuItem>
                 <MenuItem value={'Completed'}>Completed</MenuItem>
                 <MenuItem value={'Refunded'}>Refunded</MenuItem>
                 <MenuItem value={'Returned'}>Returned</MenuItem>
