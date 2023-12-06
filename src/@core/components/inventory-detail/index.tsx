@@ -703,7 +703,13 @@ const InventoryDetail = (props: any) => {
         </Typography>
         <Typography variant='body2'>Material Design Icons from the Community</Typography>
       </Grid> */}
-        <CardOrder orderData={orderData} type={'buying'} onClose={onClose} />
+        <CardOrder
+          orderData={orderData}
+          type={'buying'}
+          onClose={onClose}
+          session={session}
+          setRefresh={() => console.log('test')}
+        />
         <Card sx={{ padding: 3 }}>
           <MaterialReactTable
             columns={columns}

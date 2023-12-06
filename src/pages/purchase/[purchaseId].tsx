@@ -382,6 +382,7 @@ const Example = (props: any) => {
   const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>([])
   const [globalFilter, setGlobalFilter] = useState('')
   const [sorting, setSorting] = useState<MRT_SortingState>([])
+  const [refresh, setRefresh] = useState(0)
   const [pagination, setPagination] = useState<MRT_PaginationState>({
     pageIndex: 0,
     pageSize: 100
@@ -393,7 +394,8 @@ const Example = (props: any) => {
       globalFilter, //refetch when globalFilter changes
       pagination.pageIndex, //refetch when pagination.pageIndex changes
       pagination.pageSize, //refetch when pagination.pageSize changes
-      sorting //refetch when sorting changes
+      sorting, //refetch when sorting changes
+      refresh
     ],
     queryFn: async () => {
       const fetchURL = new URL('/inventory_items/', 'https://cheapr.my.id')
@@ -802,7 +804,13 @@ const Example = (props: any) => {
         </Typography>
         <Typography variant='body2'>Material Design Icons from the Community</Typography>
       </Grid> */}
-      <CardOrder orderData={orderData} type={'buying'} />
+      <CardOrder
+        orderData={orderData}
+        type={'buying'}
+        onClose={() => console.log('Closed')}
+        session={session}
+        setRefresh={() => setRefresh(r => r + 1)}
+      />
       <Card sx={{ padding: 3 }}>
         <MaterialReactTable
           columns={columns}
