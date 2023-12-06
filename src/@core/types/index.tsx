@@ -83,6 +83,7 @@ export type BuyingOrder = {
   order_id: string
   order_date: string
   delivery_date: string
+  status: string | null
   channel: {
     pk: number
     name: string

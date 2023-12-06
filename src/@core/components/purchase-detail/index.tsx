@@ -1427,7 +1427,13 @@ const PurchaseDetail = (props: any) => {
         </Typography>
         <Typography variant='body2'>Material Design Icons from the Community</Typography>
       </Grid> */}
-        <CardOrder orderData={orderData} type={'buying'} onClose={onClose} />
+        <CardOrder
+          orderData={orderData}
+          type={'buying'}
+          onClose={onClose}
+          session={session}
+          setRefresh={() => setRefresh(r => r + 1)}
+        />
         <Card sx={{ padding: 3 }}>
           <MaterialReactTable
             columns={orderData?.destination == 'D' ? columnsDropship : columns}

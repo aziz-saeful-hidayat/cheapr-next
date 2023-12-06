@@ -15,9 +15,10 @@ import AccountOutline from 'mdi-material-ui/AccountOutline'
 import LockOpenOutline from 'mdi-material-ui/LockOpenOutline'
 import { SalesOrder } from 'src/pages/purchase/[purchaseId]'
 import { formatterUSDStrip } from 'src/constants/Utils'
-import { IconButton } from '@mui/material'
+import { FormControl, IconButton, MenuItem, Select, SelectChangeEvent } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import { BuyingOrder } from 'src/@core/types'
+import { ExtendedSession } from 'src/pages/api/auth/[...nextauth]'
 
 // Styled Box component
 const StyledBox = styled(Box)<BoxProps>(({ theme }) => ({
@@ -29,18 +30,92 @@ const StyledBox = styled(Box)<BoxProps>(({ theme }) => ({
 const CardOrder = ({
   orderData,
   type,
-  onClose
+  onClose,
+  setRefresh,
+  session
 }: {
   orderData: BuyingOrder | undefined
   type: 'buying' | 'sales'
   onClose?: () => void
+  setRefresh: () => void
+  session: ExtendedSession
 }) => {
   return (
     <Card sx={{ marginBottom: 5 }}>
       <CardContent sx={{ padding: theme => `${theme.spacing(3.25, 5.75, 6.25)} !important` }}>
-        <Typography variant='h6' sx={{ marginBottom: 3.5 }}>
-          Order / {orderData?.order_id}
-        </Typography>
+        <Grid container spacing={20}>
+          {/* <Grid item xs={12} sm={2}>
+            <Typography variant='h6'>ID.#: </Typography>
+            <Typography variant='body2'>{orderData?.order_id}</Typography>
+          </Grid> */}
+          <Grid item xs={12} sm={2}>
+            <Typography variant='h6'>Order Id: </Typography>
+
+            <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
+              {orderData?.channel_order_id}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} sm={2}>
+            <Typography variant='h6'>Channel: </Typography>
+
+            <Typography variant='body2'>{orderData?.channel?.name}</Typography>
+          </Grid>
+          <Grid item xs={12} sm={2}>
+            <Typography variant='h6'>Seller: </Typography>
+            <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
+              {orderData?.seller?.name}
+            </Typography>
+          </Grid>
+          <Grid item xs={12} sm={2}>
+            <Typography variant='h6'>Order Date: </Typography>
+            <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
+              {orderData?.order_date.slice(0, 10)}
+            </Typography>
+          </Grid>
+          {/* <Grid item xs={12} sm={1}>
+            <Typography variant='h6'>Status: </Typography>
+            <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
+              {orderData?.status}
+            </Typography>
+          </Grid> */}
+          <Grid item xs={12} sm={2}>
+            <Typography variant='h6'>Status: </Typography>
+
+            <FormControl sx={{ mt: 1, minWidth: 50 }} size='small'>
+              <Select
+                value={orderData?.status ? orderData?.status : undefined}
+                autoWidth
+                onChange={(event: SelectChangeEvent) => {
+                  if (
+                    !confirm(
+                      `Are you sure you want to change this Order #${orderData?.pk} to ${event.target.value as string}`
+                    )
+                  ) {
+                    return
+                  }
+                  fetch(`https://cheapr.my.id/buying_order/${orderData?.pk}/`, {
+                    // note we are going to /1
+                    method: 'PATCH',
+                    headers: {
+                      Authorization: `Bearer ${session?.accessToken}`,
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status: event.target.value as string })
+                  }).finally(() => setRefresh())
+                }}
+              >
+                <MenuItem value={'Active'}>Active</MenuItem>
+                <MenuItem value={'Cancelled'}>Cancelled</MenuItem>
+                <MenuItem value={'Completed'}>Completed</MenuItem>
+                <MenuItem value={'Refunded'}>Refunded</MenuItem>
+                <MenuItem value={'Refunded'}>Refunded</MenuItem>
+                <MenuItem value={'Returned'}>Returned</MenuItem>
+                <MenuItem value={'Refund Awaited'}>Refund Awaited</MenuItem>
+                <MenuItem value={undefined}>No Status</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+        </Grid>
         <IconButton
           aria-label='close'
           onClick={onClose}
