@@ -22,7 +22,10 @@ import {
   TextField,
   Tooltip,
   Autocomplete,
-  CircularProgress
+  CircularProgress,
+  RadioGroup,
+  FormControlLabel,
+  Radio
 } from '@mui/material'
 import Chip from '@mui/material/Chip'
 
@@ -30,7 +33,7 @@ import Chip from '@mui/material/Chip'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
-import { Delete, Add } from '@mui/icons-material'
+import { Delete, Add, TaskAlt } from '@mui/icons-material'
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import Items from 'src/@core/components/inventory-item'
@@ -43,10 +46,11 @@ import { useRouter } from 'next/router'
 import { formatterUSDStrip } from 'src/constants/Utils'
 import { getSession } from 'next-auth/react'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
+import PurchaseDetail from 'src/@core/components/purchase-detail'
 import PickSellerModal from 'src/@core/components/pick-seller'
 import CreateNewSellerModal from 'src/@core/components/create-seller'
 import CloseIcon from '@mui/icons-material/Close'
-import PurchaseDetailVerified from 'src/@core/components/purchase-detai-verified'
+import CreateNewPurchase from 'src/@core/components/create-purchase'
 import {
   BuyingOrder,
   Channel,
@@ -57,7 +61,6 @@ import {
   InventoryPayload,
   InventoryItem
 } from 'src/@core/types'
-import CreateNewPurchase from 'src/@core/components/create-purchase'
 
 type Payload = {
   pk?: number
@@ -78,7 +81,9 @@ interface CreateModalProps {
   onClose: () => void
   onSubmit: (values: BuyingOrder) => void
   open: boolean
-  channelData: any[]
+  channelData: Channel[]
+  session: any
+  carrierData: Carrier[]
 }
 interface AddItemProps {
   columns: MRT_ColumnDef<InventoryPayload>[]
@@ -272,7 +277,6 @@ const Example = (props: any) => {
     pageSize: 100
   })
   const [refresh, setRefresh] = useState(0)
-  const [tabActive, setTabActive] = useState('all')
 
   const { data, isError, isFetching, isLoading } = useQuery({
     queryKey: [
@@ -282,8 +286,7 @@ const Example = (props: any) => {
       pagination.pageIndex, //refetch when pagination.pageIndex changes
       pagination.pageSize, //refetch when pagination.pageSize changes
       sorting, //refetch when sorting changes
-      refresh,
-      tabActive
+      refresh
     ],
     queryFn: async () => {
       const fetchURL = new URL('/buying_order/', 'https://cheapr.my.id')
@@ -300,8 +303,6 @@ const Example = (props: any) => {
         }
       }
       fetchURL.searchParams.set('search', globalFilter ?? '')
-      fetchURL.searchParams.set('ebay_wrong_format', `False`)
-
       let ordering = ''
       for (let s = 0; s < sorting.length; s++) {
         const sort = sorting[s]
@@ -314,8 +315,8 @@ const Example = (props: any) => {
         ordering = ordering + sort.id.split('.')[0]
       }
       fetchURL.searchParams.set('ordering', ordering)
-      fetchURL.searchParams.set('filter', tabActive)
-      fetchURL.searchParams.set('canceled', 'false')
+      fetchURL.searchParams.set('verified', 'False')
+      fetchURL.searchParams.set('refund_awaited', 'true')
 
       console.log(fetchURL.href)
       const response = await fetch(fetchURL.href, {
@@ -337,12 +338,28 @@ const Example = (props: any) => {
 
   const [detail, setDetail] = useState<number | undefined>()
   const [detailModalOpen, setDetailModalOpen] = useState(false)
+  const [tabActive, setTabActive] = useState('all')
   const [buyingToEdit, setBuyingToEdit] = useState('')
   const [pickSellerModalOpen, setPickSellerModalOpen] = useState(false)
   const [createSellerModalOpen, setCreateSellerModalOpen] = useState(false)
 
   const handleChange = (event: SelectChangeEvent) => {
     setTabActive(event.target.value as string)
+    if (event.target.value == 'all') {
+      setColumnFilters([])
+    } else if (event.target.value == 'notracking') {
+      setColumnFilters([{ id: 'wait_tracking', value: 'true' }])
+    } else if (event.target.value == 'incoming') {
+      setColumnFilters([
+        { id: 'wait_tracking', value: 'false' },
+        { id: 'incoming', value: 'true' }
+      ])
+    } else if (event.target.value == 'delivered') {
+      setColumnFilters([
+        { id: 'wait_tracking', value: 'false' },
+        { id: 'incoming', value: 'false' }
+      ])
+    }
   }
   const [createModalOpen, setCreateModalOpen] = useState(false)
 
@@ -391,8 +408,31 @@ const Example = (props: any) => {
         .then(response => response.status)
         .then(status => {
           if (status == 204) {
-            tableData.splice(row.index, 1)
-            setTableData([...tableData])
+            setRefresh(refresh + 1)
+          }
+        })
+    },
+    [tableData, session]
+  )
+
+  const handleVerifyRow = useCallback(
+    (row: MRT_Row<BuyingOrder>) => {
+      if (!confirm(`Are you sure you want to verify ${row.original.order_id}`)) {
+        return
+      }
+      fetch(`https://cheapr.my.id/buying_order/${row.original.pk}/`, {
+        // note we are going to /1
+        method: 'PATCH',
+        headers: new Headers({
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        }),
+        body: JSON.stringify({ verified: true })
+      })
+        .then(response => response.status)
+        .then(status => {
+          if (status == 204) {
+            setRefresh(refresh + 1)
           }
         })
     },
@@ -633,7 +673,6 @@ const Example = (props: any) => {
           </Box>
         )
       },
-
       {
         accessorKey: 'channel.name',
         header: 'Source',
@@ -712,16 +751,15 @@ const Example = (props: any) => {
         Cell: ({ renderedCellValue, row }) => (
           <Box component='span'>
             {row.original.seller ? (
-              <Chip
-                sx={{
-                  fontSize: 10
-                }}
-                label={renderedCellValue ? renderedCellValue : 'Pick Seller'}
+              <Link
+                href=''
                 onClick={() => {
                   setBuyingToEdit(row.original?.pk.toString())
                   setPickSellerModalOpen(true)
                 }}
-              />
+              >
+                {renderedCellValue ? renderedCellValue : 'Pick Seller'}
+              </Link>
             ) : null}
           </Box>
         )
@@ -829,7 +867,7 @@ const Example = (props: any) => {
       },
       {
         accessorKey: 'shipping_sum',
-        header: 'Shipping',
+        header: 'Our Label',
         Cell: ({ renderedCellValue, row }) => (
           <Box component='span'>{formatterUSDStrip(row.original.shipping_sum)}</Box>
         ),
@@ -844,7 +882,7 @@ const Example = (props: any) => {
       },
       {
         accessorFn: row =>
-          formatterUSDStrip(parseFloat(row.total_sum.toString()) + parseFloat(row.shipping_sum.toString())), //accessorFn used to join multiple data into a single cell
+          formatterUSDStrip(parseFloat(row.total_sum?.toString()) + parseFloat(row.shipping_sum?.toString())), //accessorFn used to join multiple data into a single cell
         id: 'all_cost', //id is still required when using accessorFn instead of accessorKey
         header: 'Total Cost',
         maxSize: 100,
@@ -855,36 +893,6 @@ const Example = (props: any) => {
         muiTableHeadCellProps: {
           align: 'right'
         }
-      },
-      {
-        accessorFn: row => (row.destination == 'H' ? 'HA' : row.destination == 'D' ? 'Dropship' : ''), //accessorFn used to join multiple data into a single cell
-        id: 'ha_sbo', //id is still required when using accessorFn instead of accessorKey
-        header: 'HA / Order ID',
-        maxSize: 150,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            {row.original.destination == 'H' ? (
-              <span>HA</span>
-            ) : row.original.destination == 'D' && row.original.inventoryitems.length > 0 ? (
-              <Link
-                target='_blank'
-                rel='noreferrer'
-                href={`https://app.sellbrite.com/orders?query=${row.original.inventoryitems[0].itemsales?.selling.order_id}`}
-              >
-                {row.original.inventoryitems[0].itemsales?.selling.channel_order_id}
-              </Link>
-            ) : (
-              ''
-            )}
-          </Box>
-        )
       }
     ],
     [channelData]
@@ -963,7 +971,27 @@ const Example = (props: any) => {
         onGlobalFilterChange={setGlobalFilter}
         onPaginationChange={setPagination}
         onSortingChange={setSorting}
+        enableRowActions
         positionActionsColumn='last'
+        renderRowActions={({ row }) => (
+          <Box sx={{ display: 'flex', width: 100 }}>
+            {/* <Tooltip arrow placement='top' title='Edit'>
+              <IconButton color='primary' onClick={() => table.setEditingRow(row)}>
+                <Edit />
+              </IconButton>
+            </Tooltip> */}
+            {/* <Tooltip arrow placement='top' title='Verify'>
+              <IconButton color='primary' onClick={() => handleVerifyRow(row)}>
+                <TaskAlt />
+              </IconButton>
+            </Tooltip> */}
+            <Tooltip arrow placement='top' title='Delete'>
+              <IconButton color='error' onClick={() => handleDeleteRow(row)}>
+                <Delete />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        )}
         renderTopToolbarCustomActions={() => (
           <>
             {/* <Tooltip arrow title='Refresh Data'>
@@ -974,13 +1002,12 @@ const Example = (props: any) => {
             <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
               Add New Purchase
             </Button>
-            <Select labelId='demo-select-small-label' id='demo-select-small' value={tabActive} onChange={handleChange}>
+            {/* <Select labelId='demo-select-small-label' id='demo-select-small' value={tabActive} onChange={handleChange}>
               <MenuItem value={'all'}>All</MenuItem>
               <MenuItem value={'notracking'}>No Tracking</MenuItem>
-              <MenuItem value={'notmoving'}>Not Moving</MenuItem>
-              <MenuItem value={'intransit'}>In-Transit</MenuItem>
-              <MenuItem value={'delivered'}>Delivered</MenuItem>
-            </Select>
+              <MenuItem value={'incoming'}>Incoming</MenuItem>
+              <MenuItem value={'delivered'}>Received</MenuItem>
+            </Select> */}
           </>
         )}
         rowCount={data?.count ?? 0}
@@ -993,17 +1020,6 @@ const Example = (props: any) => {
           showProgressBars: isFetching,
           sorting
         }}
-
-        // enableRowActions
-        // renderRowActions={({ row }) => (
-        //   <Box sx={{ display: 'flex', width: 100 }}>
-        //     <Tooltip arrow placement='top' title='Delete'>
-        //       <IconButton color='error' onClick={() => handleDeleteRow(row)}>
-        //         <Delete />
-        //       </IconButton>
-        //     </Tooltip>
-        //   </Box>
-        // )}
       />
       <CreateNewPurchase
         columns={columns}
@@ -1014,7 +1030,7 @@ const Example = (props: any) => {
         session={session}
         carrierData={carrierData}
       />
-      <PurchaseDetailVerified
+      <PurchaseDetail
         session={session}
         pk={detail}
         modalOpen={detailModalOpen}
@@ -1038,10 +1054,10 @@ const Example = (props: any) => {
 
 const queryClient = new QueryClient()
 
-const AllPurchase = (props: any) => (
+const RefundAwaitedPurchase = (props: any) => (
   <QueryClientProvider client={queryClient}>
     <Example {...props} />
   </QueryClientProvider>
 )
 
-export default AllPurchase
+export default RefundAwaitedPurchase

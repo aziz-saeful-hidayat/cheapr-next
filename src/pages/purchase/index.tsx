@@ -32,6 +32,9 @@ import Return from './return'
 import AllPurchase from './all'
 import { useRouter } from 'next/router'
 import ChangedPurchase from './changed'
+import CanceledPurchase from './canceled'
+import RefundedPurchase from './refunded'
+import RefundAwaitedPurchase from './refund-awaited'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -78,7 +81,6 @@ const Purchase = (props: any) => {
               value='all'
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <AccountOutline />
                   <TabName>All</TabName>
                 </Box>
               }
@@ -87,7 +89,6 @@ const Purchase = (props: any) => {
               value='unverified'
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <AccountOutline />
                   <TabName>Unverified</TabName>
                 </Box>
               }
@@ -97,7 +98,6 @@ const Purchase = (props: any) => {
               value='verified'
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <LockOpenOutline />
                   <TabName>Verified</TabName>
                 </Box>
               }
@@ -106,8 +106,23 @@ const Purchase = (props: any) => {
               value='replacement'
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <LockOpenOutline />
                   <TabName>Replacements</TabName>
+                </Box>
+              }
+            />
+            <Tab
+              value='canceled'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <TabName>Canceled</TabName>
+                </Box>
+              }
+            />
+            <Tab
+              value='refunded'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <TabName>Refunded</TabName>
                 </Box>
               }
             />
@@ -115,8 +130,15 @@ const Purchase = (props: any) => {
               value='return'
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <LockOpenOutline />
-                  <TabName>Return & Refund</TabName>
+                  <TabName>Returned</TabName>
+                </Box>
+              }
+            />
+            <Tab
+              value='refund-awaited'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <TabName>Refund Awaited</TabName>
                 </Box>
               }
             />
@@ -124,7 +146,6 @@ const Purchase = (props: any) => {
               value='changed'
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <LockOpenOutline />
                   <TabName>ID CHANGED</TabName>
                 </Box>
               }
@@ -151,8 +172,17 @@ const Purchase = (props: any) => {
           <TabPanel sx={{ p: 0 }} value='replacement'>
             <Replacement session={session} />
           </TabPanel>
+          <TabPanel sx={{ p: 0 }} value='canceled'>
+            <CanceledPurchase session={session} />
+          </TabPanel>
+          <TabPanel sx={{ p: 0 }} value='refunded'>
+            <RefundedPurchase session={session} />
+          </TabPanel>
           <TabPanel sx={{ p: 0 }} value='return'>
             <Return session={session} />
+          </TabPanel>
+          <TabPanel sx={{ p: 0 }} value='refund-awaited'>
+            <RefundAwaitedPurchase session={session} />
           </TabPanel>
           <TabPanel sx={{ p: 0 }} value='changed'>
             <ChangedPurchase session={session} />
