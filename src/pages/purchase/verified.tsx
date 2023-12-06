@@ -313,6 +313,7 @@ const Example = (props: any) => {
       fetchURL.searchParams.set('ordering', ordering)
       fetchURL.searchParams.set('verified', 'True')
       fetchURL.searchParams.set('filter', tabActive)
+      fetchURL.searchParams.set('canceled', 'false')
 
       console.log(fetchURL.href)
       const response = await fetch(fetchURL.href, {
