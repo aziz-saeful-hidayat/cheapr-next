@@ -83,7 +83,7 @@ const CardOrder = ({
 
             <FormControl sx={{ mt: 1, minWidth: 50 }} size='small'>
               <Select
-                value={orderData?.status ? orderData?.status : undefined}
+                value={orderData?.status}
                 autoWidth
                 onChange={(event: SelectChangeEvent) => {
                   if (
@@ -93,6 +93,9 @@ const CardOrder = ({
                   ) {
                     return
                   }
+                  console.log(`https://cheapr.my.id/buying_order/${orderData?.pk}/`)
+                  console.log(session?.accessToken)
+                  console.log(event.target.value)
                   fetch(`https://cheapr.my.id/buying_order/${orderData?.pk}/`, {
                     // note we are going to /1
                     method: 'PATCH',
@@ -100,8 +103,14 @@ const CardOrder = ({
                       Authorization: `Bearer ${session?.accessToken}`,
                       'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ status: event.target.value as string })
-                  }).finally(() => setRefresh())
+                    body: JSON.stringify({ status: event.target.value })
+                  })
+                    .then(response => {
+                      console.log('status', response.status)
+                      return response.json()
+                    })
+                    .then(json => console.log('data', json))
+                    .finally(() => setRefresh())
                 }}
               >
                 <MenuItem value={'Active'}>Active</MenuItem>
