@@ -1069,50 +1069,50 @@ const Example = (props: any) => {
     []
   )
 
-  const columnsDummy = useMemo<MRT_ColumnDef<InventoryPayload>[]>(
+  const columnsDummy = useMemo<MRT_ColumnDef<OpenIssue>[]>(
     () => [
       {
-        accessorKey: 'pm.name',
+        id: 'pm.name',
         header: 'PM Name',
         size: 150
       },
       {
-        accessorKey: 'make.name',
+        id: 'make.name',
         header: 'Make',
         size: 150
       },
       {
-        accessorKey: 'keyword',
+        id: 'keyword',
         header: 'Keyword',
         size: 150
       },
       {
-        accessorKey: 'condition',
+        id: 'condition',
         header: 'Condition',
         size: 150
       },
       {
-        accessorKey: 'buying_format',
+        id: 'buying_format',
         header: 'Buying Format',
         size: 150
       },
       {
-        accessorKey: 'location',
+        id: 'location',
         header: 'Item Location',
         size: 150
       },
       {
-        accessorKey: 'exclude',
+        id: 'exclude',
         header: 'Exclude',
         size: 150
       },
       {
-        accessorKey: 'url',
+        id: 'url',
         header: 'Target URL',
         size: 150
       },
       {
-        accessorKey: 'updated_at',
+        id: 'updated_at',
         header: 'Last Saved',
         size: 150
       }

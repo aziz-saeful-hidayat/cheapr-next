@@ -73,6 +73,11 @@ const navigation = (): VerticalNavItemsType => {
       path: '/leads'
     },
     {
+      title: 'Marketing',
+      icon: Table as unknown as ReactNode,
+      path: '/marketing'
+    },
+    {
       sectionTitle: 'SETTINGS'
     },
     {
