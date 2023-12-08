@@ -1410,6 +1410,14 @@ const SalesDetail = (props: any) => {
         enableEditing: row => !row.original.item_null
       },
       {
+        accessorKey: 'refunded',
+        header: 'Refunded',
+        size: 75,
+        muiEditTextFieldProps: {
+          type: 'number'
+        }
+      },
+      {
         accessorKey: 'tracking.fullcarrier.name',
         header: 'Carrier',
         size: 100,
@@ -1661,7 +1669,8 @@ const SalesDetail = (props: any) => {
                 inventory: item.inventory,
                 item_null: item.item == null,
                 tracking: item.tracking,
-                letter_tracking: item.letter_tracking
+                letter_tracking: item.letter_tracking,
+                refunded: item.refunded
               }
             })
           )
@@ -2079,6 +2088,22 @@ const SalesDetail = (props: any) => {
             }
           })
       }
+    } else if (key === 'refunded') {
+      fetch(`https://cheapr.my.id/sales_items/${cell.row.original.salesitem_pk}/`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ refunded: value })
+      })
+        .then(response => response.json())
+        .then(json => {
+          if (json.pk) {
+            setRefresh(refresh + 1)
+          }
+        })
+      setRefresh(refresh + 1)
     } else {
       fetch(`https://cheapr.my.id/tracking/`, {
         method: 'POST',

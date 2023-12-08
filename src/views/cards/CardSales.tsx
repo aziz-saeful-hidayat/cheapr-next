@@ -82,7 +82,6 @@ const CardSales = ({
     inbound_shipping: 0
   })
   useEffect(() => {
-    console.log(tableData)
     setSalesData({
       sales_items: orderData ? orderData?.salesitems?.length : 0,
       sales_item_revenue: orderData && !isNaN(orderData?.total_cost) ? orderData?.total_cost : 0,
@@ -95,9 +94,9 @@ const CardSales = ({
       outbound_shipping: orderData && !isNaN(orderData?.ss_shipping_cost) ? orderData?.ss_shipping_cost : 0,
       purchase_items: tableData?.filter(item => !!item.pk).reduce((prev, next) => prev + 1, 0),
       purchase_items_cost: orderData && !isNaN(orderData?.purchase_items) ? orderData?.purchase_items : 0,
-      inbound_shipping: orderData && !isNaN(orderData?.inbound_shipping) ? orderData?.inbound_shipping : 0
+      inbound_shipping: orderData && !isNaN(orderData?.inbound_shipping) ? orderData?.inbound_shipping : 0,
+      refunded: orderData && !isNaN(orderData?.refunded) ? orderData?.refunded : 0
     })
-    console.log(salesData)
   }, [orderData, tableData])
   return (
     <Card sx={{ marginBottom: 5, bgcolor: orderData?.status == 'canceled' ? '#ffe3e3' : 'white' }}>
@@ -418,6 +417,14 @@ const CardSales = ({
 
               <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
                 {formatterUSDStrip(salesData.all_cost)}
+              </Typography>
+            </Box>
+            <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
+              <StarOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
+              <Typography variant='body2'>Refunded: </Typography>
+
+              <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
+                {formatterUSDStrip(salesData.refunded)}
               </Typography>
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
