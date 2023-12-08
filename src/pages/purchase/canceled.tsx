@@ -315,7 +315,6 @@ const Example = (props: any) => {
         ordering = ordering + sort.id.split('.')[0]
       }
       fetchURL.searchParams.set('ordering', ordering)
-      fetchURL.searchParams.set('verified', 'False')
       fetchURL.searchParams.set('canceled', 'true')
 
       console.log(fetchURL.href)

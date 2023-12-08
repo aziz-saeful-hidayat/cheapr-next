@@ -314,6 +314,7 @@ const Example = (props: any) => {
       fetchURL.searchParams.set('verified', 'True')
       fetchURL.searchParams.set('filter', tabActive)
       fetchURL.searchParams.set('canceled', 'false')
+      fetchURL.searchParams.set('exclude_modified', 'true')
 
       console.log(fetchURL.href)
       const response = await fetch(fetchURL.href, {
