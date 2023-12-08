@@ -83,7 +83,7 @@ const CardOrder = ({
 
             <FormControl sx={{ mt: 1, minWidth: 50 }} size='small'>
               <Select
-                value={orderData?.status}
+                value={orderData?.status ? orderData?.status : 'none'}
                 autoWidth
                 onChange={(event: SelectChangeEvent) => {
                   if (
@@ -103,7 +103,7 @@ const CardOrder = ({
                       Authorization: `Bearer ${session?.accessToken}`,
                       'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ status: event.target.value })
+                    body: JSON.stringify({ status: event.target.value == 'none' ? '' : event.target.value })
                   })
                     .then(response => {
                       console.log('status', response.status)
@@ -119,7 +119,7 @@ const CardOrder = ({
                 <MenuItem value={'Refunded'}>Refunded</MenuItem>
                 <MenuItem value={'Returned'}>Returned</MenuItem>
                 <MenuItem value={'Refund Awaited'}>Refund Awaited</MenuItem>
-                <MenuItem value={undefined}>No Status</MenuItem>
+                <MenuItem value={'none'}>No Status</MenuItem>
               </Select>
             </FormControl>
           </Grid>

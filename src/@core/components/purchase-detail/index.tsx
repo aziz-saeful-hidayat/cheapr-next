@@ -629,8 +629,7 @@ const PurchaseDetail = (props: any) => {
         )
       },
       {
-        accessorFn: row =>
-          formatterUSDStrip(parseFloat(row.total_cost?.toString()) + parseFloat(row.shipping_cost?.toString())), //accessorFn used to join multiple data into a single cell
+        accessorFn: row => formatterUSDStrip(parseFloat(row.total_cost + row.shipping_cost)), //accessorFn used to join multiple data into a single cell
         id: 'cost', //id is still required when using accessorFn instead of accessorKey
         header: 'Total Cost',
         maxSize: 100,
