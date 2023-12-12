@@ -190,7 +190,7 @@ export const CreateNewAccountModal = ({
 
   return (
     <Dialog open={open}>
-      <DialogTitle textAlign='center'>Create New Open Issue</DialogTitle>
+      <DialogTitle textAlign='center'>Create New KW</DialogTitle>
       <IconButton
         aria-label='close'
         onClick={onClose}
@@ -1223,19 +1223,16 @@ const Example = (props: any) => {
         renderTopToolbarCustomActions={() => (
           <>
             <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
-              Add New Issue
+              Add New KW
             </Button>
-            <Select labelId='demo-select-small-label' id='demo-select-small' value={tabActive} onChange={handleChange}>
+            {/* <Select labelId='demo-select-small-label' id='demo-select-small' value={tabActive} onChange={handleChange}>
               {csData?.map(cs => (
                 <MenuItem value={cs.pk} key={`menu-${cs.pk}`}>
                   {cs.name}
                 </MenuItem>
               ))}
               <MenuItem value={'all'}>All</MenuItem>
-
-              {/* <MenuItem value={'canceled'}>Canceled</MenuItem>
-              <MenuItem value={'to_pick'}>To Pick</MenuItem> */}
-            </Select>
+            </Select> */}
           </>
         )}
         renderBottomToolbarCustomActions={() => (

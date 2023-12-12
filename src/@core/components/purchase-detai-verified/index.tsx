@@ -64,6 +64,7 @@ import { Refresh } from 'mdi-material-ui'
 import { CreateItemModal } from '../pick-sku'
 import { Close } from 'mdi-material-ui'
 import CloseIcon from '@mui/icons-material/Close'
+import AutoAwesomeMotionIcon from '@mui/icons-material/AutoAwesomeMotion'
 import PickMacthingSales from '../pick-matching-sales'
 import moment from 'moment-timezone'
 import { BuyingOrder, SalesItem } from 'src/@core/types'
@@ -880,6 +881,31 @@ const PurchaseDetailVerified = (props: any) => {
         }
       })
   }
+
+  const handleUseTrackingForAll = (row: MRT_Row<InventoryItem>) => {
+    if (!confirm(`Are you sure you want to use the tracking number for all items Item #${row.index + 1}`)) {
+      return
+    }
+    setisFetching(true)
+
+    fetch(`https://cheapr.my.id/inventory_items/${row.original.pk}/use_tracking_for_all/`, {
+      // note we are going to /1
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(response => response.status)
+      .then(status => {
+        if (status == 200) {
+          setRefresh(r => r + 1)
+        }
+      })
+      .finally(() => {
+        setisFetching(false)
+      })
+  }
   const handleDeleteRow = (row: MRT_Row<InventoryItem>) => {
     if (!confirm(`Are you sure you want to delete Item #${row.index + 1}`)) {
       return
@@ -1486,6 +1512,11 @@ const PurchaseDetailVerified = (props: any) => {
                 <Tooltip arrow placement='top' title='Duplicate'>
                   <IconButton color='primary' onClick={() => handleCopyItem(row.original.pk)}>
                     <ContentCopy />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip arrow placement='top' title='Use tracking for all'>
+                  <IconButton color='secondary' onClick={() => handleUseTrackingForAll(row)}>
+                    <AutoAwesomeMotionIcon />
                   </IconButton>
                 </Tooltip>
                 <Tooltip arrow placement='top' title='Delete'>
