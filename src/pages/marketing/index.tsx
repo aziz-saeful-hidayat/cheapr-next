@@ -52,7 +52,7 @@ const Sales = (props: any) => {
   const { session } = props
 
   // ** State
-  const [value, setValue] = useState<string>('all')
+  const [value, setValue] = useState<string>('initial-drop')
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)

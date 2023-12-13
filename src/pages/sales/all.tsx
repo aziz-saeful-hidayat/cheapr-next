@@ -744,6 +744,7 @@ const Example = (props: any) => {
                     <Link
                       href={`${tracking?.fullcarrier?.prefix}${tracking?.tracking_number}${tracking.fullcarrier?.suffix}`}
                       target='_blank'
+                      key={index}
                     >
                       <Box
                         key={index}
@@ -857,6 +858,7 @@ const Example = (props: any) => {
               if (sku) {
                 return (
                   <HtmlTooltip
+                    key={index}
                     title={
                       <React.Fragment>
                         {sales.title == null ? (
@@ -988,6 +990,7 @@ const Example = (props: any) => {
               if (sku) {
                 return (
                   <Link
+                    key={index}
                     href='#'
                     onClick={() => {
                       setHistoryData(sales.historical)
@@ -1198,6 +1201,7 @@ const Example = (props: any) => {
                 if (item) {
                   return (
                     <Link
+                      key={index}
                       href={`https://order.ebay.com/ord/show?orderId=${item.buying.channel_order_id}#/`}
                       target='_blank'
                     >
@@ -1405,6 +1409,7 @@ const Example = (props: any) => {
                 if (tracking) {
                   return (
                     <Link
+                      key={index}
                       href={`${tracking?.fullcarrier?.prefix}${tracking?.tracking_number}${tracking.fullcarrier?.suffix}`}
                       target='_blank'
                     >

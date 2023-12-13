@@ -68,6 +68,7 @@ import {
   PMKws,
   PM
 } from 'src/@core/types'
+import PickPM from '../inputs/pm'
 
 type ItemOption = {
   pk: number
@@ -162,79 +163,13 @@ export const CreateNewPMKw = ({ open, columns, onClose, onSubmit, pmData, sessio
               paddingTop: 3
             }}
           >
-            {/* <RadioGroup
-              row
-              aria-labelledby='demo-row-radio-buttons-group-label'
-              name='row-radio-buttons-group'
-              value={values.destination}
-              onChange={e => setValues({ ...values, destination: e.target.value })}
-            >
-              <FormControlLabel value='H' control={<Radio />} label='House' />
-              <FormControlLabel value='D' control={<Radio />} label='Dropship' />
-            </RadioGroup> */}
-            <LocalizationProvider dateAdapter={AdapterDayjs} key={'order_date'}>
-              <DatePicker
-                onChange={value => setValues({ ...values, order_date: value ? value.format('YYYY-MM-DD') : null })}
-                label={'Order Date'}
-                value={values.order_date != '' ? dayjs(values.order_date) : null}
-              />
-            </LocalizationProvider>
-            <PickChannel values={values} setValues={setValues} session={session} />
-            <AutoCompleteSeller values={values} setValues={setValues} session={session} />
+            <PickPM values={values} setValues={setValues} session={session} />
             <TextField
-              key={'purchase_link'}
-              label={'Purchase Link (optional)'}
-              name={'purchase_link'}
-              error={values.purchase_link && !validURL(values.purchase_link)}
-              helperText={values.purchase_link && !validURL(values.purchase_link) ? 'Must be an URL' : ''}
+              key={'keyword'}
+              label={'Keyword'}
+              name={'keyword'}
               onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
             />
-            <TextField
-              key={'channel_order_id'}
-              label={'Channel Order ID  (optional)'}
-              name={'channel_order_id'}
-              onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
-            />
-
-            <AutoCompletePerson values={values} setValues={setValues} session={session} placeholder='Customer' />
-
-            {/* <TextField
-              value={values.carrier?.name}
-              key={'carrier.name'}
-              name={'Carrier'}
-              label='Carrier'
-              select
-              onChange={e => setValues({ ...values, carrier: { name: e.target.value } })}
-            >
-              {carrierData?.map(carrier => (
-                <MenuItem
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '1rem'
-                  }}
-                  key={carrier.pk}
-                  value={carrier.name}
-                >
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem'
-                    }}
-                  >
-                    <img alt='avatar' height={25} src={carrier.image} loading='lazy' style={{ borderRadius: '50%' }} />
-                    <span>{carrier.name}</span>
-                  </Box>
-                </MenuItem>
-              ))}
-            </TextField> */}
-            {/* <TextField
-              key={'tracking_number'}
-              label={'Tracking Number'}
-              name={'tracking_number'}
-              onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
-            /> */}
           </Stack>
         </form>
       </DialogContent>
@@ -244,7 +179,7 @@ export const CreateNewPMKw = ({ open, columns, onClose, onSubmit, pmData, sessio
           color='primary'
           onClick={handleSubmit}
           variant='contained'
-          disabled={!values.channel?.name || !values.order_date || !values.seller || !values.person}
+          disabled={!values.pm?.name || !values.keyword}
         >
           Create
         </Button>

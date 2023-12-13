@@ -567,47 +567,47 @@ const Example = (props: any) => {
   const columns = useMemo<MRT_ColumnDef<PMKws>[]>(
     () => [
       {
-        id: 'pm.name',
+        accessorKey: 'pm.name',
         header: 'PM Name',
         size: 150
       },
       {
-        id: 'make.name',
+        accessorKey: 'make.name',
         header: 'Make',
         size: 150
       },
       {
-        id: 'keyword',
+        accessorKey: 'keyword',
         header: 'Keyword',
         size: 150
       },
       {
-        id: 'condition',
+        accessorKey: 'condition',
         header: 'Condition',
         size: 150
       },
       {
-        id: 'buying_format',
+        accessorKey: 'buying_format',
         header: 'Buying Format',
         size: 150
       },
       {
-        id: 'location',
+        accessorKey: 'location',
         header: 'Item Location',
         size: 150
       },
       {
-        id: 'exclude',
+        accessorKey: 'exclude',
         header: 'Exclude',
         size: 150
       },
       {
-        id: 'url',
+        accessorKey: 'url',
         header: 'Target URL',
         size: 150
       },
       {
-        id: 'updated_at',
+        accessorKey: 'updated_at',
         header: 'Last Saved',
         size: 150
       }

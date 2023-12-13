@@ -491,3 +491,21 @@ export type PMKws = {
   exclude: string
   target_url: string
 }
+
+export type AgingSummary = {
+  pk: number
+  sku: string
+  mpn: string
+  make: string
+  model: string
+  asin: string
+  under_30_days: number
+  between_30_60_days: number
+  between_60_90_days: number
+  between_90_180_days: number
+  between_180_365_days: number
+  more_365_days: number
+  qty: number
+  sum: string
+  avg: string
+}

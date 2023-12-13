@@ -96,6 +96,11 @@ const navigation = (): VerticalNavItemsType => {
       path: '/tabs'
     },
     {
+      title: 'PMs',
+      icon: AccountCogOutline as unknown as ReactNode,
+      path: '/pms'
+    },
+    {
       title: 'HA Rooms',
       icon: AccountCogOutline as unknown as ReactNode,
       path: '/room'

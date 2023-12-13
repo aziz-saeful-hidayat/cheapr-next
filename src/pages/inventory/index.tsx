@@ -28,6 +28,9 @@ import { getSession } from 'next-auth/react'
 import Inventory from './inventory'
 import Identifier from './identifier'
 import NoIdentifier from './no_identifier'
+import ArchiveItems from './archive'
+import InventoryAging from './inventory-aging'
+import AgingSummary from './aging-summary'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -92,6 +95,33 @@ const Purchase = (props: any) => {
                 </Box>
               }
             />
+            <Tab
+              value='archive'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <LockOpenOutline />
+                  <TabName>Archive</TabName>
+                </Box>
+              }
+            />
+            <Tab
+              value='inventory-aging'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <LockOpenOutline />
+                  <TabName>Inventory Aging</TabName>
+                </Box>
+              }
+            />
+            <Tab
+              value='aging-summary'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <LockOpenOutline />
+                  <TabName>Aging Summary</TabName>
+                </Box>
+              }
+            />
             {/* <Tab
               value='info'
               label={
@@ -112,7 +142,15 @@ const Purchase = (props: any) => {
           <TabPanel sx={{ p: 0 }} value='no_identifier'>
             <NoIdentifier session={session} />
           </TabPanel>
-
+          <TabPanel sx={{ p: 0 }} value='archive'>
+            <ArchiveItems session={session} />
+          </TabPanel>
+          <TabPanel sx={{ p: 0 }} value='inventory-aging'>
+            <InventoryAging session={session} />
+          </TabPanel>
+          <TabPanel sx={{ p: 0 }} value='aging-summary'>
+            <AgingSummary session={session} />
+          </TabPanel>
           {/* <TabPanel sx={{ p: 0 }} value='info'>
             <TabInfo />
           </TabPanel> */}
