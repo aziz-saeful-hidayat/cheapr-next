@@ -63,14 +63,16 @@ import {
   Person,
   InventoryPayload,
   InventoryItem,
-  OpenIssue,
   ItemOption,
   ItemOption2,
   CustomerService,
-  SellingOrder
+  SellingOrder,
+  PM,
+  PMKws
 } from 'src/@core/types'
 import AddSalesItemModal from 'src/@core/components/add-sales-item'
 import { ExtendedSession } from '../api/auth/[...nextauth]'
+import CreateNewPMKw from 'src/@core/components/create-kw'
 
 type Payload = {
   pk?: number
@@ -95,9 +97,9 @@ type HistoricalData = {
   order_id: string[]
 }
 interface CreateModalProps {
-  columns: MRT_ColumnDef<OpenIssue>[]
+  columns: MRT_ColumnDef<PMKws>[]
   onClose: () => void
-  onSubmit: (values: OpenIssue) => void
+  onSubmit: (values: PMKws) => void
   open: boolean
   channelData: any[]
   session: ExtendedSession
@@ -108,7 +110,7 @@ interface AddItemProps {
   onClose: () => void
   onSubmit: (values: InventoryPayload) => void
   open: boolean
-  rowData: OpenIssue | undefined
+  rowData: PMKws | undefined
   roomData: Room[]
 }
 interface DeleteModalProps {
@@ -165,9 +167,9 @@ export const CreateNewAccountModal = ({
   const [choosed, setChoosed] = useState<number>()
   const [options, setOptions] = useState<SellingOrder[]>([])
 
-  const handleOpenIssue = (sales: number | undefined) => {
+  const handlePMKws = (sales: number | undefined) => {
     if (sales) {
-      fetch(`https://cheapr.my.id/open_issue/`, {
+      fetch(`https://cheapr.my.id/pm_kws/`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${session?.accessToken}`,
@@ -235,7 +237,7 @@ export const CreateNewAccountModal = ({
                   //   setConfirmCanceledOpen(true)
                   // } else {
                   //   setChoosed(newValue.pk.toString())
-                  //   handleOpenIssue(newValue.pk)
+                  //   handlePMKws(newValue.pk)
                   // }
                 }
               }}
@@ -283,7 +285,7 @@ export const CreateNewAccountModal = ({
       </DialogContent>
       <DialogActions sx={{ p: '1.25rem' }}>
         <Button onClick={onClose}>Cancel</Button>
-        <Button color='primary' onClick={() => handleOpenIssue(choosed)} variant='contained'>
+        <Button color='primary' onClick={() => handlePMKws(choosed)} variant='contained'>
           Create
         </Button>
       </DialogActions>
@@ -359,7 +361,7 @@ const Example = (props: any) => {
       tabActive
     ],
     queryFn: async () => {
-      const fetchURL = new URL('/open_issue/', 'https://cheapr.my.id')
+      const fetchURL = new URL('/pm_kws/', 'https://cheapr.my.id')
       fetchURL.searchParams.set('status', `R`)
       fetchURL.searchParams.set('limit', `${pagination.pageSize}`)
       fetchURL.searchParams.set('offset', `${pagination.pageIndex * pagination.pageSize}`)
@@ -404,13 +406,13 @@ const Example = (props: any) => {
     },
     keepPreviousData: true
   })
-  const [tableData, setTableData] = useState<OpenIssue[]>(() => data?.results ?? [])
-  const [csData, setCsData] = useState<CustomerService[]>([])
+  const [tableData, setTableData] = useState<PMKws[]>(() => data?.results ?? [])
+  const [pmData, setPmData] = useState<PM[]>([])
 
   const [roomData, setRoomData] = useState<Room[]>([])
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
-  const [addModalOpen, setAddModalOpen] = useState<OpenIssue>()
+  const [addModalOpen, setAddModalOpen] = useState<PMKws>()
   const [detail, setDetail] = useState<number | undefined>()
   const [detailModalOpen, setDetailModalOpen] = useState(false)
   const [custPk, setCustPk] = useState<number | undefined>()
@@ -418,17 +420,17 @@ const Example = (props: any) => {
   const handleChange = (event: SelectChangeEvent) => {
     setTabActive(event.target.value as string)
   }
-  const handleCreateNewRow = (values: OpenIssue) => {
+  const handleCreateNewRow = (values: PMKws) => {
     console.log(values)
     let new_obj: any = { ...values }
 
-    if (values['cs']) {
-      const cs = csData.find(cs => cs.name == values['cs']['name'])
-      new_obj = { ...values, cs: cs?.pk }
+    if (values['pm']) {
+      const pm = pmData.find(pm => pm.name == values['pm']['name'])
+      new_obj = { ...values, pm: pm?.pk }
     }
 
     console.log(new_obj)
-    fetch(`https://cheapr.my.id/open_issue/`, {
+    fetch(`https://cheapr.my.id/pm_kws/`, {
       // note we are going to /1
       method: 'POST',
       headers: new Headers({
@@ -487,8 +489,8 @@ const Example = (props: any) => {
       })
   }
 
-  const handleSaveRow: MRT_TableOptions<OpenIssue>['onEditingRowSave'] = async ({ exitEditingMode, row, values }) => {
-    const cs = csData.find(cs => cs.name == values['cs']['name'])
+  const handleSaveRow: MRT_TableOptions<PMKws>['onEditingRowSave'] = async ({ exitEditingMode, row, values }) => {
+    const cs = pmData.find(cs => cs.name == values['cs']['name'])
     for (const key in values) {
       if (values.hasOwnProperty(key)) {
         if (key == 'cs.name') {
@@ -517,9 +519,9 @@ const Example = (props: any) => {
       })
   }
 
-  const handleSaveCell = (cell: MRT_Cell<OpenIssue>, value: any) => {
+  const handleSaveCell = (cell: MRT_Cell<PMKws>, value: any) => {
     const key = cell.column.id
-    const cs = csData.find(cs => cs.name == value)
+    const cs = pmData.find(cs => cs.name == value)
     console.log(key, value)
     const oldData = [...tableData]
     const newData: any = [...tableData]
@@ -529,12 +531,12 @@ const Example = (props: any) => {
       newData[cell.row.index]['cs'] = cs
     } else {
       payload[key as keyof Payload] = value
-      newData[cell.row.index][cell.column.id as keyof OpenIssue] = value
+      newData[cell.row.index][cell.column.id as keyof PMKws] = value
     }
     const pk = newData[cell.row.index]['pk']
 
     console.log(payload)
-    fetch(`https://cheapr.my.id/open_issue/${pk}/`, {
+    fetch(`https://cheapr.my.id/pm_kws/${pk}/`, {
       method: 'PATCH',
       headers: new Headers({
         Authorization: `Bearer ${session?.accessToken}`,
@@ -551,513 +553,6 @@ const Example = (props: any) => {
       .finally(() => setRefresh(r => r + 1))
   }
 
-  const columns = useMemo<MRT_ColumnDef<OpenIssue>[]>(
-    () => [
-      {
-        accessorKey: 'status',
-        header: 'PM Name',
-        maxSize: 40,
-        muiEditTextFieldProps: {
-          select: true, //change to select for a dropdown
-          children: statusOptions?.map(status => (
-            <MenuItem key={status.key} value={status.key}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem'
-                }}
-              >
-                {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
-                <span>{status.name}</span>
-              </Box>
-            </MenuItem>
-          ))
-        },
-        Cell: ({ renderedCellValue, row, table, cell }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            {row.original?.status ? (
-              <Chip
-                sx={{
-                  fontSize: 12
-                }}
-                label={statusOptions.find(e => e.key == renderedCellValue)?.name}
-                color={statusOptions.find(e => e.key == renderedCellValue)?.color}
-                onDelete={() => {
-                  table.setEditingCell(cell)
-                }}
-                onClick={() => {
-                  table.setEditingCell(cell)
-                }}
-                deleteIcon={<ArrowDropDown />}
-              />
-            ) : null}
-          </Box>
-        )
-      },
-      {
-        accessorKey: 'sales.channel_order_id',
-        header: 'ORDER',
-        maxSize: 50,
-        enableEditing: false
-      },
-      {
-        accessorKey: 'sales.seller_name',
-        header: 'STORE',
-        maxSize: 50,
-        enableEditing: false
-      },
-      {
-        accessorKey: 'sales.order_date',
-        header: 'DATE',
-        maxSize: 60,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            {row.original.sales?.order_date
-              ? moment(row.original?.sales?.order_date).tz('America/Los_Angeles').format('MM.DD')
-              : ''}
-          </Box>
-        )
-      },
-      {
-        accessorKey: 'sales.ship_date',
-        header: 'SHIPBY',
-        maxSize: 60,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            {row.original.sales?.ship_date
-              ? moment(row.original?.sales?.ship_date).tz('America/Los_Angeles').format('MM.DD')
-              : ''}
-          </Box>
-        )
-      },
-      {
-        accessorKey: 'sales.delivery_date',
-        header: 'GETBY',
-        maxSize: 60,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            {row.original.sales?.delivery_date
-              ? moment(row.original?.sales?.delivery_date).tz('America/Los_Angeles').format('MM.DD')
-              : ''}
-          </Box>
-        )
-      },
-      {
-        id: 'lt_tn',
-        header: 'LTTN',
-        size: 150,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
-            }}
-          >
-            {row.original.sales.salesitems.map((sales, index) => {
-              const tracking = sales.letter_tracking
-              if (tracking) {
-                return (
-                  <Typography color='inherit' key={index}>
-                    {tracking.tracking_number}
-                  </Typography>
-                )
-              } else {
-                return <span key={index}>{` `}</span>
-              }
-            })}
-          </Box>
-        )
-      },
-      {
-        id: 'lt_eta',
-        header: 'LTETA',
-        maxSize: 60,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
-            }}
-          >
-            {row.original.sales.salesitems.map((sales, index) => {
-              const tracking = sales.letter_tracking
-              if (tracking) {
-                return (
-                  <Typography
-                    color={
-                      tracking.status == 'D'
-                        ? 'green'
-                        : tracking.status == 'T'
-                        ? 'yellow'
-                        : tracking.status == 'N'
-                        ? 'red'
-                        : 'purple'
-                    }
-                    key={index}
-                  >
-                    {tracking?.eta_date
-                      ? moment(tracking?.eta_date).tz('America/Los_Angeles').format('MM.DD')
-                      : tracking.status}
-                  </Typography>
-                )
-              } else {
-                return <span key={index}>{` `}</span>
-              }
-            })}
-          </Box>
-        )
-      },
-      {
-        id: 'ac_tn',
-        header: 'ACTN',
-        size: 150,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
-            }}
-          >
-            {row.original.sales.salesitems.map((sales, index) => {
-              const tracking = sales.tracking
-              if (tracking) {
-                return (
-                  <Typography color='inherit' key={index}>
-                    {tracking.tracking_number}
-                  </Typography>
-                )
-              } else {
-                return <span key={index}>{` `}</span>
-              }
-            })}
-          </Box>
-        )
-      },
-      {
-        id: 'ac_eta',
-        header: 'ETA',
-        maxSize: 60,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
-            }}
-          >
-            {row.original.sales.salesitems.map((sales, index) => {
-              const tracking = sales.tracking
-              if (tracking) {
-                return (
-                  <Typography
-                    color={
-                      tracking.status == 'D'
-                        ? 'green'
-                        : tracking.status == 'T'
-                        ? 'yellow'
-                        : tracking.status == 'N'
-                        ? 'red'
-                        : 'purple'
-                    }
-                    key={index}
-                  >
-                    {tracking?.eta_date
-                      ? moment(tracking?.eta_date).tz('America/Los_Angeles').format('MM.DD')
-                      : tracking.status}
-                  </Typography>
-                )
-              } else {
-                return <span key={index}>{` `}</span>
-              }
-            })}
-          </Box>
-        )
-      },
-      {
-        id: 'buffer',
-        header: 'BUFFER',
-        maxSize: 60,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
-            }}
-          >
-            {row.original.sales.salesitems.map((sales, index) => {
-              const sku = sales?.sku
-              if (sku && sku.sku && typeof sku.sku == 'string') {
-                if (sku.sku.includes('BUFFERS') || sku.sku.includes('BOOK') || sku.sku.includes('INGRAM')) {
-                  return (
-                    <Typography color='inherit' key={index}>
-                      BUFFER
-                    </Typography>
-                  )
-                } else {
-                  return <span key={index}>{` `}</span>
-                }
-              } else {
-                return <span key={index}>{` `}</span>
-              }
-            })}
-          </Box>
-        )
-      },
-      {
-        accessorKey: 'sales.person.name',
-        header: 'CUSTOMER',
-        size: 100,
-        enableEditing: false
-      },
-      {
-        accessorKey: 'sales.person.phone',
-        header: 'CONTACT',
-        size: 100,
-        enableEditing: false
-      },
-      {
-        accessorKey: 'az',
-        header: 'AZ',
-        size: 50,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row, cell }) => (
-          <Checkbox
-            checked={row.original.az ? row.original.az : false}
-            onClick={() => handleSaveCell(cell, row.original.az ? !row.original.az : true)}
-            inputProps={{ 'aria-label': 'controlled' }}
-          />
-        )
-      },
-      {
-        accessorKey: 'fb',
-        header: 'FB',
-        size: 50,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row, cell }) => (
-          <Checkbox
-            checked={row.original.fb ? row.original.fb : false}
-            onClick={() => handleSaveCell(cell, row.original.fb ? !row.original.fb : true)}
-            inputProps={{ 'aria-label': 'controlled' }}
-          />
-        )
-      },
-      {
-        accessorKey: 'cb',
-        header: 'CB',
-        size: 50,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row, cell }) => (
-          <Checkbox
-            checked={row.original.cb ? row.original.cb : false}
-            onClick={() => handleSaveCell(cell, row.original.cb ? !row.original.cb : true)}
-            inputProps={{ 'aria-label': 'controlled' }}
-          />
-        )
-      },
-      {
-        accessorKey: 'cs_comment',
-        header: 'CUSTOMER COMMENTS',
-        size: 70
-      },
-      {
-        accessorKey: 'date',
-        header: 'DATE',
-        maxSize: 60,
-        muiEditTextFieldProps: {
-          type: 'date'
-        },
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            {row.original.date ? moment(row.original?.date).format('MM.DD') : ''}
-          </Box>
-        )
-      },
-      {
-        accessorKey: 'apl_by',
-        header: 'APL.BY',
-        maxSize: 60,
-        muiEditTextFieldProps: {
-          type: 'date'
-        },
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            {row.original.apl_by ? moment(row.original?.apl_by).format('MM.DD') : ''}
-          </Box>
-        )
-      },
-      {
-        accessorKey: 'appealed',
-        header: 'APPEALED',
-        maxSize: 60,
-        muiEditTextFieldProps: {
-          select: true, //change to select for a dropdown
-          children: appealedOptions?.map(status => (
-            <MenuItem key={status.key} value={status.key}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem'
-                }}
-              >
-                <span>{status.name}</span>
-              </Box>
-            </MenuItem>
-          ))
-        },
-        Cell: ({ renderedCellValue, row, table, cell }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            <Chip
-              sx={{
-                fontSize: 12
-              }}
-              label={appealedOptions.find(e => e.key == row.original?.appealed)?.name}
-              color={appealedOptions.find(e => e.key == row.original?.appealed)?.color}
-              onDelete={() => {
-                table.setEditingCell(cell)
-              }}
-              onClick={() => {
-                table.setEditingCell(cell)
-              }}
-              deleteIcon={<ArrowDropDown />}
-            />
-          </Box>
-        )
-      },
-      {
-        accessorKey: 'fall_off',
-        header: 'FALL OFF',
-        maxSize: 60,
-        muiEditTextFieldProps: {
-          type: 'date'
-        },
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            {row.original.fall_off ? moment(row.original?.fall_off).tz('America/Los_Angeles').format('MM.DD') : ''}
-          </Box>
-        )
-      },
-      {
-        accessorKey: 'case_id',
-        header: 'CASE.ID',
-        maxSize: 60
-      },
-      {
-        accessorKey: 'cs.name',
-        header: 'ASSIGNEE',
-        maxSize: 60,
-        muiEditTextFieldProps: {
-          select: true, //change to select for a dropdown
-          children: csData?.map(cs => (
-            <MenuItem key={cs.pk} value={cs.name}>
-              {cs.name}
-            </MenuItem>
-          ))
-        },
-        Cell: ({ renderedCellValue, row, table, cell }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            <Chip
-              sx={{
-                fontSize: 12
-              }}
-              label={row.original?.cs?.name || 'Pick CS'}
-              color='default'
-              onDelete={() => {
-                table.setEditingCell(cell)
-              }}
-              onClick={() => {
-                table.setEditingCell(cell)
-              }}
-              deleteIcon={<ArrowDropDown />}
-            />
-          </Box>
-        )
-      },
-      {
-        accessorKey: 'steps_done',
-        header: 'STEPS DONE',
-        maxSize: 60
-      },
-      {
-        accessorKey: 'next_step',
-        header: 'NEXT STEPS',
-        maxSize: 60
-      },
-      {
-        accessorKey: 'legal_comment',
-        header: 'LEGAL COMMENTS',
-        maxSize: 60
-      }
-    ],
-    [csData, tableData]
-  )
   const columnsAddItem = useMemo<MRT_ColumnDef<InventoryPayload>[]>(
     () => [
       {
@@ -1069,7 +564,7 @@ const Example = (props: any) => {
     []
   )
 
-  const columnsDummy = useMemo<MRT_ColumnDef<OpenIssue>[]>(
+  const columns = useMemo<MRT_ColumnDef<PMKws>[]>(
     () => [
       {
         id: 'pm.name',
@@ -1129,7 +624,7 @@ const Example = (props: any) => {
     setTableData(data?.results ?? [])
   }, [data])
   useEffect(() => {
-    const fetchURL = new URL('/customer_service/', 'https://cheapr.my.id')
+    const fetchURL = new URL('/product_manager/', 'https://cheapr.my.id')
     fetch(fetchURL.href, {
       method: 'get',
       headers: new Headers({
@@ -1139,15 +634,15 @@ const Example = (props: any) => {
     })
       .then(response => response.json())
       .then(json => {
-        setCsData(json.results)
+        setPmData(json.results)
       })
   }, [session])
 
   return (
     <Card sx={{ padding: 3 }}>
       <MaterialReactTable
-        columns={columnsDummy}
-        data={[]} //data is undefined on first render
+        columns={columns}
+        data={tableData} //data is undefined on first render
         initialState={{
           showColumnFilters: false,
           density: 'compact',
@@ -1169,12 +664,10 @@ const Example = (props: any) => {
               <IconButton
                 color='error'
                 onClick={() => {
-                  if (
-                    !confirm(`Are you sure you want to delete this issue #${row.original?.sales?.channel_order_id}`)
-                  ) {
+                  if (!confirm(`Are you sure you want to delete this keyword #${row.original?.keyword}`)) {
                     return
                   }
-                  fetch(`https://cheapr.my.id/open_issue/${row.original.pk}/`, {
+                  fetch(`https://cheapr.my.id/pm_kws/${row.original.pk}/`, {
                     method: 'DELETE',
                     headers: new Headers({
                       Authorization: `Bearer ${session?.accessToken}`,
@@ -1251,14 +744,13 @@ const Example = (props: any) => {
           sorting
         }}
       />
-      <CreateNewAccountModal
+      <CreateNewPMKw
         columns={columns}
         open={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
         onSubmit={handleCreateNewRow}
-        channelData={csData}
+        pmData={pmData}
         session={session}
-        reload={() => setRefresh(r => r + 1)}
       />
       <SalesDetail
         session={session}

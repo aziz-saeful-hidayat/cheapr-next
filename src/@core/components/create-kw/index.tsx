@@ -65,7 +65,8 @@ import {
   InventoryPayload,
   InventoryItem,
   Seller,
-  PMKws
+  PMKws,
+  PM
 } from 'src/@core/types'
 
 type ItemOption = {
@@ -93,24 +94,15 @@ type ItemOption = {
 }
 
 interface CreateModalProps {
-  columns: MRT_ColumnDef<BuyingOrder>[]
+  columns: MRT_ColumnDef<PMKws>[]
   onClose: () => void
-  onSubmit: (values: BuyingOrder) => void
+  onSubmit: (values: PMKws) => void
   open: boolean
-  channelData: Channel[]
+  pmData: PM[]
   session: any
-  carrierData: Carrier[]
 }
 
-export const CreateNewPurchase = ({
-  open,
-  columns,
-  onClose,
-  onSubmit,
-  channelData,
-  session,
-  carrierData
-}: CreateModalProps) => {
+export const CreateNewPMKw = ({ open, columns, onClose, onSubmit, pmData, session }: CreateModalProps) => {
   const [values, setValues] = useState<any>(() =>
     columns.reduce((acc, column) => {
       acc[column.accessorKey ?? ''] = ''
@@ -118,47 +110,6 @@ export const CreateNewPurchase = ({
       return acc
     }, {} as any)
   )
-
-  const handleCreateNewRow = (values: PMKws) => {
-    console.log(values)
-    const channel = pmData.find(pm => pm.name == values['pm']['name'])
-
-    const new_obj = {
-      ...values,
-      channel: channel?.pk,
-      order_date: values.order_date ? values.order_date : null,
-      delivery_date: values.delivery_date ? values.delivery_date : null
-    }
-    const address = {
-      street_1: channel?.pk,
-      street_2: values.order_date ? values.order_date : null,
-      zip: values.delivery_date ? values.delivery_date : null,
-      city: values.delivery_date ? values.delivery_date : null
-    }
-    const person = {
-      street_1: channel?.pk,
-      street_2: values.order_date ? values.order_date : null,
-      zip: values.delivery_date ? values.delivery_date : null,
-      city: values.delivery_date ? values.delivery_date : null
-    }
-    console.log(new_obj)
-    fetch(`https://cheapr.my.id/buying_order/`, {
-      // note we are going to /1
-      method: 'POST',
-      headers: new Headers({
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json'
-      }),
-      body: JSON.stringify(new_obj)
-    })
-      .then(response => response.json())
-      .then(json => {
-        console.log(json)
-        if (json.pk) {
-          // setRefresh(refresh + 1)
-        }
-      })
-  }
 
   const handleSubmit = () => {
     //put your validation logic here
@@ -188,7 +139,7 @@ export const CreateNewPurchase = ({
 
   return (
     <Dialog open={open}>
-      <DialogTitle textAlign='center'>Create New Buying Order</DialogTitle>
+      <DialogTitle textAlign='center'>Create New</DialogTitle>
       <IconButton
         aria-label='close'
         onClick={onClose}
@@ -301,4 +252,4 @@ export const CreateNewPurchase = ({
     </Dialog>
   )
 }
-export default CreateNewPurchase
+export default CreateNewPMKw

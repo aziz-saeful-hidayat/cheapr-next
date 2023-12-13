@@ -482,7 +482,7 @@ export type PM = {
 
 export type PMKws = {
   pk: number
-  pm: SellingOrder
+  pm: PM
   make: string
   keyword: string
   condition: string
