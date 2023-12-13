@@ -474,3 +474,20 @@ export type ReturnSales = {
   tracking: Tracking
   date: string
 }
+
+export type PM = {
+  pk: number
+  name: string
+}
+
+export type PMKws = {
+  pk: number
+  pm: SellingOrder
+  make: string
+  keyword: string
+  condition: string
+  buying_format: string
+  item_location: string
+  exclude: string
+  target_url: string
+}

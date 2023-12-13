@@ -33,6 +33,7 @@ import {
 import Card from '@mui/material/Card'
 import Popover from '@mui/material/Popover'
 import { Delete, ContentCopy, Add, DisabledByDefault, FindReplace, Block } from '@mui/icons-material'
+import AutoAwesomeMotionIcon from '@mui/icons-material/AutoAwesomeMotion'
 import { useRouter } from 'next/router'
 import { ExtendedSession } from 'src/pages/api/auth/[...nextauth]'
 import { formatterUSDStrip } from 'src/constants/Utils'
@@ -595,7 +596,7 @@ export const CreateDropshipModal = ({
           >
             {columns.map(column =>
               column.accessorKey === 'order_date' ? (
-                <LocalizationProvider dateAdapter={AdapterDayjs} key={'order_date'}>
+                <LocalizationProvider dateAdapter={AdapterDayjs} key={column.accessorKey}>
                   <DatePicker
                     onChange={value => setValues({ ...values, order_date: value ? value.format('YYYY-MM-DD') : null })}
                     label={column.header}
@@ -603,7 +604,7 @@ export const CreateDropshipModal = ({
                   />
                 </LocalizationProvider>
               ) : column.accessorKey === 'return_up_to_date' ? (
-                <LocalizationProvider dateAdapter={AdapterDayjs} key={'return_up_to_date'}>
+                <LocalizationProvider dateAdapter={AdapterDayjs} key={column.accessorKey}>
                   <DatePicker
                     onChange={value =>
                       setValues({ ...values, return_up_to_date: value ? value.format('YYYY-MM-DD') : null })
@@ -676,7 +677,7 @@ export const CreateDropshipModal = ({
               ) : column.accessorKey === 'channel' ? (
                 <TextField
                   value={values.channel}
-                  key={'channel.name'}
+                  key={column.accessorKey}
                   name={'Channel'}
                   label='Channel'
                   select
@@ -715,7 +716,7 @@ export const CreateDropshipModal = ({
               ) : column.accessorKey === 'carrier' ? (
                 <TextField
                   value={values.carrier}
-                  key={'carrier.name'}
+                  key={column.accessorKey}
                   name={'Carrier'}
                   label='Carrier'
                   select
@@ -968,7 +969,7 @@ export const AddItemModal = ({
             <Select labelId='demo-select-small-label' id='demo-select-small' value={values} onChange={handleChange}>
               {options.length > 0 ? (
                 options.map(item => (
-                  <MenuItem value={item.pk}>
+                  <MenuItem value={item.pk} key={item.pk}>
                     {item.product ? item.product.sku : ''} {item.serial}{' '}
                     {formatterUSDStrip(parseFloat(item.total_cost))}
                   </MenuItem>
@@ -2136,6 +2137,25 @@ const SalesDetail = (props: any) => {
     }
     console.log(payload)
   }
+  const handleUseTrackingForAll = (row: MRT_Row<InventoryItem>) => {
+    if (!confirm(`Are you sure you want to use the tracking number for all items Item #${row.index + 1}`)) {
+      return
+    }
+    fetch(`https://cheapr.my.id/sales_items/${row.original.pk}/use_tracking_for_all/`, {
+      // note we are going to /1
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(response => response.status)
+      .then(status => {
+        if (status == 200) {
+          setRefresh(r => r + 1)
+        }
+      })
+  }
   const handleAddItem = (values: InventoryPayload) => {
     const newValues = { item: values.item }
     console.log(newValues)
@@ -2461,23 +2481,39 @@ const SalesDetail = (props: any) => {
                 </Button>
               </>
             )}
-            renderRowActions={({ row, table }) => (
-              <Box sx={{ display: 'flex' }}>
-                {row.original.item_null ? (
-                  <Tooltip arrow placement='top' title='Delete'>
-                    <IconButton color='error' onClick={() => handleDeleteRow(row)}>
-                      <Delete />
-                    </IconButton>
-                  </Tooltip>
-                ) : (
-                  <Tooltip arrow placement='top' title='Unassign'>
-                    <IconButton color='secondary' onClick={() => handleUnassignRow(row)}>
-                      <DisabledByDefault />
-                    </IconButton>
-                  </Tooltip>
-                )}
-              </Box>
-            )}
+            renderRowActions={({ row, table }) => {
+              if (row.original.item_null) {
+                return (
+                  <Box sx={{ display: 'flex' }}>
+                    <Tooltip arrow placement='top' title='Use same tracking for all'>
+                      <IconButton color='secondary' onClick={() => handleUseTrackingForAll(row)}>
+                        <AutoAwesomeMotionIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip arrow placement='top' title='Delete'>
+                      <IconButton color='error' onClick={() => handleDeleteRow(row)}>
+                        <Delete />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                )
+              } else {
+                return (
+                  <Box sx={{ display: 'flex' }}>
+                    <Tooltip arrow placement='top' title='Use same tracking for all'>
+                      <IconButton color='secondary' onClick={() => handleUseTrackingForAll(row)}>
+                        <AutoAwesomeMotionIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip arrow placement='top' title='Unassign'>
+                      <IconButton color='secondary' onClick={() => handleUnassignRow(row)}>
+                        <DisabledByDefault />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                )
+              }
+            }}
             state={{
               showProgressBars: isFetching
             }}

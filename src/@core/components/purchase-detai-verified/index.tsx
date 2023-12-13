@@ -433,6 +433,274 @@ const PurchaseDetailVerified = (props: any) => {
     { key: 'I', name: 'Issue', color: 'error' },
     { key: 'N', name: 'Not Started', color: 'default' }
   ]
+  const columnsDropship = useMemo<MRT_ColumnDef<InventoryItem>[]>(
+    () => [
+      {
+        accessorKey: 'title',
+        header: 'Item Name',
+        maxSize: 200,
+        enableEditing: false
+      },
+      {
+        accessorKey: 'product.sku',
+        header: 'SKU',
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) =>
+          row.original.product ? (
+            <div>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  marginBottom: 2
+                }}
+              >
+                <img
+                  aria-owns={open ? 'mouse-over-popover' : undefined}
+                  onMouseEnter={handlePopoverOpen}
+                  onMouseLeave={handlePopoverClose}
+                  alt='avatar'
+                  height={30}
+                  src={row.original.product.image ?? '/images/no_image.png'}
+                  loading='lazy'
+                />
+                {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
+                <span
+                  onClick={() => {
+                    setCreateSKUModalOpen(true)
+                  }}
+                >
+                  {renderedCellValue}
+                </span>
+                <Tooltip arrow placement='top' title='Remove'>
+                  <IconButton
+                    color='error'
+                    onClick={() => {
+                      const oldData = [...tableData]
+                      const newData: any = [...tableData]
+                      const payload: Payload = {}
+
+                      payload['product'] = null
+
+                      const id = row.original.pk
+                      fetch(`https://cheapr.my.id/inventory_items/${id}/`, {
+                        method: 'PATCH',
+                        headers: new Headers({
+                          Authorization: `Bearer ${session?.accessToken}`,
+                          'Content-Type': 'application/json'
+                        }),
+                        body: JSON.stringify(payload)
+                      })
+                        .then(response => response.json())
+                        .then(json => {
+                          console.log(json)
+                        })
+                        .finally(() => {
+                          setRefresh(ref => ref + 1)
+                        })
+                    }}
+                  >
+                    <Close />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            </div>
+          ) : (
+            <div>
+              <Chip
+                sx={{
+                  fontSize: 10
+                }}
+                label={'Pick SKU'}
+                onClick={() => {
+                  setItemPk(row.original.pk)
+                  setCreateSKUModalOpen(true)
+                }}
+              />
+            </div>
+          )
+      },
+      {
+        accessorKey: 'product.make',
+        header: 'Make',
+        maxSize: 100,
+        enableEditing: false
+      },
+      {
+        accessorKey: 'product.model',
+        header: 'Model',
+        maxSize: 100,
+        enableEditing: false
+      },
+      {
+        accessorKey: 'product.mpn',
+        header: 'MPN',
+        maxSize: 100,
+        enableEditing: false
+      },
+      {
+        accessorKey: 'serial',
+        header: 'Serial',
+        maxSize: 100
+      },
+
+      {
+        accessorKey: 'total_cost',
+        header: 'Item Price',
+        size: 100,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{renderedCellValue && formatterUSDStrip(row.original.total_cost)}</Box>
+        ),
+        muiTableBodyCellProps: {
+          align: 'right'
+        },
+        muiTableHeadCellProps: {
+          align: 'right'
+        }
+      },
+      {
+        accessorKey: 'shipping_cost',
+        header: 'Our Label',
+        size: 100,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{formatterUSDStrip(row.original.shipping_cost)}</Box>
+        ),
+        muiTableBodyCellProps: {
+          align: 'right'
+        },
+        muiTableHeadCellProps: {
+          align: 'right'
+        }
+      },
+      {
+        accessorFn: row => formatterUSDStrip((row.total_cost ?? 0) + (row.shipping_cost ?? 0)), //accessorFn used to join multiple data into a single cell
+        id: 'cost', //id is still required when using accessorFn instead of accessorKey
+        header: 'Total Cost',
+        maxSize: 100,
+        enableEditing: false,
+        muiTableBodyCellProps: {
+          align: 'right'
+        },
+        muiTableHeadCellProps: {
+          align: 'right'
+        }
+      },
+      {
+        accessorKey: 'tracking.fullcarrier.name',
+        header: 'Carrier',
+        size: 75,
+        muiEditTextFieldProps: {
+          select: true, //change to select for a dropdown
+          children: carrierData?.map(carrier => (
+            <MenuItem key={carrier.pk} value={carrier.pk}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
+              >
+                <img alt='avatar' height={25} src={carrier.image} loading='lazy' style={{ borderRadius: '50%' }} />
+                {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
+                <span>{carrier.name}</span>
+              </Box>
+            </MenuItem>
+          ))
+        },
+        Cell: ({ renderedCellValue, row }) =>
+          row.original.tracking?.fullcarrier ? (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}
+            >
+              <img
+                alt='avatar'
+                height={25}
+                src={row.original.tracking?.fullcarrier.image}
+                loading='lazy'
+                style={{ borderRadius: '50%' }}
+              />
+              {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
+              <span>{renderedCellValue}</span>
+            </Box>
+          ) : (
+            <></>
+          )
+      },
+      {
+        accessorKey: 'tracking.tracking_number',
+        header: 'Tracking',
+        size: 100
+      },
+      {
+        accessorKey: 'tracking.eta_date',
+        header: 'ETA',
+        size: 75,
+        muiEditTextFieldProps: {
+          type: 'date'
+        },
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            {row.original.tracking?.eta_date
+              ? moment(row.original?.tracking?.eta_date).tz('America/Los_Angeles').format('MM-DD-YY')
+              : ''}
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'tracking.status',
+        header: 'Status',
+        size: 75,
+        muiEditTextFieldProps: {
+          select: true, //change to select for a dropdown
+          children: statusOptions?.map(status => (
+            <MenuItem key={status.key} value={status.key}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
+              >
+                {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
+                <span>{status.name}</span>
+              </Box>
+            </MenuItem>
+          ))
+        },
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            {row.original.tracking?.status ? (
+              <Chip
+                sx={{
+                  fontSize: 12
+                }}
+                label={statusOptions.find(e => e.key == row.original.tracking?.status)?.name}
+                color={statusOptions.find(e => e.key == row.original.tracking?.status)?.color}
+              />
+            ) : null}
+          </Box>
+        )
+      }
+    ],
+    [roomData, salesItemData, open]
+  )
   const columns = useMemo<MRT_ColumnDef<InventoryItem>[]>(
     () => [
       {
@@ -753,7 +1021,6 @@ const PurchaseDetailVerified = (props: any) => {
     ],
     [roomData, salesItemData, open]
   )
-
   const fetchPickSales = () => {
     fetch(`https://cheapr.my.id/all_buying_order/${pk}/find_matches/`, {
       method: 'GET',
@@ -1371,7 +1638,7 @@ const PurchaseDetailVerified = (props: any) => {
         />
         <Card sx={{ padding: 3 }}>
           <MaterialReactTable
-            columns={columns}
+            columns={orderData?.destination == 'D' ? columnsDropship : columns}
             enableDensityToggle={false}
             initialState={{ showColumnFilters: false, density: 'compact' }}
             enableEditing
@@ -1514,7 +1781,7 @@ const PurchaseDetailVerified = (props: any) => {
                     <ContentCopy />
                   </IconButton>
                 </Tooltip>
-                <Tooltip arrow placement='top' title='Use tracking for all'>
+                <Tooltip arrow placement='top' title='Use same tracking for all'>
                   <IconButton color='secondary' onClick={() => handleUseTrackingForAll(row)}>
                     <AutoAwesomeMotionIcon />
                   </IconButton>
