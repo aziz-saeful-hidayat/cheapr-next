@@ -326,18 +326,6 @@ const Example = (props: any) => {
             handleSaveCell(cell, event.target.value)
           }
         })}
-        // renderTopToolbarCustomActions={() => (
-        //   <>
-        //     <Select labelId='room-label' id='room-small' value={tabActive} onChange={handleChange}>
-        //       <MenuAgingSummary value={'all'}>All</MenuAgingSummary>
-        //       {roomData?.map(room => (
-        //         <MenuAgingSummary value={room.name} key={`menu-${room.pk}`}>
-        //           {room.name}
-        //         </MenuAgingSummary>
-        //       ))}
-        //     </Select>
-        //   </>
-        // )}
         enableStickyHeader
         enableStickyFooter
         manualFiltering
