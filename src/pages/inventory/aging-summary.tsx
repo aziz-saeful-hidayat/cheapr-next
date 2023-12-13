@@ -311,18 +311,14 @@ const Example = (props: any) => {
         header: 'Total Value',
         enableEditing: false,
         size: 75,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{row.original.sum != '0.00' ? row.original.sum : ''}</Box>
-        )
+        Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.sum)}</Box>
       },
       {
         accessorKey: 'avg',
         header: 'Avg. Rate',
         enableEditing: false,
         size: 75,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{row.original.avg != '0.00' ? row.original.avg : ''}</Box>
-        )
+        Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.avg)}</Box>
       }
     ],
     []
