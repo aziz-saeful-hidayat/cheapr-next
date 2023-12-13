@@ -228,12 +228,6 @@ const Example = (props: any) => {
   const columns = useMemo<MRT_ColumnDef<AgingSummary>[]>(
     () => [
       {
-        accessorKey: '.pn',
-        header: 'MPN',
-        enableEditing: false,
-        size: 75
-      },
-      {
         accessorKey: 'make',
         header: 'MAKE',
         enableEditing: false,
@@ -246,58 +240,89 @@ const Example = (props: any) => {
         size: 75
       },
       {
+        accessorKey: 'mpn',
+        header: 'MPN',
+        enableEditing: false,
+        size: 75
+      },
+      {
         accessorKey: 'under_30_days',
         header: '0 - 30D',
         enableEditing: false,
-        size: 75
+        size: 75,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{row.original.under_30_days ? row.original.under_30_days : ''}</Box>
+        )
       },
       {
         accessorKey: 'between_30_60_days',
         header: '31-60D',
         enableEditing: false,
-        size: 75
+        size: 75,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{row.original.between_30_60_days ? row.original.between_30_60_days : ''}</Box>
+        )
       },
       {
         accessorKey: 'between_60_90_days',
         header: '61-90D',
         enableEditing: false,
-        size: 75
+        size: 75,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{row.original.between_60_90_days ? row.original.between_60_90_days : ''}</Box>
+        )
       },
       {
         accessorKey: 'between_90_180_days',
         header: '91-180D',
         enableEditing: false,
-        size: 75
+        size: 75,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{row.original.between_90_180_days ? row.original.between_90_180_days : ''}</Box>
+        )
       },
       {
         accessorKey: 'between_180_365_days',
         header: '181-365D',
         enableEditing: false,
-        size: 75
+        size: 75,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{row.original.between_180_365_days ? row.original.between_180_365_days : ''}</Box>
+        )
       },
       {
         accessorKey: 'more_365_days',
         header: 'Above 1Y',
         enableEditing: false,
-        size: 75
+        size: 75,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{row.original.more_365_days ? row.original.more_365_days : ''}</Box>
+        )
       },
       {
         accessorKey: 'qty',
         header: 'Total Qty',
         enableEditing: false,
-        size: 75
+        size: 75,
+        Cell: ({ renderedCellValue, row }) => <Box component='span'>{row.original.qty ? row.original.qty : ''}</Box>
       },
       {
         accessorKey: 'sum',
         header: 'Total Value',
         enableEditing: false,
-        size: 75
+        size: 75,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{row.original.sum != '0.00' ? row.original.sum : ''}</Box>
+        )
       },
       {
         accessorKey: 'avg',
         header: 'Avg. Rate',
         enableEditing: false,
-        size: 75
+        size: 75,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{row.original.avg != '0.00' ? row.original.avg : ''}</Box>
+        )
       }
     ],
     []
