@@ -1765,10 +1765,12 @@ const SalesDetail = (props: any) => {
       })
         .then(response => response.json())
         .then(json => {
-          console.log(json)
           if (json.pk) {
-            setRefresh(refresh + 1)
+            console.log(json)
           }
+        })
+        .finally(() => {
+          setRefresh(refresh + 1)
         })
     } else if (key === 'buying.order_date') {
       payload['order_date'] = value
@@ -1783,8 +1785,11 @@ const SalesDetail = (props: any) => {
         .then(response => response.json())
         .then(json => {
           if (json.pk) {
-            setRefresh(refresh + 1)
+            console.log(json)
           }
+        })
+        .finally(() => {
+          setRefresh(refresh + 1)
         })
     } else if (key === 'total_cost' || key === 'shipping_cost') {
       payload[key as keyof Payload] = value
@@ -1798,10 +1803,12 @@ const SalesDetail = (props: any) => {
       })
         .then(response => response.json())
         .then(json => {
-          console.log(json)
           if (json.pk) {
-            setRefresh(refresh + 1)
+            console.log(json)
           }
+        })
+        .finally(() => {
+          setRefresh(refresh + 1)
         })
     } else if (key === 'tracking.fullcarrier.name') {
       payload['fullcarrier'] = value
@@ -1817,8 +1824,11 @@ const SalesDetail = (props: any) => {
           .then(response => response.json())
           .then(json => {
             if (json.pk) {
-              setRefresh(refresh + 1)
+              console.log(json)
             }
+          })
+          .finally(() => {
+            setRefresh(refresh + 1)
           })
       } else {
         fetch(`https://cheapr.my.id/tracking/`, {
@@ -1843,10 +1853,12 @@ const SalesDetail = (props: any) => {
                 .then(response => response.json())
                 .then(json => {
                   if (json.pk) {
-                    setRefresh(refresh + 1)
+                    console.log(json)
                   }
                 })
-              setRefresh(refresh + 1)
+                .finally(() => {
+                  setRefresh(refresh + 1)
+                })
             }
           })
       }
@@ -1866,7 +1878,9 @@ const SalesDetail = (props: any) => {
               console.log(json)
             }
           })
-        setRefresh(refresh + 1)
+          .finally(() => {
+            setRefresh(refresh + 1)
+          })
       } else {
         payload['tracking_number'] = value
         fetch(`https://cheapr.my.id/tracking/?tracking_number=${value}`, {
@@ -1902,13 +1916,13 @@ const SalesDetail = (props: any) => {
                     })
                       .then(response => response.json())
                       .then(json => {
-                        console.log(`https://cheapr.my.id/sales_items/${cell.row.original.salesitem_pk}/`)
-
                         if (json.pk) {
-                          setRefresh(refresh + 1)
+                          console.log(json)
                         }
                       })
-                    setRefresh(refresh + 1)
+                      .finally(() => {
+                        setRefresh(refresh + 1)
+                      })
                   }
                 })
             } else {
@@ -1923,10 +1937,12 @@ const SalesDetail = (props: any) => {
                 .then(response => response.json())
                 .then(json => {
                   if (json.pk) {
-                    setRefresh(refresh + 1)
+                    console.log(json)
                   }
                 })
-              setRefresh(refresh + 1)
+                .finally(() => {
+                  setRefresh(refresh + 1)
+                })
             }
           })
       }
@@ -1943,11 +1959,12 @@ const SalesDetail = (props: any) => {
         })
           .then(response => response.json())
           .then(json => {
-            console.log(json)
-
             if (json.pk) {
-              setRefresh(refresh + 1)
+              console.log(json)
             }
+          })
+          .finally(() => {
+            setRefresh(refresh + 1)
           })
       } else {
         fetch(`https://cheapr.my.id/tracking/`, {
@@ -1973,13 +1990,13 @@ const SalesDetail = (props: any) => {
               })
                 .then(response => response.json())
                 .then(json => {
-                  console.log(json)
-
                   if (json.pk) {
-                    setRefresh(refresh + 1)
+                    console.log(json)
                   }
                 })
-              setRefresh(refresh + 1)
+                .finally(() => {
+                  setRefresh(refresh + 1)
+                })
             }
           })
       }
@@ -1999,7 +2016,9 @@ const SalesDetail = (props: any) => {
               console.log(json)
             }
           })
-        setRefresh(refresh + 1)
+          .finally(() => {
+            setRefresh(refresh + 1)
+          })
       } else {
         payload['tracking_number'] = value
         fetch(`https://cheapr.my.id/tracking/?tracking_number=${value}`, {
@@ -2035,10 +2054,12 @@ const SalesDetail = (props: any) => {
                       .then(response => response.json())
                       .then(json => {
                         if (json.pk) {
-                          setRefresh(refresh + 1)
+                          console.log(json)
                         }
                       })
-                    setRefresh(refresh + 1)
+                      .finally(() => {
+                        setRefresh(refresh + 1)
+                      })
                   }
                 })
             } else {
@@ -2053,10 +2074,12 @@ const SalesDetail = (props: any) => {
                 .then(response => response.json())
                 .then(json => {
                   if (json.pk) {
-                    setRefresh(refresh + 1)
+                    console.log(json)
                   }
                 })
-              setRefresh(refresh + 1)
+                .finally(() => {
+                  setRefresh(refresh + 1)
+                })
             }
           })
       }
@@ -2074,8 +2097,11 @@ const SalesDetail = (props: any) => {
           .then(response => response.json())
           .then(json => {
             if (json.pk) {
-              setRefresh(refresh + 1)
+              console.log(json)
             }
+          })
+          .finally(() => {
+            setRefresh(refresh + 1)
           })
       } else {
         fetch(`https://cheapr.my.id/tracking/`, {
@@ -2103,7 +2129,9 @@ const SalesDetail = (props: any) => {
                     setRefresh(refresh + 1)
                   }
                 })
-              setRefresh(refresh + 1)
+                .finally(() => {
+                  setRefresh(refresh + 1)
+                })
             }
           })
       }
@@ -2121,8 +2149,11 @@ const SalesDetail = (props: any) => {
           .then(response => response.json())
           .then(json => {
             if (json.pk) {
-              setRefresh(refresh + 1)
+              console.log(json)
             }
+          })
+          .finally(() => {
+            setRefresh(refresh + 1)
           })
       }
     } else if (key === 'refunded') {
@@ -2137,10 +2168,12 @@ const SalesDetail = (props: any) => {
         .then(response => response.json())
         .then(json => {
           if (json.pk) {
-            setRefresh(refresh + 1)
+            console.log(json)
           }
         })
-      setRefresh(refresh + 1)
+        .finally(() => {
+          setRefresh(refresh + 1)
+        })
     } else {
       fetch(`https://cheapr.my.id/tracking/`, {
         method: 'POST',
@@ -2164,10 +2197,12 @@ const SalesDetail = (props: any) => {
               .then(response => response.json())
               .then(json => {
                 if (json.pk) {
-                  setRefresh(refresh + 1)
+                  console.log(json)
                 }
               })
-            setRefresh(refresh + 1)
+              .finally(() => {
+                setRefresh(refresh + 1)
+              })
           }
         })
     }
