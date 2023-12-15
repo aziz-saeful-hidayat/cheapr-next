@@ -319,12 +319,6 @@ const Example = (props: any) => {
   const columns = useMemo<MRT_ColumnDef<Item>[]>(
     () => [
       {
-        accessorKey: 'product.mpn',
-        header: 'MPN',
-        enableEditing: false,
-        size: 75
-      },
-      {
         accessorKey: 'product.make',
         header: 'MAKE',
         enableEditing: false,
@@ -337,56 +331,45 @@ const Example = (props: any) => {
         size: 75
       },
       {
+        accessorKey: 'product.mpn',
+        header: 'MPN',
+        enableEditing: false,
+        size: 75
+      },
+      {
         accessorKey: 'serial',
         header: 'Serial',
         size: 75
       },
       {
-        id: 'item',
-        accessorFn: row =>
-          row.product ? `${row.product?.make} - ${row.product?.model} - ${row.product?.mpn}` : row.title,
-        header: 'ITEM',
+        id: 'aging',
+        accessorFn: row => (row.aging ? `${row.aging} days` : ''),
+        header: 'AGE (Days)',
         enableEditing: false,
         size: 75
       },
       {
-        accessorKey: 'buying.sales.order_id',
-        header: 'TYPE',
+        accessorKey: 'buying.delivery_date',
+        header: 'Date Secured',
         enableEditing: false,
         size: 75
       },
       {
-        accessorKey: 'buying.order_date',
-        header: 'P.DATE',
+        accessorKey: 'buying.purchase_link',
+        header: 'Source Link',
         enableEditing: false,
-        size: 75
-      },
-      {
-        accessorKey: 'buying.return_up_to_date',
-        header: 'RET.WIN',
-        enableEditing: false,
-        size: 75
-      },
-      {
-        id: 'source',
-        header: 'Source',
         size: 75,
-        muiEditTextFieldProps: {
-          select: true, //change to select for a dropdown
-          children: channelData?.map(channel => (
-            <MenuItem key={channel.pk} value={channel.name}>
-              {channel.name}
-            </MenuItem>
-          ))
-        },
         Cell: ({ renderedCellValue, row }) => (
           <Box
             sx={{
               display: 'flex',
-              alignItems: 'center'
+              alignItems: 'center',
+              gap: '1rem'
             }}
           >
-            <span>{channelData?.find(c => c.pk == row.original.buying.channel)?.name}</span>
+            <Link target='_blank' rel='noreferrer' href={row.original.buying.purchase_link}>
+              {row.original.buying.purchase_link && 'Open'}
+            </Link>
           </Box>
         )
       },
@@ -413,48 +396,16 @@ const Example = (props: any) => {
         header: 'VENDOR',
         size: 75
       },
-      {
-        accessorKey: 'room.name',
-        header: 'LOC',
-        size: 75,
-        muiEditTextFieldProps: {
-          select: true, //change to select for a dropdown
-          children: roomData?.map(room => (
-            <MenuItem key={room.pk} value={room.name}>
-              {room.name}
-            </MenuItem>
-          ))
-        }
-      },
-      {
-        accessorKey: 'comment',
-        header: 'COMMENTS',
-        size: 200
-      },
-      {
-        accessorKey: 'itemsales.manager.name',
-        accessorFn: row =>
-          ['Holding Area', 'Approval'].includes(row.itemsales?.manager?.name) ? '' : row.itemsales?.manager?.name,
-        header: 'PURCHASER',
-        size: 75,
-        muiEditTextFieldProps: {
-          select: true, //change to select for a dropdown
-          children: managerData?.map(manager => (
-            <MenuItem key={manager.pk} value={manager.name}>
-              {manager.name}
-            </MenuItem>
-          ))
-        }
-      },
+
       {
         accessorKey: 'total_cost',
-        header: 'ITM.COST',
+        header: 'Rate',
         Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.total_cost)}</Box>,
         size: 75
       },
       {
         accessorKey: 'shipping_cost',
-        header: 'LABEL',
+        header: 'Label',
         Cell: ({ renderedCellValue, row }) => (
           <Box component='span'>{formatterUSDStrip(row.original.shipping_cost)}</Box>
         ),
@@ -462,54 +413,8 @@ const Example = (props: any) => {
       },
       {
         accessorKey: 'all_cost',
-        header: 'TTL.COST',
+        header: 'Amount',
         Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.all_cost)}</Box>,
-        size: 75
-      },
-      {
-        accessorKey: 'itemsales.selling.channel_order_id',
-        header: 'S.O',
-        size: 75
-      },
-      {
-        accessorKey: 'itemsales.selling.seller_name',
-        header: 'STORE',
-        size: 75
-      },
-      {
-        accessorKey: 'itemsales.selling.gross_sales',
-        header: 'NET.SALE',
-        Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSDStrip(row.original.itemsales?.selling?.gross_sales)}</Box>
-        ),
-        size: 75
-      },
-      {
-        accessorKey: 'itemsales.selling.ss_shipping_cost',
-        header: 'LABEL',
-        Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSDStrip(row.original.itemsales?.selling?.ss_shipping_cost)}</Box>
-        ),
-        size: 75
-      },
-      {
-        accessorKey: 'itemsales.selling.profit',
-        header: 'PROFIT',
-        Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSDStrip(row.original.itemsales?.selling?.profit)}</Box>
-        ),
-        muiTableBodyCellProps: ({ cell, table }) => {
-          if (cell.row?.original?.itemsales?.selling?.profit && cell.row?.original?.itemsales?.selling?.profit < 0) {
-            return {
-              align: 'right',
-              sx: { backgroundColor: '#ffcccb', color: '#4e0100' }
-            }
-          } else {
-            return {
-              align: 'right'
-            }
-          }
-        },
         size: 75
       }
     ],

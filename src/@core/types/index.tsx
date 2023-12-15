@@ -255,6 +255,7 @@ export type Item = {
   pk: number
   item_id: string
   title: string
+  aging: number
   buying: {
     pk: number
     order_id: string
@@ -508,4 +509,20 @@ export type AgingSummary = {
   qty: number
   sum: string
   avg: string
+}
+
+export type InventoryAging = {
+  channel_order_id: string
+  inventoryitems__product__make: string
+  inventoryitems__product__model: string
+  inventoryitems__product__mpn: string
+  purchase_link: string
+  seller__name: string
+  status: string
+  pk__count: number
+  rate: string
+  label: string
+  amount: string
+  order_date: string
+  delivery_date: string
 }
