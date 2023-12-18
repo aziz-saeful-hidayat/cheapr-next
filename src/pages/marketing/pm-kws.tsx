@@ -643,7 +643,7 @@ const Example = (props: any) => {
         size: 150
       }
     ],
-    []
+    [pmData, session]
   )
   useEffect(() => {
     setPagination({
