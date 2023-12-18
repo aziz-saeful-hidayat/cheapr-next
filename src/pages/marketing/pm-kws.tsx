@@ -579,7 +579,20 @@ const Example = (props: any) => {
       {
         accessorKey: 'keyword',
         header: 'Keyword',
-        size: 150
+        size: 150,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            <Link target='_blank' rel='noreferrer' href={row.original.target_url}>
+              {row.original.keyword || 'Open'}
+            </Link>
+          </Box>
+        )
       },
       {
         accessorKey: 'condition',

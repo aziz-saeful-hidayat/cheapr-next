@@ -170,6 +170,42 @@ export const CreateNewPMKw = ({ open, columns, onClose, onSubmit, pmData, sessio
               name={'keyword'}
               onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
             />
+            <TextField
+              key={'makers'}
+              label={'Make'}
+              name={'makers'}
+              onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
+            />
+            <TextField
+              key={'condition'}
+              label={'Condition'}
+              name={'condition'}
+              onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
+            />
+            <TextField
+              key={'buying_format'}
+              label={'Buying Format'}
+              name={'buying_format'}
+              onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
+            />
+            <TextField
+              key={'item_location'}
+              label={'Item Location'}
+              name={'item_location'}
+              onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
+            />
+            <TextField
+              key={'exclude'}
+              label={'Exclude'}
+              name={'exclude'}
+              onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
+            />
+            <TextField
+              key={'target_url'}
+              label={'Target URL'}
+              name={'target_url'}
+              onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
+            />
           </Stack>
         </form>
       </DialogContent>
