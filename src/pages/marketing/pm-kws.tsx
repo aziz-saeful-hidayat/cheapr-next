@@ -521,14 +521,14 @@ const Example = (props: any) => {
 
   const handleSaveCell = (cell: MRT_Cell<PMKws>, value: any) => {
     const key = cell.column.id
-    const cs = pmData.find(cs => cs.name == value)
+    const pm = pmData.find(pm => pm.name == value)
     console.log(key, value)
     const oldData = [...tableData]
     const newData: any = [...tableData]
     const payload: any = {}
-    if (key === 'cs.name') {
-      payload['cs'] = cs?.pk
-      newData[cell.row.index]['cs'] = cs
+    if (key === 'pm.name') {
+      payload['pm'] = pm?.pk
+      newData[cell.row.index]['pm'] = pm
     } else {
       payload[key as keyof Payload] = value
       newData[cell.row.index][cell.column.id as keyof PMKws] = value
@@ -563,13 +563,20 @@ const Example = (props: any) => {
     ],
     []
   )
-
   const columns = useMemo<MRT_ColumnDef<PMKws>[]>(
     () => [
       {
         accessorKey: 'pm.name',
         header: 'PM Name',
-        size: 150
+        size: 150,
+        muiEditTextFieldProps: {
+          select: true, //change to select for a dropdown
+          children: pmData?.map(pm => (
+            <MenuItem key={pm.pk} value={pm.name}>
+              {pm.name}
+            </MenuItem>
+          ))
+        }
       },
       {
         accessorKey: 'makers',
@@ -617,7 +624,18 @@ const Example = (props: any) => {
       {
         accessorKey: 'target_url',
         header: 'Target URL',
-        size: 150
+        size: 150,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            Edit
+          </Box>
+        )
       },
       {
         accessorKey: 'updated_at',
