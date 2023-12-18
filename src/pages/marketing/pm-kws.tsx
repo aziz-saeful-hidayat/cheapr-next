@@ -572,7 +572,7 @@ const Example = (props: any) => {
         size: 150
       },
       {
-        accessorKey: 'make.name',
+        accessorKey: 'makers',
         header: 'Make',
         size: 150
       },
@@ -592,7 +592,7 @@ const Example = (props: any) => {
         size: 150
       },
       {
-        accessorKey: 'location',
+        accessorKey: 'item_location',
         header: 'Item Location',
         size: 150
       },
@@ -602,7 +602,7 @@ const Example = (props: any) => {
         size: 150
       },
       {
-        accessorKey: 'url',
+        accessorKey: 'target_url',
         header: 'Target URL',
         size: 150
       },

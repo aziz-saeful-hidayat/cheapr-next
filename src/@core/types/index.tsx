@@ -481,10 +481,16 @@ export type PM = {
   name: string
 }
 
+export type Make = {
+  pk: number
+  name: string
+}
+
 export type PMKws = {
   pk: number
   pm: PM
-  make: string
+  make: Make
+  makers: string
   keyword: string
   condition: string
   buying_format: string
