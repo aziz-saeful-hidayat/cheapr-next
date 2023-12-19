@@ -7,7 +7,8 @@ import {
   type MRT_PaginationState,
   type MRT_SortingState,
   MRT_TableOptions,
-  MRT_Cell
+  MRT_Cell,
+  MRT_RowSelectionState
 } from 'material-react-table'
 import {
   Box,
@@ -281,6 +282,7 @@ interface ManagerOptionProps {
   pk?: number
   modalOpen: boolean
   onClose: () => void
+  onSubmit?: (data: { manager: number }) => void
   setRefresh: any
   managerData: Manager[]
 }
@@ -436,28 +438,33 @@ export const ManagerOptionModal = ({
   pk,
   modalOpen,
   onClose,
+  onSubmit,
   setRefresh,
   managerData
 }: ManagerOptionProps) => {
   const [values, setValues] = useState<any>({})
 
   const handleSubmit = () => {
-    fetch(`https://cheapr.my.id/sales_items/${pk}/`, {
-      // note we are going to /1
-      method: 'PATCH',
-      headers: new Headers({
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json'
-      }),
-      body: JSON.stringify(values)
-    })
-      .then(response => response.json())
-      .then(json => {
-        console.log(json)
-        if (json.pk) {
-          setRefresh((r: number) => r + 1)
-        }
+    if (onSubmit) {
+      onSubmit(values)
+    } else {
+      fetch(`https://cheapr.my.id/sales_items/${pk}/`, {
+        // note we are going to /1
+        method: 'PATCH',
+        headers: new Headers({
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        }),
+        body: JSON.stringify(values)
       })
+        .then(response => response.json())
+        .then(json => {
+          console.log(json)
+          if (json.pk) {
+            setRefresh((r: number) => r + 1)
+          }
+        })
+    }
     onClose()
   }
   const [isopen, setOpen] = useState(false)
@@ -522,6 +529,7 @@ const Example = (props: any) => {
     pageIndex: 0,
     pageSize: 50
   })
+  const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({})
   const [tabActive, setTabActive] = useState('all')
   const [refresh, setRefresh] = useState(0)
 
@@ -602,6 +610,7 @@ const Example = (props: any) => {
   const [detailModalOpen, setDetailModalOpen] = useState(false)
   const [salesItemPk, setSalesItemPk] = useState<number | undefined>()
   const [managerModalOpen, setManagerModalOpen] = useState(false)
+  const [managerModal2Open, setManagerModal2Open] = useState(false)
   const [custHistoryModalOpen, setCustHistoryModalOpen] = useState(false)
   const [subHistoryModalOpen, setSubHistoryModalOpen] = useState(false)
   const [historyData, setHistoryData] = useState<HistoricalData[]>([])
@@ -784,6 +793,27 @@ const Example = (props: any) => {
       })
   }
 
+  const bulkEditManager = (data: { manager: number }) => {
+    console.log(data.manager)
+    const values = { manager: data.manager, sales: Object.keys(rowSelection).map(key => parseInt(key)) }
+    console.log(values)
+    fetch(`https://cheapr.my.id/bulk_edit_manager/`, {
+      method: 'POST',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify(values)
+    })
+      .then(response => response.json())
+      .then(json => {
+        console.log(json)
+      })
+      .finally(() => {
+        setRowSelection({})
+        setRefresh(r => r + 1)
+      })
+  }
   const columns = useMemo<MRT_ColumnDef<SellingOrder>[]>(
     () => [
       {
@@ -1464,12 +1494,21 @@ const Example = (props: any) => {
         onGlobalFilterChange={setGlobalFilter}
         onPaginationChange={setPagination}
         onSortingChange={setSorting}
+        enableRowSelection
+        onRowSelectionChange={setRowSelection}
         positionActionsColumn='last'
+        getRowId={row => row?.pk?.toString()}
         renderTopToolbarCustomActions={() => (
           <>
-            <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
-              Add New Sales
-            </Button>
+            {Object.keys(rowSelection).length > 0 ? (
+              <Button color='success' onClick={() => setManagerModal2Open(true)} variant='contained'>
+                Bulk Assign
+              </Button>
+            ) : (
+              <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
+                Add New Sales
+              </Button>
+            )}
             <Select labelId='demo-select-small-label' id='demo-select-small' value={tabActive} onChange={handleChange}>
               <MenuItem value={'all'}>All</MenuItem>
               {managerData?.map(manager => (
@@ -1496,7 +1535,8 @@ const Example = (props: any) => {
           pagination,
           showAlertBanner: isError,
           showProgressBars: isFetching,
-          sorting
+          sorting,
+          rowSelection
         }}
       />
       <CreateNewAccountModal
@@ -1526,6 +1566,15 @@ const Example = (props: any) => {
         pk={salesItemPk}
         modalOpen={managerModalOpen}
         onClose={() => setManagerModalOpen(false)}
+        setRefresh={setRefresh}
+        managerData={managerData}
+      />
+      <ManagerOptionModal
+        session={session}
+        pk={salesItemPk}
+        modalOpen={managerModal2Open}
+        onClose={() => setManagerModal2Open(false)}
+        onSubmit={values => bulkEditManager(values)}
         setRefresh={setRefresh}
         managerData={managerData}
       />
