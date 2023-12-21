@@ -101,6 +101,21 @@ const navigation = (): VerticalNavItemsType => {
       path: '/pms'
     },
     {
+      title: 'Makes',
+      icon: AccountCogOutline as unknown as ReactNode,
+      path: '/makes'
+    },
+    {
+      title: 'Product Types',
+      icon: AccountCogOutline as unknown as ReactNode,
+      path: '/product-types'
+    },
+    {
+      title: 'Product Conditions',
+      icon: AccountCogOutline as unknown as ReactNode,
+      path: '/product-types'
+    },
+    {
       title: 'HA Rooms',
       icon: AccountCogOutline as unknown as ReactNode,
       path: '/room'

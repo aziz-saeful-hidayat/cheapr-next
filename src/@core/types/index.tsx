@@ -124,6 +124,21 @@ export type Manager = {
   name: string
 }
 
+export type ProductMakes = {
+  pk: number
+  name: string
+}
+
+export type ProductTypes = {
+  pk: number
+  name: string
+}
+
+export type ProductCondition = {
+  pk: number
+  name: string
+}
+
 export type CustomerService = {
   pk: number
   name: string

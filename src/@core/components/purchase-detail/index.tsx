@@ -462,15 +462,6 @@ const PurchaseDetail = (props: any) => {
                   marginBottom: 2
                 }}
               >
-                <img
-                  aria-owns={open ? 'mouse-over-popover' : undefined}
-                  onMouseEnter={handlePopoverOpen}
-                  onMouseLeave={handlePopoverClose}
-                  alt='avatar'
-                  height={30}
-                  src={row.original.product.image ?? '/images/no_image.png'}
-                  loading='lazy'
-                />
                 {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
                 <span
                   onClick={() => {
@@ -667,15 +658,6 @@ const PurchaseDetail = (props: any) => {
                   marginBottom: 2
                 }}
               >
-                <img
-                  aria-owns={open ? 'mouse-over-popover' : undefined}
-                  onMouseEnter={handlePopoverOpen}
-                  onMouseLeave={handlePopoverClose}
-                  alt='avatar'
-                  height={30}
-                  src={row.original.product.image ?? '/images/no_image.png'}
-                  loading='lazy'
-                />
                 {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
                 <span
                   onClick={() => {

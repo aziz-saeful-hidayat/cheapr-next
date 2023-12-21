@@ -69,6 +69,9 @@ import {
   PM
 } from 'src/@core/types'
 import PickPM from '../inputs/pm'
+import PickProductMakes from '../inputs/make'
+import PickProductTypes from '../inputs/product-type'
+import PickProductCondition from '../inputs/product-condition'
 
 type ItemOption = {
   pk: number
@@ -106,7 +109,11 @@ interface CreateModalProps {
 export const CreateNewPMKw = ({ open, columns, onClose, onSubmit, pmData, session }: CreateModalProps) => {
   const [values, setValues] = useState<any>(() =>
     columns.reduce((acc, column) => {
-      acc[column.accessorKey ?? ''] = ''
+      if (column.accessorKey == 'condition') {
+        acc[column.accessorKey] = []
+      } else {
+        acc[column.accessorKey ?? ''] = ''
+      }
 
       return acc
     }, {} as any)
@@ -164,7 +171,11 @@ export const CreateNewPMKw = ({ open, columns, onClose, onSubmit, pmData, sessio
             }}
           >
             <PickPM values={values} setValues={setValues} session={session} />
-            <TextField
+
+            <PickProductMakes values={values} setValues={setValues} session={session} />
+            <PickProductTypes values={values} setValues={setValues} session={session} />
+            <PickProductCondition values={values} setValues={setValues} session={session} />
+            {/* <TextField
               key={'keyword'}
               label={'Keyword'}
               name={'keyword'}
@@ -175,7 +186,8 @@ export const CreateNewPMKw = ({ open, columns, onClose, onSubmit, pmData, sessio
               label={'Make'}
               name={'makers'}
               onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
-            />
+            /> */}
+
             <TextField
               key={'condition'}
               label={'Condition'}

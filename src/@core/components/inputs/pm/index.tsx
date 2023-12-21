@@ -30,7 +30,7 @@ const PickPM = ({ values, setValues, session }: PickPMProps) => {
       value={values.channel?.name}
       key={'pm.name'}
       name={'PM'}
-      label='PM'
+      label='Select PM'
       select
       onChange={e => setValues({ ...values, pm: { name: e.target.value } })}
     >
