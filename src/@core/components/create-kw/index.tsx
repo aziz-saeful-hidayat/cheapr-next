@@ -174,8 +174,15 @@ export const CreateNewPMKw = ({ open, columns, onClose, onSubmit, pmData, sessio
 
             <PickProductMakes values={values} setValues={setValues} session={session} />
             <PickProductTypes values={values} setValues={setValues} session={session} />
-            <PickProductCondition values={values} setValues={setValues} session={session} />
-            {/* <TextField
+            <TextField
+              key={'keyword'}
+              label={'Keyword'}
+              name={'keyword'}
+              disabled={true}
+              value={`${values.make?.name || ''} ${values.types?.name || ''}`}
+            />
+            {/* <PickProductCondition values={values} setValues={setValues} session={session} />
+            <TextField
               key={'keyword'}
               label={'Keyword'}
               name={'keyword'}
@@ -186,7 +193,7 @@ export const CreateNewPMKw = ({ open, columns, onClose, onSubmit, pmData, sessio
               label={'Make'}
               name={'makers'}
               onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
-            /> */}
+            />
 
             <TextField
               key={'condition'}
@@ -217,7 +224,7 @@ export const CreateNewPMKw = ({ open, columns, onClose, onSubmit, pmData, sessio
               label={'Target URL'}
               name={'target_url'}
               onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
-            />
+            /> */}
           </Stack>
         </form>
       </DialogContent>

@@ -34,10 +34,15 @@ const PickProductCondition = ({ values, setValues, session }: PickProductConditi
   }, [session])
   const [createProductConditionModalOpen, setCreateProductConditionModalOpen] = useState(false)
   const handleUpdate = (condition: string, status: boolean) => {
+    console.log(condition)
+    console.log(status)
     if (status) {
-      setValues((data: any) => ({ ...data, condition: data.condition.push(condition) }))
+      setValues((prevState: any) => ({ ...prevState, condition: [...prevState.condition, condition] }))
     } else {
-      setValues((data: any) => ({ ...data, condition: data.condition.filter((e: any) => e !== condition) }))
+      setValues((prevState: any) => ({
+        ...prevState,
+        condition: prevState.condition.filter((e: any) => e !== condition)
+      }))
     }
   }
   console.log(values)
@@ -46,14 +51,19 @@ const PickProductCondition = ({ values, setValues, session }: PickProductConditi
       <FormControl sx={{ m: 3 }} component='fieldset' variant='standard'>
         <FormLabel component='legend'>Condition</FormLabel>
         <FormGroup>
-          {pConditionData?.map(condition => (
+          {pConditionData?.map((condition, index) => (
             <FormControlLabel
+              key={index}
               control={
                 <Checkbox
-                  checked={values.condition?.filter((el: any) => el === condition.name)}
+                  checked={values?.condition?.filter((el: any) => el === condition.name).length != 0}
                   onChange={() =>
-                    handleUpdate(condition.name, !values.condition?.filter((el: any) => el === condition.name))
+                    handleUpdate(
+                      condition.name,
+                      !(values?.condition?.filter((el: any) => el === condition.name).length != 0)
+                    )
                   }
+                  inputProps={{ 'aria-label': 'controlled' }}
                   name={condition.name}
                 />
               }
