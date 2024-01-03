@@ -663,52 +663,6 @@ const Example = (props: any) => {
         size: 50,
         enableEditing: false
       }
-      // {
-      //   accessorKey: 'makers',
-      //   header: 'Make',
-      //   size: 150
-      // },
-      // {
-      //   accessorKey: 'condition',
-      //   header: 'Condition',
-      //   size: 150
-      // },
-      // {
-      //   accessorKey: 'buying_format',
-      //   header: 'Buying Format',
-      //   size: 150
-      // },
-      // {
-      //   accessorKey: 'item_location',
-      //   header: 'Item Location',
-      //   size: 150
-      // },
-      // {
-      //   accessorKey: 'exclude',
-      //   header: 'Exclude',
-      //   size: 150
-      // },
-      // {
-      //   accessorKey: 'target_url',
-      //   header: 'Target URL',
-      //   size: 150,
-      //   Cell: ({ renderedCellValue, row }) => (
-      //     <Box
-      //       sx={{
-      //         display: 'flex',
-      //         alignItems: 'center',
-      //         gap: '1rem'
-      //       }}
-      //     >
-      //       Edit
-      //     </Box>
-      //   )
-      // },
-      // {
-      //   accessorKey: 'updated_at',
-      //   header: 'Last Saved',
-      //   size: 150
-      // }
     ],
     [pmData, session]
   )
@@ -750,41 +704,41 @@ const Example = (props: any) => {
         }}
         enableEditing
         enableColumnActions={false}
-        // enableRowActions
-        // renderRowActions={({ row }) => (
-        //   <Box sx={{ display: 'flex', gap: '1rem' }}>
-        //     {/* <Tooltip arrow placement='left' title='Edit'>
-        //       <IconButton onClick={() => table.setEditingRow(row)}>
-        //         <Edit />
-        //       </IconButton>
-        //     </Tooltip> */}
-        //     <Tooltip arrow placement='right' title='Delete'>
-        //       <IconButton
-        //         color='error'
-        //         onClick={() => {
-        //           if (!confirm(`Are you sure you want to delete this keyword #${row.original?.keyword}`)) {
-        //             return
-        //           }
-        //           fetch(`https://cheapr.my.id/pm_kws/${row.original.pk}/`, {
-        //             method: 'DELETE',
-        //             headers: new Headers({
-        //               Authorization: `Bearer ${session?.accessToken}`,
-        //               'Content-Type': 'application/json'
-        //             })
-        //           })
-        //             .then(response => response.status)
-        //             .then(status => {
-        //               if (status == 204) {
-        //               }
-        //             })
-        //             .finally(() => setRefresh(r => r + 1))
-        //         }}
-        //       >
-        //         <Delete />
-        //       </IconButton>
-        //     </Tooltip>
-        //   </Box>
-        // )}
+        enableRowActions={false}
+        renderRowActions={({ row }) => (
+          <Box sx={{ display: 'flex', gap: '1rem' }}>
+            {/* <Tooltip arrow placement='left' title='Edit'>
+              <IconButton onClick={() => table.setEditingRow(row)}>
+                <Edit />
+              </IconButton>
+            </Tooltip> */}
+            <Tooltip arrow placement='right' title='Delete'>
+              <IconButton
+                color='error'
+                onClick={() => {
+                  if (!confirm(`Are you sure you want to delete this keyword #${row.original?.keyword}`)) {
+                    return
+                  }
+                  fetch(`https://cheapr.my.id/pm_kws/${row.original.pk}/`, {
+                    method: 'DELETE',
+                    headers: new Headers({
+                      Authorization: `Bearer ${session?.accessToken}`,
+                      'Content-Type': 'application/json'
+                    })
+                  })
+                    .then(response => response.status)
+                    .then(status => {
+                      if (status == 204) {
+                      }
+                    })
+                    .finally(() => setRefresh(r => r + 1))
+                }}
+              >
+                <Delete />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        )}
         editDisplayMode='cell'
         muiEditTextFieldProps={({ cell }) => ({
           //onBlur is more efficient, but could use onChange instead
