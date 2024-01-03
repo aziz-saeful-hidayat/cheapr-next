@@ -361,8 +361,7 @@ const Example = (props: any) => {
       tabActive
     ],
     queryFn: async () => {
-      const fetchURL = new URL('/pm_kws/', 'https://cheapr.my.id')
-      fetchURL.searchParams.set('status', `R`)
+      const fetchURL = new URL('/product_manager/', 'https://cheapr.my.id')
       fetchURL.searchParams.set('limit', `${pagination.pageSize}`)
       fetchURL.searchParams.set('offset', `${pagination.pageIndex * pagination.pageSize}`)
       for (let f = 0; f < columnFilters.length; f++) {
@@ -389,9 +388,6 @@ const Example = (props: any) => {
       }
       fetchURL.searchParams.set('ordering', ordering)
 
-      fetchURL.searchParams.set('cs', tabActive != 'all' ? tabActive : '')
-      fetchURL.searchParams.set('fall_off_after', moment(Date.now()).format('YYYY-MM-DD'))
-
       console.log(fetchURL.href)
       const response = await fetch(fetchURL.href, {
         method: 'get',
@@ -408,15 +404,9 @@ const Example = (props: any) => {
   })
   const [tableData, setTableData] = useState<PMKws[]>(() => data?.results ?? [])
   const [pmData, setPmData] = useState<PM[]>([])
-
-  const [roomData, setRoomData] = useState<Room[]>([])
-
   const [createModalOpen, setCreateModalOpen] = useState(false)
-  const [addModalOpen, setAddModalOpen] = useState<PMKws>()
   const [detail, setDetail] = useState<number | undefined>()
   const [detailModalOpen, setDetailModalOpen] = useState(false)
-  const [custPk, setCustPk] = useState<number | undefined>()
-
   const handleChange = (event: SelectChangeEvent) => {
     setTabActive(event.target.value as string)
   }
@@ -566,9 +556,10 @@ const Example = (props: any) => {
   const columns = useMemo<MRT_ColumnDef<PMKws>[]>(
     () => [
       {
-        accessorKey: 'pm.name',
+        accessorKey: 'name',
         header: 'PM Name',
         size: 150,
+        enableEditing: false,
         muiEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: pmData?.map(pm => (
@@ -578,15 +569,12 @@ const Example = (props: any) => {
           ))
         }
       },
-      {
-        accessorKey: 'makers',
-        header: 'Make',
-        size: 150
-      },
+
       {
         accessorKey: 'keyword',
         header: 'Keyword',
         size: 150,
+        enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
           <Box
             sx={{
@@ -595,53 +583,132 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            <Link target='_blank' rel='noreferrer' href={row.original.target_url}>
-              {row.original.keyword || 'Open'}
-            </Link>
+            {row.original.keyword ? (
+              <Link target='_blank' rel='noreferrer' href={row.original.target_url}>
+                {row.original.keyword || 'Open'}
+              </Link>
+            ) : (
+              ' '
+            )}
           </Box>
         )
       },
       {
-        accessorKey: 'condition',
-        header: 'Condition',
-        size: 150
+        accessorKey: 'total_listing',
+        header: 'Total Listing',
+        maxSize: 150,
+        enableEditing: false,
+        muiTableBodyCellProps: {
+          align: 'center'
+        },
+        muiTableHeadCellProps: {
+          align: 'center'
+        }
       },
       {
-        accessorKey: 'buying_format',
-        header: 'Buying Format',
-        size: 150
+        accessorKey: 'vetted',
+        header: 'Vetted Out',
+        maxSize: 150,
+        enableEditing: false,
+        muiTableBodyCellProps: {
+          align: 'center'
+        },
+        muiTableHeadCellProps: {
+          align: 'center'
+        }
       },
       {
-        accessorKey: 'item_location',
-        header: 'Item Location',
-        size: 150
+        accessorFn: row => (row.total_listing ? (row.vetted * 100) / row.total_listing : 0),
+        id: 'vetted_percentage',
+        header: '%',
+        size: 50,
+        enableEditing: false
       },
       {
-        accessorKey: 'exclude',
-        header: 'Exclude',
-        size: 150
+        accessorFn: row => row.total_listing - row.vetted,
+        id: 'remaining',
+        header: 'Remaining',
+        maxSize: 150,
+        enableEditing: false,
+        muiTableBodyCellProps: {
+          align: 'center'
+        },
+        muiTableHeadCellProps: {
+          align: 'center'
+        }
       },
       {
-        accessorKey: 'target_url',
-        header: 'Target URL',
-        size: 150,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            Edit
-          </Box>
-        )
+        accessorFn: row => (row.total_listing ? ((row.total_listing - row.vetted) * 100) / row.total_listing : 0),
+        id: 'remaining_percentage',
+        header: '%',
+        size: 50,
+        enableEditing: false
       },
       {
-        accessorKey: 'updated_at',
-        header: 'Last Saved',
-        size: 150
+        accessorKey: 'need_response',
+        header: 'Response Awaited',
+        maxSize: 150,
+        enableEditing: false,
+        muiTableBodyCellProps: {
+          align: 'center'
+        },
+        muiTableHeadCellProps: {
+          align: 'center'
+        }
+      },
+      {
+        accessorFn: row => (row.total_listing ? (row.need_response * 100) / row.total_listing : 0),
+        id: 'response_percentage',
+        header: '%',
+        size: 50,
+        enableEditing: false
       }
+      // {
+      //   accessorKey: 'makers',
+      //   header: 'Make',
+      //   size: 150
+      // },
+      // {
+      //   accessorKey: 'condition',
+      //   header: 'Condition',
+      //   size: 150
+      // },
+      // {
+      //   accessorKey: 'buying_format',
+      //   header: 'Buying Format',
+      //   size: 150
+      // },
+      // {
+      //   accessorKey: 'item_location',
+      //   header: 'Item Location',
+      //   size: 150
+      // },
+      // {
+      //   accessorKey: 'exclude',
+      //   header: 'Exclude',
+      //   size: 150
+      // },
+      // {
+      //   accessorKey: 'target_url',
+      //   header: 'Target URL',
+      //   size: 150,
+      //   Cell: ({ renderedCellValue, row }) => (
+      //     <Box
+      //       sx={{
+      //         display: 'flex',
+      //         alignItems: 'center',
+      //         gap: '1rem'
+      //       }}
+      //     >
+      //       Edit
+      //     </Box>
+      //   )
+      // },
+      // {
+      //   accessorKey: 'updated_at',
+      //   header: 'Last Saved',
+      //   size: 150
+      // }
     ],
     [pmData, session]
   )
@@ -683,41 +750,41 @@ const Example = (props: any) => {
         }}
         enableEditing
         enableColumnActions={false}
-        enableRowActions
-        renderRowActions={({ row }) => (
-          <Box sx={{ display: 'flex', gap: '1rem' }}>
-            {/* <Tooltip arrow placement='left' title='Edit'>
-              <IconButton onClick={() => table.setEditingRow(row)}>
-                <Edit />
-              </IconButton>
-            </Tooltip> */}
-            <Tooltip arrow placement='right' title='Delete'>
-              <IconButton
-                color='error'
-                onClick={() => {
-                  if (!confirm(`Are you sure you want to delete this keyword #${row.original?.keyword}`)) {
-                    return
-                  }
-                  fetch(`https://cheapr.my.id/pm_kws/${row.original.pk}/`, {
-                    method: 'DELETE',
-                    headers: new Headers({
-                      Authorization: `Bearer ${session?.accessToken}`,
-                      'Content-Type': 'application/json'
-                    })
-                  })
-                    .then(response => response.status)
-                    .then(status => {
-                      if (status == 204) {
-                      }
-                    })
-                    .finally(() => setRefresh(r => r + 1))
-                }}
-              >
-                <Delete />
-              </IconButton>
-            </Tooltip>
-          </Box>
-        )}
+        // enableRowActions
+        // renderRowActions={({ row }) => (
+        //   <Box sx={{ display: 'flex', gap: '1rem' }}>
+        //     {/* <Tooltip arrow placement='left' title='Edit'>
+        //       <IconButton onClick={() => table.setEditingRow(row)}>
+        //         <Edit />
+        //       </IconButton>
+        //     </Tooltip> */}
+        //     <Tooltip arrow placement='right' title='Delete'>
+        //       <IconButton
+        //         color='error'
+        //         onClick={() => {
+        //           if (!confirm(`Are you sure you want to delete this keyword #${row.original?.keyword}`)) {
+        //             return
+        //           }
+        //           fetch(`https://cheapr.my.id/pm_kws/${row.original.pk}/`, {
+        //             method: 'DELETE',
+        //             headers: new Headers({
+        //               Authorization: `Bearer ${session?.accessToken}`,
+        //               'Content-Type': 'application/json'
+        //             })
+        //           })
+        //             .then(response => response.status)
+        //             .then(status => {
+        //               if (status == 204) {
+        //               }
+        //             })
+        //             .finally(() => setRefresh(r => r + 1))
+        //         }}
+        //       >
+        //         <Delete />
+        //       </IconButton>
+        //     </Tooltip>
+        //   </Box>
+        // )}
         editDisplayMode='cell'
         muiEditTextFieldProps={({ cell }) => ({
           //onBlur is more efficient, but could use onChange instead
@@ -765,6 +832,8 @@ const Example = (props: any) => {
           </Typography>
         )}
         rowCount={data?.count ?? 0}
+        enableExpanding={true}
+        getSubRows={originalRow => originalRow.kws_pm}
         state={{
           columnFilters,
           globalFilter,

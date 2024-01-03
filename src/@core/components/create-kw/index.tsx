@@ -234,7 +234,7 @@ export const CreateNewPMKw = ({ open, columns, onClose, onSubmit, pmData, sessio
           color='primary'
           onClick={handleSubmit}
           variant='contained'
-          disabled={!values.pm?.name || !values.keyword}
+          disabled={!values.pm?.name || !values.make?.name || !values.types?.name}
         >
           Create
         </Button>

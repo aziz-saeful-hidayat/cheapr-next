@@ -512,6 +512,21 @@ export type PMKws = {
   item_location: string
   exclude: string
   target_url: string
+  total_listing: number
+  vetted: number
+  need_response: number
+  kws_pm: PMKws[]
+}
+
+export type ExtraPM = {
+  pk: number
+  name: PM
+  keyword: string
+  target_url: string
+  total_listing: number
+  vetted: number
+  need_response: number
+  kws_pm: ExtraPM[]
 }
 
 export type AgingSummary = {
