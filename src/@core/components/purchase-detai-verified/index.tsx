@@ -438,8 +438,7 @@ const PurchaseDetailVerified = (props: any) => {
       {
         accessorKey: 'title',
         header: 'Item Name',
-        maxSize: 200,
-        enableEditing: false
+        maxSize: 200
       },
       {
         accessorKey: 'product.sku',
@@ -697,8 +696,7 @@ const PurchaseDetailVerified = (props: any) => {
       {
         accessorKey: 'title',
         header: 'Item Name',
-        maxSize: 200,
-        enableEditing: false
+        maxSize: 200
       },
       {
         accessorKey: 'product.sku',
@@ -1561,6 +1559,12 @@ const PurchaseDetailVerified = (props: any) => {
   )
   const columnsItem = useMemo<MRT_ColumnDef<InventoryItem>[]>(
     () => [
+      {
+        accessorKey: 'title',
+        header: 'Item Name',
+        size: 150,
+        enableEditing: false
+      },
       {
         accessorKey: 'product.sku',
         header: 'SKU',
