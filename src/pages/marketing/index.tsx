@@ -29,6 +29,7 @@ import InitialDrops from './initial-drop'
 import ArchiveDrops from './archive-drop'
 import PMKws from './pm-kws'
 import PMSpiff from './pm-spiff'
+import GlobalSettings from './global-settings'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -103,6 +104,15 @@ const Sales = (props: any) => {
                 </Box>
               }
             />
+            <Tab
+              value='global-settings'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <AccountOutline />
+                  <TabName>Global Settings</TabName>
+                </Box>
+              }
+            />
           </TabList>
           <TabPanel sx={{ p: 0 }} value='pm-kws'>
             <PMKws session={session} />
@@ -116,6 +126,9 @@ const Sales = (props: any) => {
           </TabPanel>
           <TabPanel sx={{ p: 0 }} value='pm-spiff'>
             <PMSpiff session={session} />
+          </TabPanel>
+          <TabPanel sx={{ p: 0 }} value='global-settings'>
+            <GlobalSettings session={session} />
           </TabPanel>
         </TabContext>
       </Card>

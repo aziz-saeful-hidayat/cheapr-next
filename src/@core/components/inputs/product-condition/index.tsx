@@ -41,7 +41,7 @@ const PickProductCondition = ({ values, setValues, session }: PickProductConditi
     } else {
       setValues((prevState: any) => ({
         ...prevState,
-        condition: prevState.condition.filter((e: any) => e !== condition)
+        condition: prevState.condition?.filter((e: any) => e !== condition)
       }))
     }
   }
