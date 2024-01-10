@@ -977,7 +977,7 @@ const Example = (props: any) => {
       },
       {
         accessorKey: 'selling.order_date',
-        accessorFn: row => row.selling.order_date.substr(0, 10),
+        accessorFn: row => row.selling.order_date?.toString()?.substr(0, 10),
         header: 'Date',
         maxSize: 100,
         muiEditTextFieldProps: {
