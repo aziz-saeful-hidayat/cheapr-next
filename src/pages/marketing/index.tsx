@@ -52,7 +52,7 @@ const Sales = (props: any) => {
   const { session } = props
 
   // ** State
-  const [value, setValue] = useState<string>('initial-drop')
+  const [value, setValue] = useState<string>('pm-kws')
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
@@ -67,11 +67,11 @@ const Sales = (props: any) => {
             sx={{ borderBottom: theme => `1px solid ${theme.palette.divider}` }}
           >
             <Tab
-              value='initial-drop'
+              value='pm-kws'
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <AccountOutline />
-                  <TabName>Initial Drop</TabName>
+                  <TabName>PMs & KWs</TabName>
                 </Box>
               }
             />
@@ -85,14 +85,15 @@ const Sales = (props: any) => {
               }
             />
             <Tab
-              value='pm-kws'
+              value='initial-drop'
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <AccountOutline />
-                  <TabName>PMs & KWs</TabName>
+                  <TabName>Initial Drop</TabName>
                 </Box>
               }
             />
+
             <Tab
               value='pm-spiff'
               label={
@@ -103,14 +104,15 @@ const Sales = (props: any) => {
               }
             />
           </TabList>
-          <TabPanel sx={{ p: 0 }} value='initial-drop'>
-            <InitialDrops session={session} />
+          <TabPanel sx={{ p: 0 }} value='pm-kws'>
+            <PMKws session={session} />
           </TabPanel>
+
           <TabPanel sx={{ p: 0 }} value='archive-drop'>
             <ArchiveDrops session={session} />
           </TabPanel>
-          <TabPanel sx={{ p: 0 }} value='pm-kws'>
-            <PMKws session={session} />
+          <TabPanel sx={{ p: 0 }} value='initial-drop'>
+            <InitialDrops session={session} />
           </TabPanel>
           <TabPanel sx={{ p: 0 }} value='pm-spiff'>
             <PMSpiff session={session} />

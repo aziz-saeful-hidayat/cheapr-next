@@ -113,7 +113,7 @@ const navigation = (): VerticalNavItemsType => {
     {
       title: 'Product Conditions',
       icon: AccountCogOutline as unknown as ReactNode,
-      path: '/product-types'
+      path: '/product-condition'
     },
     {
       title: 'HA Rooms',
