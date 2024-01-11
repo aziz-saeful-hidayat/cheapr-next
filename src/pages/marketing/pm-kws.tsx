@@ -618,7 +618,7 @@ const Example = (props: any) => {
         }
       },
       {
-        accessorFn: row => (row.total_listing ? (row.vetted * 100) / row.total_listing : 0),
+        accessorFn: row => `${(row.total_listing ? (row.vetted * 100) / row.total_listing : 0).toFixed(1)} %`,
         id: 'vetted_percentage',
         header: '%',
         size: 50,
@@ -638,7 +638,8 @@ const Example = (props: any) => {
         }
       },
       {
-        accessorFn: row => (row.total_listing ? ((row.total_listing - row.vetted) * 100) / row.total_listing : 0),
+        accessorFn: row =>
+          `${(row.total_listing ? ((row.total_listing - row.vetted) * 100) / row.total_listing : 0).toFixed(1)} %`,
         id: 'remaining_percentage',
         header: '%',
         size: 50,
@@ -657,7 +658,7 @@ const Example = (props: any) => {
         }
       },
       {
-        accessorFn: row => (row.total_listing ? (row.need_response * 100) / row.total_listing : 0),
+        accessorFn: row => `${(row.total_listing ? (row.need_response * 100) / row.total_listing : 0).toFixed(1)} %`,
         id: 'response_percentage',
         header: '%',
         size: 50,
