@@ -26,9 +26,10 @@ import 'react-datepicker/dist/react-datepicker.css'
 import { withAuth } from '../../constants/HOCs'
 import { getSession } from 'next-auth/react'
 
-import NewLeads from './new'
-import NotPaidLeads from './not-paid'
-import ReturnedLeads from './returned'
+import RefundedReturnedLeads from './refunded-returned'
+import ReplacedReturnedLeads from './replaced-returned'
+import ReplacedNotReturnedLeads from './replaced-not-returned'
+import RefundedNotReturnedLeads from './refunded-not-returned'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -52,7 +53,7 @@ const Sales = (props: any) => {
   const { session } = props
 
   // ** State
-  const [value, setValue] = useState<string>('all')
+  const [value, setValue] = useState<string>('rp-rt')
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
@@ -67,50 +68,53 @@ const Sales = (props: any) => {
             sx={{ borderBottom: theme => `1px solid ${theme.palette.divider}` }}
           >
             <Tab
-              value='all'
+              value='rp-rt'
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <AccountOutline />
-                  <TabName>All</TabName>
+                  <TabName>Replaced / Returned</TabName>
                 </Box>
               }
             />
             <Tab
-              value='N'
+              value='rf-rt'
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <AccountOutline />
-                  <TabName>New Leads</TabName>
+                  <TabName>Refunded / Returned</TabName>
                 </Box>
               }
             />
             <Tab
-              value='R'
+              value='rp-nrt'
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <AccountOutline />
-                  <TabName>Returned/Not-Received</TabName>
+                  <TabName>Replaced / Not Returned</TabName>
                 </Box>
               }
             />
             <Tab
-              value='A'
+              value='rf-nrt'
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <AccountOutline />
-                  <TabName>Not Paid For / Accidently Refunded</TabName>
+                  <TabName>Refunded / Not Returned</TabName>
                 </Box>
               }
             />
           </TabList>
-          <TabPanel sx={{ p: 0 }} value='all'>
-            <NewLeads session={session} />
+          <TabPanel sx={{ p: 0 }} value='rp-rt'>
+            <ReplacedReturnedLeads session={session} />
           </TabPanel>
-          <TabPanel sx={{ p: 0 }} value='N'>
-            <ReturnedLeads session={session} />
+          <TabPanel sx={{ p: 0 }} value='rf-rt'>
+            <RefundedReturnedLeads session={session} />
           </TabPanel>
-          <TabPanel sx={{ p: 0 }} value='W'>
-            <NotPaidLeads session={session} />
+          <TabPanel sx={{ p: 0 }} value='rp-nrt'>
+            <ReplacedNotReturnedLeads session={session} />
+          </TabPanel>
+          <TabPanel sx={{ p: 0 }} value='rf-nrt'>
+            <RefundedNotReturnedLeads session={session} />
           </TabPanel>
         </TabContext>
       </Card>

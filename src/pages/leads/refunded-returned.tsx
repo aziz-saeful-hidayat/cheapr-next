@@ -553,57 +553,57 @@ const Example = (props: any) => {
 
   const columns = useMemo<MRT_ColumnDef<OpenIssue>[]>(
     () => [
-      {
-        accessorKey: 'status',
-        header: 'STATUS',
-        maxSize: 40,
-        muiEditTextFieldProps: {
-          select: true, //change to select for a dropdown
-          children: statusOptions?.map(status => (
-            <MenuItem key={status.key} value={status.key}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem'
-                }}
-              >
-                {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
-                <span>{status.name}</span>
-              </Box>
-            </MenuItem>
-          ))
-        },
-        Cell: ({ renderedCellValue, row, table, cell }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            {row.original?.status ? (
-              <Chip
-                sx={{
-                  fontSize: 12
-                }}
-                label={statusOptions.find(e => e.key == renderedCellValue)?.name}
-                color={statusOptions.find(e => e.key == renderedCellValue)?.color}
-                onDelete={() => {
-                  table.setEditingCell(cell)
-                }}
-                onClick={() => {
-                  table.setEditingCell(cell)
-                }}
-                deleteIcon={<ArrowDropDown />}
-              />
-            ) : null}
-          </Box>
-        )
-      },
+      // {
+      //   accessorKey: 'status',
+      //   header: 'STATUS',
+      //   maxSize: 40,
+      //   muiEditTextFieldProps: {
+      //     select: true, //change to select for a dropdown
+      //     children: statusOptions?.map(status => (
+      //       <MenuItem key={status.key} value={status.key}>
+      //         <Box
+      //           sx={{
+      //             display: 'flex',
+      //             alignItems: 'center',
+      //             gap: '0.5rem'
+      //           }}
+      //         >
+      //           {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
+      //           <span>{status.name}</span>
+      //         </Box>
+      //       </MenuItem>
+      //     ))
+      //   },
+      //   Cell: ({ renderedCellValue, row, table, cell }) => (
+      //     <Box
+      //       sx={{
+      //         display: 'flex',
+      //         alignItems: 'center',
+      //         gap: '1rem'
+      //       }}
+      //     >
+      //       {row.original?.status ? (
+      //         <Chip
+      //           sx={{
+      //             fontSize: 12
+      //           }}
+      //           label={statusOptions.find(e => e.key == renderedCellValue)?.name}
+      //           color={statusOptions.find(e => e.key == renderedCellValue)?.color}
+      //           onDelete={() => {
+      //             table.setEditingCell(cell)
+      //           }}
+      //           onClick={() => {
+      //             table.setEditingCell(cell)
+      //           }}
+      //           deleteIcon={<ArrowDropDown />}
+      //         />
+      //       ) : null}
+      //     </Box>
+      //   )
+      // },
       {
         accessorKey: 'sales.channel_order_id',
-        header: 'ORDER',
+        header: 'ORDER ID',
         maxSize: 50,
         enableEditing: false
       },
@@ -614,130 +614,28 @@ const Example = (props: any) => {
         enableEditing: false
       },
       {
-        accessorKey: 'sales.order_date',
-        header: 'DATE',
-        maxSize: 60,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            {row.original.sales?.order_date
-              ? moment(row.original?.sales?.order_date).tz('America/Los_Angeles').format('MM.DD')
-              : ''}
-          </Box>
-        )
+        accessorKey: 'salesitem.info',
+        header: 'ITEM INFO',
+        maxSize: 50,
+        enableEditing: false
       },
       {
-        accessorKey: 'sales.ship_date',
-        header: 'SHIPBY',
-        maxSize: 60,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            {row.original.sales?.ship_date
-              ? moment(row.original?.sales?.ship_date).tz('America/Los_Angeles').format('MM.DD')
-              : ''}
-          </Box>
-        )
+        accessorKey: 'total_cost',
+        header: 'AMOUNT',
+        maxSize: 50,
+        enableEditing: false
       },
       {
-        accessorKey: 'sales.delivery_date',
-        header: 'GETBY',
-        maxSize: 60,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            {row.original.sales?.delivery_date
-              ? moment(row.original?.sales?.delivery_date).tz('America/Los_Angeles').format('MM.DD')
-              : ''}
-          </Box>
-        )
+        accessorKey: 'sales.person.name',
+        header: 'CUSTOMER',
+        size: 100,
+        enableEditing: false
       },
       {
-        id: 'lt_tn',
-        header: 'LTTN',
-        size: 150,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
-            }}
-          >
-            {row.original.sales.salesitems.map((sales, index) => {
-              const tracking = sales.letter_tracking
-              if (tracking) {
-                return (
-                  <Typography color='inherit' key={index}>
-                    {tracking.tracking_number}
-                  </Typography>
-                )
-              } else {
-                return <span key={index}>{` `}</span>
-              }
-            })}
-          </Box>
-        )
-      },
-      {
-        id: 'lt_eta',
-        header: 'LTETA',
-        maxSize: 60,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
-            }}
-          >
-            {row.original.sales.salesitems.map((sales, index) => {
-              const tracking = sales.letter_tracking
-              if (tracking) {
-                return (
-                  <Typography
-                    color={
-                      tracking.status == 'D'
-                        ? 'green'
-                        : tracking.status == 'T'
-                        ? 'yellow'
-                        : tracking.status == 'N'
-                        ? 'red'
-                        : 'purple'
-                    }
-                    key={index}
-                  >
-                    {tracking?.eta_date
-                      ? moment(tracking?.eta_date).tz('America/Los_Angeles').format('MM.DD')
-                      : tracking.status}
-                  </Typography>
-                )
-              } else {
-                return <span key={index}>{` `}</span>
-              }
-            })}
-          </Box>
-        )
+        accessorKey: 'sales.person.phone',
+        header: 'CONTACT',
+        size: 100,
+        enableEditing: false
       },
       {
         id: 'ac_tn',
@@ -809,8 +707,36 @@ const Example = (props: any) => {
         )
       },
       {
-        id: 'buffer',
-        header: 'BUFFER',
+        id: 'rp_tn',
+        header: 'RPTN',
+        size: 150,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.sales.salesitems.map((sales, index) => {
+              const tracking = sales.tracking
+              if (tracking) {
+                return (
+                  <Typography color='inherit' key={index}>
+                    {tracking.tracking_number}
+                  </Typography>
+                )
+              } else {
+                return <span key={index}>{` `}</span>
+              }
+            })}
+          </Box>
+        )
+      },
+      {
+        id: 'rp_eta',
+        header: 'ETA',
         maxSize: 60,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
@@ -822,17 +748,55 @@ const Example = (props: any) => {
             }}
           >
             {row.original.sales.salesitems.map((sales, index) => {
-              const sku = sales?.sku
-              if (sku && sku.sku && typeof sku.sku == 'string') {
-                if (sku.sku.includes('BUFFERS') || sku.sku.includes('BOOK') || sku.sku.includes('INGRAM')) {
-                  return (
-                    <Typography color='inherit' key={index}>
-                      BUFFER
-                    </Typography>
-                  )
-                } else {
-                  return <span key={index}>{` `}</span>
-                }
+              const tracking = sales.tracking
+              if (tracking) {
+                return (
+                  <Typography
+                    color={
+                      tracking.status == 'D'
+                        ? 'green'
+                        : tracking.status == 'T'
+                        ? 'yellow'
+                        : tracking.status == 'N'
+                        ? 'red'
+                        : 'purple'
+                    }
+                    key={index}
+                  >
+                    {tracking?.eta_date
+                      ? moment(tracking?.eta_date).tz('America/Los_Angeles').format('MM.DD')
+                      : tracking.status}
+                  </Typography>
+                )
+              } else {
+                return <span key={index}>{` `}</span>
+              }
+            })}
+          </Box>
+        )
+      },
+
+      {
+        id: 'rp_tn',
+        header: 'RTTN',
+        size: 150,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.sales.salesitems.map((sales, index) => {
+              const tracking = sales.tracking
+              if (tracking) {
+                return (
+                  <Typography color='inherit' key={index}>
+                    {tracking.tracking_number}
+                  </Typography>
+                )
               } else {
                 return <span key={index}>{` `}</span>
               }
@@ -841,219 +805,50 @@ const Example = (props: any) => {
         )
       },
       {
-        accessorKey: 'sales.person.name',
-        header: 'CUSTOMER',
-        size: 100,
-        enableEditing: false
-      },
-      {
-        accessorKey: 'sales.person.phone',
-        header: 'CONTACT',
-        size: 100,
-        enableEditing: false
-      },
-      {
-        accessorKey: 'az',
-        header: 'AZ',
-        size: 50,
+        id: 'rt_eta',
+        header: 'ETA',
+        maxSize: 60,
         enableEditing: false,
-        Cell: ({ renderedCellValue, row, cell }) => (
-          <Checkbox
-            checked={row.original.az ? row.original.az : false}
-            onClick={() => handleSaveCell(cell, row.original.az ? !row.original.az : true)}
-            inputProps={{ 'aria-label': 'controlled' }}
-          />
-        )
-      },
-      {
-        accessorKey: 'fb',
-        header: 'FB',
-        size: 50,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row, cell }) => (
-          <Checkbox
-            checked={row.original.fb ? row.original.fb : false}
-            onClick={() => handleSaveCell(cell, row.original.fb ? !row.original.fb : true)}
-            inputProps={{ 'aria-label': 'controlled' }}
-          />
-        )
-      },
-      {
-        accessorKey: 'cb',
-        header: 'CB',
-        size: 50,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row, cell }) => (
-          <Checkbox
-            checked={row.original.cb ? row.original.cb : false}
-            onClick={() => handleSaveCell(cell, row.original.cb ? !row.original.cb : true)}
-            inputProps={{ 'aria-label': 'controlled' }}
-          />
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.sales.salesitems.map((sales, index) => {
+              const tracking = sales.tracking
+              if (tracking) {
+                return (
+                  <Typography
+                    color={
+                      tracking.status == 'D'
+                        ? 'green'
+                        : tracking.status == 'T'
+                        ? 'yellow'
+                        : tracking.status == 'N'
+                        ? 'red'
+                        : 'purple'
+                    }
+                    key={index}
+                  >
+                    {tracking?.eta_date
+                      ? moment(tracking?.eta_date).tz('America/Los_Angeles').format('MM.DD')
+                      : tracking.status}
+                  </Typography>
+                )
+              } else {
+                return <span key={index}>{` `}</span>
+              }
+            })}
+          </Box>
         )
       },
       {
         accessorKey: 'cs_comment',
         header: 'CUSTOMER COMMENTS',
         size: 70
-      },
-      {
-        accessorKey: 'date',
-        header: 'DATE',
-        maxSize: 60,
-        muiEditTextFieldProps: {
-          type: 'date'
-        },
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            {row.original.date ? moment(row.original?.date).format('MM.DD') : ''}
-          </Box>
-        )
-      },
-      {
-        accessorKey: 'apl_by',
-        header: 'APL.BY',
-        maxSize: 60,
-        muiEditTextFieldProps: {
-          type: 'date'
-        },
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            {row.original.apl_by ? moment(row.original?.apl_by).format('MM.DD') : ''}
-          </Box>
-        )
-      },
-      {
-        accessorKey: 'appealed',
-        header: 'APPEALED',
-        maxSize: 60,
-        muiEditTextFieldProps: {
-          select: true, //change to select for a dropdown
-          children: appealedOptions?.map(status => (
-            <MenuItem key={status.key} value={status.key}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem'
-                }}
-              >
-                <span>{status.name}</span>
-              </Box>
-            </MenuItem>
-          ))
-        },
-        Cell: ({ renderedCellValue, row, table, cell }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            <Chip
-              sx={{
-                fontSize: 12
-              }}
-              label={appealedOptions.find(e => e.key == row.original?.appealed)?.name}
-              color={appealedOptions.find(e => e.key == row.original?.appealed)?.color}
-              onDelete={() => {
-                table.setEditingCell(cell)
-              }}
-              onClick={() => {
-                table.setEditingCell(cell)
-              }}
-              deleteIcon={<ArrowDropDown />}
-            />
-          </Box>
-        )
-      },
-      {
-        accessorKey: 'fall_off',
-        header: 'FALL OFF',
-        maxSize: 60,
-        muiEditTextFieldProps: {
-          type: 'date'
-        },
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            {row.original.fall_off ? moment(row.original?.fall_off).tz('America/Los_Angeles').format('MM.DD') : ''}
-          </Box>
-        )
-      },
-      {
-        accessorKey: 'case_id',
-        header: 'CASE.ID',
-        maxSize: 60
-      },
-      {
-        accessorKey: 'cs.name',
-        header: 'ASSIGNEE',
-        maxSize: 60,
-        muiEditTextFieldProps: {
-          select: true, //change to select for a dropdown
-          children: csData?.map(cs => (
-            <MenuItem key={cs.pk} value={cs.name}>
-              {cs.name}
-            </MenuItem>
-          ))
-        },
-        Cell: ({ renderedCellValue, row, table, cell }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '1rem'
-            }}
-          >
-            <Chip
-              sx={{
-                fontSize: 12
-              }}
-              label={row.original?.cs?.name || 'Pick CS'}
-              color='default'
-              onDelete={() => {
-                table.setEditingCell(cell)
-              }}
-              onClick={() => {
-                table.setEditingCell(cell)
-              }}
-              deleteIcon={<ArrowDropDown />}
-            />
-          </Box>
-        )
-      },
-      {
-        accessorKey: 'steps_done',
-        header: 'STEPS DONE',
-        maxSize: 60
-      },
-      {
-        accessorKey: 'next_step',
-        header: 'NEXT STEPS',
-        maxSize: 60
-      },
-      {
-        accessorKey: 'legal_comment',
-        header: 'LEGAL COMMENTS',
-        maxSize: 60
       }
     ],
     [csData, tableData]
@@ -1075,7 +870,7 @@ const Example = (props: any) => {
     })
   }, [sorting, globalFilter, columnFilters])
   useEffect(() => {
-    setTableData(data?.results ?? [])
+    setTableData(data?.results ? [] : [])
   }, [data])
   useEffect(() => {
     const fetchURL = new URL('/customer_service/', 'https://cheapr.my.id')
@@ -1169,24 +964,6 @@ const Example = (props: any) => {
         onPaginationChange={setPagination}
         onSortingChange={setSorting}
         positionActionsColumn='last'
-        renderTopToolbarCustomActions={() => (
-          <>
-            <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
-              Add New Issue
-            </Button>
-            <Select labelId='demo-select-small-label' id='demo-select-small' value={tabActive} onChange={handleChange}>
-              {csData?.map(cs => (
-                <MenuItem value={cs.pk} key={`menu-${cs.pk}`}>
-                  {cs.name}
-                </MenuItem>
-              ))}
-              <MenuItem value={'all'}>All</MenuItem>
-
-              {/* <MenuItem value={'canceled'}>Canceled</MenuItem>
-              <MenuItem value={'to_pick'}>To Pick</MenuItem> */}
-            </Select>
-          </>
-        )}
         renderBottomToolbarCustomActions={() => (
           <Typography sx={{ fontStyle: 'italic', p: '0 1rem' }} variant='body2'>
             Double-Click a Cell to Edit
@@ -1224,10 +1001,10 @@ const Example = (props: any) => {
 
 const queryClient = new QueryClient()
 
-const NewLeads = (props: any) => (
+const RefundedReturnedLeads = (props: any) => (
   <QueryClientProvider client={queryClient}>
     <Example {...props} />
   </QueryClientProvider>
 )
 
-export default NewLeads
+export default RefundedReturnedLeads

@@ -1516,9 +1516,6 @@ const Example = (props: any) => {
                   {manager.name}
                 </MenuItem>
               ))}
-
-              {/* <MenuItem value={'canceled'}>Canceled</MenuItem>
-              <MenuItem value={'to_pick'}>To Pick</MenuItem> */}
             </Select>
           </>
         )}

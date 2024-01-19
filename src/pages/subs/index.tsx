@@ -531,11 +531,7 @@ const Example = (props: any) => {
   ]
   const handleChange = (event: SelectChangeEvent) => {
     setTabActive(event.target.value as string)
-    if (event.target.value == 'to_pick') {
-      setColumnFilters([{ id: 'to_pick', value: 'yes' }])
-    } else {
-      setColumnFilters([{ id: 'status', value: event.target.value != 'all' ? event.target.value : '' }])
-    }
+    setColumnFilters([{ id: 'status', value: event.target.value != 'all' ? event.target.value : '' }])
   }
   const handleCreateNewRow = (values: SalesItemsFull) => {
     console.log(values)
@@ -1158,7 +1154,6 @@ const Example = (props: any) => {
               <MenuItem value={'open'}>Open</MenuItem>
               <MenuItem value={'completed'}>Completed</MenuItem>
               <MenuItem value={'canceled'}>Canceled</MenuItem>
-              <MenuItem value={'to_pick'}>To Pick</MenuItem>
             </Select>
           </>
         )}

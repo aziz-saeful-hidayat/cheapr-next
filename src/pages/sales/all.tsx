@@ -1620,9 +1620,6 @@ const Example = (props: any) => {
               <MenuItem value={'canceled'}>Canceled</MenuItem>
               <MenuItem value={'buffers'}>Buffers</MenuItem>
               <MenuItem value={'all'}>All</MenuItem>
-
-              {/* <MenuItem value={'canceled'}>Canceled</MenuItem>
-              <MenuItem value={'to_pick'}>To Pick</MenuItem> */}
             </Select>
           </>
         )}
