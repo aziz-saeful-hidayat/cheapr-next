@@ -553,54 +553,6 @@ const Example = (props: any) => {
 
   const columns = useMemo<MRT_ColumnDef<OpenIssue>[]>(
     () => [
-      // {
-      //   accessorKey: 'status',
-      //   header: 'STATUS',
-      //   maxSize: 40,
-      //   muiEditTextFieldProps: {
-      //     select: true, //change to select for a dropdown
-      //     children: statusOptions?.map(status => (
-      //       <MenuItem key={status.key} value={status.key}>
-      //         <Box
-      //           sx={{
-      //             display: 'flex',
-      //             alignItems: 'center',
-      //             gap: '0.5rem'
-      //           }}
-      //         >
-      //           {/* using renderedCellValue instead of cell.getValue() preserves filter match highlighting */}
-      //           <span>{status.name}</span>
-      //         </Box>
-      //       </MenuItem>
-      //     ))
-      //   },
-      //   Cell: ({ renderedCellValue, row, table, cell }) => (
-      //     <Box
-      //       sx={{
-      //         display: 'flex',
-      //         alignItems: 'center',
-      //         gap: '1rem'
-      //       }}
-      //     >
-      //       {row.original?.status ? (
-      //         <Chip
-      //           sx={{
-      //             fontSize: 12
-      //           }}
-      //           label={statusOptions.find(e => e.key == renderedCellValue)?.name}
-      //           color={statusOptions.find(e => e.key == renderedCellValue)?.color}
-      //           onDelete={() => {
-      //             table.setEditingCell(cell)
-      //           }}
-      //           onClick={() => {
-      //             table.setEditingCell(cell)
-      //           }}
-      //           deleteIcon={<ArrowDropDown />}
-      //         />
-      //       ) : null}
-      //     </Box>
-      //   )
-      // },
       {
         accessorKey: 'sales.channel_order_id',
         header: 'ORDER ID',
@@ -775,9 +727,13 @@ const Example = (props: any) => {
           </Box>
         )
       },
-
       {
-        id: 'rp_tn',
+        accessorKey: 'refunded',
+        header: 'REFUNDED',
+        size: 70
+      },
+      {
+        id: 'rt_tn',
         header: 'RTTN',
         size: 150,
         enableEditing: false,
