@@ -234,6 +234,21 @@ export type OpenIssue = {
   }
 }
 
+export type LeadsSalesItems = {
+  pk: number
+  item: InventoryItem
+  title: string
+  selling: SellingOrder
+  sku: CAProduct
+  sub_sku: CAProduct
+  tracking: Tracking
+  status: string
+  comment: string
+  refunded: string
+  salesitem_replaced: SalesItem
+  salesitem_return: SalesItem
+}
+
 export type SellingOrder = {
   pk: number
   order_id: string
