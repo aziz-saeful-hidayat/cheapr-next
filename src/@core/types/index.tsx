@@ -245,8 +245,8 @@ export type LeadsSalesItems = {
   status: string
   comment: string
   refunded: string
-  salesitem_replaced: SalesItem
-  salesitem_return: SalesItem
+  salesitem_replaced: ReplacementSalesItems
+  salesitem_return: FullReturnSalesItems
 }
 
 export type SellingOrder = {
@@ -494,6 +494,34 @@ export type SalesItem = {
   rating: Rating
   total_cost: string
   shipping_cost: string
+}
+
+export type ReturnSalesItems = {
+  date: string
+  tracking: number
+  status: string
+  comment: string
+  label: string
+  item: number
+}
+
+export type FullReturnSalesItems = {
+  date: string
+  tracking: Tracking
+  status: string
+  comment: string
+  label: string
+  item: SalesItem
+}
+
+export type ReplacementSalesItems = {
+  date: string
+  tracking: Tracking
+  status: string
+  comment: string
+  label: string
+  item: SalesItem
+  replacement: SalesItem
 }
 
 export type ReturnSales = {

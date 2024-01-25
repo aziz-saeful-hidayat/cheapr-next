@@ -673,13 +673,99 @@ const Example = (props: any) => {
         accessorKey: 'salesitem_replaced',
         header: 'REPLACED',
         maxSize: 50,
-        enableEditing: false
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.salesitem_replaced ? (
+              <Link
+                href={`${row.original.salesitem_replaced?.tracking?.fullcarrier?.prefix}${row.original.salesitem_replaced?.tracking?.tracking_number}${row.original.salesitem_replaced?.tracking?.fullcarrier?.suffix}`}
+                target='_blank'
+              >
+                <Box
+                  sx={theme => ({
+                    backgroundColor:
+                      row.original.salesitem_replaced?.tracking?.status == 'D'
+                        ? theme.palette.success.dark
+                        : row.original.salesitem_replaced?.tracking?.status == 'T'
+                        ? theme.palette.warning.light
+                        : row.original.salesitem_replaced?.tracking?.status == 'I'
+                        ? 'purple'
+                        : theme.palette.error.dark,
+                    borderRadius: '0.5rem',
+                    color: '#fff',
+                    width: 15,
+                    height: 15
+                  })}
+                ></Box>
+              </Link>
+            ) : (
+              <Box
+                sx={theme => ({
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 12,
+                  height: 12
+                })}
+              ></Box>
+            )}
+          </Box>
+        )
       },
       {
         accessorKey: 'salesitem_return',
         header: 'RETURNED',
         maxSize: 50,
-        enableEditing: false
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.salesitem_return ? (
+              <Link
+                href={`${row.original.salesitem_return?.tracking?.fullcarrier?.prefix}${row.original.salesitem_return?.tracking?.tracking_number}${row.original.salesitem_return?.tracking?.fullcarrier?.suffix}`}
+                target='_blank'
+              >
+                <Box
+                  sx={theme => ({
+                    backgroundColor:
+                      row.original.salesitem_return?.tracking?.status == 'D'
+                        ? theme.palette.success.dark
+                        : row.original.salesitem_return?.tracking?.status == 'T'
+                        ? theme.palette.warning.light
+                        : row.original.salesitem_return?.tracking?.status == 'I'
+                        ? 'purple'
+                        : theme.palette.error.dark,
+                    borderRadius: '0.5rem',
+                    color: '#fff',
+                    width: 15,
+                    height: 15
+                  })}
+                ></Box>
+              </Link>
+            ) : (
+              <Box
+                sx={theme => ({
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 12,
+                  height: 12
+                })}
+              ></Box>
+            )}
+          </Box>
+        )
       },
       {
         accessorKey: 'cs_comment',

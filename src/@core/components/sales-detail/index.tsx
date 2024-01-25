@@ -48,7 +48,11 @@ import { Cross } from 'mdi-material-ui'
 import { styled } from '@mui/material/styles'
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip'
 import { SalesOrder } from 'src/pages/purchase/[purchaseId]'
+import { Close } from 'mdi-material-ui'
 import CloseIcon from '@mui/icons-material/Close'
+import CreateNewReturnSalesItems from '../create-return-sales-items'
+import { ReplacementSalesItems, ReturnSalesItems } from 'src/@core/types'
+import CreateNewReplacementSalesItems from '../create-replacement-sales-items'
 
 type InventoryItem = {
   [key: string]: any
@@ -1171,6 +1175,8 @@ const SalesDetail = (props: any) => {
   const [pickSellerModalOpen, setPickSellerModalOpen] = useState(false)
   const [createSellerModalOpen, setCreateSellerModalOpen] = useState(false)
   const [createSKUModalOpen, setCreateSKUModalOpen] = useState(false)
+  const [createReturnSalesItemModalOpen, setCreateReturnSalesItemModalOpen] = useState(false)
+  const [createReplacementSalesItemModalOpen, setCreateReplacementSalesItemModalOpen] = useState(false)
 
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null)
 
@@ -1389,7 +1395,6 @@ const SalesDetail = (props: any) => {
         },
         enableEditing: row => !row.original.item_null
       },
-
       {
         accessorKey: 'total_cost',
         header: 'Unit Price',
@@ -1417,6 +1422,168 @@ const SalesDetail = (props: any) => {
         muiEditTextFieldProps: {
           type: 'number'
         }
+      },
+      {
+        accessorKey: 'salesitem_replaced',
+        header: 'REPLACED',
+        maxSize: 50,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.salesitem_replaced ? (
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem'
+                }}
+              >
+                <Link
+                  href={`${row.original.salesitem_replaced?.tracking?.fullcarrier?.prefix}${row.original.salesitem_replaced?.tracking?.tracking_number}${row.original.salesitem_replaced?.tracking?.fullcarrier?.suffix}`}
+                  target='_blank'
+                >
+                  <Box
+                    sx={theme => ({
+                      backgroundColor:
+                        row.original.salesitem_replaced?.tracking?.status == 'D'
+                          ? theme.palette.success.dark
+                          : row.original.salesitem_replaced?.tracking?.status == 'T'
+                          ? theme.palette.warning.light
+                          : row.original.salesitem_replaced?.tracking?.status == 'I'
+                          ? 'purple'
+                          : theme.palette.error.dark,
+                      borderRadius: '0.5rem',
+                      color: '#fff',
+                      width: 15,
+                      height: 15
+                    })}
+                  ></Box>
+                </Link>
+                <Tooltip arrow placement='top' title='Delete Replacement'>
+                  <IconButton
+                    color='error'
+                    onClick={() => {
+                      fetch(`https://cheapr.my.id/replacement_sales_items/${row.original.salesitem_replaced?.pk}/`, {
+                        // note we are going to /1
+                        method: 'DELETE',
+                        headers: new Headers({
+                          Authorization: `Bearer ${session?.accessToken}`,
+                          'Content-Type': 'application/json'
+                        })
+                      })
+                        .then(response => response.json())
+                        .then(json => {
+                          console.log(json)
+                        })
+                        .finally(() => {
+                          setRefresh(refresh + 1)
+                        })
+                    }}
+                  >
+                    <Close />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            ) : (
+              <Box
+                sx={theme => ({
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 12,
+                  height: 12
+                })}
+              ></Box>
+            )}
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'salesitem_return',
+        header: 'RETURNED',
+        maxSize: 50,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.salesitem_return ? (
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem'
+                }}
+              >
+                <Link
+                  href={`${row.original.salesitem_return?.tracking?.fullcarrier?.prefix}${row.original.salesitem_return?.tracking?.tracking_number}${row.original.salesitem_return?.tracking?.fullcarrier?.suffix}`}
+                  target='_blank'
+                >
+                  <Box
+                    sx={theme => ({
+                      backgroundColor:
+                        row.original.salesitem_return?.tracking?.status == 'D'
+                          ? theme.palette.success.dark
+                          : row.original.salesitem_return?.tracking?.status == 'T'
+                          ? theme.palette.warning.light
+                          : row.original.salesitem_return?.tracking?.status == 'I'
+                          ? 'purple'
+                          : theme.palette.error.dark,
+                      borderRadius: '0.5rem',
+                      color: '#fff',
+                      width: 15,
+                      height: 15
+                    })}
+                  ></Box>
+                </Link>
+                <Tooltip arrow placement='top' title='Delete Return'>
+                  <IconButton
+                    color='error'
+                    onClick={() => {
+                      fetch(`https://cheapr.my.id/return_sales_items/${row.original.salesitem_return?.pk}/`, {
+                        // note we are going to /1
+                        method: 'DELETE',
+                        headers: new Headers({
+                          Authorization: `Bearer ${session?.accessToken}`,
+                          'Content-Type': 'application/json'
+                        })
+                      })
+                        .then(response => response.json())
+                        .then(json => {
+                          console.log(json)
+                        })
+                        .finally(() => {
+                          setRefresh(refresh + 1)
+                        })
+                    }}
+                  >
+                    <Close />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            ) : (
+              <Box
+                sx={theme => ({
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 12,
+                  height: 12
+                })}
+              ></Box>
+            )}
+          </Box>
+        )
       },
       {
         accessorKey: 'tracking.fullcarrier.name',
@@ -1671,7 +1838,9 @@ const SalesDetail = (props: any) => {
                 item_null: item.item == null,
                 tracking: item.tracking,
                 letter_tracking: item.letter_tracking,
-                refunded: item.refunded
+                refunded: item.refunded,
+                salesitem_replaced: item.salesitem_replaced,
+                salesitem_return: item.salesitem_return
               }
             })
           )
@@ -2276,7 +2445,30 @@ const SalesDetail = (props: any) => {
         setRefresh(refresh + 1)
       })
   }
-
+  const handleDe = (values: any) => {
+    const newValues = { sub_sku: values.sku }
+    console.log(newValues)
+    console.log(`https://cheapr.my.id/sales_items/${values.pk ? values.pk : itemToEdit}`)
+    setIsFetching(true)
+    fetch(`https://cheapr.my.id/sales_items/${values.pk ? values.pk : itemToEdit}`, {
+      // note we are going to /1
+      method: 'PATCH',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify(newValues)
+    })
+      .then(response => response.json())
+      .then(json => {
+        console.log(json)
+        if (json.pk) {
+        }
+      })
+      .finally(() => {
+        setRefresh(refresh + 1)
+      })
+  }
   const handleCreateNewRow = (values: InventoryItem) => {
     console.log(values)
     let new_values = { ...values, selling: pk }
@@ -2329,7 +2521,46 @@ const SalesDetail = (props: any) => {
         }
       })
   }
-
+  const handleCreateReturnSalesItems = (values: ReturnSalesItems) => {
+    console.log(values)
+    const newValues = { ...values, item: itemToEdit }
+    fetch(`https://cheapr.my.id/return_sales_items/`, {
+      method: 'POST',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify(newValues)
+    })
+      .then(response => response.json())
+      .then(json => {
+        console.log(json)
+        if (json.pk) {
+          console.log(json)
+        }
+      })
+      .finally(() => setItemToEdit(''))
+  }
+  const handleCreateReplacementSalesItems = (values: ReplacementSalesItems) => {
+    console.log(values)
+    const newValues = { ...values, item: itemToEdit }
+    fetch(`https://cheapr.my.id/replacement_sales_items/`, {
+      method: 'POST',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify(newValues)
+    })
+      .then(response => response.json())
+      .then(json => {
+        console.log(json)
+        if (json.pk) {
+          console.log(json)
+        }
+      })
+      .finally(() => setItemToEdit(''))
+  }
   const handleUseDropship = (values: InventoryItem) => {
     const newValues: {
       [key: string]: number | string
@@ -2502,6 +2733,56 @@ const SalesDetail = (props: any) => {
     ],
     []
   )
+  const columnsNewReturnSalesItem = useMemo<MRT_ColumnDef<ReturnSalesItems>[]>(
+    () => [
+      {
+        accessorKey: 'sku',
+        header: 'SKU'
+      },
+      {
+        accessorKey: 'make',
+        header: 'Make'
+      },
+      {
+        accessorKey: 'model',
+        header: 'Model'
+      },
+      {
+        accessorKey: 'mpn',
+        header: 'MPN'
+      },
+      {
+        accessorKey: 'asin',
+        header: 'ASIN'
+      }
+    ],
+    []
+  )
+  const columnsNewReplacementSalesItem = useMemo<MRT_ColumnDef<ReplacementSalesItems>[]>(
+    () => [
+      {
+        accessorKey: 'sku',
+        header: 'SKU'
+      },
+      {
+        accessorKey: 'make',
+        header: 'Make'
+      },
+      {
+        accessorKey: 'model',
+        header: 'Model'
+      },
+      {
+        accessorKey: 'mpn',
+        header: 'MPN'
+      },
+      {
+        accessorKey: 'asin',
+        header: 'ASIN'
+      }
+    ],
+    []
+  )
   return (
     <Modal
       open={modalOpen}
@@ -2556,6 +2837,28 @@ const SalesDetail = (props: any) => {
               if (row.original.item_null) {
                 return (
                   <Box sx={{ display: 'flex' }}>
+                    <Tooltip arrow placement='top' title='Create Return'>
+                      <IconButton
+                        color='secondary'
+                        onClick={() => {
+                          setItemToEdit(row.original.salesitem_pk)
+                          setCreateReturnSalesItemModalOpen(true)
+                        }}
+                      >
+                        <AutoAwesomeMotionIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip arrow placement='top' title='Create Replacement'>
+                      <IconButton
+                        color='secondary'
+                        onClick={() => {
+                          setItemToEdit(row.original.salesitem_pk)
+                          setCreateReplacementSalesItemModalOpen(true)
+                        }}
+                      >
+                        <AutoAwesomeMotionIcon />
+                      </IconButton>
+                    </Tooltip>
                     <Tooltip arrow placement='top' title='Use same tracking for all'>
                       <IconButton color='secondary' onClick={() => handleUseTrackingForAll(row)}>
                         <AutoAwesomeMotionIcon />
@@ -2571,6 +2874,28 @@ const SalesDetail = (props: any) => {
               } else {
                 return (
                   <Box sx={{ display: 'flex' }}>
+                    <Tooltip arrow placement='top' title='Create Return'>
+                      <IconButton
+                        color='secondary'
+                        onClick={() => {
+                          setItemToEdit(row.original.salesitem_pk)
+                          setCreateReturnSalesItemModalOpen(true)
+                        }}
+                      >
+                        <AutoAwesomeMotionIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip arrow placement='top' title='Create Replacement'>
+                      <IconButton
+                        color='secondary'
+                        onClick={() => {
+                          setItemToEdit(row.original.salesitem_pk)
+                          setCreateReplacementSalesItemModalOpen(true)
+                        }}
+                      >
+                        <AutoAwesomeMotionIcon />
+                      </IconButton>
+                    </Tooltip>
                     <Tooltip arrow placement='top' title='Use same tracking for all'>
                       <IconButton color='secondary' onClick={() => handleUseTrackingForAll(row)}>
                         <AutoAwesomeMotionIcon />
@@ -2653,6 +2978,20 @@ const SalesDetail = (props: any) => {
           onClose={() => setCreateSKUModalOpen(false)}
           session={session}
           onSubmit={handleCreateSKU}
+        />
+        <CreateNewReturnSalesItems
+          columns={columnsNewReturnSalesItem}
+          open={createReturnSalesItemModalOpen}
+          onClose={() => setCreateReturnSalesItemModalOpen(false)}
+          session={session}
+          onSubmit={handleCreateReturnSalesItems}
+        />
+        <CreateNewReplacementSalesItems
+          columns={columnsNewReplacementSalesItem}
+          open={createReplacementSalesItemModalOpen}
+          onClose={() => setCreateReplacementSalesItemModalOpen(false)}
+          session={session}
+          onSubmit={handleCreateReplacementSalesItems}
         />
         <Popover
           id='mouse-over-popover'
