@@ -26,10 +26,8 @@ import 'react-datepicker/dist/react-datepicker.css'
 import { withAuth } from '../../constants/HOCs'
 import { getSession } from 'next-auth/react'
 
-import RefundedReturnedLeads from './refunded-returned'
-import ReplacedReturnedLeads from './replaced-returned'
-import ReplacedNotReturnedLeads from './replaced-not-returned'
-import RefundedNotReturnedLeads from './refunded-not-returned'
+import NotReturnedLeads from './not-returned'
+import ReturnedLeads from './returned'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -72,7 +70,7 @@ const Sales = (props: any) => {
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <AccountOutline />
-                  <TabName>Replaced / Returned</TabName>
+                  <TabName>Not Returned</TabName>
                 </Box>
               }
             />
@@ -81,40 +79,16 @@ const Sales = (props: any) => {
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <AccountOutline />
-                  <TabName>Refunded / Returned</TabName>
-                </Box>
-              }
-            />
-            <Tab
-              value='rp-nrt'
-              label={
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <AccountOutline />
-                  <TabName>Replaced / Not Returned</TabName>
-                </Box>
-              }
-            />
-            <Tab
-              value='rf-nrt'
-              label={
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <AccountOutline />
-                  <TabName>Refunded / Not Returned</TabName>
+                  <TabName>Returned</TabName>
                 </Box>
               }
             />
           </TabList>
           <TabPanel sx={{ p: 0 }} value='rp-rt'>
-            <ReplacedReturnedLeads session={session} />
+            <NotReturnedLeads session={session} />
           </TabPanel>
           <TabPanel sx={{ p: 0 }} value='rf-rt'>
-            <RefundedReturnedLeads session={session} />
-          </TabPanel>
-          <TabPanel sx={{ p: 0 }} value='rp-nrt'>
-            <ReplacedNotReturnedLeads session={session} />
-          </TabPanel>
-          <TabPanel sx={{ p: 0 }} value='rf-nrt'>
-            <RefundedNotReturnedLeads session={session} />
+            <ReturnedLeads session={session} />
           </TabPanel>
         </TabContext>
       </Card>

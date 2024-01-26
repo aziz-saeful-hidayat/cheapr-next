@@ -63,11 +63,11 @@ import {
   Person,
   InventoryPayload,
   InventoryItem,
-  OpenIssue,
   ItemOption,
   ItemOption2,
   CustomerService,
-  SellingOrder
+  SellingOrder,
+  LeadsSalesItems
 } from 'src/@core/types'
 import AddSalesItemModal from 'src/@core/components/add-sales-item'
 import { ExtendedSession } from '../api/auth/[...nextauth]'
@@ -95,9 +95,9 @@ type HistoricalData = {
   order_id: string[]
 }
 interface CreateModalProps {
-  columns: MRT_ColumnDef<OpenIssue>[]
+  columns: MRT_ColumnDef<LeadsSalesItems>[]
   onClose: () => void
-  onSubmit: (values: OpenIssue) => void
+  onSubmit: (values: LeadsSalesItems) => void
   open: boolean
   channelData: any[]
   session: ExtendedSession
@@ -108,7 +108,7 @@ interface AddItemProps {
   onClose: () => void
   onSubmit: (values: InventoryPayload) => void
   open: boolean
-  rowData: OpenIssue | undefined
+  rowData: LeadsSalesItems | undefined
   roomData: Room[]
 }
 interface DeleteModalProps {
@@ -165,7 +165,7 @@ export const CreateNewAccountModal = ({
   const [choosed, setChoosed] = useState<number>()
   const [options, setOptions] = useState<SellingOrder[]>([])
 
-  const handleOpenIssue = (sales: number | undefined) => {
+  const handleLeadsSalesItems = (sales: number | undefined) => {
     if (sales) {
       fetch(`https://cheapr.my.id/open_issue/`, {
         method: 'POST',
@@ -235,7 +235,7 @@ export const CreateNewAccountModal = ({
                   //   setConfirmCanceledOpen(true)
                   // } else {
                   //   setChoosed(newValue.pk.toString())
-                  //   handleOpenIssue(newValue.pk)
+                  //   handleLeadsSalesItems(newValue.pk)
                   // }
                 }
               }}
@@ -283,7 +283,7 @@ export const CreateNewAccountModal = ({
       </DialogContent>
       <DialogActions sx={{ p: '1.25rem' }}>
         <Button onClick={onClose}>Cancel</Button>
-        <Button color='primary' onClick={() => handleOpenIssue(choosed)} variant='contained'>
+        <Button color='primary' onClick={() => handleLeadsSalesItems(choosed)} variant='contained'>
           Create
         </Button>
       </DialogActions>
@@ -359,8 +359,7 @@ const Example = (props: any) => {
       tabActive
     ],
     queryFn: async () => {
-      const fetchURL = new URL('/open_issue/', 'https://cheapr.my.id')
-      fetchURL.searchParams.set('status', `N`)
+      const fetchURL = new URL('/leads_sales_items/', 'https://cheapr.my.id')
       fetchURL.searchParams.set('limit', `${pagination.pageSize}`)
       fetchURL.searchParams.set('offset', `${pagination.pageIndex * pagination.pageSize}`)
       for (let f = 0; f < columnFilters.length; f++) {
@@ -374,6 +373,7 @@ const Example = (props: any) => {
         }
       }
       fetchURL.searchParams.set('search', globalFilter ?? '')
+      fetchURL.searchParams.set('returned', 'false')
       let ordering = ''
       for (let s = 0; s < sorting.length; s++) {
         const sort = sorting[s]
@@ -388,7 +388,6 @@ const Example = (props: any) => {
       fetchURL.searchParams.set('ordering', ordering)
 
       fetchURL.searchParams.set('cs', tabActive != 'all' ? tabActive : '')
-      fetchURL.searchParams.set('fall_off_after', moment(Date.now()).format('YYYY-MM-DD'))
 
       console.log(fetchURL.href)
       const response = await fetch(fetchURL.href, {
@@ -404,13 +403,13 @@ const Example = (props: any) => {
     },
     keepPreviousData: true
   })
-  const [tableData, setTableData] = useState<OpenIssue[]>(() => data?.results ?? [])
+  const [tableData, setTableData] = useState<LeadsSalesItems[]>(() => data?.results ?? [])
   const [csData, setCsData] = useState<CustomerService[]>([])
 
   const [roomData, setRoomData] = useState<Room[]>([])
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
-  const [addModalOpen, setAddModalOpen] = useState<OpenIssue>()
+  const [addModalOpen, setAddModalOpen] = useState<LeadsSalesItems>()
   const [detail, setDetail] = useState<number | undefined>()
   const [detailModalOpen, setDetailModalOpen] = useState(false)
   const [custPk, setCustPk] = useState<number | undefined>()
@@ -418,14 +417,9 @@ const Example = (props: any) => {
   const handleChange = (event: SelectChangeEvent) => {
     setTabActive(event.target.value as string)
   }
-  const handleCreateNewRow = (values: OpenIssue) => {
+  const handleCreateNewRow = (values: LeadsSalesItems) => {
     console.log(values)
-    let new_obj: any = { ...values }
-
-    if (values['cs']) {
-      const cs = csData.find(cs => cs.name == values['cs']['name'])
-      new_obj = { ...values, cs: cs?.pk }
-    }
+    const new_obj: any = { ...values }
 
     console.log(new_obj)
     fetch(`https://cheapr.my.id/open_issue/`, {
@@ -487,7 +481,11 @@ const Example = (props: any) => {
       })
   }
 
-  const handleSaveRow: MRT_TableOptions<OpenIssue>['onEditingRowSave'] = async ({ exitEditingMode, row, values }) => {
+  const handleSaveRow: MRT_TableOptions<LeadsSalesItems>['onEditingRowSave'] = async ({
+    exitEditingMode,
+    row,
+    values
+  }) => {
     const cs = csData.find(cs => cs.name == values['cs']['name'])
     for (const key in values) {
       if (values.hasOwnProperty(key)) {
@@ -517,215 +515,195 @@ const Example = (props: any) => {
       })
   }
 
-  const handleSaveCell = (cell: MRT_Cell<OpenIssue>, value: any) => {
+  const handleSaveCell = (cell: MRT_Cell<LeadsSalesItems>, value: any) => {
     const key = cell.column.id
     const cs = csData.find(cs => cs.name == value)
     console.log(key, value)
     const oldData = [...tableData]
     const newData: any = [...tableData]
     const payload: any = {}
-    if (key === 'cs.name') {
-      payload['cs'] = cs?.pk
-      newData[cell.row.index]['cs'] = cs
+    if (key === 'selling.person.phone') {
+      payload['phone'] = value
+      const pk = newData[cell.row.index]['selling']['person']['pk']
+
+      console.log(payload)
+      fetch(`https://cheapr.my.id/person/${pk}/`, {
+        method: 'PATCH',
+        headers: new Headers({
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        }),
+        body: JSON.stringify(payload)
+      })
+        .then(response => response.json())
+        .then(json => {
+          console.log(json)
+          if (json[key] !== value) {
+          }
+        })
+        .finally(() => setRefresh(r => r + 1))
     } else {
       payload[key as keyof Payload] = value
-      newData[cell.row.index][cell.column.id as keyof OpenIssue] = value
-    }
-    const pk = newData[cell.row.index]['pk']
+      newData[cell.row.index][cell.column.id as keyof LeadsSalesItems] = value
+      const pk = newData[cell.row.index]['pk']
 
-    console.log(payload)
-    fetch(`https://cheapr.my.id/open_issue/${pk}/`, {
-      method: 'PATCH',
-      headers: new Headers({
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json'
-      }),
-      body: JSON.stringify(payload)
-    })
-      .then(response => response.json())
-      .then(json => {
-        console.log(json)
-        if (json[key] !== value) {
-        }
+      console.log(payload)
+      fetch(`https://cheapr.my.id/leads_sales_items/${pk}/`, {
+        method: 'PATCH',
+        headers: new Headers({
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        }),
+        body: JSON.stringify(payload)
       })
-      .finally(() => setRefresh(r => r + 1))
+        .then(response => response.json())
+        .then(json => {
+          console.log(json)
+          if (json[key] !== value) {
+          }
+        })
+        .finally(() => setRefresh(r => r + 1))
+    }
   }
 
-  const columns = useMemo<MRT_ColumnDef<OpenIssue>[]>(
+  const columns = useMemo<MRT_ColumnDef<LeadsSalesItems>[]>(
     () => [
       {
-        accessorKey: 'sales.channel_order_id',
-        header: 'ORDER ID',
+        accessorKey: 'tracking.status',
+        header: 'SHIPPED',
         maxSize: 50,
-        enableEditing: false
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.tracking ? (
+              <Link
+                href={`${row.original.tracking?.fullcarrier?.prefix}${row.original.tracking?.tracking_number}${row.original.tracking.fullcarrier?.suffix}`}
+                target='_blank'
+              >
+                <Box
+                  sx={theme => ({
+                    backgroundColor:
+                      row.original.tracking.status == 'D'
+                        ? theme.palette.success.dark
+                        : row.original.tracking.status == 'T'
+                        ? theme.palette.warning.light
+                        : row.original.tracking.status == 'I'
+                        ? 'purple'
+                        : theme.palette.error.dark,
+                    borderRadius: '0.5rem',
+                    color: '#fff',
+                    width: 15,
+                    height: 15
+                  })}
+                ></Box>
+              </Link>
+            ) : (
+              <Box
+                sx={theme => ({
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: '#a9a9a9',
+                  borderRadius: '0.5rem',
+                  borderColor: '#000',
+                  color: '#fff',
+                  width: 12,
+                  height: 12
+                })}
+              >
+                <Box
+                  sx={theme => ({
+                    backgroundColor: theme.palette.background.paper,
+                    borderRadius: '0.5rem',
+                    borderColor: '#000',
+                    color: '#fff',
+                    width: 9,
+                    height: 9
+                  })}
+                ></Box>
+              </Box>
+            )}
+          </Box>
+        )
       },
       {
-        accessorKey: 'sales.seller_name',
+        accessorKey: 'selling.seller_name',
         header: 'STORE',
         maxSize: 50,
         enableEditing: false
       },
       {
-        accessorKey: 'salesitem.info',
+        accessorKey: 'selling.channel_order_id',
+        header: 'ORDER',
+        maxSize: 50,
+        enableEditing: false,
+        Cell: ({ row }) => (
+          <Link
+            href='#'
+            onClick={() => {
+              setDetail(row.original.selling.pk)
+              setDetailModalOpen(true)
+            }}
+          >
+            {row.original.selling?.channel_order_id}
+          </Link>
+        )
+      },
+
+      {
+        accessorKey: 'sku.sku',
         header: 'ITEM INFO',
         maxSize: 50,
         enableEditing: false
       },
       {
-        accessorKey: 'total_cost',
-        header: 'AMOUNT',
+        accessorKey: 'sub_sku.sku',
+        header: 'SUBBED',
         maxSize: 50,
         enableEditing: false
       },
+
       {
-        accessorKey: 'sales.person.name',
+        accessorKey: 'selling.person.name',
         header: 'CUSTOMER',
         size: 100,
-        enableEditing: false
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            <Typography variant='body2'>{row.original.selling?.person?.name}</Typography>
+            <Typography variant='body2'>{`${
+              row.original.selling?.person?.address?.street_1 && row.original.selling?.person?.address?.street_1
+            } ${
+              row.original.selling?.person?.address?.city?.name && row.original.selling?.person?.address?.city?.name
+            } ${
+              row.original.selling?.person?.address?.city?.state?.name &&
+              row.original.selling?.person?.address?.city?.state?.name
+            } ${row.original.selling?.person?.address?.zip && row.original.selling?.person?.address?.zip}`}</Typography>
+          </Box>
+        )
       },
       {
-        accessorKey: 'sales.person.phone',
+        accessorKey: 'selling.person.phone',
         header: 'CONTACT',
-        size: 100,
+        size: 100
+      },
+      {
+        accessorKey: 'total_cost',
+        header: 'GROSS SALE',
+        maxSize: 50,
         enableEditing: false
-      },
-      {
-        id: 'ac_tn',
-        header: 'ACTN',
-        size: 150,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
-            }}
-          >
-            {row.original.sales.salesitems.map((sales, index) => {
-              const tracking = sales.tracking
-              if (tracking) {
-                return (
-                  <Typography color='inherit' key={index}>
-                    {tracking.tracking_number}
-                  </Typography>
-                )
-              } else {
-                return <span key={index}>{` `}</span>
-              }
-            })}
-          </Box>
-        )
-      },
-      {
-        id: 'ac_eta',
-        header: 'ETA',
-        maxSize: 60,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
-            }}
-          >
-            {row.original.sales.salesitems.map((sales, index) => {
-              const tracking = sales.tracking
-              if (tracking) {
-                return (
-                  <Typography
-                    color={
-                      tracking.status == 'D'
-                        ? 'green'
-                        : tracking.status == 'T'
-                        ? 'yellow'
-                        : tracking.status == 'N'
-                        ? 'red'
-                        : 'purple'
-                    }
-                    key={index}
-                  >
-                    {tracking?.eta_date
-                      ? moment(tracking?.eta_date).tz('America/Los_Angeles').format('MM.DD')
-                      : tracking.status}
-                  </Typography>
-                )
-              } else {
-                return <span key={index}>{` `}</span>
-              }
-            })}
-          </Box>
-        )
-      },
-      {
-        id: 'rp_tn',
-        header: 'RPTN',
-        size: 150,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
-            }}
-          >
-            {row.original.sales.salesitems.map((sales, index) => {
-              const tracking = sales.tracking
-              if (tracking) {
-                return (
-                  <Typography color='inherit' key={index}>
-                    {tracking.tracking_number}
-                  </Typography>
-                )
-              } else {
-                return <span key={index}>{` `}</span>
-              }
-            })}
-          </Box>
-        )
-      },
-      {
-        id: 'rp_eta',
-        header: 'ETA',
-        maxSize: 60,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
-            }}
-          >
-            {row.original.sales.salesitems.map((sales, index) => {
-              const tracking = sales.tracking
-              if (tracking) {
-                return (
-                  <Typography
-                    color={
-                      tracking.status == 'D'
-                        ? 'green'
-                        : tracking.status == 'T'
-                        ? 'yellow'
-                        : tracking.status == 'N'
-                        ? 'red'
-                        : 'purple'
-                    }
-                    key={index}
-                  >
-                    {tracking?.eta_date
-                      ? moment(tracking?.eta_date).tz('America/Los_Angeles').format('MM.DD')
-                      : tracking.status}
-                  </Typography>
-                )
-              } else {
-                return <span key={index}>{` `}</span>
-              }
-            })}
-          </Box>
-        )
       },
       {
         accessorKey: 'refunded',
@@ -733,9 +711,9 @@ const Example = (props: any) => {
         size: 70
       },
       {
-        id: 'rt_tn',
-        header: 'RTTN',
-        size: 150,
+        accessorKey: 'salesitem_replaced',
+        header: 'REPLACED',
+        maxSize: 50,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
           <Box
@@ -745,25 +723,46 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            {row.original.sales.salesitems.map((sales, index) => {
-              const tracking = sales.tracking
-              if (tracking) {
-                return (
-                  <Typography color='inherit' key={index}>
-                    {tracking.tracking_number}
-                  </Typography>
-                )
-              } else {
-                return <span key={index}>{` `}</span>
-              }
-            })}
+            {row.original.salesitem_replaced ? (
+              <Link
+                href={`${row.original.salesitem_replaced?.tracking?.fullcarrier?.prefix}${row.original.salesitem_replaced?.tracking?.tracking_number}${row.original.salesitem_replaced?.tracking?.fullcarrier?.suffix}`}
+                target='_blank'
+              >
+                <Box
+                  sx={theme => ({
+                    backgroundColor:
+                      row.original.salesitem_replaced?.tracking?.status == 'D'
+                        ? theme.palette.success.dark
+                        : row.original.salesitem_replaced?.tracking?.status == 'T'
+                        ? theme.palette.warning.light
+                        : row.original.salesitem_replaced?.tracking?.status == 'I'
+                        ? 'purple'
+                        : theme.palette.error.dark,
+                    borderRadius: '0.5rem',
+                    color: '#fff',
+                    width: 15,
+                    height: 15
+                  })}
+                ></Box>
+              </Link>
+            ) : (
+              <Box
+                sx={theme => ({
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 12,
+                  height: 12
+                })}
+              ></Box>
+            )}
           </Box>
         )
       },
       {
-        id: 'rt_eta',
-        header: 'ETA',
-        maxSize: 60,
+        accessorKey: 'salesitem_return',
+        header: 'RETURNED',
+        maxSize: 50,
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
           <Box
@@ -773,38 +772,46 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            {row.original.sales.salesitems.map((sales, index) => {
-              const tracking = sales.tracking
-              if (tracking) {
-                return (
-                  <Typography
-                    color={
-                      tracking.status == 'D'
-                        ? 'green'
-                        : tracking.status == 'T'
-                        ? 'yellow'
-                        : tracking.status == 'N'
-                        ? 'red'
-                        : 'purple'
-                    }
-                    key={index}
-                  >
-                    {tracking?.eta_date
-                      ? moment(tracking?.eta_date).tz('America/Los_Angeles').format('MM.DD')
-                      : tracking.status}
-                  </Typography>
-                )
-              } else {
-                return <span key={index}>{` `}</span>
-              }
-            })}
+            {row.original.salesitem_return ? (
+              <Link
+                href={`${row.original.salesitem_return?.tracking?.fullcarrier?.prefix}${row.original.salesitem_return?.tracking?.tracking_number}${row.original.salesitem_return?.tracking?.fullcarrier?.suffix}`}
+                target='_blank'
+              >
+                <Box
+                  sx={theme => ({
+                    backgroundColor:
+                      row.original.salesitem_return?.tracking?.status == 'D'
+                        ? theme.palette.success.dark
+                        : row.original.salesitem_return?.tracking?.status == 'T'
+                        ? theme.palette.warning.light
+                        : row.original.salesitem_return?.tracking?.status == 'I'
+                        ? 'purple'
+                        : theme.palette.error.dark,
+                    borderRadius: '0.5rem',
+                    color: '#fff',
+                    width: 15,
+                    height: 15
+                  })}
+                ></Box>
+              </Link>
+            ) : (
+              <Box
+                sx={theme => ({
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 12,
+                  height: 12
+                })}
+              ></Box>
+            )}
           </Box>
         )
       },
       {
-        accessorKey: 'cs_comment',
-        header: 'CUSTOMER COMMENTS',
-        size: 70
+        id: 'cs_comment',
+        header: 'CORRESPONDENCE',
+        size: 50
       }
     ],
     [csData, tableData]
@@ -826,7 +833,7 @@ const Example = (props: any) => {
     })
   }, [sorting, globalFilter, columnFilters])
   useEffect(() => {
-    setTableData(data?.results ? [] : [])
+    setTableData(data?.results ?? [])
   }, [data])
   useEffect(() => {
     const fetchURL = new URL('/customer_service/', 'https://cheapr.my.id')
@@ -870,16 +877,19 @@ const Example = (props: any) => {
                 color='error'
                 onClick={() => {
                   if (
-                    !confirm(`Are you sure you want to delete this issue #${row.original?.sales?.channel_order_id}`)
+                    !confirm(
+                      `Are you sure you approve that no return neede for this item #${row.original?.selling?.channel_order_id}`
+                    )
                   ) {
                     return
                   }
-                  fetch(`https://cheapr.my.id/open_issue/${row.original.pk}/`, {
-                    method: 'DELETE',
+                  fetch(`https://cheapr.my.id/sales_items/${row.original.pk}/`, {
+                    method: 'PATCH',
                     headers: new Headers({
                       Authorization: `Bearer ${session?.accessToken}`,
                       'Content-Type': 'application/json'
-                    })
+                    }),
+                    body: JSON.stringify({ return_not_needed: true })
                   })
                     .then(response => response.status)
                     .then(status => {
@@ -957,10 +967,10 @@ const Example = (props: any) => {
 
 const queryClient = new QueryClient()
 
-const ReplacedNotReturnedLeads = (props: any) => (
+const NotReturnedLeads = (props: any) => (
   <QueryClientProvider client={queryClient}>
     <Example {...props} />
   </QueryClientProvider>
 )
 
-export default ReplacedNotReturnedLeads
+export default NotReturnedLeads
