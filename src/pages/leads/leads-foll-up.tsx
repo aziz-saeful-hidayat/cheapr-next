@@ -1,75 +1,54 @@
-import React, { useEffect, useMemo, useState, useCallback } from 'react'
 import {
-  MaterialReactTable,
-  type MRT_ColumnDef,
-  type MRT_Row,
-  type MRT_ColumnFiltersState,
-  type MRT_PaginationState,
-  type MRT_SortingState,
-  MRT_TableOptions,
-  MRT_Cell
-} from 'material-react-table'
-import {
+  Autocomplete,
   Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   IconButton,
-  MenuItem,
   Stack,
   TableContainer,
   Table,
   TableHead,
   TableRow,
   TableCell,
-  Paper,
-  TableBody,
   TextField,
-  Autocomplete,
-  CircularProgress,
-  Checkbox
+  Paper,
+  TableBody
 } from '@mui/material'
-import Chip from '@mui/material/Chip'
-import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
 import Link from '@mui/material/Link'
+import Typography from '@mui/material/Typography'
+import {
+  MRT_Cell,
+  MaterialReactTable,
+  type MRT_ColumnDef,
+  type MRT_ColumnFiltersState,
+  type MRT_PaginationState,
+  type MRT_SortingState
+} from 'material-react-table'
+import React, { useEffect, useMemo, useState } from 'react'
 
 //Date Picker Imports
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { DatePicker } from '@mui/x-date-pickers/DatePicker'
-import { Delete, Add, ArrowDropDownCircleOutlined, ArrowDropDown } from '@mui/icons-material'
-import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
-import dayjs from 'dayjs'
-import Items from 'src/@core/components/selling-item'
-import { withAuth } from 'src/constants/HOCs'
-import { useSession, signIn, signOut, getSession } from 'next-auth/react'
-import SalesDetail from 'src/@core/components/sales-detail'
-import { formatterUSDStrip } from 'src/constants/Utils'
-import Select, { SelectChangeEvent } from '@mui/material/Select'
-import moment from 'moment-timezone'
+import { Delete } from '@mui/icons-material'
 import CloseIcon from '@mui/icons-material/Close'
-import HistoryIcon from '@mui/icons-material/History'
-import { styled } from '@mui/material/styles'
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip'
+import { styled } from '@mui/material/styles'
+import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
+import moment from 'moment-timezone'
+import SalesDetail from 'src/@core/components/sales-detail'
 import {
   BuyingOrder,
-  Channel,
-  Carrier,
-  Room,
-  CAProduct,
-  Person,
-  InventoryPayload,
-  InventoryItem,
-  ItemOption,
-  ItemOption2,
   CustomerService,
+  InventoryItem,
+  InventoryPayload,
+  LeadsSalesItems,
+  Room,
   SellingOrder,
-  LeadsSalesItems
+  Tracking
 } from 'src/@core/types'
-import AddSalesItemModal from 'src/@core/components/add-sales-item'
 import { ExtendedSession } from '../api/auth/[...nextauth]'
 
 type Payload = {
@@ -99,7 +78,6 @@ interface CreateModalProps {
   onClose: () => void
   onSubmit: (values: LeadsSalesItems) => void
   open: boolean
-  channelData: any[]
   session: ExtendedSession
   reload: () => void
 }
@@ -117,6 +95,12 @@ interface DeleteModalProps {
   open: boolean
   data: any
 }
+interface PurchaseDetailModalProps {
+  onClose: () => void
+  open: boolean
+  data: { buying: BuyingOrder; tracking: Tracking } | undefined
+}
+
 interface CustHistoryModalProps {
   onClose: () => void
   onSubmit: () => void
@@ -144,15 +128,7 @@ const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
   }
 }))
 
-export const CreateNewAccountModal = ({
-  open,
-  columns,
-  onClose,
-  onSubmit,
-  channelData,
-  session,
-  reload
-}: CreateModalProps) => {
+export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, session, reload }: CreateModalProps) => {
   const [values, setValues] = useState<any>(() =>
     columns.reduce((acc, column) => {
       acc[column.accessorKey ?? ''] = ''
@@ -322,7 +298,92 @@ export const DeleteModal = ({ open, onClose, onSubmit, data }: DeleteModalProps)
     </Dialog>
   )
 }
+export const PurchaseDetailModal = ({ open, onClose, data }: PurchaseDetailModalProps) => {
+  return (
+    <Dialog open={open} maxWidth={'xl'}>
+      <DialogTitle textAlign='center'>Purchase Info</DialogTitle>
+      <IconButton
+        aria-label='close'
+        onClick={onClose}
+        sx={{
+          position: 'absolute',
+          right: 8,
+          top: 8,
+          color: theme => theme.palette.grey[500]
+        }}
+      >
+        <CloseIcon />
+      </IconButton>
+      <TableContainer component={Paper}>
+        <Table aria-label='simple table'>
+          <TableBody>
+            {data?.buying && (
+              <>
+                <TableRow>
+                  <TableCell component='th' scope='row'>
+                    P.O #:
+                  </TableCell>
 
+                  <TableCell align='right'>{data?.buying?.channel_order_id}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell component='th' scope='row'>
+                    Date:
+                  </TableCell>
+
+                  <TableCell align='right'>{data?.buying?.order_date}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell component='th' scope='row'>
+                    Seller Name:
+                  </TableCell>
+
+                  <TableCell align='right'>{data?.buying?.seller_name}</TableCell>
+                </TableRow>
+              </>
+            )}
+            {data?.tracking && (
+              <>
+                <TableRow>
+                  <TableCell component='th' scope='row'>
+                    Carrier Name:
+                  </TableCell>
+
+                  <TableCell align='right'>{data?.tracking?.fullcarrier?.name}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell component='th' scope='row'>
+                    Tracking No:
+                  </TableCell>
+
+                  <TableCell align='right'>
+                    <Link
+                      href={`${data?.tracking?.fullcarrier?.prefix}${data?.tracking?.tracking_number}${data?.tracking?.fullcarrier?.suffix}`}
+                      target='_blank'
+                    >
+                      {data?.tracking?.tracking_number}
+                    </Link>
+                  </TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell component='th' scope='row'>
+                    ETA:
+                  </TableCell>
+
+                  <TableCell align='right'>{data?.tracking?.eta_date}</TableCell>
+                </TableRow>
+              </>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      <DialogActions sx={{ p: '1.25rem' }}>
+        <Button onClick={onClose}>Close</Button>
+      </DialogActions>
+    </Dialog>
+  )
+}
 const statusOptions: any[] = [
   { key: 'N', name: 'New', color: 'error' },
   { key: 'W', name: 'Working', color: 'warning' },
@@ -342,7 +403,7 @@ const Example = (props: any) => {
   const [sorting, setSorting] = useState<MRT_SortingState>([])
   const [pagination, setPagination] = useState<MRT_PaginationState>({
     pageIndex: 0,
-    pageSize: 50
+    pageSize: 100
   })
   const [tabActive, setTabActive] = useState('all')
   const [refresh, setRefresh] = useState(0)
@@ -373,7 +434,8 @@ const Example = (props: any) => {
         }
       }
       fetchURL.searchParams.set('search', globalFilter ?? '')
-      fetchURL.searchParams.set('returned', 'false')
+      fetchURL.searchParams.set('returned', 'true')
+      fetchURL.searchParams.set('refunded', 'true')
       let ordering = ''
       for (let s = 0; s < sorting.length; s++) {
         const sort = sorting[s]
@@ -405,24 +467,18 @@ const Example = (props: any) => {
   })
   const [tableData, setTableData] = useState<LeadsSalesItems[]>(() => data?.results ?? [])
   const [csData, setCsData] = useState<CustomerService[]>([])
-
-  const [roomData, setRoomData] = useState<Room[]>([])
-
   const [createModalOpen, setCreateModalOpen] = useState(false)
-  const [addModalOpen, setAddModalOpen] = useState<LeadsSalesItems>()
+  const [purchaseInfoModalOpen, setPurchaseInfoModalOpen] = useState(false)
+  const [pInfo, setpInfo] = useState<{ buying: BuyingOrder; tracking: Tracking }>()
   const [detail, setDetail] = useState<number | undefined>()
   const [detailModalOpen, setDetailModalOpen] = useState(false)
-  const [custPk, setCustPk] = useState<number | undefined>()
 
-  const handleChange = (event: SelectChangeEvent) => {
-    setTabActive(event.target.value as string)
-  }
   const handleCreateNewRow = (values: LeadsSalesItems) => {
     console.log(values)
     const new_obj: any = { ...values }
 
     console.log(new_obj)
-    fetch(`https://cheapr.my.id/open_issue/`, {
+    fetch(`https://cheapr.my.id/leads_sales_items/`, {
       // note we are going to /1
       method: 'POST',
       headers: new Headers({
@@ -441,83 +497,8 @@ const Example = (props: any) => {
       })
   }
 
-  const reupdate = (order: number) => {
-    fetch(`https://cheapr.my.id/selling_order/${order}/`, {
-      // note we are going to /1
-      headers: new Headers({
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json'
-      })
-    })
-      .then(response => response.json())
-      .then(json => {
-        if (json.pk) {
-          console.log(json)
-          const objIdx = tableData.findIndex(Selling => Selling.pk == json.pk)
-          tableData[objIdx] = json
-          setTableData([...tableData])
-        }
-      })
-  }
-  const handleAddItem = (values: InventoryPayload) => {
-    const newValues = { selling: values.selling }
-    console.log(newValues)
-    console.log(`https://cheapr.my.id/inventory_items/${values.product}/`)
-    fetch(`https://cheapr.my.id/inventory_items/${values.product}/`, {
-      // note we are going to /1
-      method: 'PATCH',
-      headers: new Headers({
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json'
-      }),
-      body: JSON.stringify(newValues)
-    })
-      .then(response => response.json())
-      .then(json => {
-        console.log(json)
-        if (json.pk) {
-          reupdate(json.selling)
-        }
-      })
-  }
-
-  const handleSaveRow: MRT_TableOptions<LeadsSalesItems>['onEditingRowSave'] = async ({
-    exitEditingMode,
-    row,
-    values
-  }) => {
-    const cs = csData.find(cs => cs.name == values['cs']['name'])
-    for (const key in values) {
-      if (values.hasOwnProperty(key)) {
-        if (key == 'cs.name') {
-          values['cs'] = cs?.pk
-          delete values['cs.name']
-        }
-      }
-    }
-    console.log(values)
-    fetch(`https://cheapr.my.id/selling_order/${row.original.pk}/`, {
-      method: 'PATCH',
-      headers: new Headers({
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json'
-      }),
-      body: JSON.stringify(values)
-    })
-      .then(response => response.json())
-      .then(json => {
-        if (json['pk'] !== values.pk) {
-          tableData[row.index] = { ...json, cs: cs }
-
-          setTableData([...tableData])
-          exitEditingMode() //required to exit editing mode
-        }
-      })
-  }
-
   const handleSaveCell = (cell: MRT_Cell<LeadsSalesItems>, value: any) => {
     const key = cell.column.id
-    const cs = csData.find(cs => cs.name == value)
     console.log(key, value)
     const oldData = [...tableData]
     const newData: any = [...tableData]
@@ -583,8 +564,11 @@ const Example = (props: any) => {
           >
             {row.original.tracking ? (
               <Link
-                href={`${row.original.tracking?.fullcarrier?.prefix}${row.original.tracking?.tracking_number}${row.original.tracking.fullcarrier?.suffix}`}
-                target='_blank'
+                href='#'
+                onClick={() => {
+                  setpInfo({ buying: row.original.item?.buying, tracking: row.original.tracking })
+                  setPurchaseInfoModalOpen(true)
+                }}
               >
                 <Box
                   sx={theme => ({
@@ -678,19 +662,23 @@ const Example = (props: any) => {
           <Box
             sx={{
               display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
+              flexDirection: 'column'
             }}
           >
-            <Typography variant='body2'>{row.original.selling?.person?.name}</Typography>
+            {row.original.selling?.person?.name && (
+              <Typography variant='body2'>{row.original.selling?.person?.name}</Typography>
+            )}
             <Typography variant='body2'>{`${
-              row.original.selling?.person?.address?.street_1 && row.original.selling?.person?.address?.street_1
+              row.original.selling?.person?.address?.street_1 ? row.original.selling?.person?.address?.street_1 : ''
             } ${
-              row.original.selling?.person?.address?.city?.name && row.original.selling?.person?.address?.city?.name
+              row.original.selling?.person?.address?.city?.name ? row.original.selling?.person?.address?.city?.name : ''
             } ${
-              row.original.selling?.person?.address?.city?.state?.name &&
               row.original.selling?.person?.address?.city?.state?.name
-            } ${row.original.selling?.person?.address?.zip && row.original.selling?.person?.address?.zip}`}</Typography>
+                ? row.original.selling?.person?.address?.city?.state?.name
+                : ''
+            } ${
+              row.original.selling?.person?.address?.zip ? row.original.selling?.person?.address?.zip : ''
+            }`}</Typography>
           </Box>
         )
       },
@@ -704,6 +692,72 @@ const Example = (props: any) => {
         header: 'GROSS SALE',
         maxSize: 50,
         enableEditing: false
+      },
+      {
+        accessorKey: 'rma_date',
+        header: 'RMA DATE',
+        maxSize: 50,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            {row.original.rma_date ? moment(row.original.rma_date).tz('America/Los_Angeles').format('MM-DD-YY') : ''}
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'salesitem_return',
+        header: 'RETURNED',
+        maxSize: 50,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.salesitem_return ? (
+              <Link
+                href={`${row.original.salesitem_return?.tracking?.fullcarrier?.prefix}${row.original.salesitem_return?.tracking?.tracking_number}${row.original.salesitem_return?.tracking?.fullcarrier?.suffix}`}
+                target='_blank'
+              >
+                <Box
+                  sx={theme => ({
+                    backgroundColor:
+                      row.original.salesitem_return?.tracking?.status == 'D'
+                        ? theme.palette.success.dark
+                        : row.original.salesitem_return?.tracking?.status == 'T'
+                        ? theme.palette.warning.light
+                        : row.original.salesitem_return?.tracking?.status == 'I'
+                        ? 'purple'
+                        : theme.palette.error.dark,
+                    borderRadius: '0.5rem',
+                    color: '#fff',
+                    width: 15,
+                    height: 15
+                  })}
+                ></Box>
+              </Link>
+            ) : (
+              <Box
+                sx={theme => ({
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 12,
+                  height: 12
+                })}
+              ></Box>
+            )}
+          </Box>
+        )
       },
       {
         accessorKey: 'refunded',
@@ -759,82 +813,27 @@ const Example = (props: any) => {
           </Box>
         )
       },
-      {
-        accessorKey: 'salesitem_return',
-        header: 'RETURNED',
-        maxSize: 50,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
-            }}
-          >
-            {row.original.salesitem_return ? (
-              <Link
-                href={`${row.original.salesitem_return?.tracking?.fullcarrier?.prefix}${row.original.salesitem_return?.tracking?.tracking_number}${row.original.salesitem_return?.tracking?.fullcarrier?.suffix}`}
-                target='_blank'
-              >
-                <Box
-                  sx={theme => ({
-                    backgroundColor:
-                      row.original.salesitem_return?.tracking?.status == 'D'
-                        ? theme.palette.success.dark
-                        : row.original.salesitem_return?.tracking?.status == 'T'
-                        ? theme.palette.warning.light
-                        : row.original.salesitem_return?.tracking?.status == 'I'
-                        ? 'purple'
-                        : theme.palette.error.dark,
-                    borderRadius: '0.5rem',
-                    color: '#fff',
-                    width: 15,
-                    height: 15
-                  })}
-                ></Box>
-              </Link>
-            ) : (
-              <Box
-                sx={theme => ({
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: 12,
-                  height: 12
-                })}
-              ></Box>
-            )}
-          </Box>
-        )
-      },
+
       {
         id: 'cs_comment',
         header: 'CORRESPONDENCE',
         size: 50
       }
     ],
-    [csData, tableData]
+    [tableData]
   )
-  const columnsAddItem = useMemo<MRT_ColumnDef<InventoryPayload>[]>(
-    () => [
-      {
-        accessorKey: 'product',
-        header: 'SKU',
-        size: 150
-      }
-    ],
-    []
-  )
+
   useEffect(() => {
     setPagination({
       pageIndex: 0,
-      pageSize: 50
+      pageSize: 100
     })
   }, [sorting, globalFilter, columnFilters])
+
   useEffect(() => {
     setTableData(data?.results ?? [])
   }, [data])
+
   useEffect(() => {
     const fetchURL = new URL('/customer_service/', 'https://cheapr.my.id')
     fetch(fetchURL.href, {
@@ -864,7 +863,7 @@ const Example = (props: any) => {
         }}
         enableEditing
         enableColumnActions={false}
-        enableRowActions
+        enableRowActions={false}
         renderRowActions={({ row }) => (
           <Box sx={{ display: 'flex', gap: '1rem' }}>
             {/* <Tooltip arrow placement='left' title='Edit'>
@@ -911,7 +910,6 @@ const Example = (props: any) => {
             handleSaveCell(cell, event.target.value)
           }
         })}
-        onEditingRowSave={handleSaveRow}
         enableStickyHeader
         enableStickyFooter
         manualFiltering
@@ -951,7 +949,6 @@ const Example = (props: any) => {
         open={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
         onSubmit={handleCreateNewRow}
-        channelData={csData}
         session={session}
         reload={() => setRefresh(r => r + 1)}
       />
@@ -961,16 +958,24 @@ const Example = (props: any) => {
         modalOpen={detailModalOpen}
         onClose={() => setDetailModalOpen(false)}
       />
+      <PurchaseDetailModal
+        open={purchaseInfoModalOpen}
+        onClose={() => {
+          setPurchaseInfoModalOpen(false)
+          setpInfo(undefined)
+        }}
+        data={pInfo}
+      />
     </Card>
   )
 }
 
 const queryClient = new QueryClient()
 
-const NotReturnedLeads = (props: any) => (
+const LeadFollUpLeads = (props: any) => (
   <QueryClientProvider client={queryClient}>
     <Example {...props} />
   </QueryClientProvider>
 )
 
-export default NotReturnedLeads
+export default LeadFollUpLeads

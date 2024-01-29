@@ -247,6 +247,7 @@ export type LeadsSalesItems = {
   refunded: string
   salesitem_replaced: ReplacementSalesItems
   salesitem_return: FullReturnSalesItems
+  rma_date: string
 }
 
 export type SellingOrder = {

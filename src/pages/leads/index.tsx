@@ -26,8 +26,10 @@ import 'react-datepicker/dist/react-datepicker.css'
 import { withAuth } from '../../constants/HOCs'
 import { getSession } from 'next-auth/react'
 
-import NotReturnedLeads from './not-returned'
-import ReturnedLeads from './returned'
+import RefundedNotReturnedLeads from './refunded-not-returned'
+import ReturnedNotRefundedLeads from './returned-not-refunded'
+import LeadFollUpLeads from './leads-foll-up'
+import ArchiveLeads from './archive'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -51,7 +53,7 @@ const Sales = (props: any) => {
   const { session } = props
 
   // ** State
-  const [value, setValue] = useState<string>('rp-rt')
+  const [value, setValue] = useState<string>('rf-n-rt')
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
@@ -66,29 +68,53 @@ const Sales = (props: any) => {
             sx={{ borderBottom: theme => `1px solid ${theme.palette.divider}` }}
           >
             <Tab
-              value='rp-rt'
+              value='rf-n-rt'
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <AccountOutline />
-                  <TabName>Not Returned</TabName>
+                  <TabName>Refunded / Not Returned</TabName>
                 </Box>
               }
             />
             <Tab
-              value='rf-rt'
+              value='rt-n-rf'
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <AccountOutline />
-                  <TabName>Returned</TabName>
+                  <TabName>Returned / Not Refunded</TabName>
+                </Box>
+              }
+            />
+            <Tab
+              value='ld-fl-up'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <AccountOutline />
+                  <TabName>Leads / To Follow Up</TabName>
+                </Box>
+              }
+            />
+            <Tab
+              value='ac-cl'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <AccountOutline />
+                  <TabName>Archive / Closed</TabName>
                 </Box>
               }
             />
           </TabList>
-          <TabPanel sx={{ p: 0 }} value='rp-rt'>
-            <NotReturnedLeads session={session} />
+          <TabPanel sx={{ p: 0 }} value='rf-n-rt'>
+            <RefundedNotReturnedLeads session={session} />
           </TabPanel>
-          <TabPanel sx={{ p: 0 }} value='rf-rt'>
-            <ReturnedLeads session={session} />
+          <TabPanel sx={{ p: 0 }} value='rt-n-rf'>
+            <ReturnedNotRefundedLeads session={session} />
+          </TabPanel>
+          <TabPanel sx={{ p: 0 }} value='ld-fl-up'>
+            <LeadFollUpLeads session={session} />
+          </TabPanel>
+          <TabPanel sx={{ p: 0 }} value='ac-cl'>
+            <ArchiveLeads session={session} />
           </TabPanel>
         </TabContext>
       </Card>
