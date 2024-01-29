@@ -606,3 +606,11 @@ export type InventoryAging = {
   order_date: string
   delivery_date: string
 }
+
+export type SalesCorrespondence = {
+  pk: number
+  sales: number
+  time_stamp: string
+  content: string
+  left: boolean
+}

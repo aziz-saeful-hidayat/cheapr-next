@@ -50,6 +50,8 @@ import {
   Tracking
 } from 'src/@core/types'
 import { ExtendedSession } from '../api/auth/[...nextauth]'
+import Correspondence from 'src/@core/components/correspondence'
+import sales from '../sales'
 
 type Payload = {
   pk?: number
@@ -472,6 +474,8 @@ const Example = (props: any) => {
   const [pInfo, setpInfo] = useState<{ buying: BuyingOrder; tracking: Tracking }>()
   const [detail, setDetail] = useState<number | undefined>()
   const [detailModalOpen, setDetailModalOpen] = useState(false)
+  const [correspondenceModalOpen, setCorrespondenceModalOpen] = useState(false)
+  const [correspondenceId, setCorrespondenceId] = useState<number>()
 
   const handleCreateNewRow = (values: LeadsSalesItems) => {
     console.log(values)
@@ -817,7 +821,18 @@ const Example = (props: any) => {
       {
         id: 'cs_comment',
         header: 'CORRESPONDENCE',
-        size: 50
+        size: 50,
+        Cell: ({ renderedCellValue, row }) => (
+          <Link
+            href='#'
+            onClick={() => {
+              setCorrespondenceId(row.original.pk)
+              setCorrespondenceModalOpen(true)
+            }}
+          >
+            Show
+          </Link>
+        )
       }
     ],
     [tableData]
@@ -965,6 +980,12 @@ const Example = (props: any) => {
           setpInfo(undefined)
         }}
         data={pInfo}
+      />
+      <Correspondence
+        onClose={() => setCorrespondenceModalOpen(false)}
+        open={correspondenceModalOpen}
+        sales={correspondenceId}
+        session={session}
       />
     </Card>
   )
