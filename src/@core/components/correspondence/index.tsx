@@ -154,7 +154,7 @@ export const Correspondence = ({ open, onClose, sales, session }: AddItemProps) 
       <DialogContent>
         <Typography>{moment(timestamp).toISOString()}</Typography>
 
-        {chats.map(chat => (
+        {chats?.map(chat => (
           <Message key={chat.pk} message={chat} />
         ))}
       </DialogContent>
