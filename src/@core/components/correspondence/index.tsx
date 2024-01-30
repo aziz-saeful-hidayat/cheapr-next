@@ -124,21 +124,22 @@ export const Correspondence = ({ open, onClose, sales, session }: AddItemProps) 
   }
 
   useEffect(() => {
-    fetch(`https://cheapr.my.id/sales_correspondence/?sales=${sales}`, {
-      method: 'get',
-      headers: new Headers({
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json'
+    sales &&
+      fetch(`https://cheapr.my.id/sales_correspondence/?sales=${sales}`, {
+        method: 'get',
+        headers: new Headers({
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        })
       })
-    })
-      .then(response => response.json())
-      .then(json => {
-        setChats(json.results)
-      })
+        .then(response => response.json())
+        .then(json => {
+          setChats(json.results)
+        })
   }, [refresh, session])
   return (
     <Dialog open={open}>
-      <DialogTitle textAlign='center'>Add Item</DialogTitle>
+      <DialogTitle textAlign='center'>Correspondence</DialogTitle>
       <IconButton
         aria-label='close'
         onClick={onClose}

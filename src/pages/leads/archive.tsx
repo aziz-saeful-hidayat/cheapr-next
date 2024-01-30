@@ -16,7 +16,8 @@ import {
   TableCell,
   TextField,
   Paper,
-  TableBody
+  TableBody,
+  MenuItem
 } from '@mui/material'
 import Card from '@mui/material/Card'
 import Link from '@mui/material/Link'
@@ -30,10 +31,15 @@ import {
   type MRT_SortingState
 } from 'material-react-table'
 import React, { useEffect, useMemo, useState } from 'react'
+import Select, { SelectChangeEvent } from '@mui/material/Select'
 
 //Date Picker Imports
 import { Delete } from '@mui/icons-material'
 import CloseIcon from '@mui/icons-material/Close'
+import ArchiveIcon from '@mui/icons-material/Archive'
+import AttributionIcon from '@mui/icons-material/Attribution'
+import UnarchiveIcon from '@mui/icons-material/Unarchive'
+
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip'
 import { styled } from '@mui/material/styles'
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
@@ -50,6 +56,8 @@ import {
   Tracking
 } from 'src/@core/types'
 import { ExtendedSession } from '../api/auth/[...nextauth]'
+import Correspondence from 'src/@core/components/correspondence'
+import sales from '../sales'
 
 type Payload = {
   pk?: number
@@ -434,10 +442,7 @@ const Example = (props: any) => {
         }
       }
       fetchURL.searchParams.set('search', globalFilter ?? '')
-      fetchURL.searchParams.set('returned', 'true')
-      fetchURL.searchParams.set('refunded', 'true')
-      fetchURL.searchParams.set('not_interested', 'true')
-
+      fetchURL.searchParams.set('archive', 'true')
       let ordering = ''
       for (let s = 0; s < sorting.length; s++) {
         const sort = sorting[s]
@@ -451,7 +456,21 @@ const Example = (props: any) => {
       }
       fetchURL.searchParams.set('ordering', ordering)
 
-      fetchURL.searchParams.set('cs', tabActive != 'all' ? tabActive : '')
+      {
+        tabActive == 'no_tracking' && fetchURL.searchParams.set('no_return_tracking', 'true')
+      }
+      {
+        tabActive == 'not_moving' && fetchURL.searchParams.set('return_tracking_status', 'N')
+      }
+      {
+        tabActive == 'delivered' && fetchURL.searchParams.set('return_tracking_status', 'D')
+      }
+      {
+        tabActive == 'in_transit' && fetchURL.searchParams.set('return_tracking_status', 'T')
+      }
+      {
+        tabActive == 'issue' && fetchURL.searchParams.set('return_tracking_status', 'I')
+      }
 
       console.log(fetchURL.href)
       const response = await fetch(fetchURL.href, {
@@ -474,7 +493,11 @@ const Example = (props: any) => {
   const [pInfo, setpInfo] = useState<{ buying: BuyingOrder; tracking: Tracking }>()
   const [detail, setDetail] = useState<number | undefined>()
   const [detailModalOpen, setDetailModalOpen] = useState(false)
-
+  const [correspondenceModalOpen, setCorrespondenceModalOpen] = useState(false)
+  const [correspondenceId, setCorrespondenceId] = useState<number>()
+  const handleChange = (event: SelectChangeEvent) => {
+    setTabActive(event.target.value as string)
+  }
   const handleCreateNewRow = (values: LeadsSalesItems) => {
     console.log(values)
     const new_obj: any = { ...values }
@@ -572,22 +595,32 @@ const Example = (props: any) => {
                   setPurchaseInfoModalOpen(true)
                 }}
               >
-                <Box
-                  sx={theme => ({
-                    backgroundColor:
-                      row.original.tracking.status == 'D'
-                        ? theme.palette.success.dark
-                        : row.original.tracking.status == 'T'
-                        ? theme.palette.warning.light
-                        : row.original.tracking.status == 'I'
-                        ? 'purple'
-                        : theme.palette.error.dark,
-                    borderRadius: '0.5rem',
-                    color: '#fff',
-                    width: 15,
-                    height: 15
-                  })}
-                ></Box>
+                <HtmlTooltip
+                  title={
+                    <React.Fragment>
+                      <Typography color='inherit'>Carrier: {row.original.tracking?.fullcarrier?.name}</Typography>
+                      <Typography color='inherit'>Trx No: {row.original.tracking?.tracking_number}</Typography>
+                      <Typography color='inherit'>ETA: {row.original.tracking?.eta_date}</Typography>
+                    </React.Fragment>
+                  }
+                >
+                  <Box
+                    sx={theme => ({
+                      backgroundColor:
+                        row.original.tracking.status == 'D'
+                          ? theme.palette.success.dark
+                          : row.original.tracking.status == 'T'
+                          ? theme.palette.warning.light
+                          : row.original.tracking.status == 'I'
+                          ? 'purple'
+                          : theme.palette.error.dark,
+                      borderRadius: '0.5rem',
+                      color: '#fff',
+                      width: 15,
+                      height: 15
+                    })}
+                  ></Box>
+                </HtmlTooltip>
               </Link>
             ) : (
               <Box
@@ -670,9 +703,11 @@ const Example = (props: any) => {
             {row.original.selling?.person?.name && (
               <Typography variant='body2'>{row.original.selling?.person?.name}</Typography>
             )}
+            {row.original.selling?.person?.address?.street_1 && (
+              <Typography variant='body2'>{row.original.selling?.person?.address?.street_1}</Typography>
+            )}
+
             <Typography variant='body2'>{`${
-              row.original.selling?.person?.address?.street_1 ? row.original.selling?.person?.address?.street_1 : ''
-            } ${
               row.original.selling?.person?.address?.city?.name ? row.original.selling?.person?.address?.city?.name : ''
             } ${
               row.original.selling?.person?.address?.city?.state?.name
@@ -725,27 +760,41 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            {row.original.salesitem_return ? (
+            {row.original.salesitem_return?.tracking ? (
               <Link
                 href={`${row.original.salesitem_return?.tracking?.fullcarrier?.prefix}${row.original.salesitem_return?.tracking?.tracking_number}${row.original.salesitem_return?.tracking?.fullcarrier?.suffix}`}
                 target='_blank'
               >
-                <Box
-                  sx={theme => ({
-                    backgroundColor:
-                      row.original.salesitem_return?.tracking?.status == 'D'
-                        ? theme.palette.success.dark
-                        : row.original.salesitem_return?.tracking?.status == 'T'
-                        ? theme.palette.warning.light
-                        : row.original.salesitem_return?.tracking?.status == 'I'
-                        ? 'purple'
-                        : theme.palette.error.dark,
-                    borderRadius: '0.5rem',
-                    color: '#fff',
-                    width: 15,
-                    height: 15
-                  })}
-                ></Box>
+                <HtmlTooltip
+                  title={
+                    <React.Fragment>
+                      <Typography color='inherit'>
+                        Carrier: {row.original.salesitem_return?.tracking?.fullcarrier?.name}
+                      </Typography>
+                      <Typography color='inherit'>
+                        Trx No: {row.original.salesitem_return?.tracking?.tracking_number}
+                      </Typography>
+                      <Typography color='inherit'>ETA: {row.original.salesitem_return?.tracking?.eta_date}</Typography>
+                    </React.Fragment>
+                  }
+                >
+                  <Box
+                    sx={theme => ({
+                      backgroundColor:
+                        row.original.salesitem_return?.tracking?.status == 'D'
+                          ? theme.palette.success.dark
+                          : row.original.salesitem_return?.tracking?.status == 'T'
+                          ? theme.palette.warning.light
+                          : row.original.salesitem_return?.tracking?.status == 'I'
+                          ? 'purple'
+                          : theme.palette.error.dark,
+                      borderRadius: '0.5rem',
+                      color: '#fff',
+                      width: 15,
+                      height: 15
+                    })}
+                  ></Box>
+                </HtmlTooltip>
               </Link>
             ) : (
               <Box
@@ -779,27 +828,43 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            {row.original.salesitem_replaced ? (
+            {row.original.salesitem_replaced?.tracking ? (
               <Link
                 href={`${row.original.salesitem_replaced?.tracking?.fullcarrier?.prefix}${row.original.salesitem_replaced?.tracking?.tracking_number}${row.original.salesitem_replaced?.tracking?.fullcarrier?.suffix}`}
                 target='_blank'
               >
-                <Box
-                  sx={theme => ({
-                    backgroundColor:
-                      row.original.salesitem_replaced?.tracking?.status == 'D'
-                        ? theme.palette.success.dark
-                        : row.original.salesitem_replaced?.tracking?.status == 'T'
-                        ? theme.palette.warning.light
-                        : row.original.salesitem_replaced?.tracking?.status == 'I'
-                        ? 'purple'
-                        : theme.palette.error.dark,
-                    borderRadius: '0.5rem',
-                    color: '#fff',
-                    width: 15,
-                    height: 15
-                  })}
-                ></Box>
+                <HtmlTooltip
+                  title={
+                    <React.Fragment>
+                      <Typography color='inherit'>
+                        Carrier: {row.original.salesitem_replaced?.tracking?.fullcarrier?.name}
+                      </Typography>
+                      <Typography color='inherit'>
+                        Trx No: {row.original.salesitem_replaced?.tracking?.tracking_number}
+                      </Typography>
+                      <Typography color='inherit'>
+                        ETA: {row.original.salesitem_replaced?.tracking?.eta_date}
+                      </Typography>
+                    </React.Fragment>
+                  }
+                >
+                  <Box
+                    sx={theme => ({
+                      backgroundColor:
+                        row.original.salesitem_replaced?.tracking?.status == 'D'
+                          ? theme.palette.success.dark
+                          : row.original.salesitem_replaced?.tracking?.status == 'T'
+                          ? theme.palette.warning.light
+                          : row.original.salesitem_replaced?.tracking?.status == 'I'
+                          ? 'purple'
+                          : theme.palette.error.dark,
+                      borderRadius: '0.5rem',
+                      color: '#fff',
+                      width: 15,
+                      height: 15
+                    })}
+                  ></Box>
+                </HtmlTooltip>
               </Link>
             ) : (
               <Box
@@ -815,11 +880,21 @@ const Example = (props: any) => {
           </Box>
         )
       },
-
       {
         id: 'cs_comment',
         header: 'CORRESPONDENCE',
-        size: 50
+        size: 50,
+        Cell: ({ renderedCellValue, row }) => (
+          <Link
+            href='#'
+            onClick={() => {
+              setCorrespondenceId(row.original.pk)
+              setCorrespondenceModalOpen(true)
+            }}
+          >
+            Show
+          </Link>
+        )
       }
     ],
     [tableData]
@@ -865,23 +940,14 @@ const Example = (props: any) => {
         }}
         enableEditing
         enableColumnActions={false}
-        enableRowActions={false}
+        enableRowActions
         renderRowActions={({ row }) => (
           <Box sx={{ display: 'flex', gap: '1rem' }}>
-            {/* <Tooltip arrow placement='left' title='Edit'>
-              <IconButton onClick={() => table.setEditingRow(row)}>
-                <Edit />
-              </IconButton>
-            </Tooltip> */}
-            <Tooltip arrow placement='right' title='Delete'>
+            <Tooltip arrow placement='right' title='Unarchive'>
               <IconButton
                 color='error'
                 onClick={() => {
-                  if (
-                    !confirm(
-                      `Are you sure you approve that no return neede for this item #${row.original?.selling?.channel_order_id}`
-                    )
-                  ) {
+                  if (!confirm(`Are you sure you unarchive this item #${row.original?.selling?.channel_order_id}`)) {
                     return
                   }
                   fetch(`https://cheapr.my.id/sales_items/${row.original.pk}/`, {
@@ -890,20 +956,29 @@ const Example = (props: any) => {
                       Authorization: `Bearer ${session?.accessToken}`,
                       'Content-Type': 'application/json'
                     }),
-                    body: JSON.stringify({ return_not_needed: true })
+                    body: JSON.stringify({ leads: null })
                   })
-                    .then(response => response.status)
-                    .then(status => {
-                      if (status == 204) {
-                      }
+                    .then(response => response.json())
+                    .then(json => {
+                      console.log(json)
                     })
                     .finally(() => setRefresh(r => r + 1))
                 }}
               >
-                <Delete />
+                <UnarchiveIcon />
               </IconButton>
             </Tooltip>
           </Box>
+        )}
+        renderTopToolbarCustomActions={() => (
+          <Select labelId='demo-select-small-label' id='demo-select-small' value={tabActive} onChange={handleChange}>
+            <MenuItem value={'all'}>All</MenuItem>
+            <MenuItem value={'not_moving'}>Not Moving</MenuItem>
+            <MenuItem value={'no_tracking'}>No-Tracking</MenuItem>
+            <MenuItem value={'in_transit'}>In Transit</MenuItem>
+            <MenuItem value={'delivered'}>Delivered</MenuItem>
+            <MenuItem value={'issue'}>Issue</MenuItem>
+          </Select>
         )}
         editDisplayMode='cell'
         muiEditTextFieldProps={({ cell }) => ({
@@ -967,6 +1042,12 @@ const Example = (props: any) => {
           setpInfo(undefined)
         }}
         data={pInfo}
+      />
+      <Correspondence
+        onClose={() => setCorrespondenceModalOpen(false)}
+        open={correspondenceModalOpen}
+        sales={correspondenceId}
+        session={session}
       />
     </Card>
   )
