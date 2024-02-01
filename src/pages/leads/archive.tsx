@@ -310,6 +310,7 @@ export const DeleteModal = ({ open, onClose, onSubmit, data }: DeleteModalProps)
 }
 export const PurchaseDetailModal = ({ open, onClose, data, session }: PurchaseDetailModalProps) => {
   const [detailModalOpen, setDetailModalOpen] = useState<boolean>(false)
+
   return (
     <Dialog open={open} maxWidth={'xl'}>
       <DialogTitle textAlign='center'>Purchase Info</DialogTitle>
