@@ -195,6 +195,8 @@ export type Tracking = {
   address: null | string
   src_address: null | string
   person: Person
+  signed: string
+  proof: string
 }
 export type ERPData = {
   selling: number

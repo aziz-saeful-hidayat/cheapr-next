@@ -38,7 +38,6 @@ import { Delete } from '@mui/icons-material'
 import CloseIcon from '@mui/icons-material/Close'
 import ArchiveIcon from '@mui/icons-material/Archive'
 import AttributionIcon from '@mui/icons-material/Attribution'
-import UnarchiveIcon from '@mui/icons-material/Unarchive'
 
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip'
 import { styled } from '@mui/material/styles'
@@ -58,6 +57,8 @@ import {
 import { ExtendedSession } from '../api/auth/[...nextauth]'
 import Correspondence from 'src/@core/components/correspondence'
 import sales from '../sales'
+import PurchaseDetail from 'src/@core/components/purchase-detail'
+import PurchaseDetailVerified from 'src/@core/components/purchase-detai-verified'
 
 type Payload = {
   pk?: number
@@ -107,6 +108,7 @@ interface PurchaseDetailModalProps {
   onClose: () => void
   open: boolean
   data: { buying: BuyingOrder; tracking: Tracking } | undefined
+  session: any
 }
 
 interface CustHistoryModalProps {
@@ -306,7 +308,8 @@ export const DeleteModal = ({ open, onClose, onSubmit, data }: DeleteModalProps)
     </Dialog>
   )
 }
-export const PurchaseDetailModal = ({ open, onClose, data }: PurchaseDetailModalProps) => {
+export const PurchaseDetailModal = ({ open, onClose, data, session }: PurchaseDetailModalProps) => {
+  const [detailModalOpen, setDetailModalOpen] = useState<boolean>(false)
   return (
     <Dialog open={open} maxWidth={'xl'}>
       <DialogTitle textAlign='center'>Purchase Info</DialogTitle>
@@ -332,7 +335,16 @@ export const PurchaseDetailModal = ({ open, onClose, data }: PurchaseDetailModal
                     P.O #:
                   </TableCell>
 
-                  <TableCell align='right'>{data?.buying?.channel_order_id}</TableCell>
+                  <TableCell align='right'>
+                    <Link
+                      href={`#`}
+                      onClick={() => {
+                        setDetailModalOpen(true)
+                      }}
+                    >
+                      {data?.buying?.channel_order_id}
+                    </Link>
+                  </TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell component='th' scope='row'>
@@ -375,6 +387,12 @@ export const PurchaseDetailModal = ({ open, onClose, data }: PurchaseDetailModal
                 </TableRow>
                 <TableRow>
                   <TableCell component='th' scope='row'>
+                    Received by:
+                  </TableCell>
+                  <TableCell align='right'>{data?.tracking?.signed}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell component='th' scope='row'>
                     ETA:
                   </TableCell>
 
@@ -389,6 +407,12 @@ export const PurchaseDetailModal = ({ open, onClose, data }: PurchaseDetailModal
       <DialogActions sx={{ p: '1.25rem' }}>
         <Button onClick={onClose}>Close</Button>
       </DialogActions>
+      <PurchaseDetailVerified
+        session={session}
+        pk={data?.buying?.pk}
+        modalOpen={detailModalOpen}
+        onClose={() => setDetailModalOpen(false)}
+      />
     </Dialog>
   )
 }
@@ -601,6 +625,7 @@ const Example = (props: any) => {
                       <Typography color='inherit'>Carrier: {row.original.tracking?.fullcarrier?.name}</Typography>
                       <Typography color='inherit'>Trx No: {row.original.tracking?.tracking_number}</Typography>
                       <Typography color='inherit'>ETA: {row.original.tracking?.eta_date}</Typography>
+                      <Typography color='inherit'>Received by: {row.original.tracking?.signed}</Typography>
                     </React.Fragment>
                   }
                 >
@@ -647,6 +672,50 @@ const Example = (props: any) => {
                   })}
                 ></Box>
               </Box>
+            )}
+            {row.original.salesitem_replaced?.tracking ? (
+              <Link
+                href='#'
+                onClick={() => {
+                  setpInfo({ buying: row.original.item?.buying, tracking: row.original.salesitem_replaced?.tracking })
+                  setPurchaseInfoModalOpen(true)
+                }}
+              >
+                <HtmlTooltip
+                  title={
+                    <React.Fragment>
+                      <Typography color='inherit'>
+                        Carrier: {row.original.salesitem_replaced?.tracking?.fullcarrier?.name}
+                      </Typography>
+                      <Typography color='inherit'>
+                        Trx No: {row.original.salesitem_replaced?.tracking?.tracking_number}
+                      </Typography>
+                      <Typography color='inherit'>
+                        ETA: {row.original.salesitem_replaced?.tracking?.eta_date}
+                      </Typography>
+                    </React.Fragment>
+                  }
+                >
+                  <Box
+                    sx={theme => ({
+                      backgroundColor:
+                        row.original.salesitem_replaced?.tracking.status == 'D'
+                          ? theme.palette.success.dark
+                          : row.original.tracking.status == 'T'
+                          ? theme.palette.warning.light
+                          : row.original.tracking.status == 'I'
+                          ? 'purple'
+                          : theme.palette.error.dark,
+                      borderRadius: '0.5rem',
+                      color: '#fff',
+                      width: 15,
+                      height: 15
+                    })}
+                  ></Box>
+                </HtmlTooltip>
+              </Link>
+            ) : (
+              <></>
             )}
           </Box>
         )
@@ -815,70 +884,11 @@ const Example = (props: any) => {
         header: 'REFUNDED',
         size: 70
       },
+
       {
-        accessorKey: 'salesitem_replaced',
-        header: 'REPLACED',
-        maxSize: 50,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
-            }}
-          >
-            {row.original.salesitem_replaced?.tracking ? (
-              <Link
-                href={`${row.original.salesitem_replaced?.tracking?.fullcarrier?.prefix}${row.original.salesitem_replaced?.tracking?.tracking_number}${row.original.salesitem_replaced?.tracking?.fullcarrier?.suffix}`}
-                target='_blank'
-              >
-                <HtmlTooltip
-                  title={
-                    <React.Fragment>
-                      <Typography color='inherit'>
-                        Carrier: {row.original.salesitem_replaced?.tracking?.fullcarrier?.name}
-                      </Typography>
-                      <Typography color='inherit'>
-                        Trx No: {row.original.salesitem_replaced?.tracking?.tracking_number}
-                      </Typography>
-                      <Typography color='inherit'>
-                        ETA: {row.original.salesitem_replaced?.tracking?.eta_date}
-                      </Typography>
-                    </React.Fragment>
-                  }
-                >
-                  <Box
-                    sx={theme => ({
-                      backgroundColor:
-                        row.original.salesitem_replaced?.tracking?.status == 'D'
-                          ? theme.palette.success.dark
-                          : row.original.salesitem_replaced?.tracking?.status == 'T'
-                          ? theme.palette.warning.light
-                          : row.original.salesitem_replaced?.tracking?.status == 'I'
-                          ? 'purple'
-                          : theme.palette.error.dark,
-                      borderRadius: '0.5rem',
-                      color: '#fff',
-                      width: 15,
-                      height: 15
-                    })}
-                  ></Box>
-                </HtmlTooltip>
-              </Link>
-            ) : (
-              <Box
-                sx={theme => ({
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: 12,
-                  height: 12
-                })}
-              ></Box>
-            )}
-          </Box>
-        )
+        accessorKey: 'comment',
+        header: 'NOTES',
+        size: 70
       },
       {
         id: 'cs_comment',
@@ -941,13 +951,16 @@ const Example = (props: any) => {
         enableEditing
         enableColumnActions={false}
         enableRowActions
+        enableSorting={false}
         renderRowActions={({ row }) => (
           <Box sx={{ display: 'flex', gap: '1rem' }}>
-            <Tooltip arrow placement='right' title='Unarchive'>
+            <Tooltip arrow placement='right' title='Copy to Leads'>
               <IconButton
-                color='error'
+                color='primary'
                 onClick={() => {
-                  if (!confirm(`Are you sure you unarchive this item #${row.original?.selling?.channel_order_id}`)) {
+                  if (
+                    !confirm(`Are you sure you copy this item to leads #${row.original?.selling?.channel_order_id}`)
+                  ) {
                     return
                   }
                   fetch(`https://cheapr.my.id/sales_items/${row.original.pk}/`, {
@@ -956,7 +969,7 @@ const Example = (props: any) => {
                       Authorization: `Bearer ${session?.accessToken}`,
                       'Content-Type': 'application/json'
                     }),
-                    body: JSON.stringify({ leads: null })
+                    body: JSON.stringify({ leads: true })
                   })
                     .then(response => response.json())
                     .then(json => {
@@ -965,7 +978,32 @@ const Example = (props: any) => {
                     .finally(() => setRefresh(r => r + 1))
                 }}
               >
-                <UnarchiveIcon />
+                <AttributionIcon />
+              </IconButton>
+            </Tooltip>
+            <Tooltip arrow placement='right' title='Archive'>
+              <IconButton
+                color='error'
+                onClick={() => {
+                  if (!confirm(`Are you sure you archive this item #${row.original?.selling?.channel_order_id}`)) {
+                    return
+                  }
+                  fetch(`https://cheapr.my.id/sales_items/${row.original.pk}/`, {
+                    method: 'PATCH',
+                    headers: new Headers({
+                      Authorization: `Bearer ${session?.accessToken}`,
+                      'Content-Type': 'application/json'
+                    }),
+                    body: JSON.stringify({ leads: false })
+                  })
+                    .then(response => response.json())
+                    .then(json => {
+                      console.log(json)
+                    })
+                    .finally(() => setRefresh(r => r + 1))
+                }}
+              >
+                <ArchiveIcon />
               </IconButton>
             </Tooltip>
           </Box>
@@ -991,7 +1029,6 @@ const Example = (props: any) => {
         enableStickyFooter
         manualFiltering
         manualPagination
-        manualSorting
         muiToolbarAlertBannerProps={
           isError
             ? {
@@ -1003,7 +1040,6 @@ const Example = (props: any) => {
         onColumnFiltersChange={setColumnFilters}
         onGlobalFilterChange={setGlobalFilter}
         onPaginationChange={setPagination}
-        onSortingChange={setSorting}
         positionActionsColumn='last'
         renderBottomToolbarCustomActions={() => (
           <Typography sx={{ fontStyle: 'italic', p: '0 1rem' }} variant='body2'>
@@ -1017,8 +1053,7 @@ const Example = (props: any) => {
           isLoading,
           pagination,
           showAlertBanner: isError,
-          showProgressBars: isFetching,
-          sorting
+          showProgressBars: isFetching
         }}
       />
       <CreateNewAccountModal
@@ -1042,6 +1077,7 @@ const Example = (props: any) => {
           setpInfo(undefined)
         }}
         data={pInfo}
+        session={session}
       />
       <Correspondence
         onClose={() => setCorrespondenceModalOpen(false)}

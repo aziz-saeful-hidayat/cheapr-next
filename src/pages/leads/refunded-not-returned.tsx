@@ -57,6 +57,8 @@ import {
 import { ExtendedSession } from '../api/auth/[...nextauth]'
 import Correspondence from 'src/@core/components/correspondence'
 import sales from '../sales'
+import PurchaseDetail from 'src/@core/components/purchase-detail'
+import PurchaseDetailVerified from 'src/@core/components/purchase-detai-verified'
 
 type Payload = {
   pk?: number
@@ -106,6 +108,7 @@ interface PurchaseDetailModalProps {
   onClose: () => void
   open: boolean
   data: { buying: BuyingOrder; tracking: Tracking } | undefined
+  session: any
 }
 
 interface CustHistoryModalProps {
@@ -305,7 +308,8 @@ export const DeleteModal = ({ open, onClose, onSubmit, data }: DeleteModalProps)
     </Dialog>
   )
 }
-export const PurchaseDetailModal = ({ open, onClose, data }: PurchaseDetailModalProps) => {
+export const PurchaseDetailModal = ({ open, onClose, data, session }: PurchaseDetailModalProps) => {
+  const [detailModalOpen, setDetailModalOpen] = useState<boolean>(false)
   return (
     <Dialog open={open} maxWidth={'xl'}>
       <DialogTitle textAlign='center'>Purchase Info</DialogTitle>
@@ -331,7 +335,16 @@ export const PurchaseDetailModal = ({ open, onClose, data }: PurchaseDetailModal
                     P.O #:
                   </TableCell>
 
-                  <TableCell align='right'>{data?.buying?.channel_order_id}</TableCell>
+                  <TableCell align='right'>
+                    <Link
+                      href={`#`}
+                      onClick={() => {
+                        setDetailModalOpen(true)
+                      }}
+                    >
+                      {data?.buying?.channel_order_id}
+                    </Link>
+                  </TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell component='th' scope='row'>
@@ -374,6 +387,12 @@ export const PurchaseDetailModal = ({ open, onClose, data }: PurchaseDetailModal
                 </TableRow>
                 <TableRow>
                   <TableCell component='th' scope='row'>
+                    Received by:
+                  </TableCell>
+                  <TableCell align='right'>{data?.tracking?.signed}</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell component='th' scope='row'>
                     ETA:
                   </TableCell>
 
@@ -388,6 +407,12 @@ export const PurchaseDetailModal = ({ open, onClose, data }: PurchaseDetailModal
       <DialogActions sx={{ p: '1.25rem' }}>
         <Button onClick={onClose}>Close</Button>
       </DialogActions>
+      <PurchaseDetailVerified
+        session={session}
+        pk={data?.buying?.pk}
+        modalOpen={detailModalOpen}
+        onClose={() => setDetailModalOpen(false)}
+      />
     </Dialog>
   )
 }
@@ -601,6 +626,7 @@ const Example = (props: any) => {
                       <Typography color='inherit'>Carrier: {row.original.tracking?.fullcarrier?.name}</Typography>
                       <Typography color='inherit'>Trx No: {row.original.tracking?.tracking_number}</Typography>
                       <Typography color='inherit'>ETA: {row.original.tracking?.eta_date}</Typography>
+                      <Typography color='inherit'>Received by: {row.original.tracking?.signed}</Typography>
                     </React.Fragment>
                   }
                 >
@@ -1052,6 +1078,7 @@ const Example = (props: any) => {
           setpInfo(undefined)
         }}
         data={pInfo}
+        session={session}
       />
       <Correspondence
         onClose={() => setCorrespondenceModalOpen(false)}
