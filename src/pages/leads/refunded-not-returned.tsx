@@ -648,6 +648,50 @@ const Example = (props: any) => {
                 ></Box>
               </Box>
             )}
+            {row.original.salesitem_replaced?.tracking ? (
+              <Link
+                href='#'
+                onClick={() => {
+                  setpInfo({ buying: row.original.item?.buying, tracking: row.original.salesitem_replaced?.tracking })
+                  setPurchaseInfoModalOpen(true)
+                }}
+              >
+                <HtmlTooltip
+                  title={
+                    <React.Fragment>
+                      <Typography color='inherit'>
+                        Carrier: {row.original.salesitem_replaced?.tracking?.fullcarrier?.name}
+                      </Typography>
+                      <Typography color='inherit'>
+                        Trx No: {row.original.salesitem_replaced?.tracking?.tracking_number}
+                      </Typography>
+                      <Typography color='inherit'>
+                        ETA: {row.original.salesitem_replaced?.tracking?.eta_date}
+                      </Typography>
+                    </React.Fragment>
+                  }
+                >
+                  <Box
+                    sx={theme => ({
+                      backgroundColor:
+                        row.original.salesitem_replaced?.tracking.status == 'D'
+                          ? theme.palette.success.dark
+                          : row.original.tracking.status == 'T'
+                          ? theme.palette.warning.light
+                          : row.original.tracking.status == 'I'
+                          ? 'purple'
+                          : theme.palette.error.dark,
+                      borderRadius: '0.5rem',
+                      color: '#fff',
+                      width: 15,
+                      height: 15
+                    })}
+                  ></Box>
+                </HtmlTooltip>
+              </Link>
+            ) : (
+              <></>
+            )}
           </Box>
         )
       },
@@ -815,70 +859,11 @@ const Example = (props: any) => {
         header: 'REFUNDED',
         size: 70
       },
+
       {
-        accessorKey: 'salesitem_replaced',
-        header: 'REPLACED',
-        maxSize: 50,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
-            }}
-          >
-            {row.original.salesitem_replaced?.tracking ? (
-              <Link
-                href={`${row.original.salesitem_replaced?.tracking?.fullcarrier?.prefix}${row.original.salesitem_replaced?.tracking?.tracking_number}${row.original.salesitem_replaced?.tracking?.fullcarrier?.suffix}`}
-                target='_blank'
-              >
-                <HtmlTooltip
-                  title={
-                    <React.Fragment>
-                      <Typography color='inherit'>
-                        Carrier: {row.original.salesitem_replaced?.tracking?.fullcarrier?.name}
-                      </Typography>
-                      <Typography color='inherit'>
-                        Trx No: {row.original.salesitem_replaced?.tracking?.tracking_number}
-                      </Typography>
-                      <Typography color='inherit'>
-                        ETA: {row.original.salesitem_replaced?.tracking?.eta_date}
-                      </Typography>
-                    </React.Fragment>
-                  }
-                >
-                  <Box
-                    sx={theme => ({
-                      backgroundColor:
-                        row.original.salesitem_replaced?.tracking?.status == 'D'
-                          ? theme.palette.success.dark
-                          : row.original.salesitem_replaced?.tracking?.status == 'T'
-                          ? theme.palette.warning.light
-                          : row.original.salesitem_replaced?.tracking?.status == 'I'
-                          ? 'purple'
-                          : theme.palette.error.dark,
-                      borderRadius: '0.5rem',
-                      color: '#fff',
-                      width: 15,
-                      height: 15
-                    })}
-                  ></Box>
-                </HtmlTooltip>
-              </Link>
-            ) : (
-              <Box
-                sx={theme => ({
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: 12,
-                  height: 12
-                })}
-              ></Box>
-            )}
-          </Box>
-        )
+        accessorKey: 'comment',
+        header: 'NOTES',
+        size: 70
       },
       {
         id: 'cs_comment',
@@ -941,6 +926,7 @@ const Example = (props: any) => {
         enableEditing
         enableColumnActions={false}
         enableRowActions
+        enableSorting={false}
         renderRowActions={({ row }) => (
           <Box sx={{ display: 'flex', gap: '1rem' }}>
             <Tooltip arrow placement='right' title='Copy to Leads'>
@@ -1018,7 +1004,6 @@ const Example = (props: any) => {
         enableStickyFooter
         manualFiltering
         manualPagination
-        manualSorting
         muiToolbarAlertBannerProps={
           isError
             ? {
@@ -1030,7 +1015,6 @@ const Example = (props: any) => {
         onColumnFiltersChange={setColumnFilters}
         onGlobalFilterChange={setGlobalFilter}
         onPaginationChange={setPagination}
-        onSortingChange={setSorting}
         positionActionsColumn='last'
         renderBottomToolbarCustomActions={() => (
           <Typography sx={{ fontStyle: 'italic', p: '0 1rem' }} variant='body2'>
@@ -1044,8 +1028,7 @@ const Example = (props: any) => {
           isLoading,
           pagination,
           showAlertBanner: isError,
-          showProgressBars: isFetching,
-          sorting
+          showProgressBars: isFetching
         }}
       />
       <CreateNewAccountModal

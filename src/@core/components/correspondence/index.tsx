@@ -23,6 +23,7 @@ import {
 //Date Picker Imports
 import CloseIcon from '@mui/icons-material/Close'
 import SendIcon from '@mui/icons-material/Send'
+import { TextareaAutosize } from '@mui/base/TextareaAutosize'
 
 import { Room, InventoryPayload, SellingOrder, ItemOption, SalesCorrespondence } from 'src/@core/types'
 
@@ -45,54 +46,38 @@ const Message = ({ message }: { message: SalesCorrespondence }) => {
   const isLeft = message.left === true
 
   return (
-    <>
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: isLeft ? 'flex-start' : 'flex-end',
+        mb: 2
+      }}
+    >
       <Box
         sx={{
           display: 'flex',
-          justifyContent: isLeft ? 'flex-start' : 'flex-end',
-          mb: 2
+          flexDirection: isLeft ? 'row' : 'row-reverse',
+          alignItems: 'center'
         }}
       >
-        <Box
+        <Avatar sx={{ bgcolor: isLeft ? 'primary.main' : 'secondary.main' }}>{isLeft ? 'B' : 'U'}</Avatar>
+        <Paper
+          variant='outlined'
           sx={{
-            display: 'flex',
-            flexDirection: isLeft ? 'row' : 'row-reverse',
-            alignItems: 'center'
+            p: 2,
+            ml: isLeft ? 1 : 0,
+            mr: isLeft ? 0 : 1,
+            backgroundColor: isLeft ? 'primary.light' : 'secondary.light',
+            borderRadius: isLeft ? '20px 20px 20px 5px' : '20px 20px 5px 20px'
           }}
         >
-          <Avatar sx={{ bgcolor: isLeft ? 'primary.main' : 'secondary.main' }}>{isLeft ? 'B' : 'U'}</Avatar>
-          <Paper
-            variant='outlined'
-            sx={{
-              p: 2,
-              ml: isLeft ? 1 : 0,
-              mr: isLeft ? 0 : 1,
-              backgroundColor: isLeft ? 'primary.light' : 'secondary.light',
-              borderRadius: isLeft ? '20px 20px 20px 5px' : '20px 20px 5px 20px'
-            }}
-          >
-            <Typography variant='body1'>{message.content}</Typography>
-          </Paper>
-        </Box>
+          <Typography variant='body1'>{message.content}</Typography>
+          <Typography sx={{ fontSize: 10, marginTop: 3 }}>
+            {moment(message.time_stamp).format('MM/DD/yyyy HH:MM:SS')}
+          </Typography>
+        </Paper>
       </Box>
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: isLeft ? 'flex-start' : 'flex-end',
-          mb: 2
-        }}
-      >
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: isLeft ? 'row' : 'row-reverse',
-            alignItems: 'center'
-          }}
-        >
-          <Typography sx={{ fontSize: 10 }}>{moment(message.time_stamp).format('MM/DD/yyyy HH:MM:SS')}</Typography>
-        </Box>
-      </Box>
-    </>
+    </Box>
   )
 }
 
@@ -136,13 +121,19 @@ export const Correspondence = ({ open, onClose, sales, session }: AddItemProps) 
         .then(json => {
           setChats(json.results)
         })
-  }, [refresh, session])
+  }, [refresh, session, sales])
+  const closeModal = () => {
+    onClose()
+    setChats([])
+    setInput('')
+    setTimestamp('')
+  }
   return (
     <Dialog open={open}>
       <DialogTitle textAlign='center'>Correspondence</DialogTitle>
       <IconButton
         aria-label='close'
-        onClick={onClose}
+        onClick={closeModal}
         sx={{
           position: 'absolute',
           right: 8,
@@ -177,6 +168,9 @@ export const Correspondence = ({ open, onClose, sales, session }: AddItemProps) 
                 variant='outlined'
                 value={input}
                 onChange={handleInputChange}
+                multiline
+                // rows={2}
+                // maxRows={4}
               />
             </Grid>
             <Grid item xs={2}>

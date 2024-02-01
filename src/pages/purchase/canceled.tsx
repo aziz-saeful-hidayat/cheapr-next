@@ -342,24 +342,6 @@ const Example = (props: any) => {
   const [pickSellerModalOpen, setPickSellerModalOpen] = useState(false)
   const [createSellerModalOpen, setCreateSellerModalOpen] = useState(false)
 
-  const handleChange = (event: SelectChangeEvent) => {
-    setTabActive(event.target.value as string)
-    if (event.target.value == 'all') {
-      setColumnFilters([])
-    } else if (event.target.value == 'notracking') {
-      setColumnFilters([{ id: 'wait_tracking', value: 'true' }])
-    } else if (event.target.value == 'incoming') {
-      setColumnFilters([
-        { id: 'wait_tracking', value: 'false' },
-        { id: 'incoming', value: 'true' }
-      ])
-    } else if (event.target.value == 'delivered') {
-      setColumnFilters([
-        { id: 'wait_tracking', value: 'false' },
-        { id: 'incoming', value: 'false' }
-      ])
-    }
-  }
   const [createModalOpen, setCreateModalOpen] = useState(false)
 
   const handleCreateNewRow = (values: BuyingOrder) => {
@@ -1001,12 +983,6 @@ const Example = (props: any) => {
             <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
               Add New Purchase
             </Button>
-            {/* <Select labelId='demo-select-small-label' id='demo-select-small' value={tabActive} onChange={handleChange}>
-              <MenuItem value={'all'}>All</MenuItem>
-              <MenuItem value={'notracking'}>No Tracking</MenuItem>
-              <MenuItem value={'incoming'}>Incoming</MenuItem>
-              <MenuItem value={'delivered'}>Received</MenuItem>
-            </Select> */}
           </>
         )}
         rowCount={data?.count ?? 0}

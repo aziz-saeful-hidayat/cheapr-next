@@ -927,19 +927,14 @@ export const AddItemModal = ({
   const [options, setOptions] = useState<readonly ItemOption[]>([])
   const loading = open && options.length === 0
   useEffect(() => {
-    console.log(
-      `https://cheapr.my.id/inventory_items/?inventory=true&incoming=false&product_mpn=${mpnToAdd}&ordering=serial`
-    )
-    fetch(
-      `https://cheapr.my.id/inventory_items/?inventory=true&incoming=false&product_mpn=${mpnToAdd}&ordering=serial`,
-      {
-        // note we are going to /1
-        headers: {
-          Authorization: `Bearer ${session?.accessToken}`,
-          'Content-Type': 'application/json'
-        }
+    console.log(`https://cheapr.my.id/inventory_items/?inventory=true&product_mpn=${mpnToAdd}&ordering=serial`)
+    fetch(`https://cheapr.my.id/inventory_items/?inventory=true&product_mpn=${mpnToAdd}&ordering=serial`, {
+      // note we are going to /1
+      headers: {
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
       }
-    )
+    })
       .then(response => response.json())
       .then(json => {
         setOptions(json.results)
@@ -2032,7 +2027,7 @@ const SalesDetail = (props: any) => {
           })
       }
     } else if (key === 'tracking.tracking_number') {
-      if (!value) {
+      if (value == '' || value == null) {
         fetch(`https://cheapr.my.id/sales_items/${cell.row.original.salesitem_pk}/`, {
           method: 'PATCH',
           headers: {
