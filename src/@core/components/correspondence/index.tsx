@@ -60,20 +60,25 @@ const Message = ({ message }: { message: SalesCorrespondence }) => {
           alignItems: 'center'
         }}
       >
-        <Avatar sx={{ bgcolor: isLeft ? 'primary.main' : 'secondary.main' }}>{isLeft ? 'B' : 'U'}</Avatar>
+        <Avatar sx={{ bgcolor: isLeft ? 'primary.light' : 'secondary.light' }}>
+          {message.sender_name ? message.sender_name.charAt(0).toUpperCase() : isLeft ? 'B' : 'U'}
+        </Avatar>
         <Paper
           variant='outlined'
           sx={{
-            p: 2,
-            ml: isLeft ? 1 : 0,
-            mr: isLeft ? 0 : 1,
-            backgroundColor: isLeft ? 'primary.light' : 'secondary.light',
+            p: 5,
+            ml: isLeft ? 3 : 25,
+            mr: isLeft ? 25 : 3,
+            backgroundColor: isLeft ? '#BBE2EC' : '#C9D7DD',
             borderRadius: isLeft ? '20px 20px 20px 5px' : '20px 20px 5px 20px'
           }}
         >
-          <Typography variant='body1'>{message.content}</Typography>
-          <Typography sx={{ fontSize: 10, marginTop: 3 }}>
-            {moment(message.time_stamp).format('MM/DD/yyyy HH:MM:SS')}
+          {message.content.split(/\n/).map(e => (
+            <Typography variant='body1'>{e}</Typography>
+          ))}
+
+          <Typography variant='body2' sx={{ marginTop: 3, fontWeight: 700 }}>
+            {message.sender_name} - {moment(message.time_stamp).format('MM/DD/yyyy, h:mm a')}
           </Typography>
         </Paper>
       </Box>
@@ -83,6 +88,8 @@ const Message = ({ message }: { message: SalesCorrespondence }) => {
 
 export const Correspondence = ({ open, onClose, sales, session }: AddItemProps) => {
   const [input, setInput] = useState('')
+  const [sender, setSender] = useState('')
+
   const [timestamp, setTimestamp] = useState<null | string>('')
   const [left, setLeft] = useState(false)
   const [isopen, setOpen] = useState(false)
@@ -97,7 +104,7 @@ export const Correspondence = ({ open, onClose, sales, session }: AddItemProps) 
         Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json'
       }),
-      body: JSON.stringify({ sales: sales, time_stamp: timestamp, content: input, left: left })
+      body: JSON.stringify({ sales: sales, time_stamp: timestamp, content: input, left: left, sender_name: sender })
     })
       .then(response => response.json())
       .then(json => {})
@@ -108,9 +115,13 @@ export const Correspondence = ({ open, onClose, sales, session }: AddItemProps) 
     setInput(event.target.value)
   }
 
+  const handleSenderChange = (event: { target: { value: React.SetStateAction<string> } }) => {
+    setSender(event.target.value)
+  }
+
   useEffect(() => {
     sales &&
-      fetch(`https://cheapr.my.id/sales_correspondence/?sales=${sales}`, {
+      fetch(`https://cheapr.my.id/sales_correspondence/?selling=${sales}`, {
         method: 'get',
         headers: new Headers({
           Authorization: `Bearer ${session?.accessToken}`,
@@ -129,7 +140,7 @@ export const Correspondence = ({ open, onClose, sales, session }: AddItemProps) 
     setTimestamp('')
   }
   return (
-    <Dialog open={open}>
+    <Dialog open={open} maxWidth={'lg'}>
       <DialogTitle textAlign='center'>Correspondence</DialogTitle>
       <IconButton
         aria-label='close'
@@ -148,38 +159,48 @@ export const Correspondence = ({ open, onClose, sales, session }: AddItemProps) 
           <Message key={chat.pk} message={chat} />
         ))}
       </DialogContent>
-      <DialogActions sx={{ p: '1.25rem' }}>
-        <Box sx={{ p: 2, backgroundColor: 'background.default' }}>
-          <Grid container spacing={2}>
-            <Grid item xs={8}>
-              <DateTimePicker label='Timestamp' value={timestamp} onChange={newValue => setTimestamp(newValue)} />
-            </Grid>
-            <Grid item xs={4}>
-              <Stack direction='row' spacing={1} alignItems='center'>
-                <Typography>Buyer</Typography>
-                <Switch checked={!left} onChange={() => setLeft(!left)} />
-                <Typography>Us</Typography>
-              </Stack>
-            </Grid>
-            <Grid item xs={10}>
-              <TextField
-                fullWidth
-                placeholder='Type a message'
-                variant='outlined'
-                value={input}
-                onChange={handleInputChange}
-                multiline
-                // rows={2}
-                // maxRows={4}
-              />
-            </Grid>
-            <Grid item xs={2}>
-              <Button fullWidth color='primary' variant='contained' endIcon={<SendIcon />} onClick={handleSend}>
-                Send
-              </Button>
-            </Grid>
+      <DialogActions sx={{ p: '1.25rem' }} disableSpacing={true}>
+        <Grid container spacing={2} sx={{ p: 2, backgroundColor: 'background.default' }}>
+          <Grid item xs={2}>
+            <DateTimePicker label='Timestamp' value={timestamp} onChange={newValue => setTimestamp(newValue)} />
           </Grid>
-        </Box>
+          <Grid item xs={2}>
+            <Stack direction='row' spacing={1} alignItems='center' justifyContent='center'>
+              <Typography>Buyer</Typography>
+              <Switch checked={!left} onChange={() => setLeft(!left)} />
+              <Typography>Us</Typography>
+            </Stack>
+          </Grid>
+          <Grid item xs={2}>
+            <TextField
+              fullWidth
+              placeholder='Sender Name'
+              variant='outlined'
+              value={sender}
+              onChange={handleSenderChange}
+              multiline
+              // rows={2}
+              // maxRows={4}
+            />
+          </Grid>
+          <Grid item xs={5}>
+            <TextField
+              fullWidth
+              placeholder='Type a message'
+              variant='outlined'
+              value={input}
+              onChange={handleInputChange}
+              multiline
+              // rows={2}
+              // maxRows={4}
+            />
+          </Grid>
+          <Grid item xs={1}>
+            <Button fullWidth color='primary' variant='contained' endIcon={<SendIcon />} onClick={handleSend}>
+              Save
+            </Button>
+          </Grid>
+        </Grid>
       </DialogActions>
     </Dialog>
   )

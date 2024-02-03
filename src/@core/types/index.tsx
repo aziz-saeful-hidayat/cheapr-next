@@ -33,6 +33,7 @@ export type Person = {
 export type Rating = {
   pk: number
   name: string
+  color: string
 }
 export type Channel = {
   pk: number
@@ -235,6 +236,12 @@ export type OpenIssue = {
     person: Person
   }
 }
+export type GradeLeads = {
+  pk: number
+  number: number
+  text: string
+  color: string
+}
 
 export type LeadsSalesItems = {
   pk: number
@@ -250,6 +257,8 @@ export type LeadsSalesItems = {
   salesitem_replaced: ReplacementSalesItems
   salesitem_return: FullReturnSalesItems
   rma_date: string
+  total_correspondence: number
+  grade: GradeLeads
 }
 
 export type SellingOrder = {
@@ -611,8 +620,11 @@ export type InventoryAging = {
 
 export type SalesCorrespondence = {
   pk: number
-  sales: number
+  sales: string
+  selling: number
   time_stamp: string
   content: string
   left: boolean
+  sender_name: string
+  freshdesk_id: string
 }

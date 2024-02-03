@@ -19,6 +19,8 @@ import {
   TableBody,
   MenuItem
 } from '@mui/material'
+import { Close } from 'mdi-material-ui'
+
 import Card from '@mui/material/Card'
 import Link from '@mui/material/Link'
 import Typography from '@mui/material/Typography'
@@ -47,9 +49,11 @@ import SalesDetail from 'src/@core/components/sales-detail'
 import {
   BuyingOrder,
   CustomerService,
+  GradeLeads,
   InventoryItem,
   InventoryPayload,
   LeadsSalesItems,
+  Rating,
   Room,
   SellingOrder,
   Tracking
@@ -59,6 +63,7 @@ import Correspondence from 'src/@core/components/correspondence'
 import sales from '../sales'
 import PurchaseDetail from 'src/@core/components/purchase-detail'
 import PurchaseDetailVerified from 'src/@core/components/purchase-detai-verified'
+import ChatBadge from 'src/@core/components/chat-badge'
 
 type Payload = {
   pk?: number
@@ -439,6 +444,8 @@ const Example = (props: any) => {
     pageSize: 100
   })
   const [tabActive, setTabActive] = useState('all')
+  const [gradeActive, setGradeActive] = useState('all')
+
   const [refresh, setRefresh] = useState(0)
 
   const { data, isError, isFetching, isLoading } = useQuery({
@@ -450,7 +457,8 @@ const Example = (props: any) => {
       pagination.pageSize, //refetch when pagination.pageSize changes
       sorting, //refetch when sorting changes
       refresh,
-      tabActive
+      tabActive,
+      gradeActive
     ],
     queryFn: async () => {
       const fetchURL = new URL('/leads_sales_items/', 'https://cheapr.my.id')
@@ -481,7 +489,7 @@ const Example = (props: any) => {
         ordering = ordering + sort.id
       }
       fetchURL.searchParams.set('ordering', ordering)
-
+      fetchURL.searchParams.set('grade', gradeActive != 'all' ? gradeActive : '')
       {
         tabActive == 'no_tracking' && fetchURL.searchParams.set('no_return_tracking', 'true')
       }
@@ -513,6 +521,8 @@ const Example = (props: any) => {
     keepPreviousData: true
   })
   const [tableData, setTableData] = useState<LeadsSalesItems[]>(() => data?.results ?? [])
+  const [gradeData, setGradeData] = useState<GradeLeads[]>([])
+
   const [csData, setCsData] = useState<CustomerService[]>([])
   const [createModalOpen, setCreateModalOpen] = useState(false)
   const [purchaseInfoModalOpen, setPurchaseInfoModalOpen] = useState(false)
@@ -523,6 +533,9 @@ const Example = (props: any) => {
   const [correspondenceId, setCorrespondenceId] = useState<number>()
   const handleChange = (event: SelectChangeEvent) => {
     setTabActive(event.target.value as string)
+  }
+  const handleChangeGrade = (event: SelectChangeEvent) => {
+    setGradeActive(event.target.value as string)
   }
   const handleCreateNewRow = (values: LeadsSalesItems) => {
     console.log(values)
@@ -560,6 +573,27 @@ const Example = (props: any) => {
 
       console.log(payload)
       fetch(`https://cheapr.my.id/person/${pk}/`, {
+        method: 'PATCH',
+        headers: new Headers({
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        }),
+        body: JSON.stringify(payload)
+      })
+        .then(response => response.json())
+        .then(json => {
+          console.log(json)
+          if (json[key] !== value) {
+          }
+        })
+        .finally(() => setRefresh(r => r + 1))
+    } else if (key === 'grade.name') {
+      const grade = gradeData.find(grade => grade.pk == value)
+      payload['grade'] = grade?.pk
+      newData[cell.row.index]['grade'] = grade
+      const pk = newData[cell.row.index]['pk']
+      console.log(payload)
+      fetch(`https://cheapr.my.id/leads_sales_items/${pk}/`, {
         method: 'PATCH',
         headers: new Headers({
           Authorization: `Bearer ${session?.accessToken}`,
@@ -897,16 +931,105 @@ const Example = (props: any) => {
         header: 'CORRESPONDENCE',
         size: 50,
         Cell: ({ renderedCellValue, row }) => (
-          <Link
-            href='#'
-            onClick={() => {
-              setCorrespondenceId(row.original.pk)
-              setCorrespondenceModalOpen(true)
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '1rem'
             }}
           >
-            Show
-          </Link>
+            {row.original.total_correspondence ? (
+              <Link
+                href='#'
+                onClick={() => {
+                  setCorrespondenceId(row.original.selling?.pk)
+                  setCorrespondenceModalOpen(true)
+                }}
+              >
+                <ChatBadge count={row.original.total_correspondence} />
+              </Link>
+            ) : (
+              <></>
+            )}
+          </Box>
         )
+      },
+      {
+        accessorKey: 'grade.name',
+        header: 'RATING',
+        maxSize: 70,
+        muiEditTextFieldProps: {
+          select: true, //change to select for a dropdown
+          children: gradeData?.map(grade => (
+            <MenuItem key={grade.pk} value={grade.pk}>
+              <Box
+                component='span'
+                sx={theme => ({
+                  backgroundColor: grade?.color ?? theme.palette.success.dark,
+                  borderRadius: '0.25rem',
+                  color: '#fff',
+                  p: '0.25rem'
+                })}
+              >
+                {grade.number} - {grade.text}
+              </Box>
+            </MenuItem>
+          ))
+        },
+        Cell: ({ renderedCellValue, row }) => {
+          if (row.original.grade) {
+            return (
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '1rem'
+                }}
+              >
+                <Box
+                  component='span'
+                  sx={theme => ({
+                    backgroundColor: row.original.grade?.color ?? theme.palette.success.dark,
+                    borderRadius: '0.25rem',
+                    color: '#fff',
+                    p: '0.25rem'
+                  })}
+                >
+                  {row.original.grade?.number} - {row.original.grade?.text}
+                </Box>
+                <Tooltip arrow placement='top' title='Delete Rating'>
+                  <IconButton
+                    color='error'
+                    onClick={() => {
+                      fetch(`https://cheapr.my.id/leads_sales_items/${row.original.pk}/`, {
+                        // note we are going to /1
+                        method: 'PATCH',
+                        headers: new Headers({
+                          Authorization: `Bearer ${session?.accessToken}`,
+                          'Content-Type': 'application/json'
+                        }),
+                        body: JSON.stringify({ grade: null })
+                      })
+                        .then(response => response.json())
+                        .then(json => {
+                          console.log(json)
+                        })
+                        .finally(() => {
+                          setRefresh(refresh + 1)
+                        })
+                    }}
+                  >
+                    <Close />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+            )
+          } else {
+            return <></>
+          }
+        }
       }
     ],
     [tableData]
@@ -935,6 +1058,18 @@ const Example = (props: any) => {
       .then(response => response.json())
       .then(json => {
         setCsData(json.results)
+      })
+    const fetchRatingURL = new URL('/grade_leads/', 'https://cheapr.my.id')
+    fetch(fetchRatingURL.href, {
+      method: 'get',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      })
+    })
+      .then(response => response.json())
+      .then(json => {
+        setGradeData(json.results)
       })
   }, [session])
 
@@ -1011,14 +1146,29 @@ const Example = (props: any) => {
           </Box>
         )}
         renderTopToolbarCustomActions={() => (
-          <Select labelId='demo-select-small-label' id='demo-select-small' value={tabActive} onChange={handleChange}>
-            <MenuItem value={'all'}>All</MenuItem>
-            <MenuItem value={'not_moving'}>Not Moving</MenuItem>
-            <MenuItem value={'no_tracking'}>No-Tracking</MenuItem>
-            <MenuItem value={'in_transit'}>In Transit</MenuItem>
-            <MenuItem value={'delivered'}>Delivered</MenuItem>
-            <MenuItem value={'issue'}>Issue</MenuItem>
-          </Select>
+          <>
+            <Select labelId='demo-select-small-label' id='demo-select-small' value={tabActive} onChange={handleChange}>
+              <MenuItem value={'all'}>All Status</MenuItem>
+              <MenuItem value={'not_moving'}>Not Moving</MenuItem>
+              <MenuItem value={'no_tracking'}>No-Tracking</MenuItem>
+              <MenuItem value={'in_transit'}>In Transit</MenuItem>
+              <MenuItem value={'delivered'}>Delivered</MenuItem>
+              <MenuItem value={'issue'}>Issue</MenuItem>
+            </Select>
+            <Select
+              labelId='demo-select-small-label'
+              id='demo-select-small'
+              value={gradeActive}
+              onChange={handleChangeGrade}
+            >
+              <MenuItem value={'all'}>All Rating</MenuItem>
+              {gradeData?.map(grade => (
+                <MenuItem key={grade.pk} value={grade.pk}>
+                  {grade.number} - {grade.text}
+                </MenuItem>
+              ))}
+            </Select>
+          </>
         )}
         editDisplayMode='cell'
         muiEditTextFieldProps={({ cell }) => ({
