@@ -64,6 +64,8 @@ import sales from '../sales'
 import PurchaseDetail from 'src/@core/components/purchase-detail'
 import PurchaseDetailVerified from 'src/@core/components/purchase-detai-verified'
 import ChatBadge from 'src/@core/components/chat-badge'
+import NoteAltIcon from '@mui/icons-material/NoteAlt'
+import Notes from 'src/@core/components/notes'
 
 type Payload = {
   pk?: number
@@ -530,6 +532,8 @@ const Example = (props: any) => {
   const [detailModalOpen, setDetailModalOpen] = useState(false)
   const [correspondenceModalOpen, setCorrespondenceModalOpen] = useState(false)
   const [correspondenceId, setCorrespondenceId] = useState<number>()
+  const [notesModalOpen, setNotesModalOpen] = useState(false)
+  const [notesId, setNotesId] = useState<number>()
   const handleChange = (event: SelectChangeEvent) => {
     setTabActive(event.target.value as string)
   }
@@ -923,11 +927,31 @@ const Example = (props: any) => {
       {
         accessorKey: 'comment',
         header: 'NOTES',
-        size: 70
+        size: 70,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '1rem'
+            }}
+          >
+            <Link
+              href='#'
+              onClick={() => {
+                setNotesId(row.original.pk)
+                setNotesModalOpen(true)
+              }}
+            >
+              <NoteAltIcon color={row.original.comment ? 'warning' : 'secondary'} />
+            </Link>
+          </Box>
+        )
       },
       {
         id: 'cs_comment',
-        header: 'CORRESPONDENCE',
+        header: 'MESSAGES',
         size: 50,
         Cell: ({ renderedCellValue, row }) => (
           <Box
@@ -956,8 +980,9 @@ const Example = (props: any) => {
       },
       {
         accessorKey: 'grade.name',
-        header: 'RATING',
+        header: 'GRADE',
         maxSize: 70,
+        enableEditing: false,
         muiEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: gradeData?.map(grade => (
@@ -976,59 +1001,70 @@ const Example = (props: any) => {
             </MenuItem>
           ))
         },
-        Cell: ({ renderedCellValue, row }) => {
-          if (row.original.grade) {
-            return (
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '1rem'
-                }}
-              >
-                <Box
-                  component='span'
-                  sx={theme => ({
-                    backgroundColor: row.original.grade?.color ?? theme.palette.success.dark,
-                    borderRadius: '0.25rem',
-                    color: '#fff',
-                    p: '0.25rem'
-                  })}
-                >
-                  {row.original.grade?.number} - {row.original.grade?.text}
-                </Box>
-                <Tooltip arrow placement='top' title='Delete Rating'>
-                  <IconButton
-                    color='error'
-                    onClick={() => {
-                      fetch(`https://cheapr.my.id/leads_sales_items/${row.original.pk}/`, {
-                        // note we are going to /1
-                        method: 'PATCH',
-                        headers: new Headers({
-                          Authorization: `Bearer ${session?.accessToken}`,
-                          'Content-Type': 'application/json'
-                        }),
-                        body: JSON.stringify({ grade: null })
-                      })
-                        .then(response => response.json())
-                        .then(json => {
-                          console.log(json)
-                        })
-                        .finally(() => {
-                          setRefresh(refresh + 1)
-                        })
-                    }}
+        Cell: ({ renderedCellValue, row, cell }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '1rem'
+            }}
+          >
+            <TextField
+              key={'grade.pk'}
+              label={'Grade'}
+              name={'grade.pk'}
+              value={gradeData.find(e => e.pk == row.original.grade?.pk)?.pk}
+              onChange={e => handleSaveCell(cell, e.target.value)}
+              select
+              size='small'
+              variant='standard'
+            >
+              {gradeData?.map(grade => (
+                <MenuItem key={grade.pk} value={grade.pk}>
+                  <Box
+                    component='span'
+                    sx={theme => ({
+                      backgroundColor: grade?.color ?? theme.palette.success.dark,
+                      borderRadius: '0.25rem',
+                      color: '#fff',
+                      p: '0.25rem'
+                    })}
                   >
-                    <Close />
-                  </IconButton>
-                </Tooltip>
-              </Box>
-            )
-          } else {
-            return <></>
-          }
-        }
+                    {grade.number} - {grade.text}
+                  </Box>
+                </MenuItem>
+              ))}
+            </TextField>
+            {row.original.grade && (
+              <Tooltip arrow placement='top' title='Delete Rating'>
+                <IconButton
+                  color='error'
+                  onClick={() => {
+                    fetch(`https://cheapr.my.id/leads_sales_items/${row.original.pk}/`, {
+                      // note we are going to /1
+                      method: 'PATCH',
+                      headers: new Headers({
+                        Authorization: `Bearer ${session?.accessToken}`,
+                        'Content-Type': 'application/json'
+                      }),
+                      body: JSON.stringify({ grade: null })
+                    })
+                      .then(response => response.json())
+                      .then(json => {
+                        console.log(json)
+                      })
+                      .finally(() => {
+                        setRefresh(refresh + 1)
+                      })
+                  }}
+                >
+                  <Close />
+                </IconButton>
+              </Tooltip>
+            )}
+          </Box>
+        )
       }
     ],
     [tableData]
@@ -1235,6 +1271,18 @@ const Example = (props: any) => {
         open={correspondenceModalOpen}
         sales={correspondenceId}
         session={session}
+      />
+      <Notes
+        onClose={() => {
+          setNotesModalOpen(false)
+          setRefresh(r => r + 1)
+        }}
+        open={notesModalOpen}
+        sales={notesId}
+        session={session}
+        reload={() => {
+          setRefresh(r => r + 1)
+        }}
       />
     </Card>
   )
