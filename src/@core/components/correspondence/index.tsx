@@ -90,8 +90,6 @@ export const Correspondence = ({ open, onClose, sales, session }: AddItemProps) 
   const [input, setInput] = useState('')
   const [sender, setSender] = useState('')
 
-  const [timestamp, setTimestamp] = useState<null | string>('')
-  const [left, setLeft] = useState(false)
   const [isopen, setOpen] = useState(false)
   const [chats, setChats] = useState<SalesCorrespondence[]>([])
   const [loading, setLoading] = useState(false)
@@ -104,7 +102,7 @@ export const Correspondence = ({ open, onClose, sales, session }: AddItemProps) 
         Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json'
       }),
-      body: JSON.stringify({ sales: sales, time_stamp: timestamp, content: input, left: left, sender_name: sender })
+      body: JSON.stringify({ sales: sales, content: input, sender_name: sender })
     })
       .then(response => response.json())
       .then(json => {})
@@ -137,7 +135,6 @@ export const Correspondence = ({ open, onClose, sales, session }: AddItemProps) 
     onClose()
     setChats([])
     setInput('')
-    setTimestamp('')
   }
   return (
     <Dialog open={open} maxWidth={'lg'}>
@@ -161,17 +158,7 @@ export const Correspondence = ({ open, onClose, sales, session }: AddItemProps) 
       </DialogContent>
       <DialogActions sx={{ p: '1.25rem' }} disableSpacing={true}>
         <Grid container spacing={2} sx={{ p: 2, backgroundColor: 'background.default' }}>
-          <Grid item xs={2}>
-            <DateTimePicker label='Timestamp' value={timestamp} onChange={newValue => setTimestamp(newValue)} />
-          </Grid>
-          <Grid item xs={2}>
-            <Stack direction='row' spacing={1} alignItems='center' justifyContent='center'>
-              <Typography>Buyer</Typography>
-              <Switch checked={!left} onChange={() => setLeft(!left)} />
-              <Typography>Us</Typography>
-            </Stack>
-          </Grid>
-          <Grid item xs={2}>
+          <Grid item xs={3}>
             <TextField
               fullWidth
               placeholder='Sender Name'
@@ -183,7 +170,7 @@ export const Correspondence = ({ open, onClose, sales, session }: AddItemProps) 
               // maxRows={4}
             />
           </Grid>
-          <Grid item xs={5}>
+          <Grid item xs={8}>
             <TextField
               fullWidth
               placeholder='Type a message'
@@ -197,7 +184,7 @@ export const Correspondence = ({ open, onClose, sales, session }: AddItemProps) 
           </Grid>
           <Grid item xs={1}>
             <Button fullWidth color='primary' variant='contained' endIcon={<SendIcon />} onClick={handleSend}>
-              Save
+              Send
             </Button>
           </Grid>
         </Grid>

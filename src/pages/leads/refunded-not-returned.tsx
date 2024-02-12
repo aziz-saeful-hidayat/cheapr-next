@@ -66,6 +66,7 @@ import PurchaseDetailVerified from 'src/@core/components/purchase-detai-verified
 import ChatBadge from 'src/@core/components/chat-badge'
 import NoteAltIcon from '@mui/icons-material/NoteAlt'
 import Notes from 'src/@core/components/notes'
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline'
 
 type Payload = {
   pk?: number
@@ -924,7 +925,6 @@ const Example = (props: any) => {
         header: 'REFUNDED',
         size: 70
       },
-
       {
         accessorKey: 'comment',
         header: 'NOTES',
@@ -945,7 +945,7 @@ const Example = (props: any) => {
                 setNotesModalOpen(true)
               }}
             >
-              <NoteAltIcon color={row.original.comment ? 'warning' : 'secondary'} />
+              {row.original.comment ? <NoteAltIcon color={'warning'} /> : <AddCircleOutlineIcon color={'secondary'} />}
             </Link>
           </Box>
         )
@@ -1013,13 +1013,13 @@ const Example = (props: any) => {
           >
             <TextField
               key={'grade.pk'}
-              label={'Grade'}
+              // label={'Grade'}
               name={'grade.pk'}
               value={gradeData.find(e => e.pk == row.original.grade?.pk)?.pk}
               onChange={e => handleSaveCell(cell, e.target.value)}
               select
               size='small'
-              variant='standard'
+              variant='filled'
             >
               {gradeData?.map(grade => (
                 <MenuItem key={grade.pk} value={grade.pk}>

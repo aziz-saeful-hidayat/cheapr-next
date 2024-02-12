@@ -68,6 +68,8 @@ import {
   Manager
 } from 'src/@core/types'
 import AddSalesItemModal from 'src/@core/components/add-sales-item'
+import ChatBadge from 'src/@core/components/chat-badge'
+import Correspondence from 'src/@core/components/correspondence'
 
 type HistoricalData = {
   make: string
@@ -605,7 +607,8 @@ const Example = (props: any) => {
   const [subHistoryModalOpen, setSubHistoryModalOpen] = useState(false)
   const [historyData, setHistoryData] = useState<HistoricalData[]>([])
   const [custPk, setCustPk] = useState<number | undefined>()
-
+  const [correspondenceModalOpen, setCorrespondenceModalOpen] = useState(false)
+  const [correspondenceId, setCorrespondenceId] = useState<number>()
   const handleCreateNewRow = (values: SellingOrder) => {
     console.log(values)
     const channel = channelData.find(channel => channel.name == values['channel']['name'])
@@ -1224,9 +1227,33 @@ const Example = (props: any) => {
         )
       },
       {
-        accessorKey: 'comment',
-        header: 'COMMENT',
-        size: 100
+        id: 'cs_comment',
+        header: 'MESSAGES',
+        size: 50,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '1rem'
+            }}
+          >
+            {row.original.total_correspondence ? (
+              <Link
+                href='#'
+                onClick={() => {
+                  setCorrespondenceId(row.original.pk)
+                  setCorrespondenceModalOpen(true)
+                }}
+              >
+                <ChatBadge count={row.original.total_correspondence} />
+              </Link>
+            ) : (
+              <></>
+            )}
+          </Box>
+        )
       },
       {
         accessorKey: 'seller_name',
@@ -1512,6 +1539,12 @@ const Example = (props: any) => {
         pk={detail}
         modalOpen={detailModalOpen}
         onClose={() => setDetailModalOpen(false)}
+      />
+      <Correspondence
+        onClose={() => setCorrespondenceModalOpen(false)}
+        open={correspondenceModalOpen}
+        sales={correspondenceId}
+        session={session}
       />
       <ManagerOptionModal
         session={session}

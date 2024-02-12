@@ -292,6 +292,7 @@ export type SellingOrder = {
   person: Person
   submited: boolean
   erp_data: ERPData
+  total_correspondence: number
 }
 export type Item = {
   pk: number
@@ -544,6 +545,7 @@ export type ReturnSales = {
   label: string
   tracking: Tracking
   date: string
+  total_correspondence: number
 }
 
 export type PM = {

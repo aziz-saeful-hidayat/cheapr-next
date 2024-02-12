@@ -47,6 +47,7 @@ import Items from 'src/@core/components/selling-item'
 import { withAuth } from 'src/constants/HOCs'
 import { useSession, signIn, signOut, getSession } from 'next-auth/react'
 import SalesDetail from 'src/@core/components/sales-detail'
+import Correspondence from 'src/@core/components/correspondence'
 import { formatterUSDStrip } from 'src/constants/Utils'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import moment from 'moment-timezone'
@@ -71,6 +72,7 @@ import {
 } from 'src/@core/types'
 import { ExtendedSession } from '../api/auth/[...nextauth]'
 import AddSalesItemModal from 'src/@core/components/add-sales-item'
+import ChatBadge from 'src/@core/components/chat-badge'
 
 type HistoricalData = {
   make: string
@@ -745,6 +747,8 @@ const Example = (props: any) => {
   const [custHistoryModalOpen, setCustHistoryModalOpen] = useState(false)
   const [subHistoryModalOpen, setSubHistoryModalOpen] = useState(false)
   const [historyData, setHistoryData] = useState<HistoricalData[]>([])
+  const [correspondenceModalOpen, setCorrespondenceModalOpen] = useState(false)
+  const [correspondenceId, setCorrespondenceId] = useState<number>()
   const [custPk, setCustPk] = useState<number | undefined>()
 
   const handleCreateNewRow = (values: SellingOrder) => {
@@ -1327,9 +1331,33 @@ const Example = (props: any) => {
         )
       },
       {
-        accessorKey: 'comment',
-        header: 'COMMENT',
-        size: 100
+        id: 'cs_comment',
+        header: 'MESSAGES',
+        size: 50,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '1rem'
+            }}
+          >
+            {row.original.total_correspondence ? (
+              <Link
+                href='#'
+                onClick={() => {
+                  setCorrespondenceId(row.original.pk)
+                  setCorrespondenceModalOpen(true)
+                }}
+              >
+                <ChatBadge count={row.original.total_correspondence} />
+              </Link>
+            ) : (
+              <></>
+            )}
+          </Box>
+        )
       },
       {
         accessorKey: 'seller_name',
@@ -1634,6 +1662,12 @@ const Example = (props: any) => {
         pk={detail}
         modalOpen={detailModalOpen}
         onClose={() => setDetailModalOpen(false)}
+      />
+      <Correspondence
+        onClose={() => setCorrespondenceModalOpen(false)}
+        open={correspondenceModalOpen}
+        sales={correspondenceId}
+        session={session}
       />
       <ManagerOptionModal
         session={session}
