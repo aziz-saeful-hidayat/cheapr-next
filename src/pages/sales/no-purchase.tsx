@@ -7,7 +7,8 @@ import {
   type MRT_PaginationState,
   type MRT_SortingState,
   MRT_TableOptions,
-  MRT_Cell
+  MRT_Cell,
+  type MRT_RowSelectionState
 } from 'material-react-table'
 import {
   Box,
@@ -28,7 +29,8 @@ import {
   TableBody,
   TextField,
   Autocomplete,
-  CircularProgress
+  CircularProgress,
+  Checkbox
 } from '@mui/material'
 import Chip from '@mui/material/Chip'
 import Typography from '@mui/material/Typography'
@@ -46,12 +48,12 @@ import Items from 'src/@core/components/selling-item'
 import { withAuth } from 'src/constants/HOCs'
 import { useSession, signIn, signOut, getSession } from 'next-auth/react'
 import SalesDetail from 'src/@core/components/sales-detail'
+import Correspondence from 'src/@core/components/correspondence'
 import { formatterUSDStrip } from 'src/constants/Utils'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import moment from 'moment-timezone'
 import CloseIcon from '@mui/icons-material/Close'
-import { number } from 'yup'
-import { Close } from 'mdi-material-ui'
+import HistoryIcon from '@mui/icons-material/History'
 import { styled } from '@mui/material/styles'
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip'
 import {
@@ -65,11 +67,26 @@ import {
   InventoryItem,
   SellingOrder,
   ItemOption,
+  ItemOption2,
   Manager
 } from 'src/@core/types'
 import AddSalesItemModal from 'src/@core/components/add-sales-item'
+import CreateNewTracking from 'src/@core/components/create-tracking'
 import ChatBadge from 'src/@core/components/chat-badge'
-import Correspondence from 'src/@core/components/correspondence'
+
+type Payload = {
+  pk?: number
+  order_id?: string
+  order_date?: string
+  channel?: number
+  tracking_number?: string
+  seller_name?: string
+  purchase_link?: string
+  total_cost?: number
+  shipping_cost?: number
+  comment?: string
+  sellingitems?: InventoryItem[]
+}
 
 type HistoricalData = {
   make: string
@@ -78,6 +95,27 @@ type HistoricalData = {
   sku: string
   count: number
   order_id: string[]
+}
+interface CreateModalProps {
+  columns: MRT_ColumnDef<SellingOrder>[]
+  onClose: () => void
+  onSubmit: (values: SellingOrder) => void
+  open: boolean
+  channelData: any[]
+}
+interface AddItemProps {
+  columns: MRT_ColumnDef<InventoryPayload>[]
+  onClose: () => void
+  onSubmit: (values: InventoryPayload) => void
+  open: boolean
+  rowData: SellingOrder | undefined
+  roomData: Room[]
+}
+interface DeleteModalProps {
+  onClose: () => void
+  onSubmit: () => void
+  open: boolean
+  data: any
 }
 interface CustHistoryModalProps {
   onClose: () => void
@@ -248,49 +286,6 @@ export const SubHistoryModal = ({ open, onClose, onSubmit, data }: SubHistoryMod
     </Dialog>
   )
 }
-type Payload = {
-  pk?: number
-  order_id?: string
-  order_date?: string
-  channel?: number
-  tracking_number?: string
-  seller_name?: string
-  purchase_link?: string
-  total_cost?: number
-  shipping_cost?: number
-  comment?: string
-  sellingitems?: InventoryItem[]
-}
-
-interface CreateModalProps {
-  columns: MRT_ColumnDef<SellingOrder>[]
-  onClose: () => void
-  onSubmit: (values: SellingOrder) => void
-  open: boolean
-  channelData: any[]
-}
-interface AddItemProps {
-  columns: MRT_ColumnDef<InventoryPayload>[]
-  onClose: () => void
-  onSubmit: (values: InventoryPayload) => void
-  open: boolean
-  rowData: SellingOrder | undefined
-  roomData: Room[]
-}
-interface ManagerOptionProps {
-  session: any
-  pk?: number
-  modalOpen: boolean
-  onClose: () => void
-  setRefresh: any
-  managerData: Manager[]
-}
-interface DeleteModalProps {
-  onClose: () => void
-  onSubmit: () => void
-  open: boolean
-  data: any
-}
 export const CreateNewAccountModal = ({ open, columns, onClose, onSubmit, channelData }: CreateModalProps) => {
   const [values, setValues] = useState<any>(() =>
     columns.reduce((acc, column) => {
@@ -432,88 +427,7 @@ export const DeleteModal = ({ open, onClose, onSubmit, data }: DeleteModalProps)
     </Dialog>
   )
 }
-export const ManagerOptionModal = ({
-  session,
-  pk,
-  modalOpen,
-  onClose,
-  setRefresh,
-  managerData
-}: ManagerOptionProps) => {
-  const [values, setValues] = useState<any>({})
 
-  const handleSubmit = () => {
-    fetch(`https://cheapr.my.id/sales_items/${pk}/`, {
-      // note we are going to /1
-      method: 'PATCH',
-      headers: new Headers({
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json'
-      }),
-      body: JSON.stringify(values)
-    })
-      .then(response => response.json())
-      .then(json => {
-        console.log(json)
-        if (json.pk) {
-          setRefresh((r: number) => r + 1)
-        }
-      })
-    onClose()
-  }
-  const [isopen, setOpen] = useState(false)
-  const [options, setOptions] = useState<readonly Manager[]>(managerData)
-  const loading = modalOpen && options.length === 0
-
-  return (
-    <Dialog open={modalOpen}>
-      <DialogTitle textAlign='center'>Assign to</DialogTitle>
-      <IconButton
-        aria-label='close'
-        onClick={onClose}
-        sx={{
-          position: 'absolute',
-          right: 8,
-          top: 8,
-          color: theme => theme.palette.grey[500]
-        }}
-      >
-        <CloseIcon />
-      </IconButton>
-      <DialogContent>
-        <form onSubmit={e => e.preventDefault()}>
-          <Stack
-            sx={{
-              width: '100%',
-              minWidth: { xs: '300px', sm: '360px', md: '400px' },
-              gap: '1.5rem',
-              paddingTop: 3
-            }}
-          >
-            <TextField
-              label={'Choose a person'}
-              name={'manager'}
-              onChange={e => setValues({ ...values, [e.target.name]: e.target.value })}
-              select
-            >
-              {managerData?.map(manager => (
-                <MenuItem key={manager.pk} value={manager.pk}>
-                  {manager.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Stack>
-        </form>
-      </DialogContent>
-      <DialogActions sx={{ p: '1.25rem' }}>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button color='primary' onClick={handleSubmit} variant='contained'>
-          Choose
-        </Button>
-      </DialogActions>
-    </Dialog>
-  )
-}
 const Example = (props: any) => {
   const { session } = props
   const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>([])
@@ -523,6 +437,7 @@ const Example = (props: any) => {
     pageIndex: 0,
     pageSize: 50
   })
+  const [tabActive, setTabActive] = useState('all')
   const [refresh, setRefresh] = useState(0)
 
   const { data, isError, isFetching, isLoading } = useQuery({
@@ -533,36 +448,45 @@ const Example = (props: any) => {
       pagination.pageIndex, //refetch when pagination.pageIndex changes
       pagination.pageSize, //refetch when pagination.pageSize changes
       sorting, //refetch when sorting changes
-      refresh
+      refresh,
+      tabActive
     ],
-
     queryFn: async () => {
-      const fetchURL = new URL('/unfulfilled_order/', 'https://cheapr.my.id')
+      const fetchURL = new URL('/selling_order/', 'https://cheapr.my.id')
       fetchURL.searchParams.set('limit', `${pagination.pageSize}`)
       fetchURL.searchParams.set('offset', `${pagination.pageIndex * pagination.pageSize}`)
       for (let f = 0; f < columnFilters.length; f++) {
         const filter = columnFilters[f]
-        if (filter.id == 'order_date') {
-          console.log(filter)
-          fetchURL.searchParams.set('order_date_after', Array.isArray(filter.value) ? filter.value[0] : '')
-          fetchURL.searchParams.set('order_date_before', Array.isArray(filter.value) ? filter.value[1] : '')
-        } else if (filter.id == 'delivery_date') {
+        if (filter.id == 'delivery_date') {
           console.log(filter)
           fetchURL.searchParams.set(
             'delivery_date_after',
-            typeof filter.value === 'string' ? moment(filter.value).add(7, 'hours').toISOString() : ''
+            filter?.value ? moment(filter?.value).add(-1, 'days').format() : ''
+          )
+          fetchURL.searchParams.set('delivery_date_before', filter?.value ? moment(filter?.value).format() : '')
+        } else if (filter.id == 'ship_date') {
+          console.log(filter)
+          fetchURL.searchParams.set(
+            'ship_date_after',
+            filter?.value ? moment(filter?.value).add(8, 'hours').toISOString() : ''
           )
           fetchURL.searchParams.set(
-            'delivery_date_before',
-            typeof filter.value === 'string' ? moment(filter.value).add(1, 'days').add(7, 'hours').toISOString() : ''
+            'ship_date_before',
+            filter?.value ? moment(filter?.value).add(1, 'days').add(8, 'hours').toISOString() : ''
+          )
+        } else if (filter.id == 'order_date') {
+          console.log(filter)
+          fetchURL.searchParams.set('order_date_after', filter?.value ? moment(filter?.value).format('YYYY-MM-DD') : '')
+          fetchURL.searchParams.set(
+            'order_date_before',
+            filter?.value ? moment(filter?.value).add(1, 'days').format('YYYY-MM-DD') : ''
           )
         } else {
+          console.log(filter)
           fetchURL.searchParams.set(filter.id.split('.')[0], typeof filter.value === 'string' ? filter.value : '')
         }
       }
       fetchURL.searchParams.set('search', globalFilter ?? '')
-      fetchURL.searchParams.set('buffer', 'true')
-
       let ordering = ''
       for (let s = 0; s < sorting.length; s++) {
         const sort = sorting[s]
@@ -575,7 +499,8 @@ const Example = (props: any) => {
         ordering = ordering + sort.id
       }
       fetchURL.searchParams.set('ordering', ordering)
-      fetchURL.searchParams.set('buffers', ordering)
+
+      fetchURL.searchParams.set('filter', tabActive)
 
       console.log(fetchURL.href)
       const response = await fetch(fetchURL.href, {
@@ -591,30 +516,33 @@ const Example = (props: any) => {
     },
     keepPreviousData: true
   })
-
   const [tableData, setTableData] = useState<SellingOrder[]>(() => data?.results ?? [])
   const [channelData, setChannelData] = useState<Channel[]>([])
-  const [managerData, setManagerData] = useState<Manager[]>([])
   const [roomData, setRoomData] = useState<Room[]>([])
+  const [carrierData, setCarrierData] = useState<Carrier[]>([])
 
   const [createModalOpen, setCreateModalOpen] = useState(false)
+  const [createTrackingModalOpen, setCreateTrackingModalOpen] = useState(false)
+
   const [addModalOpen, setAddModalOpen] = useState<SellingOrder>()
   const [detail, setDetail] = useState<number | undefined>()
   const [detailModalOpen, setDetailModalOpen] = useState(false)
-  const [salesItemPk, setSalesItemPk] = useState<number | undefined>()
-  const [managerModalOpen, setManagerModalOpen] = useState(false)
   const [custHistoryModalOpen, setCustHistoryModalOpen] = useState(false)
   const [subHistoryModalOpen, setSubHistoryModalOpen] = useState(false)
   const [historyData, setHistoryData] = useState<HistoricalData[]>([])
-  const [custPk, setCustPk] = useState<number | undefined>()
   const [correspondenceModalOpen, setCorrespondenceModalOpen] = useState(false)
   const [correspondenceId, setCorrespondenceId] = useState<number>()
+  const [custPk, setCustPk] = useState<number | undefined>()
+
+  const handleChange = (event: SelectChangeEvent) => {
+    setTabActive(event.target.value as string)
+  }
   const handleCreateNewRow = (values: SellingOrder) => {
     console.log(values)
     const channel = channelData.find(channel => channel.name == values['channel']['name'])
     const new_obj = { ...values, channel: channel?.pk }
     console.log(new_obj)
-    fetch(`https://cheapr.my.id/unfulfilled_order/`, {
+    fetch(`https://cheapr.my.id/selling_order/`, {
       // note we are going to /1
       method: 'POST',
       headers: new Headers({
@@ -632,27 +560,23 @@ const Example = (props: any) => {
         }
       })
   }
-  const handleDeleteManager = (salesItemPk: number) => {
-    fetch(`https://cheapr.my.id/sales_items/${salesItemPk}/`, {
-      // note we are going to /1
-      method: 'PATCH',
-      headers: new Headers({
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json'
-      }),
-      body: JSON.stringify({ manager: null })
-    })
-      .then(response => response.json())
-      .then(json => {
-        console.log(json)
-        if (json.pk) {
-          setRefresh((r: number) => r + 1)
-        }
-      })
-  }
 
+  const update = (idx: number, rowIdx: number, key: string, value: any) => {
+    const sellingitems_update = tableData[idx].sellingitems?.map((el, idx) => {
+      if (idx == rowIdx) {
+        const newEl = { ...el }
+        newEl[key] = value
+
+        return newEl
+      } else {
+        return el
+      }
+    })
+    tableData[idx].sellingitems = sellingitems_update
+    setTableData([...tableData])
+  }
   const reupdate = (order: number) => {
-    fetch(`https://cheapr.my.id/unfulfilled_order/${order}/`, {
+    fetch(`https://cheapr.my.id/selling_order/${order}/`, {
       // note we are going to /1
       headers: new Headers({
         Authorization: `Bearer ${session?.accessToken}`,
@@ -696,7 +620,7 @@ const Example = (props: any) => {
       if (!confirm(`Are you sure you want to delete ${row.original.order_id}`)) {
         return
       }
-      fetch(`https://cheapr.my.id/unfulfilled_order/${row.original.pk}/`, {
+      fetch(`https://cheapr.my.id/selling_order/${row.original.pk}/`, {
         // note we are going to /1
         method: 'DELETE',
         headers: new Headers({
@@ -729,7 +653,7 @@ const Example = (props: any) => {
       }
     }
     console.log(values)
-    fetch(`https://cheapr.my.id/unfulfilled_order/${row.original.pk}/`, {
+    fetch(`https://cheapr.my.id/selling_order/${row.original.pk}/`, {
       method: 'PATCH',
       headers: new Headers({
         Authorization: `Bearer ${session?.accessToken}`,
@@ -782,6 +706,23 @@ const Example = (props: any) => {
         }
       })
   }
+  const handleCheck = (event: React.ChangeEvent<HTMLInputElement>, pk: number) => {
+    fetch(`https://cheapr.my.id/selling_order/${pk}/`, {
+      method: 'PATCH',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify({ submited: event.target.checked })
+    })
+      .then(response => response.json())
+      .then(json => {
+        console.log(json)
+      })
+      .finally(() => {
+        setRefresh(r => r + 1)
+      })
+  }
 
   const columns = useMemo<MRT_ColumnDef<SellingOrder>[]>(
     () => [
@@ -804,11 +745,12 @@ const Example = (props: any) => {
                 if (tracking) {
                   return (
                     <Link
-                      key={index}
-                      href={`${tracking?.fullcarrier?.prefix}${tracking.tracking_number}${tracking?.fullcarrier?.suffix}`}
+                      href={`${tracking?.fullcarrier?.prefix}${tracking?.tracking_number}${tracking.fullcarrier?.suffix}`}
                       target='_blank'
+                      key={index}
                     >
                       <Box
+                        key={index}
                         sx={theme => ({
                           backgroundColor:
                             tracking.status == 'D'
@@ -859,82 +801,33 @@ const Example = (props: any) => {
           </Box>
         )
       },
-
-      // {
-      //   id: 'asigne',
-      //   header: 'ASIGNEE',
-      //   maxSize: 50,
-      //   Cell: ({ renderedCellValue, row }) => (
-      //     <Box
-      //       sx={{
-      //         display: 'flex',
-      //         flexDirection: 'column'
-      //       }}
-      //     >
-      //       {row.original.salesitems.map((sales, index) => {
-      //         const manager = sales.manager
-      //         if (manager) {
-      //           return (
-      //             <div key={index}>
-      //               <Link
-      //                 href='#'
-      //                 onClick={() => {
-      //                   setSalesItemPk(sales.pk)
-      //                   setManagerModalOpen(true)
-      //                 }}
-      //               >
-      //                 <span>{`${manager.name}`}</span>
-      //               </Link>
-
-      //               <Tooltip arrow placement='top' title='Remove'>
-      //                 <IconButton
-      //                   color='error'
-      //                   onClick={() => {
-      //                     fetch(`https://cheapr.my.id/sales_items/${sales.pk}/`, {
-      //                       method: 'PATCH',
-      //                       headers: new Headers({
-      //                         Authorization: `Bearer ${session?.accessToken}`,
-      //                         'Content-Type': 'application/json'
-      //                       }),
-      //                       body: JSON.stringify({ manager: null })
-      //                     })
-      //                       .then(response => response.json())
-      //                       .then(json => {
-      //                         console.log(json)
-      //                       })
-      //                       .finally(() => {
-      //                         setRefresh(ref => ref + 1)
-      //                       })
-      //                   }}
-      //                 >
-      //                   <Close />
-      //                 </IconButton>
-      //               </Tooltip>
-      //             </div>
-      //           )
-      //         } else {
-      //           return (
-      //             <Link
-      //               key={index}
-      //               href='#'
-      //               onClick={() => {
-      //                 setSalesItemPk(sales.pk)
-      //                 setManagerModalOpen(true)
-      //               }}
-      //             >
-      //               <span>Assign</span>
-      //             </Link>
-      //           )
-      //         }
-      //       })}
-      //     </Box>
-      //   ),
-      //   enableEditing: false
-      // },
+      {
+        accessorKey: 'submited',
+        header: 'ADD',
+        maxSize: 75,
+        filterVariant: 'checkbox',
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center'
+            }}
+          >
+            <Checkbox
+              checked={row.original.submited}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) => handleCheck(event, row.original.pk)}
+              size='small'
+              inputProps={{ 'aria-label': 'controlled' }}
+            />
+          </Box>
+        ),
+        enableEditing: false
+      },
       {
         accessorKey: 'delivery_date',
         header: 'GET BY',
-        maxSize: 50,
+        maxSize: 75,
+        filterVariant: 'date',
         Cell: ({ renderedCellValue, row }) => (
           <Box
             sx={{
@@ -968,6 +861,7 @@ const Example = (props: any) => {
               if (sku) {
                 return (
                   <HtmlTooltip
+                    key={index}
                     title={
                       <React.Fragment>
                         {sales.title == null ? (
@@ -1099,6 +993,7 @@ const Example = (props: any) => {
               if (sku) {
                 return (
                   <Link
+                    key={index}
                     href='#'
                     onClick={() => {
                       setHistoryData(sales.historical)
@@ -1141,57 +1036,6 @@ const Example = (props: any) => {
         )
       },
       {
-        accessorKey: 'total_cost',
-        id: 'total',
-        header: 'PRICE',
-        size: 70,
-        Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.total_cost)}</Box>,
-        muiEditTextFieldProps: {
-          type: 'number'
-        },
-        enableEditing: false,
-        muiTableBodyCellProps: {
-          align: 'right'
-        },
-        muiTableHeadCellProps: {
-          align: 'right'
-        }
-      },
-      {
-        accessorKey: 'shipping_cost',
-        id: 'shipping_cost',
-        header: 'SHIP',
-        size: 70,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSDStrip(row.original.shipping_cost)}</Box>
-        ),
-        muiEditTextFieldProps: {
-          type: 'number'
-        },
-        muiTableBodyCellProps: {
-          align: 'right'
-        },
-        muiTableHeadCellProps: {
-          align: 'right'
-        }
-      },
-      {
-        accessorKey: 'channel_fee',
-        id: 'channel_fee',
-        header: 'FEES',
-        size: 70,
-        Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.channel_fee)}</Box>,
-        muiEditTextFieldProps: {
-          type: 'number'
-        },
-        muiTableBodyCellProps: {
-          align: 'right'
-        },
-        muiTableHeadCellProps: {
-          align: 'right'
-        }
-      },
-      {
         accessorKey: 'person.name',
         accessorFn: row => row.person?.name?.substr(0, 15),
         header: 'CUSTOMER',
@@ -1205,7 +1049,15 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            <span>{renderedCellValue}</span>
+            <Link
+              href='#'
+              onClick={() => {
+                setCustPk(row.original.person.pk)
+                setCustHistoryModalOpen(true)
+              }}
+            >
+              <span>{renderedCellValue}</span>
+            </Link>
           </Box>
         )
       },
@@ -1263,13 +1115,231 @@ const Example = (props: any) => {
         enableEditing: false
       },
       {
+        accessorKey: 'total_cost',
+        id: 'total',
+        header: 'PRICE',
+        size: 70,
+        Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.total_cost)}</Box>,
+        muiEditTextFieldProps: {
+          type: 'number'
+        },
+        enableEditing: false,
+        muiTableBodyCellProps: {
+          align: 'right'
+        },
+        muiTableHeadCellProps: {
+          align: 'right'
+        },
+        filterVariant: 'text',
+        filterFn: 'greaterThanOrEqualTo' // default (or between)
+      },
+      {
+        accessorKey: 'shipping_cost',
+        id: 'shipping_cost',
+        header: 'SHIP',
+        size: 70,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{formatterUSDStrip(row.original.shipping_cost)}</Box>
+        ),
+        muiEditTextFieldProps: {
+          type: 'number'
+        },
+        muiTableBodyCellProps: {
+          align: 'right'
+        },
+        muiTableHeadCellProps: {
+          align: 'right'
+        }
+      },
+      {
+        accessorKey: 'channel_fee',
+        id: 'channel_fee',
+        header: 'FEES',
+        size: 70,
+        Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.channel_fee)}</Box>,
+        muiEditTextFieldProps: {
+          type: 'number'
+        },
+        muiTableBodyCellProps: {
+          align: 'right'
+        },
+        muiTableHeadCellProps: {
+          align: 'right'
+        }
+      },
+      {
+        accessorKey: 'gross_sales',
+        id: 'gross_sales',
+        header: 'NET SALE',
+        size: 70,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.gross_sales)}</Box>,
+        muiEditTextFieldProps: {
+          type: 'number'
+        },
+        muiTableBodyCellProps: {
+          align: 'right'
+        },
+        muiTableHeadCellProps: {
+          align: 'right'
+        }
+      },
+      {
+        id: 'type',
+        header: 'TYPE',
+        maxSize: 60,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.salesitems
+              .map(sales => sales.item)
+              .map((item, index) => {
+                if (item) {
+                  return <span key={index}>{item.buying?.destination == 'D' ? 'DS' : 'HA'}</span>
+                } else {
+                  return <span key={index}>{` `}</span>
+                }
+              })}
+          </Box>
+        )
+      },
+      {
+        id: 'vendor',
+        header: 'VENDOR',
+        maxSize: 60,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.salesitems
+              .map(sales => sales.item)
+              .map((item, index) => {
+                if (item) {
+                  return (
+                    <Link
+                      key={index}
+                      href={`https://order.ebay.com/ord/show?orderId=${item.buying.channel_order_id}#/`}
+                      target='_blank'
+                    >
+                      {item?.buying?.seller?.name}
+                    </Link>
+                  )
+                } else {
+                  return <span key={index}>{` `}</span>
+                }
+              })}
+          </Box>
+        )
+      },
+      {
+        id: 'purchase_id',
+        header: 'P.O.#',
+        maxSize: 60,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.salesitems
+              .map(sales => sales.item)
+              .map((item, index) => {
+                if (item) {
+                  return <span key={index}>{item?.buying?.channel_order_id}</span>
+                } else {
+                  return <span key={index}>{` `}</span>
+                }
+              })}
+          </Box>
+        )
+      },
+      {
+        accessorKey: 'purchase_cost',
+
+        id: 'purchase_cost',
+        header: 'COST',
+        size: 70,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{formatterUSDStrip(row.original.purchase_cost)}</Box>
+        ),
+        muiEditTextFieldProps: {
+          type: 'number'
+        },
+        muiTableBodyCellProps: {
+          align: 'right'
+        },
+        muiTableHeadCellProps: {
+          align: 'right'
+        }
+      },
+      {
+        accessorKey: 'ss_shipping_cost',
+
+        id: 'ss_shipping_cost',
+        header: 'LABEL',
+        size: 70,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box component='span'>{formatterUSDStrip(row.original.ss_shipping_cost)}</Box>
+        ),
+        muiEditTextFieldProps: {
+          type: 'number'
+        },
+        muiTableBodyCellProps: {
+          align: 'right'
+        },
+        muiTableHeadCellProps: {
+          align: 'right'
+        }
+      },
+      {
+        accessorKey: 'profit',
+        id: 'profit',
+        header: 'MRGN',
+        size: 70,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.profit)}</Box>,
+        muiTableBodyCellProps: ({ cell, table }) => {
+          if (cell.row.original.profit < 0) {
+            return {
+              align: 'right',
+              sx: { backgroundColor: '#ffcccb', color: '#4e0100' }
+            }
+          } else {
+            return {
+              align: 'right'
+            }
+          }
+        },
+        muiEditTextFieldProps: {
+          type: 'number'
+        },
+        muiTableHeadCellProps: {
+          align: 'right'
+        }
+      },
+      {
         accessorKey: 'order_date',
         header: 'DATE',
         size: 70,
         muiEditTextFieldProps: {
           type: 'date'
         },
-        filterFn: 'between',
+        filterVariant: 'date',
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
           <Box
@@ -1291,10 +1361,10 @@ const Example = (props: any) => {
         accessorKey: 'ship_date',
         header: 'SHIP BY',
         size: 70,
+        filterVariant: 'date',
         muiEditTextFieldProps: {
           type: 'date'
         },
-        filterFn: 'between',
         enableEditing: false,
         Cell: ({ renderedCellValue, row }) => (
           <Box
@@ -1311,6 +1381,41 @@ const Example = (props: any) => {
             </span>
           </Box>
         )
+      },
+
+      {
+        accessorKey: 'channel.name',
+        id: 'channel_name',
+        header: 'CHANNEL',
+        size: 100,
+        muiEditTextFieldProps: {
+          select: true, //change to select for a dropdown
+          children: channelData?.map(channel => (
+            <MenuItem key={channel.pk} value={channel.name}>
+              {channel.name}
+            </MenuItem>
+          ))
+        },
+        enableEditing: false
+      },
+      {
+        accessorKey: 'order_id',
+        header: 'SB.#',
+        maxSize: 50,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1rem'
+            }}
+          >
+            <Link href={`https://app.sellbrite.com/orders?query=${row.original.order_id}`} target='_blank'>
+              {renderedCellValue}
+            </Link>
+          </Box>
+        ),
+        enableEditing: false
       },
       {
         id: 'letter_tracking_status',
@@ -1331,6 +1436,7 @@ const Example = (props: any) => {
                 if (tracking) {
                   return (
                     <Link
+                      key={index}
                       href={`${tracking?.fullcarrier?.prefix}${tracking?.tracking_number}${tracking.fullcarrier?.suffix}`}
                       target='_blank'
                     >
@@ -1433,9 +1539,8 @@ const Example = (props: any) => {
       .then(json => {
         setRoomData(json.results)
       })
-    const fetchURLManager = new URL('/manager/', 'https://cheapr.my.id')
-    fetch(fetchURLManager.href, {
-      method: 'get',
+    const fetchURLCarrier = new URL('/carrier/', 'https://cheapr.my.id')
+    fetch(fetchURLCarrier.href, {
       headers: new Headers({
         Authorization: `Bearer ${session?.accessToken}`,
         'Content-Type': 'application/json'
@@ -1443,9 +1548,34 @@ const Example = (props: any) => {
     })
       .then(response => response.json())
       .then(json => {
-        setManagerData(json.results)
+        setCarrierData(json.results)
       })
   }, [session])
+
+  const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({})
+
+  useEffect(() => {
+    console.log({ rowSelection }) //read your managed row selection state
+    // console.info(table.getState().rowSelection); //alternate way to get the row selection state
+  }, [rowSelection])
+
+  const bulkEditTracking = (pk: number) => {
+    const values = { tracking: pk, sales: Object.keys(rowSelection).map(key => parseInt(key)) }
+    console.log(values)
+    fetch(`https://cheapr.my.id/bulk_edit_tracking/`, {
+      method: 'POST',
+      headers: new Headers({
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json'
+      }),
+      body: JSON.stringify(values)
+    })
+      .then(response => response.json())
+      .then(json => {
+        console.log(json)
+      })
+      .finally(() => setRowSelection({}))
+  }
 
   return (
     <Card sx={{ padding: 3 }}>
@@ -1468,9 +1598,16 @@ const Example = (props: any) => {
             handleSaveCell(cell, event.target.value)
           }
         })}
+        muiTableBodyCellProps={({ cell, table }) => ({
+          sx: {
+            backgroundColor: cell.row.original.status == 'canceled' ? '#ffe3e3' : 'paper'
+          }
+        })}
         onEditingRowSave={handleSaveRow}
         enableStickyHeader
         enableStickyFooter
+        enableRowSelection
+        onRowSelectionChange={setRowSelection}
         manualFiltering
         manualPagination
         manualSorting
@@ -1487,19 +1624,30 @@ const Example = (props: any) => {
         onPaginationChange={setPagination}
         onSortingChange={setSorting}
         positionActionsColumn='last'
+        getRowId={row => row?.pk?.toString()}
         renderTopToolbarCustomActions={() => (
           <>
-            <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
-              Add New Sales
-            </Button>
-            {/* <Select labelId='demo-select-small-label' id='demo-select-small' value={tabActive} onChange={handleChange}>
+            {Object.keys(rowSelection).length > 0 ? (
+              <Button color='success' onClick={() => setCreateTrackingModalOpen(true)} variant='contained'>
+                Add Bulk Tracking
+              </Button>
+            ) : (
+              <Button color='primary' onClick={() => setCreateModalOpen(true)} variant='contained'>
+                Add New Sales
+              </Button>
+            )}
+            <Select labelId='demo-select-small-label' id='demo-select-small' value={tabActive} onChange={handleChange}>
+              <MenuItem value={'in_transit'}>In-Transit</MenuItem>
+              <MenuItem value={'not_moving'}>Not Moving</MenuItem>
+              <MenuItem value={'have_issue'}>Have Issue</MenuItem>
+              <MenuItem value={'no_tracking'}>No-Tracking</MenuItem>
+              <MenuItem value={'potential_delay'}>Potential Delay</MenuItem>
+              <MenuItem value={'to_monitor'}>To Monitor</MenuItem>
+              <MenuItem value={'delivered'}>Delivered</MenuItem>
+              <MenuItem value={'canceled'}>Canceled</MenuItem>
+              <MenuItem value={'buffers'}>Buffers</MenuItem>
               <MenuItem value={'all'}>All</MenuItem>
-              {managerData?.map(manager => (
-                <MenuItem key={manager.pk} value={manager.pk}>
-                  {manager.name}
-                </MenuItem>
-              ))}
-            </Select> */}
+            </Select>
           </>
         )}
         renderBottomToolbarCustomActions={() => (
@@ -1515,7 +1663,8 @@ const Example = (props: any) => {
           pagination,
           showAlertBanner: isError,
           showProgressBars: isFetching,
-          sorting
+          sorting,
+          rowSelection
         }}
       />
       <CreateNewAccountModal
@@ -1533,26 +1682,6 @@ const Example = (props: any) => {
         onSubmit={handleAddItem}
         rowData={addModalOpen}
         roomData={roomData}
-      />
-      <SalesDetail
-        session={session}
-        pk={detail}
-        modalOpen={detailModalOpen}
-        onClose={() => setDetailModalOpen(false)}
-      />
-      <Correspondence
-        onClose={() => setCorrespondenceModalOpen(false)}
-        open={correspondenceModalOpen}
-        sales={correspondenceId}
-        session={session}
-      />
-      <ManagerOptionModal
-        session={session}
-        pk={salesItemPk}
-        modalOpen={managerModalOpen}
-        onClose={() => setManagerModalOpen(false)}
-        setRefresh={setRefresh}
-        managerData={managerData}
       />
       <CustHistoryModal
         session={session}
@@ -1572,16 +1701,35 @@ const Example = (props: any) => {
         }}
         onClose={() => setSubHistoryModalOpen(false)}
       />
+      <SalesDetail
+        session={session}
+        pk={detail}
+        modalOpen={detailModalOpen}
+        onClose={() => setDetailModalOpen(false)}
+      />
+      <CreateNewTracking
+        open={createTrackingModalOpen}
+        onClose={() => setCreateTrackingModalOpen(false)}
+        session={session}
+        carrierData={carrierData}
+        bulkEditTracking={bulkEditTracking}
+      />
+      <Correspondence
+        onClose={() => setCorrespondenceModalOpen(false)}
+        open={correspondenceModalOpen}
+        sales={correspondenceId}
+        session={session}
+      />
     </Card>
   )
 }
 
 const queryClient = new QueryClient()
 
-const UnfulfilledBuffers = (props: any) => (
+const NoPurchase = (props: any) => (
   <QueryClientProvider client={queryClient}>
     <Example {...props} />
   </QueryClientProvider>
 )
 
-export default UnfulfilledBuffers
+export default NoPurchase

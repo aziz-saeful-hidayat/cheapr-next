@@ -1066,7 +1066,7 @@ const Example = (props: any) => {
         )
       }
     ],
-    [tableData]
+    [tableData, gradeData]
   )
 
   useEffect(() => {

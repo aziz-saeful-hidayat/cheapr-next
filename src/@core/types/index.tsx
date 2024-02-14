@@ -78,6 +78,13 @@ export type CAProduct = {
 export type Seller = {
   pk: number
   name: string
+  platform: string
+  link: string
+  num_sales: number
+  num_items: number
+  total_sum: string
+  shipping_sum: string
+  channel: Channel 
 }
 export type BuyingOrder = {
   pk: number

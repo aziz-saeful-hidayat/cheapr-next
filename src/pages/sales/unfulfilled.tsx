@@ -779,7 +779,7 @@ const Example = (props: any) => {
 
     setTableData([...newData])
     console.log(payload)
-    fetch(`https://cheapr.my.id/unfulfilled_order/${pk}/`, {
+    fetch(`https://cheapr.my.id/selling_order/${pk}/`, {
       method: 'PATCH',
       headers: new Headers({
         Authorization: `Bearer ${session?.accessToken}`,
