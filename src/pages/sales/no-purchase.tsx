@@ -487,6 +487,8 @@ const Example = (props: any) => {
         }
       }
       fetchURL.searchParams.set('search', globalFilter ?? '')
+      fetchURL.searchParams.set('nopurchase', 'true')
+
       let ordering = ''
       for (let s = 0; s < sorting.length; s++) {
         const sort = sorting[s]

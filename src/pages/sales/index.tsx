@@ -36,6 +36,7 @@ import HAUnlinked from './ha-unlinked'
 import AllSales from './all'
 import Canceled from './canceled'
 import { useRouter } from 'next/router'
+import NoPurchase from './no-purchase'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -160,6 +161,14 @@ const Sales = (props: any) => {
                 </Box>
               }
             />
+            <Tab
+              value='nopurchase'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <TabName>NO PURCHASE</TabName>
+                </Box>
+              }
+            />
             {/* <Tab
               value='info'
               label={
@@ -196,6 +205,9 @@ const Sales = (props: any) => {
           </TabPanel>
           <TabPanel sx={{ p: 0 }} value='ha-unlinked'>
             <HAUnlinked session={session} />
+          </TabPanel>
+          <TabPanel sx={{ p: 0 }} value='nopurchase'>
+            <NoPurchase session={session} />
           </TabPanel>
         </TabContext>
       </Card>

@@ -73,6 +73,7 @@ import {
 import AddSalesItemModal from 'src/@core/components/add-sales-item'
 import CreateNewTracking from 'src/@core/components/create-tracking'
 import ChatBadge from 'src/@core/components/chat-badge'
+import SellerDetail from 'src/@core/components/seller-detail'
 
 type Payload = {
   pk?: number
@@ -744,18 +745,11 @@ const Example = (props: any) => {
         onSubmit={handleCreateNewRow}
         channelData={channelData}
       />
-      <SalesDetail
+      <SellerDetail
         session={session}
         pk={detail}
         modalOpen={detailModalOpen}
         onClose={() => setDetailModalOpen(false)}
-      />
-      <CreateNewTracking
-        open={createTrackingModalOpen}
-        onClose={() => setCreateTrackingModalOpen(false)}
-        session={session}
-        carrierData={carrierData}
-        bulkEditTracking={bulkEditTracking}
       />
       <Correspondence
         onClose={() => setCorrespondenceModalOpen(false)}

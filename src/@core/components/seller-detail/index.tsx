@@ -12,6 +12,8 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { BuyingOrder, Seller } from 'src/@core/types'
 import { formatterUSDStrip } from 'src/constants/Utils'
 import { ExtendedSession } from 'src/pages/api/auth/[...nextauth]'
+import PurchaseDetailVerified from '../purchase-detai-verified'
+import CardSeller from 'src/views/cards/CardSeller'
 
 type InventoryItem = {
   [key: string]: any
@@ -530,7 +532,7 @@ const SellerDetail = (props: any) => {
     [channelData]
   )
   useEffect(() => {
-    const fetchURL = new URL('/room/', 'https://cheapr.my.id')
+    const fetchURL = new URL(`/seller/${pk}/`, 'https://cheapr.my.id')
     fetch(fetchURL.href, {
       method: 'get',
       headers: new Headers({
@@ -540,43 +542,7 @@ const SellerDetail = (props: any) => {
     })
       .then(response => response.json())
       .then(json => {
-        setRoomData(json.results)
-      })
-    const fetchRatingURL = new URL('/item_rating/', 'https://cheapr.my.id')
-    fetch(fetchRatingURL.href, {
-      method: 'get',
-      headers: new Headers({
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json'
-      })
-    })
-      .then(response => response.json())
-      .then(json => {
-        setRatingData(json.results)
-      })
-    const fetchCarrierURL = new URL('/carrier/', 'https://cheapr.my.id')
-    fetch(fetchCarrierURL.href, {
-      method: 'get',
-      headers: new Headers({
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json'
-      })
-    })
-      .then(response => response.json())
-      .then(json => {
-        setCarrierData(json.results)
-      })
-    const fetchChannelURL = new URL('/channel/', 'https://cheapr.my.id')
-    fetch(fetchChannelURL.href, {
-      method: 'get',
-      headers: new Headers({
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json'
-      })
-    })
-      .then(response => response.json())
-      .then(json => {
-        setChannelData(json.results)
+        setOrderData(json)
       })
   }, [session])
   useEffect(() => {
@@ -584,7 +550,7 @@ const SellerDetail = (props: any) => {
       return
     }
     setIsFetching(true)
-    fetch(`https://cheapr.my.id/buying_order/?seller_pk=${pk}/`, {
+    fetch(`https://cheapr.my.id/buying_order/?seller_pk=${pk}`, {
       method: 'get',
       headers: new Headers({
         Authorization: `Bearer ${session?.accessToken}`,
@@ -648,14 +614,13 @@ const SellerDetail = (props: any) => {
       sx={{ padding: 10, overflow: 'scroll' }}
     >
       <>
-        {/* <CardSeller
+        <CardSeller
           orderData={orderData}
           type={'sales'}
-          tableData={tableData}
           onClose={onClose}
           session={session}
           setRefresh={() => setRefresh(r => r + 1)}
-        /> */}
+        />
         <Card sx={{ padding: 3 }}>
           <MaterialReactTable
             columns={columns}
@@ -679,6 +644,12 @@ const SellerDetail = (props: any) => {
             state={{
               showProgressBars: isFetching
             }}
+          />
+          <PurchaseDetailVerified
+            session={session}
+            pk={detail}
+            modalOpen={detailModalOpen}
+            onClose={() => setDetailModalOpen(false)}
           />
         </Card>
         <Popover
