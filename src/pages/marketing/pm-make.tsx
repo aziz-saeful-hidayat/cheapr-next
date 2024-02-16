@@ -487,37 +487,68 @@ const Example = (props: any) => {
     console.log(key, value)
     const payload: any = {}
     let pk = null
+    let types = null
+    let keyword = ''
+
     if (key === 'printer') {
       pk = cell.row.original.kws_make?.find((data, idx, arr) => {
         return data.types == 1
       })?.pk
+      types = 1
+      keyword = 'Printer'
     } else if (key === 'scanner') {
       pk = cell.row.original.kws_make?.find((data, idx, arr) => {
         return data.types == 2
       })?.pk
+      types = 2
+      keyword = 'Scanner'
     } else if (key === 'inkjet') {
       pk = cell.row.original.kws_make?.find((data, idx, arr) => {
         return data.types == 3
       })?.pk
+      types = 3
+      keyword = 'Inkjet Printer'
     }
     payload['pm'] = pm?.pk
 
     console.log(payload)
-    fetch(`https://cheapr.my.id/pm_kws/${pk}/`, {
-      method: 'PATCH',
-      headers: new Headers({
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json'
-      }),
-      body: JSON.stringify(payload)
-    })
-      .then(response => response.json())
-      .then(json => {
-        console.log(json)
-        if (json[key] !== value) {
-        }
+    if (pk) {
+      fetch(`https://cheapr.my.id/pm_kws/${pk}/`, {
+        method: 'PATCH',
+        headers: new Headers({
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        }),
+        body: JSON.stringify(payload)
       })
-      .finally(() => setRefresh(r => r + 1))
+        .then(response => response.json())
+        .then(json => {
+          console.log(json)
+          if (json[key] !== value) {
+          }
+        })
+        .finally(() => setRefresh(r => r + 1))
+    } else {
+      payload['types'] = types
+      payload['make'] = cell.row.original.pk
+      payload['keyword'] = `${cell.row.original.name} ${keyword}`
+
+      fetch(`https://cheapr.my.id/pm_kws/`, {
+        method: 'POST',
+        headers: new Headers({
+          Authorization: `Bearer ${session?.accessToken}`,
+          'Content-Type': 'application/json'
+        }),
+        body: JSON.stringify(payload)
+      })
+        .then(response => response.json())
+        .then(json => {
+          console.log(json)
+          if (json[key] !== value) {
+          }
+        })
+        .finally(() => setRefresh(r => r + 1))
+    }
   }
 
   const columnsAddItem = useMemo<MRT_ColumnDef<InventoryPayload>[]>(
