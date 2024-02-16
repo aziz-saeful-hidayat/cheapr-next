@@ -410,29 +410,6 @@ const Example = (props: any) => {
   const handleChange = (event: SelectChangeEvent) => {
     setTabActive(event.target.value as string)
   }
-  const handleCreateNewRow = (values: MakeDetail) => {
-    console.log(values)
-    let new_obj: any = { ...values }
-
-    console.log(new_obj)
-    fetch(`https://cheapr.my.id/pm_kws/`, {
-      // note we are going to /1
-      method: 'POST',
-      headers: new Headers({
-        Authorization: `Bearer ${session?.accessToken}`,
-        'Content-Type': 'application/json'
-      }),
-      body: JSON.stringify(new_obj)
-    })
-      .then(response => response.json())
-      .then(json => {
-        console.log(json)
-        if (json.pk) {
-          tableData.unshift(json)
-          setTableData([...tableData])
-        }
-      })
-  }
 
   const reupdate = (order: number) => {
     fetch(`https://cheapr.my.id/selling_order/${order}/`, {
