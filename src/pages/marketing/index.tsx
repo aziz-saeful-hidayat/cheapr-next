@@ -30,6 +30,7 @@ import ArchiveDrops from './archive-drop'
 import PMKws from './pm-kws'
 import PMSpiff from './pm-spiff'
 import GlobalSettings from './global-settings'
+import PMMake from './pm-make'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -77,6 +78,15 @@ const Sales = (props: any) => {
               }
             />
             <Tab
+              value='pm-make'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <AccountOutline />
+                  <TabName>Makes</TabName>
+                </Box>
+              }
+            />
+            <Tab
               value='archive-drop'
               label={
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -117,7 +127,9 @@ const Sales = (props: any) => {
           <TabPanel sx={{ p: 0 }} value='pm-kws'>
             <PMKws session={session} />
           </TabPanel>
-
+          <TabPanel sx={{ p: 0 }} value='pm-make'>
+            <PMMake session={session} />
+          </TabPanel>
           <TabPanel sx={{ p: 0 }} value='archive-drop'>
             <ArchiveDrops session={session} />
           </TabPanel>

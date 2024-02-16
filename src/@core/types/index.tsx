@@ -84,7 +84,7 @@ export type Seller = {
   num_items: number
   total_sum: string
   shipping_sum: string
-  channel: Channel 
+  channel: Channel
 }
 export type BuyingOrder = {
   pk: number
@@ -563,6 +563,18 @@ export type PM = {
 export type Make = {
   pk: number
   name: string
+}
+
+export type PMKwsExtra = {
+  pk: number
+  pm: PM
+  types: number
+}
+
+export type MakeDetail = {
+  pk: number
+  name: string
+  kws_make: PMKwsExtra[]
 }
 
 export type PMKws = {
