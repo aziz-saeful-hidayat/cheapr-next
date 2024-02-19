@@ -30,6 +30,7 @@ import RefundedNotReturnedLeads from './refunded-not-returned'
 import ReturnedNotRefundedLeads from './returned-not-refunded'
 import LeadFollUpLeads from './leads-foll-up'
 import ArchiveLeads from './archive'
+import ReturnRequestedLeads from './return-requested'
 
 const Tab = styled(MuiTab)<TabProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
@@ -103,6 +104,15 @@ const Sales = (props: any) => {
                 </Box>
               }
             />
+            <Tab
+              value='rt-rq'
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <AccountOutline />
+                  <TabName>Return Requested</TabName>
+                </Box>
+              }
+            />
           </TabList>
           <TabPanel sx={{ p: 0 }} value='rf-n-rt'>
             <RefundedNotReturnedLeads session={session} />
@@ -115,6 +125,9 @@ const Sales = (props: any) => {
           </TabPanel>
           <TabPanel sx={{ p: 0 }} value='ac-cl'>
             <ArchiveLeads session={session} />
+          </TabPanel>
+          <TabPanel sx={{ p: 0 }} value='rt-rq'>
+            <ReturnRequestedLeads session={session} />
           </TabPanel>
         </TabContext>
       </Card>

@@ -51,6 +51,7 @@ import { formatterUSDStrip } from 'src/constants/Utils'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import moment from 'moment-timezone'
 import CloseIcon from '@mui/icons-material/Close'
+import { Close } from 'mdi-material-ui'
 import HistoryIcon from '@mui/icons-material/History'
 import { styled } from '@mui/material/styles'
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip'
@@ -584,9 +585,36 @@ const Example = (props: any) => {
             }}
           >
             {row.original.keyword ? (
-              <Link target='_blank' rel='noreferrer' href={row.original.target_url}>
-                {row.original.keyword || 'Open'}
-              </Link>
+              <>
+                <Link target='_blank' rel='noreferrer' href={row.original.target_url}>
+                  {row.original.keyword || 'Open'}
+                </Link>
+                <Tooltip arrow placement='top' title='Remove'>
+                  <IconButton
+                    color='error'
+                    onClick={() => {
+                      const payload: any = {}
+                      fetch(`https://cheapr.my.id/pm_kws/${row.original.pk}/`, {
+                        method: 'PATCH',
+                        headers: new Headers({
+                          Authorization: `Bearer ${session?.accessToken}`,
+                          'Content-Type': 'application/json'
+                        }),
+                        body: JSON.stringify({ pm: null })
+                      })
+                        .then(response => response.json())
+                        .then(json => {
+                          console.log(json)
+                        })
+                        .finally(() => {
+                          setRefresh(ref => ref + 1)
+                        })
+                    }}
+                  >
+                    <Close />
+                  </IconButton>
+                </Tooltip>
+              </>
             ) : (
               ' '
             )}

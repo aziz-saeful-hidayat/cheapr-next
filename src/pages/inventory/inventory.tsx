@@ -319,6 +319,70 @@ const Example = (props: any) => {
   const columns = useMemo<MRT_ColumnDef<Item>[]>(
     () => [
       {
+        accessorKey: 'tracking',
+        header: 'STS',
+        maxSize: 40,
+        enableEditing: false,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.tracking ? (
+              <Link
+                href={`${row.original.tracking?.fullcarrier?.prefix}${row.original.tracking?.tracking_number}${row.original.tracking?.fullcarrier?.suffix}`}
+                target='_blank'
+              >
+                <Box
+                  sx={theme => ({
+                    backgroundColor:
+                      row.original.tracking.status == 'D'
+                        ? theme.palette.success.dark
+                        : row.original.tracking?.status == 'T'
+                        ? theme.palette.warning.light
+                        : row.original.tracking?.status == 'I'
+                        ? 'purple'
+                        : theme.palette.error.dark,
+                    borderRadius: '0.5rem',
+                    color: '#fff',
+                    width: 15,
+                    height: 15
+                  })}
+                ></Box>
+              </Link>
+            ) : (
+              <Box
+                sx={theme => ({
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: '#a9a9a9',
+                  borderRadius: '0.5rem',
+                  borderColor: '#000',
+                  color: '#fff',
+                  width: 12,
+                  height: 12
+                })}
+              >
+                <Box
+                  sx={theme => ({
+                    backgroundColor: theme.palette.background.paper,
+                    borderRadius: '0.5rem',
+                    borderColor: '#000',
+                    color: '#fff',
+                    width: 9,
+                    height: 9
+                  })}
+                ></Box>
+              </Box>
+            )}
+          </Box>
+        )
+      },
+      {
         accessorKey: 'product.mpn',
         header: 'MPN',
         enableEditing: false,

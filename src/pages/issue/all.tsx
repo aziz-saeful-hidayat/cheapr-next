@@ -370,8 +370,10 @@ const Example = (props: any) => {
           console.log(filter)
           fetchURL.searchParams.set('order_date_after', Array.isArray(filter.value) ? filter.value[0] : '')
           fetchURL.searchParams.set('order_date_before', Array.isArray(filter.value) ? filter.value[1] : '')
+        } else if (filter.id.includes('.')) {
+          fetchURL.searchParams.set(filter.id.split('.')[1], typeof filter.value === 'string' ? filter.value : '')
         } else {
-          fetchURL.searchParams.set(filter.id.split('.')[0], typeof filter.value === 'string' ? filter.value : '')
+          fetchURL.searchParams.set(filter.id, typeof filter.value === 'string' ? filter.value : '')
         }
       }
       fetchURL.searchParams.set('search', globalFilter ?? '')

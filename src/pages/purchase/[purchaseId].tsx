@@ -160,6 +160,7 @@ export type SalesOrder = {
   gross_sales: number
   profit: number
   refunded: number
+  returned: number
   ss_shipping_cost: number
   comment: string
   inventoryitems: InventoryItem[]

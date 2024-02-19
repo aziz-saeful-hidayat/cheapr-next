@@ -214,6 +214,7 @@ export type ERPData = {
 export type OpenIssue = {
   pk: number
   status: string
+  appeal: string
   az: boolean
   fb: boolean
   cb: boolean

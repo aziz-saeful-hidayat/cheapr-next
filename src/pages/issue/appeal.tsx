@@ -166,6 +166,7 @@ export const CreateNewAccountModal = ({
   const [options, setOptions] = useState<SellingOrder[]>([])
 
   const handleOpenIssue = (sales: number | undefined) => {
+    console.log(sales)
     if (sales) {
       fetch(`https://cheapr.my.id/open_issue/`, {
         method: 'POST',
@@ -176,6 +177,7 @@ export const CreateNewAccountModal = ({
         body: JSON.stringify({ sales: sales })
       })
         .then(response => response.json())
+        .then(json => console.log(json))
         .finally(() => {
           onClose()
           reload()
@@ -335,6 +337,14 @@ const appealedOptions: any[] = [
   { key: false, name: 'No', color: 'error' },
   { key: null, name: 'Unknown', color: 'default' }
 ]
+
+const appealedStatusOptions: any[] = [
+  { key: 'A', name: 'Appealed', color: 'success' },
+  { key: 'R', name: 'Reserved', color: 'error' },
+  { key: 'D', name: 'Denied', color: 'warning' },
+  { key: 'W', name: 'Withdrawn', color: 'default' },
+  { key: null, name: 'No Status', color: 'default' }
+]
 const Example = (props: any) => {
   const { session } = props
   const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>([])
@@ -360,7 +370,6 @@ const Example = (props: any) => {
     ],
     queryFn: async () => {
       const fetchURL = new URL('/open_issue/', 'https://cheapr.my.id')
-      fetchURL.searchParams.set('status', `R`)
       fetchURL.searchParams.set('limit', `${pagination.pageSize}`)
       fetchURL.searchParams.set('offset', `${pagination.pageIndex * pagination.pageSize}`)
       for (let f = 0; f < columnFilters.length; f++) {
@@ -369,8 +378,10 @@ const Example = (props: any) => {
           console.log(filter)
           fetchURL.searchParams.set('order_date_after', Array.isArray(filter.value) ? filter.value[0] : '')
           fetchURL.searchParams.set('order_date_before', Array.isArray(filter.value) ? filter.value[1] : '')
-        } else {
+        } else if (filter.id.includes('.')) {
           fetchURL.searchParams.set(filter.id.split('.')[1], typeof filter.value === 'string' ? filter.value : '')
+        } else {
+          fetchURL.searchParams.set(filter.id, typeof filter.value === 'string' ? filter.value : '')
         }
       }
       fetchURL.searchParams.set('search', globalFilter ?? '')
@@ -387,8 +398,7 @@ const Example = (props: any) => {
       }
       fetchURL.searchParams.set('ordering', ordering)
 
-      fetchURL.searchParams.set('cs', tabActive != 'all' ? tabActive : '')
-      fetchURL.searchParams.set('fall_off_after', moment(Date.now()).format('YYYY-MM-DD'))
+      fetchURL.searchParams.set('appeal', tabActive != 'all' ? tabActive : '')
 
       console.log(fetchURL.href)
       const response = await fetch(fetchURL.href, {
@@ -554,12 +564,12 @@ const Example = (props: any) => {
   const columns = useMemo<MRT_ColumnDef<OpenIssue>[]>(
     () => [
       {
-        accessorKey: 'status',
-        header: 'STATUS',
+        accessorKey: 'appeal',
+        header: 'APPEAL',
         maxSize: 40,
         muiEditTextFieldProps: {
           select: true, //change to select for a dropdown
-          children: statusOptions?.map(status => (
+          children: appealedStatusOptions?.map(status => (
             <MenuItem key={status.key} value={status.key}>
               <Box
                 sx={{
@@ -582,13 +592,13 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            {row.original?.status ? (
+            {row.original?.appeal ? (
               <Chip
                 sx={{
                   fontSize: 12
                 }}
-                label={statusOptions.find(e => e.key == renderedCellValue)?.name}
-                color={statusOptions.find(e => e.key == renderedCellValue)?.color}
+                label={appealedStatusOptions.find(e => e.key == renderedCellValue)?.name}
+                color={appealedStatusOptions.find(e => e.key == renderedCellValue)?.color}
                 onDelete={() => {
                   table.setEditingCell(cell)
                 }}
@@ -683,7 +693,7 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            {row.original.sales.salesitems.map((sales, index) => {
+            {row.original.sales?.salesitems?.map((sales, index) => {
               const tracking = sales.letter_tracking
               if (tracking) {
                 return (
@@ -711,7 +721,7 @@ const Example = (props: any) => {
               gap: '1rem'
             }}
           >
-            {row.original.sales.salesitems.map((sales, index) => {
+            {row.original.sales?.salesitems?.map((sales, index) => {
               const tracking = sales.letter_tracking
               if (tracking) {
                 return (
@@ -784,22 +794,28 @@ const Example = (props: any) => {
               const tracking = sales.tracking
               if (tracking) {
                 return (
-                  <Typography
-                    color={
-                      tracking.status == 'D'
-                        ? 'green'
-                        : tracking.status == 'T'
-                        ? 'yellow'
-                        : tracking.status == 'N'
-                        ? 'red'
-                        : 'purple'
-                    }
-                    key={index}
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      backgroundColor:
+                        tracking.status == 'D'
+                          ? 'green'
+                          : tracking.status == 'T'
+                          ? 'yellow'
+                          : tracking.status == 'N'
+                          ? 'red'
+                          : 'purple'
+                    }}
                   >
-                    {tracking?.eta_date
-                      ? moment(tracking?.eta_date).tz('America/Los_Angeles').format('MM.DD')
-                      : tracking.status}
-                  </Typography>
+                    <Typography color={'white'} key={index} sx={{ fontWeight: 500 }}>
+                      {tracking?.eta_date
+                        ? moment(tracking?.eta_date).tz('America/Los_Angeles').format('MM.DD')
+                        : tracking.status}
+                    </Typography>
+                  </Box>
                 )
               } else {
                 return <span key={index}>{` `}</span>
@@ -894,7 +910,9 @@ const Example = (props: any) => {
       {
         accessorKey: 'cs_comment',
         header: 'CUSTOMER COMMENTS',
-        size: 70
+        minSize: 100, //min size enforced during resizing
+        maxSize: 150, //max size enforced during resizing
+        size: 150 //medium column,
       },
       {
         accessorKey: 'date',
@@ -1175,9 +1193,9 @@ const Example = (props: any) => {
               Add New Issue
             </Button>
             <Select labelId='demo-select-small-label' id='demo-select-small' value={tabActive} onChange={handleChange}>
-              {csData?.map(cs => (
-                <MenuItem value={cs.pk} key={`menu-${cs.pk}`}>
-                  {cs.name}
+              {appealedStatusOptions?.map(sts => (
+                <MenuItem value={sts.key} key={`${sts.key}`}>
+                  {sts.name}
                 </MenuItem>
               ))}
               <MenuItem value={'all'}>All</MenuItem>
@@ -1221,10 +1239,10 @@ const Example = (props: any) => {
 
 const queryClient = new QueryClient()
 
-const ResolvedIssues = (props: any) => (
+const Appeals = (props: any) => (
   <QueryClientProvider client={queryClient}>
     <Example {...props} />
   </QueryClientProvider>
 )
 
-export default ResolvedIssues
+export default Appeals

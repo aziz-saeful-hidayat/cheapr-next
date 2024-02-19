@@ -95,7 +95,8 @@ const CardSales = ({
       purchase_items: tableData?.filter(item => !!item.pk).reduce((prev, next) => prev + 1, 0),
       purchase_items_cost: orderData && !isNaN(orderData?.purchase_items) ? orderData?.purchase_items : 0,
       inbound_shipping: orderData && !isNaN(orderData?.inbound_shipping) ? orderData?.inbound_shipping : 0,
-      refunded: orderData && !isNaN(orderData?.refunded) ? orderData?.refunded : 0
+      refunded: orderData && !isNaN(orderData?.refunded) ? orderData?.refunded : 0,
+      returned: orderData && !isNaN(orderData?.returned) ? orderData?.returned : 0
     })
   }, [orderData, tableData])
   return (
@@ -425,6 +426,14 @@ const CardSales = ({
 
               <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
                 {formatterUSDStrip(salesData.refunded)}
+              </Typography>
+            </Box>
+            <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
+              <StarOutline sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
+              <Typography variant='body2'>Returned: </Typography>
+
+              <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
+                {formatterUSDStrip(salesData.returned)}
               </Typography>
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>
