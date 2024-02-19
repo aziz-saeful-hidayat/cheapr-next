@@ -1701,13 +1701,13 @@ const PurchaseDetailVerified = (props: any) => {
                             payload['sales'] = sales.sales.pk
 
                             const id = orderData.pk
-                            fetch(`https://cheapr.my.id/all_buying_order/${id}/delete_selling/`, {
+                            fetch(`https://cheapr.my.id/delete_selling_buying/`, {
                               method: 'POST',
                               headers: new Headers({
                                 Authorization: `Bearer ${session?.accessToken}`,
                                 'Content-Type': 'application/json'
                               }),
-                              body: JSON.stringify(payload)
+                              body: JSON.stringify({ sales: sales.sales.pk, purchase: id })
                             })
                               .then(response => response.json())
                               .then(json => {
