@@ -69,7 +69,7 @@ const CardOrder = ({
           <Grid item xs={12} sm={2}>
             <Typography variant='h6'>Order Date: </Typography>
             <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
-              {orderData?.order_date.slice(0, 10)}
+              {orderData?.order_date?.slice(0, 10)}
             </Typography>
           </Grid>
           {/* <Grid item xs={12} sm={1}>

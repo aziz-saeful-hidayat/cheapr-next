@@ -71,6 +71,11 @@ import {
 } from 'src/@core/types'
 import AddSalesItemModal from 'src/@core/components/add-sales-item'
 import { ExtendedSession } from '../api/auth/[...nextauth]'
+import NoteAltIcon from '@mui/icons-material/NoteAlt'
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline'
+import CxNotes from 'src/@core/components/cx-notes'
+import Correspondence from 'src/@core/components/correspondence'
+import ChatBadge from 'src/@core/components/chat-badge'
 
 type Payload = {
   pk?: number
@@ -416,6 +421,10 @@ const Example = (props: any) => {
   const [detail, setDetail] = useState<number | undefined>()
   const [detailModalOpen, setDetailModalOpen] = useState(false)
   const [custPk, setCustPk] = useState<number | undefined>()
+  const [notesModalOpen, setNotesModalOpen] = useState(false)
+  const [notesId, setNotesId] = useState<number>()
+  const [correspondenceModalOpen, setCorrespondenceModalOpen] = useState(false)
+  const [correspondenceId, setCorrespondenceId] = useState<number>()
 
   const handleChange = (event: SelectChangeEvent) => {
     setTabActive(event.target.value as string)
@@ -901,10 +910,61 @@ const Example = (props: any) => {
       },
       {
         accessorKey: 'cs_comment',
-        header: 'CUSTOMER COMMENTS',
-        minSize: 100, //min size enforced during resizing
-        maxSize: 150, //max size enforced during resizing
-        size: 150 //medium column,
+        header: 'NOTES',
+        size: 70,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '1rem'
+            }}
+          >
+            <Link
+              href='#'
+              onClick={() => {
+                setNotesId(row.original.pk)
+                setNotesModalOpen(true)
+              }}
+            >
+              {row.original.cs_comment ? (
+                <NoteAltIcon color={'warning'} />
+              ) : (
+                <AddCircleOutlineIcon color={'secondary'} />
+              )}
+            </Link>
+          </Box>
+        )
+      },
+      {
+        id: 'cs_comment',
+        header: 'MESSAGES',
+        size: 50,
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '1rem'
+            }}
+          >
+            {row.original.total_correspondence ? (
+              <Link
+                href='#'
+                onClick={() => {
+                  setCorrespondenceId(row.original.sales?.pk)
+                  setCorrespondenceModalOpen(true)
+                }}
+              >
+                <ChatBadge count={row.original.total_correspondence} />
+              </Link>
+            ) : (
+              <></>
+            )}
+          </Box>
+        )
       },
       {
         accessorKey: 'date',
@@ -1224,6 +1284,24 @@ const Example = (props: any) => {
         pk={detail}
         modalOpen={detailModalOpen}
         onClose={() => setDetailModalOpen(false)}
+      />
+      <CxNotes
+        onClose={() => {
+          setNotesModalOpen(false)
+          setRefresh(r => r + 1)
+        }}
+        open={notesModalOpen}
+        sales={notesId}
+        session={session}
+        reload={() => {
+          setRefresh(r => r + 1)
+        }}
+      />
+      <Correspondence
+        onClose={() => setCorrespondenceModalOpen(false)}
+        open={correspondenceModalOpen}
+        sales={correspondenceId}
+        session={session}
       />
     </Card>
   )

@@ -228,6 +228,7 @@ export type OpenIssue = {
   next_step: string
   legal_comment: string
   cs: CustomerService
+  total_correspondence: number
   sales: {
     pk: number
     channel_order_id: string

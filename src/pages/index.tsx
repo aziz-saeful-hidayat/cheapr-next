@@ -84,7 +84,7 @@ const Dashboard = (props: any) => {
               </Grid>
               <Grid item xs={3}>
                 <CardStatisticsVerticalComponent
-                  stats={`Purchases: ${dashboardData?.unverified?.all}`}
+                  stats={`Purchases: ${dashboardData?.unverified?.ebay}`}
                   trend='negative'
                   trendNumber='-18%'
                   title={`Unverified / Unlinked`}
@@ -95,14 +95,14 @@ const Dashboard = (props: any) => {
               </Grid>
               <Grid item xs={3}>
                 <CardStatisticsVerticalComponent
-                  stats='15'
+                  stats={`Unlinked: ${dashboardData?.unverified?.all}`}
                   color='warning'
                   trend='negative'
                   trendNumber='-18%'
                   subtitle='Last Week'
-                  title='Profit Margin'
+                  title='Shipped from HA'
                   icon={<HelpCircleOutline />}
-                  link={'#'}
+                  link={'/sales/?tab=ha-unlinked'}
                 />
               </Grid>
             </Grid>

@@ -128,7 +128,7 @@ const CardSales = ({
           <Grid item xs={12} sm={2}>
             <Typography variant='h6'>Order Date: </Typography>
             <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
-              {orderData?.order_date.slice(0, 10)}
+              {orderData?.order_date?.slice(0, 10)}
             </Typography>
           </Grid>
           {/* <Grid item xs={12} sm={1}>
@@ -219,7 +219,7 @@ const CardSales = ({
               <TrendingUp sx={{ color: 'primary.main', marginRight: 2.75 }} fontSize='small' />
               <Typography variant='body2'>Order Date: </Typography>
               <Typography variant='body2' sx={{ marginLeft: 'auto' }}>
-                {orderData?.order_date.slice(0, 10)}
+                {orderData?.order_date?.slice(0, 10)}
               </Typography>
             </Box>
             <Box sx={{ mb: 4, display: 'flex', alignItems: 'center' }}>

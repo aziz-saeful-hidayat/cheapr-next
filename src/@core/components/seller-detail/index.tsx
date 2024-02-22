@@ -325,55 +325,6 @@ const SellerDetail = (props: any) => {
         )
       },
       {
-        id: 'get_by',
-        header: 'GET BY',
-        maxSize: 60,
-        enableEditing: false,
-        Cell: ({ renderedCellValue, row }) => (
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
-            }}
-          >
-            {row.original.inventoryitems
-              .map(item => item?.itemsales?.selling)
-              .map((selling, index) => {
-                if (selling) {
-                  return (
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '1rem'
-                      }}
-                    >
-                      <span>
-                        {selling?.delivery_date
-                          ? moment(selling?.delivery_date).tz('America/Los_Angeles').format('MM-DD-YY')
-                          : ''}
-                      </span>
-                    </Box>
-                  )
-                } else {
-                  return (
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '1rem'
-                      }}
-                    >
-                      <span></span>
-                    </Box>
-                  )
-                }
-              })}
-          </Box>
-        )
-      },
-      {
         accessorKey: 'order_date',
         header: 'Date',
         maxSize: 100,
@@ -446,36 +397,99 @@ const SellerDetail = (props: any) => {
       },
       {
         accessorKey: 'num_items',
-        header: 'Item(s) Qty',
+        header: 'Item Info',
         maxSize: 120,
         enableEditing: false,
-        muiTableBodyCellProps: {
-          align: 'center'
-        },
-        muiTableHeadCellProps: {
-          align: 'center'
-        }
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.inventoryitems.map((item, index) => {
+              const product = item.product
+              if (product) {
+                return (
+                  <HtmlTooltip
+                    key={index}
+                    title={
+                      <React.Fragment>
+                        {item.title == null ? (
+                          <Typography color='inherit'>No Title</Typography>
+                        ) : (
+                          <Typography color='inherit'>{item.title}</Typography>
+                        )}
+                      </React.Fragment>
+                    }
+                  >
+                    {product.mpn ? (
+                      <span key={index}>{`${product.make ? `${product.make} | ` : ''}${
+                        product.model ? `${product.model} | ` : ''
+                      }${product.mpn ? `${product.mpn}` : ''}`}</span>
+                    ) : (
+                      <span key={index}>{product.sku}</span>
+                    )}
+                  </HtmlTooltip>
+                )
+              } else {
+                return <span key={index}>{` `}</span>
+              }
+            })}
+          </Box>
+        )
       },
       {
         accessorKey: 'total_sum',
-        header: 'Item(s) Cost',
-        Cell: ({ renderedCellValue, row }) => <Box component='span'>{formatterUSDStrip(row.original.total_sum)}</Box>,
-        maxSize: 100,
+        header: 'Unit Price',
         enableEditing: false,
         muiTableBodyCellProps: {
           align: 'right'
         },
         muiTableHeadCellProps: {
           align: 'right'
-        }
+        },
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.inventoryitems.map((item, index) => {
+              const cost = item.total_cost
+              if (cost) {
+                return <span key={index}>{formatterUSDStrip(cost)}</span>
+              } else {
+                return <span key={index}>-</span>
+              }
+            })}
+          </Box>
+        )
       },
       {
         accessorKey: 'shipping_sum',
         header: 'Shipping',
         Cell: ({ renderedCellValue, row }) => (
-          <Box component='span'>{formatterUSDStrip(row.original.shipping_sum)}</Box>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.inventoryitems.map((item, index) => {
+              const cost = item.shipping_cost
+              if (cost) {
+                return <span key={index}>{formatterUSDStrip(cost)}</span>
+              } else {
+                return <span key={index}>-</span>
+              }
+            })}
+          </Box>
         ),
-        maxSize: 100,
         enableEditing: false,
         muiTableBodyCellProps: {
           align: 'right'
@@ -485,8 +499,6 @@ const SellerDetail = (props: any) => {
         }
       },
       {
-        accessorFn: row =>
-          formatterUSDStrip(parseFloat(row.total_sum.toString()) + parseFloat(row.shipping_sum.toString())), //accessorFn used to join multiple data into a single cell
         id: 'all_cost', //id is still required when using accessorFn instead of accessorKey
         header: 'Total Cost',
         maxSize: 100,
@@ -496,7 +508,26 @@ const SellerDetail = (props: any) => {
         },
         muiTableHeadCellProps: {
           align: 'right'
-        }
+        },
+        Cell: ({ renderedCellValue, row }) => (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}
+          >
+            {row.original.inventoryitems.map((item, index) => {
+              const total_cost = item.total_cost
+              const shipping_cost = item.shipping_cost
+              if (total_cost || shipping_cost) {
+                return <span key={index}>{formatterUSDStrip(Number(total_cost) + Number(shipping_cost))}</span>
+              } else {
+                return <span key={index}>-</span>
+              }
+            })}
+          </Box>
+        )
       },
       {
         accessorFn: row => (row.destination == 'H' ? 'HA' : row.destination == 'D' ? 'Dropship' : ''), //accessorFn used to join multiple data into a single cell
@@ -614,13 +645,14 @@ const SellerDetail = (props: any) => {
       sx={{ padding: 10, overflow: 'scroll' }}
     >
       <>
-        <CardSeller
+        {/* <CardSeller
           orderData={orderData}
           type={'sales'}
           onClose={onClose}
           session={session}
           setRefresh={() => setRefresh(r => r + 1)}
-        />
+        /> */}
+
         <Card sx={{ padding: 3 }}>
           <MaterialReactTable
             columns={columns}
