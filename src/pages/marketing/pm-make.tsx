@@ -531,7 +531,7 @@ const Example = (props: any) => {
     } else {
       payload['types'] = types
       payload['make'] = cell.row.original.pk
-      payload['keyword'] = `${cell.row.original.name} ${keyword}`
+      payload['keyword'] = `${cell.row.original?.name} ${keyword}`
 
       fetch(`https://cheapr.my.id/pm_kws/`, {
         method: 'POST',
@@ -577,8 +577,8 @@ const Example = (props: any) => {
         muiEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: pmData?.map(pm => (
-            <MenuItem key={pm.pk} value={pm.name}>
-              {pm.name}
+            <MenuItem key={pm?.pk} value={pm?.name}>
+              {pm?.name}
             </MenuItem>
           ))
         },
@@ -593,7 +593,7 @@ const Example = (props: any) => {
             {
               row.original.kws_make?.find((data, idx, arr) => {
                 return data.types == 1
-              })?.pm.name
+              })?.pm?.name
             }
           </Box>
         )
@@ -606,8 +606,8 @@ const Example = (props: any) => {
         muiEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: pmData?.map(pm => (
-            <MenuItem key={pm.pk} value={pm.name}>
-              {pm.name}
+            <MenuItem key={pm?.pk} value={pm?.name}>
+              {pm?.name}
             </MenuItem>
           ))
         },
@@ -622,7 +622,7 @@ const Example = (props: any) => {
             {
               row.original.kws_make?.find((data, idx, arr) => {
                 return data.types == 2
-              })?.pm.name
+              })?.pm?.name
             }
           </Box>
         )
@@ -635,8 +635,8 @@ const Example = (props: any) => {
         muiEditTextFieldProps: {
           select: true, //change to select for a dropdown
           children: pmData?.map(pm => (
-            <MenuItem key={pm.pk} value={pm.name}>
-              {pm.name}
+            <MenuItem key={pm.pk} value={pm?.name}>
+              {pm?.name}
             </MenuItem>
           ))
         },
@@ -651,7 +651,7 @@ const Example = (props: any) => {
             {
               row.original.kws_make?.find((data, idx, arr) => {
                 return data.types == 3
-              })?.pm.name
+              })?.pm?.name
             }
           </Box>
         )
